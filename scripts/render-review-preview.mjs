@@ -97,7 +97,7 @@ function renderModule(module, index) {
     : labelFor(module);
   const intro = module.moduleId === "hero"
     ? (profile.project.positioning || module.reason || "")
-    : (module.userQuestion || module.whyIncluded || module.reason || "");
+    : (module.userQuestion || "");
   const factList = factsHere.map(fact => `<li>${esc(fact.claim)}</li>`).join("");
   const benefitList = advantagesHere.map(item => `<article class="benefit"><h3>${esc(item.title)}</h3><p>${esc(item.benefit)}</p></article>`).join("");
   const image = module.moduleId === "gallery" && moduleAssets.length
