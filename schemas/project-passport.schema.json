@@ -233,6 +233,7 @@
               "type": "string",
               "enum": ["urban-noir", "warm-editorial", "garden-modern"]
             },
+            "composition": { "type": "string", "enum": ["editorial", "cinematic", "architectural"] },
             "mood": {
               "type": "string"
             },

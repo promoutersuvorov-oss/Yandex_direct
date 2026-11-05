@@ -154,6 +154,8 @@
     ],
     "informationGaps": [],
     "visualDirection": {
+      "theme": "urban-noir",
+      "composition": "editorial",
       "mood": "",
       "palette": [],
       "imageTreatment": "",

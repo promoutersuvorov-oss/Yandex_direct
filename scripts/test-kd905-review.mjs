@@ -26,7 +26,7 @@ assert.ok(!profile.facts.some(fact => fact.id === "delivery-date"), "Unverified 
 const selected = manifest.modules.map(module => module.moduleId);
 assert.deepEqual(selected, ["hero", "key", "about", "lifestyle", "security", "location"]);
 assert.ok(html.includes("Клубный дом «905»"));
-assert.ok(html.includes('<body data-theme="warm-editorial">'));
+assert.ok(html.includes('data-theme="warm-editorial"') && html.includes('data-composition="editorial"'));
 assert.ok(html.includes("В доме заявлено 45 квартир всего."));
 assert.equal((html.match(/45 квартир/g) || []).length, 1, "The same apartment-count claim must not repeat across sections.");
 assert.ok(html.includes("ул. Революции 1905 года, 14"));
