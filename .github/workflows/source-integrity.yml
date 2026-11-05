@@ -35,7 +35,13 @@ jobs:
   browser-smoke:
     needs: source-integrity
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    env:
+      KEY_BROWSER: ${{ matrix.browser }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,7 +52,7 @@ jobs:
       - name: Install Playwright test runner
         run: npm install --no-save --no-audit --no-fund @playwright/test@1.56.1
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Start local static server
         run: python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/klanding-http.log 2>&1 &
       - name: Run K15 browser smoke tests
@@ -55,7 +61,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: k15-browser-audit
+          name: k15-browser-audit-${{ matrix.browser }}
           path: |
             test-results/
             playwright-report/
