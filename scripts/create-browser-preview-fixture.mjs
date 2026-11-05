@@ -68,6 +68,10 @@ passport.apartmentPlans = [{
   publicUse: "allowed",
   sources: [evidence("Синтетические данные планировки", "plans/fixture-plan-45")]
 }];
+passport.faq = [
+  { id: "fixture-faq-territory", question: "Как устроена тестовая территория?", requiredFactIds: ["fixture-positioning-proof"] },
+  { id: "fixture-faq-apartments", question: "Сколько квартир в тестовом проекте?", requiredFactIds: ["fixture-apartment-count"] }
+];
 passport.selectionQuiz = {
   status: "approved",
   title: "Тестовый подбор квартиры",
@@ -108,7 +112,8 @@ passport.contentStrategy.modules = [
   { moduleId: "quiz", decision: "include", reason: "Проверка локального квиза", variant: "step-form", ctaIds: ["selection"] },
   { moduleId: "lifestyle", decision: "include", reason: "Проверка image-led layout", variant: "image-led", requiredFactIds: ["fixture-positioning-proof"], assetIds: ["fixture-gallery"] },
   { moduleId: "security", decision: "include", reason: "Проверка proof-led layout", variant: "proof-led", requiredFactIds: ["fixture-positioning-proof"] },
-  { moduleId: "developer", decision: "include", reason: "Проверка immersive layout", variant: "immersive", assetIds: ["fixture-hero"] }
+  { moduleId: "developer", decision: "include", reason: "Проверка immersive layout", variant: "immersive", assetIds: ["fixture-hero"] },
+  { moduleId: "faq", decision: "include", reason: "Проверка структурированного FAQ", variant: "faq-accordion", requiredFactIds: ["fixture-positioning-proof", "fixture-apartment-count"] }
 ];
 mkdirSync(dirname(output), { recursive: true });
 writeFileSync(output, JSON.stringify(passport, null, 2) + "\n", "utf8");
