@@ -19,16 +19,36 @@ try {
   passport.advantages = [{
     id: "adv-1", title: "Преимущество", benefit: "Польза", supportingFactIds: ["verified-1"], strength: "core"
   }];
-  passport.offers = [{
-    id: "presentation", title: "Презентация", type: "presentation", status: "active", successMessage: "Принято"
-  }];
+  passport.offers = [
+    { id: "presentation", title: "Презентация", type: "presentation", status: "active", successMessage: "Принято" },
+    { id: "selection", title: "Подбор", type: "apartment_selection", status: "active", successMessage: "Запрос принят" }
+  ];
   passport.assets.images = [{
     id: "hero", url: "https://example.com/hero.webp", type: "render", status: "approved", alt: "Фасад", rightsNote: "Письменное разрешение застройщика", projectMatch: "confirmed", rightsStatus: "confirmed", rightsSource: { url: "https://example.com/rights", title: "Разрешение на использование", accessedAt: "2026-11-05T10:00:00Z", sourceType: "document" }
+  }, {
+    id: "gallery-2", url: "https://example.com/courtyard.webp", type: "photo", status: "approved", alt: "Двор", rightsNote: "Письменное разрешение застройщика", projectMatch: "confirmed", rightsStatus: "confirmed", rightsSource: { url: "https://example.com/rights", title: "Разрешение на использование", accessedAt: "2026-11-05T10:00:00Z", sourceType: "document" }
   }];
-  passport.contentStrategy.modules = [{
-    moduleId: "hero", decision: "include", reason: "Главный блок",
-    requiredFactIds: ["verified-1"], assetIds: ["hero"], ctaIds: ["presentation"]
+  passport.assets.plans = [{
+    id: "plan-asset", url: "https://example.com/plan.webp", type: "plan", status: "approved", alt: "Тестовый план", rightsNote: "Синтетический тестовый материал", projectMatch: "confirmed", rightsStatus: "confirmed", rightsSource: { url: "https://example.com/rights", title: "Разрешение на использование", accessedAt: "2026-11-05T10:00:00Z", sourceType: "document" }
   }];
+  passport.apartmentPlans = [{
+    id: "plan-45", title: "Тестовая планировка", rooms: 2, areaSqm: 54.2, assetId: "plan-asset",
+    status: "verified", publicUse: "allowed",
+    sources: [{ url: "https://example.com/plan-data", title: "Тестовые данные планировки", accessedAt: "2026-11-05T10:00:00Z", sourceType: "document" }]
+  }];
+  passport.selectionQuiz = {
+    status: "approved", title: "Подбор тестового варианта", description: "Синтетический сценарий для проверки.",
+    resultOfferId: "selection",
+    questions: [{ id: "purpose", label: "Для чего выбираете квартиру?", options: [
+      { id: "living", label: "Для жизни" }, { id: "investment", label: "Для инвестиций" }
+    ] }]
+  };
+  passport.contentStrategy.modules = [
+    { moduleId: "hero", decision: "include", reason: "Главный блок", requiredFactIds: ["verified-1"], assetIds: ["hero"], ctaIds: ["presentation"] },
+    { moduleId: "gallery", decision: "include", reason: "Проверка галереи", assetIds: ["hero", "gallery-2"] },
+    { moduleId: "floor-plans", decision: "include", reason: "Проверка планировок", assetIds: ["plan-asset"], ctaIds: ["selection"] },
+    { moduleId: "quiz", decision: "include", reason: "Проверка квиза", ctaIds: ["selection"] }
+  ];
   passport.commercial.brokerNotes = "INTERNAL_NOTE";
   const input = join(dir, "passport.json");
   const output = join(dir, "output");
@@ -42,6 +62,8 @@ try {
   assert.equal(report.rendererAudit.status, "passed");
   assert.equal(report.publicationReadiness.productionReady, false);
   assert.equal(profile.facts.length, 1);
+  assert.equal(profile.apartmentPlans.length, 1);
+  assert.equal(profile.selectionQuiz.questions.length, 1);
   assert.equal(profile.offers[0].successMessage, undefined, "Internal success copy must not leak into the public preview profile.");
   assert.deepEqual(Object.keys(profile.offers[0]).sort(), ["description", "id", "requiredFields", "title", "type"].sort());
   const preview = spawnSync(process.execPath, [
@@ -58,6 +80,10 @@ try {
   assert.ok(html.includes("Подтверждённое утверждение"));
   assert.ok(html.includes("data-preview-cta=\"presentation\""));
   assert.ok(html.includes("отправка заявок отключена"));
+  assert.ok(html.includes("media-grid"), "Gallery module must render a multi-image layout.");
+  assert.ok(html.includes("plan-45"), "Apartment plan identity must be present in its contextual CTA.");
+  assert.ok(html.includes("data-preview-quiz"), "Approved quiz must render as an interactive form.");
+  assert.ok(!html.includes("data-lead-form"), "Preview must not create a lead submission form.");
   assert.ok(!html.includes("INTERNAL_NOTE"));
   assert.ok(!html.includes("script.google.com"));
   assert.ok(!text.includes("INTERNAL_NOTE"));
