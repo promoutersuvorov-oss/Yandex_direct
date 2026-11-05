@@ -125,6 +125,10 @@ jobs:
         run: node scripts/build-review-bundle.mjs --passport examples/kd-905.project-passport.draft.json --out artifacts/kd905-review
       - name: Render KD 905 preview for cross-browser validation
         run: node scripts/render-review-preview.mjs --bundle artifacts/kd905-review --out artifacts/kd905-review/preview.html
+      - name: Build Galiley preview for cross-browser validation
+        run: node scripts/build-review-bundle.mjs --passport examples/galiley.project-passport.draft.json --out artifacts/galiley-review
+      - name: Render Galiley preview for cross-browser validation
+        run: node scripts/render-review-preview.mjs --bundle artifacts/galiley-review --out artifacts/galiley-review/preview.html
       - name: Render editorial reference concept for browser validation
         run: node scripts/render-reference-landing.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/reference.html
       - name: Install Playwright test runner
@@ -133,13 +137,13 @@ jobs:
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Start local static server
         run: python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/klanding-http.log 2>&1 &
-      - name: Run K15 and reference concept browser smoke tests
+      - name: Run K15, KD 905, Galiley and reference browser smoke tests
         run: npx playwright test
       - name: Upload browser evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: k15-browser-audit-${{ matrix.browser }}
+          name: klanding-browser-audit-${{ matrix.browser }}
           path: |
             test-results/
             playwright-report/
