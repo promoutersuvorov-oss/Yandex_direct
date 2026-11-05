@@ -65,6 +65,22 @@ test("synthetic landing renders distinct interactive modules responsively", asyn
   expect(pageErrors).toEqual([]);
 });
 
+test("general CTA exposes a stable scenario contract and never claims delivery", async ({ page }) => {
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+  await page.locator('[data-module="hero"] [data-preview-cta]').click();
+  const dialog = page.locator("#previewNotice");
+  const payload = JSON.parse(await dialog.locator("#noticePayload").textContent());
+  expect(payload).toMatchObject({
+    schemaVersion: "key-cta-context/2.0",
+    state: "preview_only",
+    projectId: "sample-residential-complex",
+    conversion: { scenarioId: "presentation-request", offerId: "presentation", moduleId: "hero", entityContext: {} },
+    requirements: { requiredFields: ["name", "phone"], consentRequired: true },
+    delivery: { status: "disabled_in_preview", accepted: false }
+  });
+  await expect(dialog).toContainText("Ничего не отправляется");
+});
+
 test("preview CTA preserves selected apartment context and never claims delivery", async ({ page }) => {
   await page.goto(url, { waitUntil: "domcontentloaded" });
   const planCta = page.locator('[data-preview-plan-id="fixture-plan-45"]');
@@ -76,10 +92,17 @@ test("preview CTA preserves selected apartment context and never claims delivery
   await expect(dialog).toContainText("Предпросмотр контекста обращения");
   const planPayload = JSON.parse(await dialog.locator("#noticePayload").textContent());
   expect(planPayload).toMatchObject({
+    schemaVersion: "key-cta-context/2.0",
+    state: "preview_only",
     projectId: "sample-residential-complex",
-    offerId: "selection",
-    moduleId: "floor-plans",
-    plan: { id: "fixture-plan-45", rooms: 2, areaSqm: 54.2, assetId: "fixture-plan" }
+    conversion: {
+      scenarioId: "guided-apartment-selection",
+      offerId: "selection",
+      moduleId: "floor-plans",
+      entityContext: { plan: { id: "fixture-plan-45", rooms: 2, areaSqm: 54.2, assetId: "fixture-plan" } }
+    },
+    requirements: { requiredFields: ["name", "phone"], consentRequired: true },
+    delivery: { status: "disabled_in_preview", accepted: false }
   });
   await expect(dialog).toContainText("Ничего не отправляется");
   await expect(page.locator("form[data-lead-form]")).toHaveCount(0);
@@ -111,13 +134,21 @@ test("selection quiz validates required answers and keeps answers local in previ
   await expect(dialog).toBeVisible();
   const quizPayload = JSON.parse(await dialog.locator("#noticePayload").textContent());
   expect(quizPayload).toMatchObject({
-    schemaVersion: "key-selection-preview/1.0",
-    offerId: "selection",
-    answers: [
-      { questionId: "purpose", optionId: "living" },
-      { questionId: "rooms", optionId: "two" },
-      { questionId: "timing", optionId: "soon" }
-    ]
+    schemaVersion: "key-cta-context/2.0",
+    state: "preview_only",
+    projectId: "sample-residential-complex",
+    conversion: {
+      scenarioId: "guided-apartment-selection",
+      offerId: "selection",
+      moduleId: "quiz",
+      entityContext: { quizAnswers: [
+        { questionId: "purpose", optionId: "living" },
+        { questionId: "rooms", optionId: "two" },
+        { questionId: "timing", optionId: "soon" }
+      ] }
+    },
+    requirements: { requiredFields: ["name", "phone"], consentRequired: true },
+    delivery: { status: "disabled_in_preview", accepted: false }
   });
   await expect(dialog).toContainText("Данные не отправляются");
   await expect(page.locator("form[data-lead-form]")).toHaveCount(0);
