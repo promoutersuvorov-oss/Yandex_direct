@@ -142,6 +142,8 @@ for (const asset of assets) {
 for (const offer of offers) {
   if (offer.status === "active" && !offer.successMessage) warnings.push(`Active offer "${offer.id}" has no successMessage.`);
 }
+const activeScenarioIds = offers.filter(offer => offer.status === "active").map(offer => offer.scenarioId || offer.id);
+if (!uniqueBy(activeScenarioIds.map(id => ({ id })), "id")) errors.push("Active offers contain duplicate scenarioId values.");
 warn(asArray(passport.verification?.conflicts).length === 0, "Passport contains unresolved verification conflicts.");
 warn(passport.verification?.manualReviewRequired !== true, "Passport explicitly requires manual review.");
 warn(safeIdentity(passport.project?.name) !== null, "Project name is missing or remains a template placeholder.");
@@ -189,10 +191,12 @@ for (const module of modules) {
 }
 const activeOffers = offers.filter(offer => offer.status === "active").map(offer => ({
   id: offer.id,
+  scenarioId: offer.scenarioId || offer.id,
   title: offer.title,
   type: offer.type,
   description: offer.description ?? null,
-  requiredFields: asArray(offer.requiredFields)
+  requiredFields: asArray(offer.requiredFields),
+  consentRequired: offer.consentRequired !== false
 }));
 const publishableFactIds = new Set(allowedFacts.map(fact => fact.id));
 const conditionalReady = item => {
