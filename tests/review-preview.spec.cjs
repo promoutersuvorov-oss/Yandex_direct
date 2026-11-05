@@ -27,6 +27,10 @@ test("synthetic landing renders distinct interactive modules responsively", asyn
   await expect(page.locator('[data-module="gallery"] .media-card')).toHaveCount(2);
   await expect(page.locator('[data-module="floor-plans"] .plan-card')).toHaveCount(1);
   await expect(page.locator('form[data-preview-quiz]')).toBeVisible();
+  await expect(page.locator('[data-module="faq"] .faq-item')).toHaveCount(2);
+  await expect(page.locator('[data-module="faq"] .faq-item summary').first()).toContainText("Как устроена тестовая территория?");
+  await page.locator('[data-module="faq"] .faq-item summary').first().click();
+  await expect(page.locator('[data-module="faq"] .faq-item').first()).toHaveAttribute("open", "");
   const heroColumns = await page.locator('[data-module="hero"]').evaluate(el => getComputedStyle(el).gridTemplateColumns);
   const galleryColumns = await page.locator('[data-module="gallery"] .media-grid').evaluate(el => getComputedStyle(el).gridTemplateColumns);
   expect(heroColumns).not.toBe("none");

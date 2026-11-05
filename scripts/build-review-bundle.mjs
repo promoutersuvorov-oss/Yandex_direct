@@ -204,6 +204,8 @@ const conditionalReady = item => {
       return publicApartmentPlans.length > 0;
     case "quiz":
       return Boolean(publicSelectionQuiz);
+    case "faq":
+      return asArray(passport.faq).some(item => item.question && asArray(item.requiredFactIds).length > 0 && asArray(item.requiredFactIds).every(id => publishableFactIds.has(id)));
     case "gallery":
       return approvedAssets.some(asset => ["photo", "render", "video"].includes(asset.type));
     case "gift":
@@ -268,6 +270,7 @@ const profile = {
   offers: activeOffers,
   apartmentPlans: publicApartmentPlans,
   selectionQuiz: publicSelectionQuiz,
+  faq: asArray(passport.faq).map(item => ({ id: item.id, question: item.question, answers: asArray(item.requiredFactIds).map(id => facts.find(fact => fact.id === id)).filter(fact => fact && publishableFactIds.has(fact.id)).map(fact => fact.claim) })).filter(item => item.question && item.answers.length > 0 && asArray(passport.faq).find(source => source.id === item.id)?.requiredFactIds?.every(id => publishableFactIds.has(id))),
   assets: approvedAssets.map(({ id, url, type, alt, usage }) => ({ id, url, type, alt, usage }))
 };
 const rendererAliases = {
@@ -284,7 +287,8 @@ const specializedCapabilities = {
   gallery: { status: "implemented", behavior: "Responsive gallery of approved, rights-cleared media with alt text and media-type labels." },
   apartments: { status: "implemented", behavior: "Verified apartment-plan cards with plan-specific preview CTA context." },
   "floor-plans": { status: "implemented", behavior: "Verified apartment-plan cards with plan-specific preview CTA context." },
-  quiz: { status: "implemented", behavior: "Required finite-choice answers are validated and kept local in review preview." }
+  quiz: { status: "implemented", behavior: "Required finite-choice answers are validated and kept local in review preview." },
+  faq: { status: "implemented", behavior: "Accessible disclosure list; each answer is assembled only from publishable facts explicitly assigned to that question." }
 };
 const partialCapability = {
   status: "partial",
