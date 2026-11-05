@@ -151,7 +151,7 @@ const rendererAliases = {
   price: "price", developer: "developer", mortgage: "mortgage", steps: "steps", faq: "faq", contacts: "contacts"
 };
 const renderedSections = new Set(
-  [...template.matchAll(/<section\\b[^>]*\\bid=["']([^"']+)["'][^>]*>/gi)].map(match => match[1])
+  [...template.matchAll(/<section\b[^>]*\bid=["']([^"']+)["'][^>]*>/gi)].map(match => match[1])
 );
 const manifest = {
   projectId: passport.project?.id ?? null,
