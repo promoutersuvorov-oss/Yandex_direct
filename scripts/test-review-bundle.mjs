@@ -41,6 +41,18 @@ try {
   assert.equal(report.rendererAudit.status, "passed");
   assert.equal(report.publicationReadiness.productionReady, false);
   assert.equal(profile.facts.length, 1);
+  const preview = spawnSync(process.execPath, [
+    resolve("scripts/render-review-preview.mjs"), "--bundle", output,
+    "--out", join(output, "preview.html")
+  ], { encoding: "utf8" });
+  assert.equal(preview.status, 0, preview.stderr || preview.stdout);
+  const html = readFileSync(join(output, "preview.html"), "utf8");
+  assert.ok(html.includes("Тестовый ЖК"));
+  assert.ok(html.includes("Подтверждённое утверждение"));
+  assert.ok(html.includes("data-preview-cta=\"presentation\""));
+  assert.ok(html.includes("отправка заявок отключена"));
+  assert.ok(!html.includes("INTERNAL_NOTE"));
+  assert.ok(!html.includes("script.google.com"));
   assert.ok(!text.includes("INTERNAL_NOTE"));
   assert.ok(!text.includes("brokerNotes"));
 
