@@ -54,6 +54,10 @@ passport.infrastructure = [
     source: evidence("Синтетический источник инфраструктуры", "places/park") },
   { name: "Школа без подтверждённого расстояния", category: "school", status: "verified",
     publicLabel: "Объект подтверждён, маршрут не измерялся", source: evidence("Синтетический источник школы", "places/school") },
+  { name: "Городской сквер", category: "park", distanceMeters: 1500, distanceEvidence: {
+      method: "straight_line", checkedAt: stamp, validUntil: "2099-12-31T00:00:00Z",
+      source: evidence("Синтетическое подтверждение расстояния по прямой", "routes/square")
+    }, status: "verified", source: evidence("Синтетический источник сквера", "places/square") },
   { name: "Парк с устаревшим маршрутом", category: "park", distanceMeters: 900, walkingMinutes: 11, distanceEvidence: {
       method: "walking_route", checkedAt: "2020-01-01T00:00:00Z", validUntil: "2020-02-01T00:00:00Z",
       source: evidence("Устаревшее подтверждение маршрута", "routes/expired")
