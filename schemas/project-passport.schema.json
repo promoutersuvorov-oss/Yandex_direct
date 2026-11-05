@@ -291,6 +291,17 @@
         }
       },
       "additionalProperties": false
+    },
+    "apartmentPlans": {
+      "type": "array",
+      "description": "Проверенные данные о конкретных планировках. Не использовать для фиктивных примеров или предположений.",
+      "items": {
+        "$ref": "#/$defs/apartmentPlan"
+      }
+    },
+    "selectionQuiz": {
+      "description": "Структура квиза без персональных данных. В preview ответы остаются только в браузере.",
+      "$ref": "#/$defs/selectionQuiz"
     }
   },
   "$defs": {
@@ -703,6 +714,156 @@
         "replacementModuleId": {
           "type": "string",
           "description": "ID модуля-замены для решения replace."
+        }
+      },
+      "additionalProperties": false
+    },
+    "apartmentPlan": {
+      "type": "object",
+      "required": [
+        "id",
+        "rooms",
+        "areaSqm",
+        "assetId",
+        "status",
+        "publicUse",
+        "sources"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string"
+        },
+        "rooms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "areaSqm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "floor": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "assetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "finishing": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "provisional",
+            "missing",
+            "expired"
+          ]
+        },
+        "publicUse": {
+          "enum": [
+            "allowed",
+            "internal_only",
+            "blocked"
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "selectionQuiz": {
+      "type": "object",
+      "required": [
+        "status",
+        "title",
+        "questions",
+        "resultOfferId"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "approved",
+            "draft"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "questions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/quizQuestion"
+          }
+        },
+        "resultOfferId": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "quizQuestion": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "options"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "options": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "label"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
         }
       },
       "additionalProperties": false
