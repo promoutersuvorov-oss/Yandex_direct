@@ -78,6 +78,7 @@ try {
   assert.ok(html.includes("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;"));
   assert.ok(!html.includes('<img src=x onerror="alert(1)">'));
   assert.ok(html.includes("Подтверждённое утверждение"));
+  assert.ok(!html.includes("Главный блок"), "Internal module rationale must not be shown as visitor-facing copy.");
   assert.ok(html.includes("data-preview-cta=\"presentation\""));
   assert.ok(html.includes("отправка заявок отключена"));
   assert.ok(html.includes("media-grid"), "Gallery module must render a multi-image layout.");
