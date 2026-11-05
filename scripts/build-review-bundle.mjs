@@ -154,6 +154,7 @@ for (const item of infrastructureRecords) {
     typeof evidence.validUntil === "string" && Number.isFinite(Date.parse(evidence.validUntil)) &&
     Date.parse(evidence.validUntil) >= Date.now() &&
     Date.parse(evidence.checkedAt) <= Date.now() &&
+    Date.parse(evidence.validUntil) >= Date.parse(evidence.checkedAt) &&
     (evidence.method === "walking_route" || evidence.method === "straight_line") &&
     !(evidence.method === "straight_line" && Number.isFinite(item.walkingMinutes));
   if (!supported) warnings.push(`Infrastructure distance/time for "${item.name}" is omitted because separate, current route/distance evidence is missing or invalid.`);
@@ -297,6 +298,7 @@ const profile = {
         Date.parse(evidence.checkedAt) <= Date.now() &&
         typeof evidence.validUntil === "string" && Number.isFinite(Date.parse(evidence.validUntil)) &&
         Date.parse(evidence.validUntil) >= Date.now() &&
+        Date.parse(evidence.validUntil) >= Date.parse(evidence.checkedAt) &&
         (evidence.method === "walking_route" || evidence.method === "straight_line") &&
         !(evidence.method === "straight_line" && Number.isFinite(item.walkingMinutes));
       return {
