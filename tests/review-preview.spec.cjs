@@ -29,9 +29,12 @@ test("synthetic landing renders distinct interactive modules responsively", asyn
   await expect(page.locator('[data-module="location"]')).toContainText("Тестовый городской парк");
   await expect(page.locator('[data-module="location"]')).toContainText("по маршруту — 450 м · 6 мин пешком");
   await expect(page.locator('[data-module="location"]')).toContainText("Школа без подтверждённого расстояния");
-  await expect(page.locator('[data-module="location"]')).toContainText("по прямой — 1,5 км");
-  await expect(page.locator('[data-module="location"]')).not.toContainText("1,5 км ·");
-  await expect(page.locator('[data-module="location"]')).not.toContainText("900 м");
+  const straightLineCard = page.locator('[data-module="location"] .place-card').filter({ hasText: "Городской сквер" });
+  await expect(straightLineCard).toContainText("по прямой — 1,5 км");
+  await expect(straightLineCard).not.toContainText("мин пешком");
+  const expiredRouteCard = page.locator('[data-module="location"] .place-card').filter({ hasText: "Парк с устаревшим маршрутом" });
+  await expect(expiredRouteCard).not.toContainText("900 м");
+  await expect(expiredRouteCard).not.toContainText("мин пешком");
   await expect(page.locator('[data-module="location"]')).not.toContainText("11 мин пешком");
   await expect(page.locator('[data-module="location"]')).not.toContainText("Неподтверждённый торговый центр");
   await expect(page.locator('[data-module="floor-plans"] .plan-card')).toHaveCount(1);
