@@ -44,6 +44,25 @@ try {
   assert.ok(!text.includes("INTERNAL_NOTE"));
   assert.ok(!text.includes("brokerNotes"));
 
+  // A second project must produce an isolated profile and must not inherit the first project's copy.
+  const secondPassport = structuredClone(passport);
+  secondPassport.project.id = "second-test-project";
+  secondPassport.project.name = "Второй независимый ЖК";
+  secondPassport.project.location.city = "Другой город";
+  secondPassport.facts[0].claim = "Уникальный факт второго объекта";
+  const secondInput = join(dir, "second-passport.json");
+  const secondOutput = join(dir, "second-output");
+  writeFileSync(secondInput, JSON.stringify(secondPassport));
+  const secondBuild = spawnSync(process.execPath, [resolve("scripts/build-review-bundle.mjs"), "--passport", secondInput, "--out", secondOutput], { encoding: "utf8" });
+  assert.equal(secondBuild.status, 0, secondBuild.stderr || secondBuild.stdout);
+  const secondProfile = JSON.parse(readFileSync(join(secondOutput, "project-profile.json"), "utf8"));
+  const secondText = JSON.stringify(secondProfile);
+  assert.equal(secondProfile.project.id, "second-test-project");
+  assert.equal(secondProfile.project.name, "Второй независимый ЖК");
+  assert.ok(secondText.includes("Уникальный факт второго объекта"));
+  assert.ok(!secondText.includes("Тестовый ЖК"));
+  assert.ok(!secondText.includes("Подтверждённое утверждение"));
+
   passport.facts[0].status = "provisional";
   passport.facts.push({
     id: "expired-public", claim: "Просроченное утверждение", status: "verified",
