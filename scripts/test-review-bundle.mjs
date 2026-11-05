@@ -42,6 +42,8 @@ try {
   assert.equal(report.rendererAudit.status, "passed");
   assert.equal(report.publicationReadiness.productionReady, false);
   assert.equal(profile.facts.length, 1);
+  assert.equal(profile.offers[0].successMessage, undefined, "Internal success copy must not leak into the public preview profile.");
+  assert.deepEqual(Object.keys(profile.offers[0]).sort(), ["description", "id", "requiredFields", "title", "type"].sort());
   const preview = spawnSync(process.execPath, [
     resolve("scripts/render-review-preview.mjs"), "--bundle", output,
     "--out", join(output, "preview.html")
@@ -49,6 +51,8 @@ try {
   assert.equal(preview.status, 0, preview.stderr || preview.stdout);
   const html = readFileSync(join(output, "preview.html"), "utf8");
   assert.ok(html.includes("Тестовый ЖК"));
+  assert.ok(html.includes("<h1 id=\\"heading-0\\">Тестовый ЖК</h1>"));
+  assert.equal((html.match(/&lt;img src=x onerror=&quot;alert\(1\)&quot;&gt;/g) || []).length, 1, "Hero positioning should appear once, not duplicate as the title.");
   assert.ok(html.includes("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;"));
   assert.ok(!html.includes('<img src=x onerror="alert(1)">'));
   assert.ok(html.includes("Подтверждённое утверждение"));
@@ -88,6 +92,7 @@ try {
   passport.contentStrategy.modules.push({
     moduleId: "parking", decision: "include", reason: "Проверка отсутствующего renderer"
   });
+  passport.assets.images[0].url = "javascript:alert(1)";
   passport.assets.images[0].rightsStatus = "pending";
   passport.assets.images[0].projectMatch = "unconfirmed";
   passport.assets.images[0].validUntil = "2020-01-01T00:00:00Z";
@@ -96,6 +101,7 @@ try {
   assert.equal(blocked.status, 1, "Unverified public facts must block bundle generation.");
   const blockedReport = JSON.parse(readFileSync(join(output, "generation-report.json"), "utf8"));
   assert.equal(blockedReport.status, "blocked");
+  assert.ok(blockedReport.blockers.some(message => message.includes("unsafe public URL scheme")));
   console.log("PASS: public fact gating, module references and commercial-data isolation.");
 } finally {
   rmSync(dir, { recursive: true, force: true });
