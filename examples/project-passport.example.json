@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": {
+    "id": "sample-residential-complex",
+    "name": "Название ЖК — заполнить",
+    "developer": {
+      "value": null,
+      "status": "missing",
+      "sources": [],
+      "note": "Нужен официальный источник девелопера."
+    },
+    "class": {
+      "value": null,
+      "status": "missing",
+      "sources": []
+    },
+    "location": {
+      "city": "Город — заполнить",
+      "address": {
+        "value": null,
+        "status": "missing",
+        "sources": []
+      },
+      "district": {
+        "value": null,
+        "status": "missing",
+        "sources": []
+      }
+    },
+    "positioning": "",
+    "audiences": [],
+    "delivery": {
+      "value": null,
+      "status": "missing",
+      "sources": []
+    },
+    "constructionStatus": {
+      "value": null,
+      "status": "missing",
+      "sources": []
+    },
+    "inventory": {
+      "apartmentCount": {
+        "value": null,
+        "status": "missing",
+        "sources": []
+      },
+      "layoutsAvailable": false,
+      "priceFrom": {
+        "value": null,
+        "status": "missing",
+        "sources": []
+      },
+      "areaRange": {
+        "value": null,
+        "status": "missing",
+        "sources": []
+      },
+      "finishing": {
+        "value": null,
+        "status": "missing",
+        "sources": []
+      }
+    }
+  },
+  "facts": [],
+  "advantages": [],
+  "infrastructure": [],
+  "offers": [
+    {
+      "id": "presentation",
+      "title": "Получить презентацию",
+      "type": "presentation",
+      "status": "active",
+      "requiredFields": [
+        "phone"
+      ],
+      "successMessage": "Спасибо! KEY свяжется с вами."
+    },
+    {
+      "id": "selection",
+      "title": "Подобрать квартиру",
+      "type": "apartment_selection",
+      "status": "active",
+      "requiredFields": [
+        "phone"
+      ],
+      "successMessage": "Запрос принят."
+    },
+    {
+      "id": "mortgage",
+      "title": "Рассчитать ипотеку",
+      "type": "mortgage_estimate",
+      "status": "provisional",
+      "description": "Включать только после согласования формулы и предупреждения, что расчёт предварительный.",
+      "requiredFields": [],
+      "successMessage": "Расчёт предварительный; параметры нужно подтвердить."
+    }
+  ],
+  "assets": {
+    "images": [],
+    "videos": [],
+    "plans": [],
+    "documents": [],
+    "maps": []
+  },
+  "contentStrategy": {
+    "coreIdea": "",
+    "primaryCta": "Получить презентацию",
+    "secondaryCtas": [
+      "Подобрать квартиру",
+      "Записаться на просмотр"
+    ],
+    "audiencePriority": [],
+    "modules": [],
+    "informationGaps": [],
+    "visualDirection": {
+      "mood": "",
+      "palette": [],
+      "imageTreatment": "",
+      "signatureInteraction": ""
+    }
+  },
+  "commercial": {
+    "leadWebhookEnvKey": "KEY_LEAD_WEBHOOK_URL",
+    "crmPipeline": "",
+    "brokerNotes": "",
+    "restrictedData": [
+      "Внутренние комментарии брокера",
+      "Секреты интеграций",
+      "Закрытые коммерческие условия"
+    ]
+  },
+  "verification": {
+    "checkedAt": "2026-10-28T00:00:00Z",
+    "factsWithoutSources": [],
+    "conflicts": [],
+    "manualReviewRequired": true
+  }
+}
