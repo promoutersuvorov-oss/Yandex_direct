@@ -32,7 +32,7 @@ const modules = manifest.modules;
 const safeImageUrl = value => {
   try {
     const url = new URL(value);
-    return ["https:", "http:"].includes(url.protocol) ? url.href : null;
+    return url.protocol === "https:" && !url.username && !url.password ? url.href : null;
   } catch {
     return null;
   }
@@ -53,7 +53,10 @@ const renderPlans = offer => (profile.apartmentPlans || []).map(plan => {
   const rooms = plan.rooms === 0 ? "Студия" : plan.rooms + "-комнатная";
   const meta = [rooms, Number(plan.areaSqm).toLocaleString("ru-RU") + " м²", plan.floor ? plan.floor + " этаж" : ""].filter(Boolean).join(" · ");
   const action = offer ? '<button class="cta" type="button" data-preview-cta="' + esc(offer.id) +
-    '" data-preview-title="' + esc(offer.title) + '" data-preview-plan-id="' + esc(plan.id) + '">Обсудить эту планировку</button>' : "";
+    '" data-preview-title="' + esc(offer.title) + '" data-preview-plan-id="' + esc(plan.id) +
+    '" data-preview-plan-rooms="' + esc(plan.rooms) + '" data-preview-plan-area="' + esc(plan.areaSqm) +
+    '" data-preview-plan-floor="' + esc(plan.floor ?? "") + '" data-preview-plan-finishing="' + esc(plan.finishing ?? "") +
+    '" data-preview-plan-asset-id="' + esc(plan.assetId) + '">Обсудить эту планировку</button>' : "";
   return '<article class="plan-card"><img src="' + esc(safeImageUrl(asset.url)) + '" alt="' +
     esc(asset.alt || "Планировка квартиры") + '" loading="lazy"><div class="plan-copy"><p class="eyebrow">Планировка</p><h3>' +
     esc(plan.title || rooms) + '</h3><p>' + esc(meta) + '</p>' + (plan.finishing ? '<p>' + esc(plan.finishing) + '</p>' : "") +
@@ -61,14 +64,20 @@ const renderPlans = offer => (profile.apartmentPlans || []).map(plan => {
 }).filter(Boolean).join("");
 const renderQuiz = quiz => {
   if (!quiz) return "";
+  const total = quiz.questions.length;
   const questions = quiz.questions.map((question, index) =>
-    '<fieldset class="quiz-question"><legend>' + (index + 1) + '. ' + esc(question.label) + '</legend>' +
+    '<fieldset class="quiz-question" data-quiz-step="' + index + '"' + (index === 0 ? "" : " hidden") +
+    '><legend>' + (index + 1) + '. ' + esc(question.label) + '</legend>' +
     question.options.map(option => '<label class="quiz-option"><input type="radio" name="' + esc(question.id) +
       '" value="' + esc(option.id) + '" required><span>' + esc(option.label) + '</span></label>').join("") + '</fieldset>'
   ).join("");
   return '<form class="preview-quiz" data-preview-quiz data-result-offer="' + esc(quiz.resultOfferId) +
     '"><h3>' + esc(quiz.title) + '</h3>' + (quiz.description ? '<p>' + esc(quiz.description) + '</p>' : "") +
-    questions + '<button class="cta" type="submit">Завершить подбор</button></form>';
+    '<div class="quiz-progress"><progress data-quiz-progress max="' + total + '" value="1" aria-label="Прогресс подбора"></progress>' +
+    '<p data-quiz-status role="status" aria-live="polite">Вопрос 1 из ' + total + '</p></div>' +
+    questions + '<div class="quiz-actions"><button class="quiz-secondary" type="button" data-quiz-prev disabled>Назад</button>' +
+    '<button class="cta" type="button" data-quiz-next' + (total === 1 ? ' hidden' : '') + '>Далее</button>' +
+    '<button class="cta" type="submit" data-quiz-submit' + (total > 1 ? ' hidden' : '') + '>Завершить подбор</button></div></form>';
 };
 const factsFor = module => (module.requiredFactIds || []).map(id => byId(facts, id)).filter(Boolean);
 const renderedAdvantageIds = new Set();
@@ -138,6 +147,7 @@ function renderModule(module, index) {
 
 const sections = modules.map(renderModule).join("\n");
 const title = profile.project.name || "Презентация жилого комплекса";
+const projectId = profile.project.id || null;
 const designTheme = ["urban-noir", "warm-editorial", "garden-modern"].includes(profile.design?.theme)
   ? profile.design.theme : "urban-noir";
 const city = profile.project.city || "";
@@ -162,7 +172,7 @@ body[data-theme="garden-modern"] h1,body[data-theme="garden-modern"] h2{font-fam
 body[data-theme="garden-modern"] .module:nth-child(odd){background:#15231e}
 body[data-theme="garden-modern"] .module[data-variant="proof-led"]{background:#1b3027}
 body[data-theme="garden-modern"] .module[data-variant="conversion-led"]{background:#233329}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);line-height:1.55}a,button{font:inherit}.top{padding:20px var(--pad);display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);color:var(--muted);font-size:13px}.brand{color:var(--text);letter-spacing:.16em;font-weight:700}.module{min-height:52vh;padding:clamp(64px,10vw,140px) var(--pad);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(260px,.95fr);align-items:center;gap:clamp(28px,6vw,90px);border-bottom:1px solid var(--line);max-width:1440px;margin:auto}.module:nth-child(odd){background:#1b1e23}.module.hero{min-height:78vh}.module-copy{max-width:720px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--accent)}h1,h2{font-family:Georgia,serif;font-weight:500;line-height:1.05;letter-spacing:-.035em}h1{font-size:clamp(42px,7vw,88px);margin:18px 0}h2{font-size:clamp(34px,5vw,64px);margin:16px 0 24px}.intro{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:58ch}.facts{padding-left:20px;color:var(--muted);display:grid;gap:12px}.benefits{display:grid;gap:14px;margin:28px 0}.benefit{padding:18px 0;border-top:1px solid var(--line)}.benefit h3{margin:0 0 5px;font-size:18px}.benefit p{margin:0;color:var(--muted)}figure{margin:0;overflow:hidden;border-radius:8px;background:var(--panel);min-height:240px}figure img{width:100%;height:100%;min-height:240px;max-height:580px;object-fit:cover}.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.media-card:first-child{grid-row:span 2}.media-card figcaption{padding:8px 12px;color:var(--muted);font-size:12px}.plan-card{display:grid;grid-template-columns:minmax(120px,.8fr) minmax(0,1fr);gap:18px;padding:18px;margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px}.plan-card img{width:100%;height:auto;align-self:center;object-fit:contain}.plan-copy h3{margin:4px 0;font-size:22px}.plan-copy p{color:var(--muted)}.plan-copy .cta{margin-top:8px}.preview-quiz{margin:24px 0;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:10px}.preview-quiz h3{font-size:24px;margin:0 0 8px}.quiz-question{border:0;border-top:1px solid var(--line);padding:18px 0;margin:0}.quiz-question legend{font-weight:600;padding:0 0 12px}.quiz-option{display:flex;gap:10px;align-items:center;padding:9px 0;cursor:pointer;color:var(--muted)}.quiz-option input{appearance:auto;accent-color:var(--accent);width:18px;height:18px;min-width:18px;flex:0 0 18px;position:relative;z-index:1;pointer-events:auto}.cta{display:inline-flex;margin-top:24px;padding:14px 22px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);color:var(--cta-text);cursor:pointer;font-weight:600}.cta:focus-visible,.close:focus-visible{outline:3px solid white;outline-offset:4px}.footer{padding:50px var(--pad);color:var(--muted);font-size:13px}.notice{position:fixed;inset:auto 18px 18px;z-index:5;max-width:520px;margin:auto;padding:16px 18px;background:#f5f1ea;color:#17191d;border-radius:10px;box-shadow:0 12px 50px #0008;display:none}.notice[open]{display:block}.notice p{margin:0 32px 0 0}.close{position:absolute;right:10px;top:8px;border:0;background:none;font-size:24px;cursor:pointer;color:inherit}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);line-height:1.55}a,button{font:inherit}.top{padding:20px var(--pad);display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);color:var(--muted);font-size:13px}.brand{color:var(--text);letter-spacing:.16em;font-weight:700}.module{min-height:52vh;padding:clamp(64px,10vw,140px) var(--pad);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(260px,.95fr);align-items:center;gap:clamp(28px,6vw,90px);border-bottom:1px solid var(--line);max-width:1440px;margin:auto}.module:nth-child(odd){background:#1b1e23}.module.hero{min-height:78vh}.module-copy{max-width:720px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--accent)}h1,h2{font-family:Georgia,serif;font-weight:500;line-height:1.05;letter-spacing:-.035em}h1{font-size:clamp(42px,7vw,88px);margin:18px 0}h2{font-size:clamp(34px,5vw,64px);margin:16px 0 24px}.intro{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:58ch}.facts{padding-left:20px;color:var(--muted);display:grid;gap:12px}.benefits{display:grid;gap:14px;margin:28px 0}.benefit{padding:18px 0;border-top:1px solid var(--line)}.benefit h3{margin:0 0 5px;font-size:18px}.benefit p{margin:0;color:var(--muted)}figure{margin:0;overflow:hidden;border-radius:8px;background:var(--panel);min-height:240px}figure img{width:100%;height:100%;min-height:240px;max-height:580px;object-fit:cover}.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.media-card:first-child{grid-row:span 2}.media-card figcaption{padding:8px 12px;color:var(--muted);font-size:12px}.plan-card{display:grid;grid-template-columns:minmax(120px,.8fr) minmax(0,1fr);gap:18px;padding:18px;margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px}.plan-card img{width:100%;height:auto;align-self:center;object-fit:contain}.plan-copy h3{margin:4px 0;font-size:22px}.plan-copy p{color:var(--muted)}.plan-copy .cta{margin-top:8px}.preview-quiz{margin:24px 0;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:10px}.quiz-question[hidden],.quiz-actions [hidden]{display:none!important}.quiz-progress{margin:18px 0}.quiz-progress progress{width:100%;height:8px;accent-color:var(--accent)}.quiz-progress p{margin:6px 0;color:var(--muted);font-size:13px}.quiz-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.quiz-actions .cta{margin-top:0}.quiz-secondary{padding:12px 18px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--text);cursor:pointer}.notice pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:38vh;overflow:auto;padding:12px;background:#e9e3d9;border-radius:8px;font-size:12px}.preview-quiz h3{font-size:24px;margin:0 0 8px}.quiz-question{border:0;border-top:1px solid var(--line);padding:18px 0;margin:0}.quiz-question legend{font-weight:600;padding:0 0 12px}.quiz-option{display:flex;gap:10px;align-items:center;padding:9px 0;cursor:pointer;color:var(--muted)}.quiz-option input{appearance:auto;accent-color:var(--accent);width:18px;height:18px;min-width:18px;flex:0 0 18px;position:relative;z-index:1;pointer-events:auto}.cta{display:inline-flex;margin-top:24px;padding:14px 22px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);color:var(--cta-text);cursor:pointer;font-weight:600}.cta:focus-visible,.close:focus-visible{outline:3px solid white;outline-offset:4px}.footer{padding:50px var(--pad);color:var(--muted);font-size:13px}.notice{position:fixed;inset:auto 18px 18px;z-index:5;max-width:520px;margin:auto;padding:16px 18px;background:#f5f1ea;color:#17191d;border-radius:10px;box-shadow:0 12px 50px #0008;display:none}.notice[open]{display:block}.notice p{margin:0 32px 0 0}.close{position:absolute;right:10px;top:8px;border:0;background:none;font-size:24px;cursor:pointer;color:inherit}
 /* Composition archetypes change the page rhythm and geometry independently of its palette. */
 body[data-composition="editorial"] .module{max-width:1320px;grid-template-columns:minmax(0,1.12fr) minmax(280px,.88fr);padding-block:clamp(88px,12vw,168px)}
 body[data-composition="editorial"] .module-copy{max-width:650px}
@@ -228,22 +238,67 @@ body[data-composition="architectural"] figure{border-radius:0;outline:1px solid 
 ${sections || '<section class="module"><div class="module-copy"><h1>Материалы проекта готовятся</h1><p class="intro">Для этой версии ещё не выбраны разделы презентации.</p></div></section>'}
 </main>
 <footer class="footer">Предварительная сборка для внутренней проверки. Не является опубликованной страницей и не принимает заявки.</footer>
-<dialog class="notice" id="previewNotice" aria-labelledby="noticeTitle"><button class="close" type="button" aria-label="Закрыть">×</button><strong id="noticeTitle">Сценарий обращения</strong><p id="noticeText">В этой предварительной версии отправка заявок отключена. Перед публикацией необходимо подключить и проверить доставку обращений KEY.</p></dialog>
+<dialog class="notice" id="previewNotice" aria-labelledby="noticeTitle"><button class="close" type="button" aria-label="Закрыть">×</button><strong id="noticeTitle">Сценарий обращения</strong><p id="noticeText">В этой предварительной версии отправка заявок отключена. Перед публикацией необходимо подключить и проверить доставку обращений KEY.</p><pre id="noticePayload" hidden></pre></dialog>
 <script>
 const dialog=document.getElementById("previewNotice");
+const noticeTitle=document.getElementById("noticeTitle");
+const noticeText=document.getElementById("noticeText");
+const noticePayload=document.getElementById("noticePayload");
+const showPreview=(title,message,payload)=>{
+ noticeTitle.textContent=title;
+ noticeText.textContent=message;
+ noticePayload.hidden=!payload;
+ noticePayload.textContent=payload?JSON.stringify(payload,null,2):"";
+ dialog.showModal();
+};
 document.querySelectorAll("[data-preview-cta]").forEach(button=>button.addEventListener("click",()=>{
- document.getElementById("noticeTitle").textContent=button.dataset.previewTitle||"Сценарий обращения";
- const planContext=button.dataset.previewPlanId ? " Выбрана планировка: "+button.dataset.previewPlanId+"." : "";
- document.getElementById("noticeText").textContent="Это предварительная версия: отправка заявок отключена, данные не передаются."+planContext;
- dialog.showModal();
+ const section=button.closest("[data-module]");
+ const plan=button.dataset.previewPlanId?{
+  id:button.dataset.previewPlanId,
+  rooms:Number(button.dataset.previewPlanRooms),
+  areaSqm:Number(button.dataset.previewPlanArea),
+  floor:button.dataset.previewPlanFloor?Number(button.dataset.previewPlanFloor):null,
+  finishing:button.dataset.previewPlanFinishing||null,
+  assetId:button.dataset.previewPlanAssetId
+ }:null;
+ const payload={schemaVersion:"key-review-context/1.0",projectId:null,offerId:button.dataset.previewCta,moduleId:section?.dataset.module||null,plan};
+ showPreview(button.dataset.previewTitle||"Сценарий обращения","Предпросмотр контекста обращения. Ничего не отправляется.",payload);
 }));
-document.querySelectorAll("form[data-preview-quiz]").forEach(form=>form.addEventListener("submit",event=>{
- event.preventDefault();
- const answers=Array.from(new FormData(form).entries());
- document.getElementById("noticeTitle").textContent="Подбор завершён";
- document.getElementById("noticeText").textContent="Ответы ("+answers.length+") сохранены только в этой предварительной версии. Отправка заявок отключена.";
- dialog.showModal();
-}));
+document.querySelectorAll("form[data-preview-quiz]").forEach(form=>{
+ const steps=Array.from(form.querySelectorAll("[data-quiz-step]"));
+ const previous=form.querySelector("[data-quiz-prev]");
+ const next=form.querySelector("[data-quiz-next]");
+ const submit=form.querySelector("[data-quiz-submit]");
+ const progress=form.querySelector("[data-quiz-progress]");
+ const status=form.querySelector("[data-quiz-status]");
+ let current=0;
+ const updateStep=()=>{
+  steps.forEach((step,index)=>{step.hidden=index!==current});
+  previous.disabled=current===0;
+  next.hidden=current===steps.length-1;
+  submit.hidden=current!==steps.length-1;
+  progress.value=current+1;
+  status.textContent="Вопрос "+(current+1)+" из "+steps.length;
+ };
+ next?.addEventListener("click",()=>{
+  const selected=steps[current].querySelector("input:checked");
+  if(!selected){steps[current].querySelector("input")?.reportValidity();return;}
+  current=Math.min(current+1,steps.length-1);updateStep();
+ });
+ previous?.addEventListener("click",()=>{current=Math.max(0,current-1);updateStep()});
+ form.addEventListener("submit",event=>{
+  event.preventDefault();
+  const answers=steps.map(step=>{
+   const selected=step.querySelector("input:checked");
+   return selected?{questionId:selected.name,optionId:selected.value}:null;
+  });
+  const missing=answers.findIndex(answer=>!answer);
+  if(missing!==-1){current=missing;updateStep();steps[current].querySelector("input")?.reportValidity();return;}
+  const payload={schemaVersion:"key-selection-preview/1.0",projectId:null,offerId:form.dataset.resultOffer,answers};
+  showPreview("Подбор завершён","Ответы подготовлены локально для проверки сценария. Данные не отправляются.",payload);
+ });
+ updateStep();
+});
 dialog.querySelector(".close").addEventListener("click",()=>dialog.close());
 dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close()});
 </script>
