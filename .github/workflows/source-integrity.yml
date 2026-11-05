@@ -41,6 +41,12 @@ jobs:
         run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out artifacts/review-bundle
       - name: Render dynamic HTML review preview
         run: node scripts/render-review-preview.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/preview.html
+      - name: Build the second real-project review bundle (KD 905)
+        run: node scripts/build-review-bundle.mjs --passport examples/kd-905.project-passport.draft.json --out artifacts/kd905-review
+      - name: Render the KD 905 internal review preview
+        run: node scripts/render-review-preview.mjs --bundle artifacts/kd905-review --out artifacts/kd905-review/preview.html
+      - name: Verify KD 905 project isolation and publication safeguards
+        run: node scripts/test-kd905-review.mjs artifacts/kd905-review
       - name: Test renderer diversity across distinct project passports
         run: node scripts/test-renderer-diversity.mjs
       - name: Render independent editorial reference concept
@@ -57,6 +63,14 @@ jobs:
         with:
           name: klanding-review-bundle
           path: artifacts/review-bundle/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload KD 905 internal review preview
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kd905-internal-review-preview
+          path: artifacts/kd905-review/
           if-no-files-found: error
           retention-days: 14
 
