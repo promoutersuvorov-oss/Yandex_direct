@@ -25,27 +25,28 @@ test("K15 loads and has no horizontal overflow on target viewports", async ({ pa
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await expect(page.locator("#hero")).toBeAttached();
 
-  // Scroll each rendered reveal element into the viewport; this exercises real user-visible IO behavior
-  // and avoids assuming that programmatic scroll jumps are animated identically by every engine.
-  const revealNodes = page.locator(".rv");
-  const revealCount = await revealNodes.count();
-  const unrevealed = [];
-  for (let i = 0; i < revealCount; i++) {
-    const node = revealNodes.nth(i);
-    const isVisible = await node.evaluate(el => el.checkVisibility({ checkOpacity: false, checkVisibilityCSS: true }));
-    if (!isVisible) continue;
-    await node.scrollIntoViewIfNeeded();
-    try {
-      await expect(node).toHaveClass(/(?:^|\\s)in(?:\\s|$)/, { timeout: 1500 });
-    } catch {
-      unrevealed.push(await node.evaluate(el => ({
-        tag: el.tagName,
-        id: el.id,
-        className: String(el.className).slice(0, 100),
-        text: (el.innerText || "").trim().replace(/\\s+/g, " ").slice(0, 90)
-      })));
+  // Reveal every visible section using native element scrolling, then allow IntersectionObserver to process frames.
+  const unrevealed = await page.evaluate(async () => {
+    document.documentElement.style.setProperty("scroll-behavior", "auto", "important");
+    const frame = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const nodes = Array.from(document.querySelectorAll(".rv"));
+    for (const node of nodes) {
+      if (!node.checkVisibility({ checkOpacity: false, checkVisibilityCSS: true })) continue;
+      node.scrollIntoView({ block: "center", behavior: "auto" });
+      await frame();
+      await new Promise(resolve => setTimeout(resolve, 40));
     }
-  }
+    return nodes.filter(node =>
+      node.checkVisibility({ checkOpacity: false, checkVisibilityCSS: true }) &&
+      node.getBoundingClientRect().height > 0 && !node.classList.contains("in")
+    ).map(node => ({
+      tag: node.tagName,
+      id: node.id,
+      className: String(node.className).slice(0, 100),
+      top: Math.round(node.getBoundingClientRect().top + window.scrollY),
+      text: (node.innerText || "").trim().replace(/\\s+/g, " ").slice(0, 90)
+    }));
+  });
   expect(unrevealed, "Visible reveal elements must activate when scrolled into view").toEqual([]);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(250);
