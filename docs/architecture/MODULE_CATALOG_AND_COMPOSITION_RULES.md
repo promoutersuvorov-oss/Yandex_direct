@@ -159,3 +159,10 @@
 Текущий паспорт KLanding имеет собственную структуру (`project`, `facts`, `advantages`, `infrastructure`, `offers`, `assets`, `contentStrategy`, `verification`). Не переносить старые поля и статусы из Agency без миграции. См. [Passport-to-Landing Mapping](PASSPORT_TO_LANDING_MAPPING.md).
 
 Каталог определяет семантику и требования. Builder обязан отдельно доказать соответствие `moduleId → runtime component → supported variant`. Не реализованный компонент нельзя считать доступным только потому, что он есть в таблице.
+
+
+## 12. Совместимость с текущей JSON Schema
+
+Текущая `schemas/project-passport.schema.json` поддерживала только `moduleId`, `decision`, `reason`, `requiredFactIds` и `variant`. Чтобы не терять объяснение композиции, в неё добавлены необязательные поля: `userQuestion`, `whyIncluded`, `positionReason`, `assetIds`, `ctaIds`, `dependencies`, `qaCriteria`, `replacementModuleId`.
+
+Старые паспорта остаются валидными: новые поля необязательны. Для новых генераций заполнять их, если они применимы. Решение `exclude` также должно иметь ясную причину в `reason`; `replace` — указывать `replacementModuleId`, если замена определена.
