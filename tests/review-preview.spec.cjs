@@ -2,10 +2,25 @@ const { test, expect } = require("@playwright/test");
 
 const url = "http://127.0.0.1:4173/artifacts/review-bundle/preview.html";
 
+const fixtureSvg = (label, background) => `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="${background}"/><text x="600" y="410" text-anchor="middle" font-family="Arial,sans-serif" font-size="48" fill="#ffffff">${label}</text></svg>`;
+
+async function serveSyntheticMedia(page) {
+  await page.route("https://example.invalid/tests/fixtures/**", route => {
+    const pathname = new URL(route.request().url()).pathname;
+    const media = {
+      "/tests/fixtures/preview-hero.svg": fixtureSvg("Синтетический фасад", "#52616b"),
+      "/tests/fixtures/preview-gallery.svg": fixtureSvg("Синтетический двор", "#718477"),
+      "/tests/fixtures/preview-plan.svg": fixtureSvg("Синтетическая планировка", "#9b8f82")
+    };
+    const body = media[pathname];
+    return body ? route.fulfill({ status: 200, contentType: "image/svg+xml", body }) : route.fulfill({ status: 404, body: "Not found" });
+  });
+}
+
 test("synthetic landing renders distinct interactive modules responsively", async ({ page }) => {
   const pageErrors = [];
   page.on("pageerror", error => pageErrors.push(error.message));
-  await page.goto(url, { waitUntil: "networkidle" });
+  await serveSyntheticMedia(page);\n  await page.goto(url, { waitUntil: "networkidle" });
 
   await expect(page.getByRole("heading", { level: 1, name: "Синтетический ЖК — тест интерфейса" })).toBeVisible();
   await expect(page.locator('[data-module="gallery"] .media-card')).toHaveCount(2);
