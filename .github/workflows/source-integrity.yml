@@ -41,6 +41,8 @@ jobs:
         run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out artifacts/review-bundle
       - name: Render dynamic HTML review preview
         run: node scripts/render-review-preview.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/preview.html
+      - name: Test renderer diversity across distinct project passports
+        run: node scripts/test-renderer-diversity.mjs
       - name: Render independent editorial reference concept
         run: node scripts/render-reference-landing.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/reference.html
       - name: Test reference renderer structure and safety
