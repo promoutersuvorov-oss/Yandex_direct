@@ -114,7 +114,9 @@ test("three-step quiz preserves answers and submits with quiz context", async ({
 
   const quiz = page.locator("#qcard");
   for (let step = 1; step <= 3; step++) {
-    await quiz.locator(".opt").first().click();
+    const option = quiz.locator(".opt").first();
+    await option.click();
+    await expect(option).toHaveClass(/sel/);
     if (step < 3) {
       await expect(quiz.locator(".qprog span")).toContainText(`${step + 1} / 3`);
     }
