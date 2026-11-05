@@ -596,6 +596,31 @@
         "phone"
       ],
       "consentRequired": true
+    },
+    {
+      "id": "apartment-selection",
+      "scenarioId": "galiley.apartment-selection",
+      "title": "Уточнить актуальные планировки",
+      "type": "apartment_selection",
+      "status": "active",
+      "description": "Запросить у KEY актуальную информацию о доступных планировках и подходящих вариантах.",
+      "requiredFields": [
+        "phone"
+      ],
+      "consentRequired": true
+    },
+    {
+      "id": "viewing-request",
+      "scenarioId": "galiley.viewing-request",
+      "title": "Запросить просмотр",
+      "type": "viewing",
+      "status": "active",
+      "description": "Обсудить с KEY возможность и удобное время просмотра объекта.",
+      "requiredFields": [
+        "phone",
+        "preferredTime"
+      ],
+      "consentRequired": true
     }
   ],
   "assets": {
@@ -630,7 +655,9 @@
         "userQuestion": "Чем этот комплекс отличается?",
         "assetIds": [],
         "ctaIds": [
-          "consultation"
+          "consultation",
+          "apartment-selection",
+          "viewing-request"
         ]
       },
       {
