@@ -24,6 +24,14 @@ const isCurrent = record => {
   const expiry = Date.parse(expiration);
   return Number.isFinite(expiry) && expiry >= Date.now();
 };
+const isSafePublicUrl = value => {
+  try {
+    const url = new URL(value);
+    return ["https:", "http:"].includes(url.protocol);
+  } catch {
+    return false;
+  }
+};
 const publicFact = fact => fact?.status === "verified" && isCurrent(fact) &&
   ["allowed", "allowed_with_qualification"].includes(fact.publicUse) &&
   asArray(fact.sources).length > 0;
@@ -139,8 +147,14 @@ const allowedAdvantages = advantages.filter(item =>
   asArray(item.supportingFactIds).length > 0 &&
   asArray(item.supportingFactIds).every(id => publicFact(factById.get(id)))
 );
-const approvedAssets = assets.filter(asset => asset.status === "approved" && asset.url && asset.projectMatch === "confirmed" && asset.rightsStatus === "confirmed" && asset.rightsNote?.trim() && asset.rightsSource?.url && asset.rightsSource?.title && asset.rightsSource?.accessedAt && isCurrent(asset));
-const activeOffers = offers.filter(offer => offer.status === "active");
+const approvedAssets = assets.filter(asset => asset.status === "approved" && isSafePublicUrl(asset.url) && asset.projectMatch === "confirmed" && asset.rightsStatus === "confirmed" && asset.rightsNote?.trim() && asset.rightsSource?.url && asset.rightsSource?.title && asset.rightsSource?.accessedAt && isCurrent(asset));
+const activeOffers = offers.filter(offer => offer.status === "active").map(offer => ({
+  id: offer.id,
+  title: offer.title,
+  type: offer.type,
+  description: offer.description ?? null,
+  requiredFields: asArray(offer.requiredFields)
+}));
 const publicValue = value => verified(value) ? value.value : null;
 const profile = {
   project: {
