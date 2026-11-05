@@ -22,7 +22,7 @@ try {
     id: "presentation", title: "Презентация", type: "presentation", status: "active", successMessage: "Принято"
   }];
   passport.assets.images = [{
-    id: "hero", url: "https://example.com/hero.webp", type: "render", status: "approved", alt: "Фасад", rightsNote: "Письменное разрешение застройщика"
+    id: "hero", url: "https://example.com/hero.webp", type: "render", status: "approved", alt: "Фасад", rightsNote: "Письменное разрешение застройщика", projectMatch: "confirmed", rightsStatus: "confirmed", rightsSource: { url: "https://example.com/rights", title: "Разрешение на использование", accessedAt: "2026-11-05T10:00:00Z", sourceType: "document" }
   }];
   passport.contentStrategy.modules = [{
     moduleId: "hero", decision: "include", reason: "Главный блок",
@@ -54,6 +54,7 @@ try {
   passport.contentStrategy.modules.push({
     moduleId: "parking", decision: "include", reason: "Проверка отсутствующего renderer"
   });
+  passport.assets.images[0].rightsStatus = "pending";
   writeFileSync(input, JSON.stringify(passport));
   const blocked = spawnSync(process.execPath, [resolve("scripts/build-review-bundle.mjs"), "--passport", input, "--out", output], { encoding: "utf8" });
   assert.equal(blocked.status, 1, "Unverified public facts must block bundle generation.");
