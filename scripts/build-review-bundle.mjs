@@ -294,7 +294,10 @@ const partialCapability = {
 const manifest = {
   projectId: passport.project?.id ?? null,
   modules: orderedModules.map((item, index) => {
-    const capability = specializedCapabilities[item.moduleId] ?? partialCapability;
+    const capability = specializedCapabilities[item.moduleId] ?? (rendererAliases[item.moduleId] ? partialCapability : {
+      status: "unsupported",
+      behavior: "No explicit renderer implementation is registered."
+    });
     return {
       order: Number.isInteger(item.order) ? item.order : index,
       moduleId: item.moduleId,
@@ -314,15 +317,15 @@ const manifest = {
 const missingRendererSections = manifest.modules
   .filter(item => !item.rendererSectionId || !renderedSections.has(item.rendererSectionId))
   .map(item => ({ moduleId: item.moduleId, rendererSectionId: item.rendererSectionId }));
+const unsupportedCapabilities = manifest.modules
+  .filter(item => item.capability.status === "unsupported")
+  .map(item => item.moduleId);
 for (const item of missingRendererSections) {
   errors.push(`Selected module "${item.moduleId}" has no matching section in the current renderer.`);
 }
 for (const moduleId of unsupportedCapabilities) {
   errors.push(`Selected module "${moduleId}" has no implemented renderer capability.`);
 }
-const unsupportedCapabilities = manifest.modules
-  .filter(item => item.capability.status === "unsupported")
-  .map(item => item.moduleId);
 const rendererAudit = {
   status: missingRendererSections.length || unsupportedCapabilities.length ? "blocked" : "passed",
   renderedSections: [...renderedSections].sort(),
