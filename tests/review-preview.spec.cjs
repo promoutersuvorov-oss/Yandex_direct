@@ -68,7 +68,7 @@ test("preview CTA preserves selected apartment context and never claims delivery
   await expect(dialog).toContainText("Предпросмотр контекста обращения");
   const planPayload = JSON.parse(await dialog.locator("#noticePayload").textContent());
   expect(planPayload).toMatchObject({
-    projectId: "example-residential-complex",
+    projectId: "sample-residential-complex",
     offerId: "selection",
     moduleId: "floor-plans",
     plan: { id: "fixture-plan-45", rooms: 2, areaSqm: 54.2, assetId: "fixture-plan" }
