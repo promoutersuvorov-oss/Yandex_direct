@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://key.example/schemas/cta-context.schema.json",
+  "title": "KEY CTA context preview envelope",
+  "description": "Local-only review payload. It is not a production lead and must never be transmitted as one.",
+  "type": "object",
+  "required": ["schemaVersion", "state", "projectId", "conversion", "requirements", "delivery"],
+  "properties": {
+    "schemaVersion": { "const": "key-cta-context/2.0" },
+    "state": { "const": "preview_only" },
+    "projectId": { "type": ["string", "null"] },
+    "conversion": {
+      "type": "object",
+      "required": ["scenarioId", "offerId", "moduleId", "entityContext"],
+      "properties": {
+        "scenarioId": { "type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9._-]*$" },
+        "offerId": { "type": ["string", "null"] },
+        "moduleId": { "type": ["string", "null"] },
+        "entityContext": {
+          "type": "object",
+          "properties": {
+            "plan": {
+              "type": "object",
+              "required": ["id", "rooms", "areaSqm", "floor", "finishing", "assetId"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "rooms": { "type": "integer", "minimum": 0 },
+                "areaSqm": { "type": "number", "exclusiveMinimum": 0 },
+                "floor": { "type": ["integer", "null"], "minimum": 1 },
+                "finishing": { "type": ["string", "null"] },
+                "assetId": { "type": "string", "minLength": 1 }
+              },
+              "additionalProperties": false
+            },
+            "quizAnswers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["questionId", "optionId"],
+                "properties": {
+                  "questionId": { "type": "string", "minLength": 1 },
+                  "optionId": { "type": "string", "minLength": 1 }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "requirements": {
+      "type": "object",
+      "required": ["requiredFields", "consentRequired"],
+      "properties": {
+        "requiredFields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["name", "phone", "preferredChannel", "preferredTime"] }
+        },
+        "consentRequired": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "delivery": {
+      "type": "object",
+      "required": ["status", "accepted"],
+      "properties": {
+        "status": { "const": "disabled_in_preview" },
+        "accepted": { "const": false }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
