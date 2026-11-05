@@ -46,6 +46,12 @@ Hook: «Парк — часть вашего привычного маршрут
 4. Не менять рабочий эталон до появления проверяемого адаптера и regression checklist.
 5. После миграции собрать паспорт K15 только из фактов с источниками и запустить QA.
 
+
+
+## 9. Миграция K15 runtime
+
+Фактические поля конфигурации K15, lead payload, CTA-сценарии, события аналитики, правила переноса и регрессионные сценарии зафиксированы в [K15 Runtime Migration Contract](K15_RUNTIME_MIGRATION_CONTRACT.md). Это migration map, а не вторая схема паспорта: canonical data contract остаётся `schemas/project-passport.schema.json`.
+
 ## 8. Связанные контракты
 
 - Каталог смысловых модулей и правила композиции: [MODULE_CATALOG_AND_COMPOSITION_RULES.md](MODULE_CATALOG_AND_COMPOSITION_RULES.md).
