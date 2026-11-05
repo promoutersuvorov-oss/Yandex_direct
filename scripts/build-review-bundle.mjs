@@ -185,7 +185,7 @@ const report = {
   generatedAt: new Date().toISOString(),
   passportPath,
   projectId: passport.project?.id ?? null,
-  status: errors.length ? "blocked" : warnings.length ? "review_required" : "ready_for_renderer_mapping",
+  status: errors.length ? "blocked" : "review_required",
   summary: {
     factsTotal: facts.length,
     factsPublishable: allowedFacts.length,
