@@ -33,6 +33,8 @@ jobs:
         run: python scripts/validate-passport-schema.py
       - name: Validate KD 905 draft passport against JSON Schema
         run: python scripts/validate-passport-schema.py examples/kd-905.project-passport.draft.json
+      - name: Validate CTA context contract schema and negative cases
+        run: python scripts/validate-cta-context-schema.py
       - name: Validate JSON artifacts and K15 baseline
         run: node scripts/validate-source.mjs
       - name: Test first-touch and last-touch attribution
