@@ -74,7 +74,7 @@ try {
   assert.equal(firstCapabilities.get("quiz")?.status, "implemented", "Quiz must declare its actual specialized capability.");
   assert.equal(firstCapabilities.get("lifestyle")?.status, "partial", "Generic editorial sections must not be mislabeled as fully implemented.");
   assert.equal(secondCapabilities.get("location")?.status, "implemented", "Verified nearby-place cards are a specialized renderer capability without implying map or route behavior.");
-  assert.deepEqual(firstReport.rendererAudit.capabilitySummary, { implemented: 5, partial: first.length - 5, unsupported: 0 });
+  assert.deepEqual(firstReport.rendererAudit.capabilitySummary, { implemented: 6, partial: first.length - 6, unsupported: 0 });
   assert.deepEqual(secondReport.rendererAudit.capabilitySummary, { implemented: 3, partial: second.length - 3, unsupported: 0 });
   assert.equal(firstReport.rendererAudit.status, "passed");
   assert.equal(secondReport.rendererAudit.status, "passed");
