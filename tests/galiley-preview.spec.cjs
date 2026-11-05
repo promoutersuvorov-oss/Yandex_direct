@@ -18,6 +18,12 @@ test("Galiley preview renders its own project identity and garden-modern composi
   await expect(page.locator(".place-group .place-card")).toHaveCount(11);
   await expect(page.locator("body")).not.toContainText("Клубный дом «905»");
   await expect(page.locator("body")).toContainText("не принимает заявки");
+  const heroLayout = await page.locator(".module.hero.text-only").evaluate(node => ({
+    columns: getComputedStyle(node).gridTemplateColumns,
+    copyWidth: getComputedStyle(node.querySelector(".module-copy")).maxWidth
+  }));
+  expect(heroLayout.columns.trim().split(/\\s+/)).toHaveLength(1);
+  expect(heroLayout.copyWidth).toBe("1040px");
 
   const cta = page.locator("button[data-preview-cta]").first();
   await expect(cta).toBeVisible();
