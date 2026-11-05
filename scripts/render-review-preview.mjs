@@ -153,7 +153,7 @@ function renderModule(module, index) {
     : ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? ""
     : asset ? '<figure><img src="' + esc(safeImageUrl(asset.url)) + '" alt="' + esc(asset.alt || profile.project.name || "Изображение проекта") + '" loading="lazy"></figure>' : "";
   const plans = (module.moduleId === "floor-plans" || module.moduleId === "apartments") ? renderPlans(offer) : "";
-  const quiz = module.moduleId === "quiz" ? renderQuiz(profile.selectionQuiz, offer) : "";
+  const quiz = module.moduleId === "quiz" ? renderQuiz(profile.selectionQuiz, byId(offers, profile.selectionQuiz?.resultOfferId)) : "";
   const faq = module.moduleId === "faq" ? renderFaq(faqItems) : "";
   const cta = ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? "" : button(offer, "");
   const locationContent = module.moduleId === "location" || module.moduleId === "places" ? renderLocation() : "";
