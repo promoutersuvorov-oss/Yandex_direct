@@ -1,6 +1,6 @@
 const ATTRIBUTION_KEYS = Object.freeze([
   "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content",
-  "yclid", "ymclid", "gclid", "gbraid", "wbraid", "fbclid", "vk_click_id"
+  "yclid", "ysclid", "gclid", "gbraid", "wbraid", "fbclid", "vk_click_id", "rb_clickid", "erid"
 ]);
 const MAX_VALUE_LENGTH = 256;
 
