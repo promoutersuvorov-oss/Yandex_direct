@@ -22,7 +22,7 @@ KLanding включает отдельный интеллектуальный м
 
 ## Главный стандарт качества
 
-Все последующие решения по дизайну, структуре, маркетингу и функциональности лендингов должны соответствовать [KEY Landing Product Standard](docs/product/KEY_LANDING_PRODUCT_STANDARD.md). Маркетинговые решения и обучение на результатах регулирует [Marketing Intelligence & Learning Loop](docs/product/MARKETING_INTELLIGENCE_AND_LEARNING_LOOP.md). Области ответственности документов закреплены в [иерархии документации](docs/architecture/DOCUMENT_AUTHORITY.md). До расширения функциональности сначала проверяем соответствие эталона стандарту.
+Все последующие решения по дизайну, структуре, маркетингу и функциональности лендингов должны соответствовать [KEY Landing Product Standard](docs/product/KEY_LANDING_PRODUCT_STANDARD.md). Маркетинговые решения и обучение на результатах регулирует [Marketing Intelligence & Learning Loop](docs/product/MARKETING_INTELLIGENCE_AND_LEARNING_LOOP.md). Каталог модулей задаёт правила индивидуальной композиции, а [Production UI Foundation](docs/product/PRODUCTION_UI_FOUNDATION.md) — инженерные требования к реальному интерфейсу. Области ответственности документов закреплены в [иерархии документации](docs/architecture/DOCUMENT_AUTHORITY.md). До расширения функциональности сначала проверяем соответствие эталона стандарту.
 
 ## Принципы продукта
 
@@ -43,6 +43,10 @@ KLanding включает отдельный интеллектуальный м
 5. Подключить рекламные сценарии Яндекс Директ и передачу атрибуции.
 6. Связать лиды с процессом продаж KEY и аналитикой качества.
 7. Оптимизировать рекламу и лендинги по стоимости квалифицированного лида и продажам.
+
+## Материалы, перенесённые из Agency
+
+Из репозитория `nikitanecilli-bit/Agency` изучены и адаптированы полезные материалы: [каталог модулей](docs/architecture/MODULE_CATALOG_AND_COMPOSITION_RULES.md), [Production UI Foundation](docs/product/PRODUCTION_UI_FOUNDATION.md), [mapping паспорта на runtime](docs/architecture/PASSPORT_TO_LANDING_MAPPING.md). Решения о переносе и список того, что нельзя копировать напрямую, зафиксированы в [отчёте повторного использования Agency](docs/audits/AGENCY_REPOSITORY_REUSE_REVIEW_2026-11-05.md).
 
 ## Текущий аудит K15
 
