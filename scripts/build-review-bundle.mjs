@@ -246,7 +246,7 @@ if (passport.project?.positioningStatus === "approved" && !positioningApproved) 
 const designTheme = ["urban-noir", "warm-editorial", "garden-modern"].includes(passport.contentStrategy?.visualDirection?.theme)
   ? passport.contentStrategy.visualDirection.theme : "urban-noir";
 const profile = {
-  design: { theme: designTheme },
+  design: { theme: designTheme, composition: ["editorial", "cinematic", "architectural"].includes(passport.contentStrategy?.visualDirection?.composition) ? passport.contentStrategy.visualDirection.composition : "editorial" },
   project: {
     id: passport.project?.id ?? null,
     name: safeIdentity(passport.project?.name),
