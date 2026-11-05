@@ -67,6 +67,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Build review bundle for browser validation
+        run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out artifacts/review-bundle
+      - name: Render review preview for browser validation
+        run: node scripts/render-review-preview.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/preview.html
       - name: Install Playwright test runner
         run: npm install --no-save --no-audit --no-fund @playwright/test@1.56.1
       - name: Install Playwright browser engine
