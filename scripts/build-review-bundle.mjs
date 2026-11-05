@@ -32,9 +32,14 @@ const isSafePublicUrl = value => {
     return false;
   }
 };
+const isTraceableSource = source => Boolean(
+  source && isSafePublicUrl(source.url) &&
+  typeof source.title === "string" && source.title.trim() &&
+  typeof source.accessedAt === "string" && Number.isFinite(Date.parse(source.accessedAt))
+);
 const publicFact = fact => fact?.status === "verified" && isCurrent(fact) &&
   ["allowed", "allowed_with_qualification"].includes(fact.publicUse) &&
-  asArray(fact.sources).length > 0;
+  asArray(fact.sources).length > 0 && asArray(fact.sources).every(isTraceableSource);
 const safeIdentity = value => typeof value === "string" && value.trim() &&
   !/(заполнить|уточнить|placeholder|todo)/i.test(value) ? value : null;
 
@@ -85,8 +90,9 @@ for (const fact of facts) {
   if (["allowed", "allowed_with_qualification"].includes(fact.publicUse) && !isCurrent(fact)) {
     errors.push(`Fact "${fact.id}" is expired or has an invalid expiresAt date.`);
   }
-  if (fact.publicUse === "allowed" && asArray(fact.sources).length === 0) {
-    errors.push(`Public fact "${fact.id}" has no evidence source.`);
+  if (["allowed", "allowed_with_qualification"].includes(fact.publicUse) &&
+      (asArray(fact.sources).length === 0 || !asArray(fact.sources).every(isTraceableSource))) {
+    errors.push(`Public fact "${fact.id}" has missing or non-HTTPS traceable evidence sources.`);
   }
 }
 for (const advantage of advantages) {
@@ -152,7 +158,7 @@ const approvedAssets = assets.filter(asset => asset.status === "approved" && isS
 const approvedAssetIds = new Set(approvedAssets.map(asset => asset.id));
 for (const plan of asArray(passport.apartmentPlans)) {
   if (plan.status === "verified" && plan.publicUse === "allowed") {
-    if (!asArray(plan.sources).length) errors.push(`Public apartment plan "${plan.id}" has no evidence source.`);
+    if (!asArray(plan.sources).length || !asArray(plan.sources).every(isTraceableSource)) errors.push(`Public apartment plan "${plan.id}" has missing or non-HTTPS traceable evidence sources.`);
     if (!isCurrent(plan)) errors.push(`Public apartment plan "${plan.id}" is expired or has an invalid expiry date.`);
     const asset = assetById.get(plan.assetId);
     if (!asset || asset.type !== "plan" || !approvedAssetIds.has(plan.assetId)) {
@@ -161,7 +167,7 @@ for (const plan of asArray(passport.apartmentPlans)) {
   }
 }
 const publicApartmentPlans = asArray(passport.apartmentPlans)
-  .filter(plan => plan.status === "verified" && plan.publicUse === "allowed" && asArray(plan.sources).length > 0 && isCurrent(plan) && approvedAssetIds.has(plan.assetId))
+  .filter(plan => plan.status === "verified" && plan.publicUse === "allowed" && asArray(plan.sources).length > 0 && asArray(plan.sources).every(isTraceableSource) && isCurrent(plan) && approvedAssetIds.has(plan.assetId))
   .map(({ id, title, rooms, areaSqm, floor, assetId, finishing }) => ({ id, title: title ?? null, rooms, areaSqm, floor: floor ?? null, assetId, finishing: finishing ?? null }));
 const rawQuiz = passport.selectionQuiz;
 const quizOffer = rawQuiz ? offerById.get(rawQuiz.resultOfferId) : null;
@@ -253,7 +259,7 @@ const profile = {
   facts: allowedFacts.map(({ id, claim, publicUse }) => ({ id, claim, publicUse })),
   advantages: allowedAdvantages,
   infrastructure: asArray(passport.infrastructure)
-    .filter(item => item.status === "verified" && item.source)
+    .filter(item => item.status === "verified" && isTraceableSource(item.source))
     .map(({ name, category, distanceMeters, walkingMinutes, marketingMeaning, publicLabel }) =>
       ({ name, category, distanceMeters, walkingMinutes, marketingMeaning, publicLabel })),
   offers: activeOffers,
