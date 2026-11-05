@@ -70,7 +70,7 @@ try {
   assert.equal(firstCapabilities.get("quiz")?.status, "implemented", "Quiz must declare its actual specialized capability.");
   assert.equal(firstCapabilities.get("about")?.status, "partial", "Generic editorial sections must not be mislabeled as fully implemented.");
   assert.equal(secondCapabilities.get("location")?.status, "partial", "A generic location section must not imply map or route behavior.");
-  assert.deepEqual(firstReport.rendererAudit.capabilitySummary, { implemented: 3, partial: first.length - 3, unsupported: 0 });
+  assert.deepEqual(firstReport.rendererAudit.capabilitySummary, { implemented: 4, partial: first.length - 4, unsupported: 0 });
   assert.deepEqual(secondReport.rendererAudit.capabilitySummary, { implemented: 1, partial: second.length - 1, unsupported: 0 });
   assert.equal(firstReport.rendererAudit.status, "passed");
   assert.equal(secondReport.rendererAudit.status, "passed");
