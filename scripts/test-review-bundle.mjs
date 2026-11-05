@@ -74,6 +74,8 @@ try {
     moduleId: "parking", decision: "include", reason: "Проверка отсутствующего renderer"
   });
   passport.assets.images[0].rightsStatus = "pending";
+  passport.assets.images[0].projectMatch = "unconfirmed";
+  passport.assets.images[0].validUntil = "2020-01-01T00:00:00Z";
   writeFileSync(input, JSON.stringify(passport));
   const blocked = spawnSync(process.execPath, [resolve("scripts/build-review-bundle.mjs"), "--passport", input, "--out", output], { encoding: "utf8" });
   assert.equal(blocked.status, 1, "Unverified public facts must block bundle generation.");
