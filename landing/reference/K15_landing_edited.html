@@ -617,10 +617,7 @@ body{font-size:17px}
 .dark .fgroup .field+.field{border-top-color:rgba(255,255,255,.22)}
 .fgroup .field.err{box-shadow:inset 3px 0 0 #e0705a}
 .consent{display:flex;gap:12px;align-items:center;cursor:pointer;font-size:13px;line-height:1.4;position:relative}
-.consent input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:1}
-.consent .swt{pointer-events:none}
-.consent>span:last-child{position:relative;z-index:2}
-.consent a{position:relative;z-index:3}
+.consent input{position:absolute;opacity:0;width:1px;height:1px}
 .consent .swt{flex:none;width:44px;height:26px;border-radius:999px;background:rgba(120,120,128,.34);position:relative;transition:background .3s var(--ease),box-shadow .3s}
 .consent .swt::after{content:"";position:absolute;left:2px;top:2px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(21,24,29,.3);transition:transform .3s var(--ease)}
 .consent input:checked+.swt{background:var(--acc)}
@@ -1998,6 +1995,8 @@ const fmtPhone = v => { let d=v.replace(/\D/g,''); if(d[0]==='8'||d[0]==='7') d=
 document.addEventListener('input',e=>{ if(e.target.name==='uphone'){ e.target.value = fmtPhone(e.target.value); e.target.classList.remove('err'); } if(e.target.name==='uname') e.target.classList.remove('err'); });
 document.addEventListener('focusin',e=>{ if(e.target.name==='uphone' && !e.target.value) e.target.value='+7 ('; });
 document.addEventListener('change',e=>{ if(e.target.name==='uconsent'){ e.target.closest('.consent').classList.remove('err'); const er = e.target.form && $('.ferr',e.target.form); if(er) er.textContent=''; } });
+// Явное переключение визуального тумблера: надёжно в WebKit, без прозрачного overlay над формой.
+document.addEventListener('click',e=>{ const swt=e.target.closest('.consent .swt'); if(!swt) return; e.preventDefault(); const input=swt.previousElementSibling; if(input && input.name==='uconsent') input.click(); });
 
 /* ---- Режим разработки: file://, localhost или ?demo=1 ---- */
 const DEV = location.protocol==='file:' || /^(localhost|127\.0\.0\.1)$/.test(location.hostname) || /[?&]demo=1/.test(location.search);
