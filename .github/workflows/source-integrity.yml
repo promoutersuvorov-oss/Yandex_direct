@@ -23,14 +23,30 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Set up Python for JSON Schema validation
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install JSON Schema validator
+        run: python -m pip install --disable-pip-version-check jsonschema
+      - name: Validate passport example against JSON Schema
+        run: python scripts/validate-passport-schema.py
       - name: Validate JSON artifacts and K15 baseline
         run: node scripts/validate-source.mjs
       - name: Build review-only bundle from the canonical passport example
-        run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out /tmp/klanding-review-bundle
+        run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out artifacts/review-bundle
       - name: Test review bundle evidence and privacy gates
         run: node scripts/test-review-bundle.mjs
       - name: Run K15 static product and interaction audit
         run: node scripts/audit-k15.mjs
+      - name: Upload review-only bundle
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: klanding-review-bundle
+          path: artifacts/review-bundle/
+          if-no-files-found: error
+          retention-days: 14
 
   browser-smoke:
     needs: source-integrity
@@ -51,7 +67,7 @@ jobs:
           node-version: 22
       - name: Install Playwright test runner
         run: npm install --no-save --no-audit --no-fund @playwright/test@1.56.1
-      - name: Install Chromium
+      - name: Install Playwright browser engine
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Start local static server
         run: python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/klanding-http.log 2>&1 &
@@ -65,5 +81,4 @@ jobs:
           path: |
             test-results/
             playwright-report/
-            /tmp/klanding-review-bundle/
           if-no-files-found: ignore
