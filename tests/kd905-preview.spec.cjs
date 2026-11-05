@@ -20,6 +20,7 @@ test("KD 905 uses its own editorial composition and only verified project facts"
   await expect(page.locator("body")).toContainText("ул. Революции 1905 года, 14");
   await expect(page.getByRole("heading", { name: "Вопросы и ответы" })).toHaveCount(0);
   await expect(page.locator('main [data-module="hero"]')).toHaveClass(/text-only/);
+  await expect(page.locator('main [data-module="lifestyle"]')).toHaveAttribute("data-variant", "feature-led");
 
   await expect(page.locator("main img")).toHaveCount(0);
   await expect(page.locator("form")).toHaveCount(0);

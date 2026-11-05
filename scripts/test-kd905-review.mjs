@@ -41,7 +41,7 @@ assert.equal(profile.assets.length, 0, "Rights-restricted developer media must n
 assert.equal(profile.offers.length, 0, "No unapproved lead offers may be invented.");
 assert.equal(report.summary.assetsApproved, 0);
 assert.equal(report.summary.offersActive, 0);
-assert.equal(profile.project.delivery, null, "Expired delivery information must stay out of the public profile.");
+assert.equal(profile.project.delivery, null, "Unverified delivery information must stay out of the public profile.");
 assert.equal(profile.project.constructionStatus, null, "Unknown construction status must stay unpublished.");
 assert.equal(profile.project.positioning, null, "Draft positioning must not be presented as approved copy.");
 assert.ok(!/<form\b/i.test(html), "No fake lead form or nonfunctional quiz may appear.");
