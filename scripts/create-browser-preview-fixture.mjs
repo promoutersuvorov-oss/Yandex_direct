@@ -62,7 +62,7 @@ passport.infrastructure = [
       method: "walking_route", checkedAt: "2020-01-01T00:00:00Z", validUntil: "2020-02-01T00:00:00Z",
       source: evidence("Устаревшее подтверждение маршрута", "routes/expired")
     }, status: "verified", source: evidence("Синтетический источник второго парка", "places/park-expired") },
-  { name: "Неподтверждённый торговый центр", category: "shopping", distanceMeters: 120, walkingMinutes: 2, status: "provisional",
+  { name: "Неподтверждённый торговый центр", category: "shopping", status: "provisional",
     publicLabel: "Не должен появиться в публичном preview", source: evidence("Синтетический неподтверждённый источник", "places/unverified") }
 ];
 passport.offers = [
