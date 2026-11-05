@@ -8,12 +8,17 @@ test("editorial reference concept responds across viewport sizes without errors"
   await expect(page.locator(".hero h1")).toBeVisible();
   await expect(page.locator(".preview")).toContainText("НЕ ДЛЯ ПУБЛИКАЦИИ");
   await expect(page.locator("main .section").first()).toBeVisible();
+  await expect(page.locator("main .section").first()).toHaveAttribute("data-variant", "editorial-split");
   for(const viewport of [{width:360,height:800},{width:390,height:844},{width:768,height:1024},{width:1440,height:900}]){
     await page.setViewportSize(viewport);
     const sizes=await page.evaluate(()=>({view:document.documentElement.clientWidth,doc:document.documentElement.scrollWidth,body:document.body.scrollWidth}));
     expect(Math.max(sizes.doc,sizes.body)).toBeLessThanOrEqual(sizes.view+1);
   }
   expect(errors).toEqual([]);
+  const styles=await page.locator("style").textContent();
+  expect(styles).toContain(".section.variant-feature-led");
+  expect(styles).toContain(".section.variant-plan-selector");
+  expect(styles).toContain("prefers-reduced-motion");
 });
 
 test("editorial reference CTA opens honest non-submitting dialog", async ({ page }) => {
