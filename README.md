@@ -50,6 +50,8 @@ KLanding включает отдельный интеллектуальный м
 
 ## Текущий аудит K15
 
+Аудит текущего review renderer, его ограничений и выполненных улучшений: [Review Renderer Gap Audit](docs/audits/REVIEW_RENDERER_GAP_AUDIT.md). Специализированные preview-компоненты hero, gallery, floor-plans и quiz проверяются на синтетическом паспорте в трёх браузерных движках.
+
 Первичный статический gap-аудит: [K15 Product & UX Gap Audit](docs/audits/K15_PRODUCT_AND_UX_GAP_AUDIT_2026-11-05.md). Он фиксирует подтверждённые по исходнику пробелы и отделяет их от ещё не выполненных браузерных и интеграционных проверок. Повторяемая проверка выполняется GitHub Actions через `scripts/audit-k15.mjs`.
 
 ## Структура документации
