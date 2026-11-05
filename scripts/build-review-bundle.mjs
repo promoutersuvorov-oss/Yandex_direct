@@ -127,6 +127,8 @@ for (const offer of offers) {
 }
 warn(asArray(passport.verification?.conflicts).length === 0, "Passport contains unresolved verification conflicts.");
 warn(passport.verification?.manualReviewRequired !== true, "Passport explicitly requires manual review.");
+warn(safeIdentity(passport.project?.name) !== null, "Project name is missing or remains a template placeholder.");
+warn(safeIdentity(passport.project?.location?.city) !== null, "Project city is missing or remains a template placeholder.");
 warn(assets.some(asset => asset.status === "approved"), "No approved media assets are available.");
 warn(modules.some(module => module.decision === "include"), "No modules are marked include; review bundle will contain no active sections.");
 
@@ -138,11 +140,13 @@ const allowedAdvantages = advantages.filter(item =>
 const approvedAssets = assets.filter(asset => asset.status === "approved" && asset.url && asset.projectMatch === "confirmed" && asset.rightsStatus === "confirmed" && asset.rightsNote?.trim() && asset.rightsSource?.url && asset.rightsSource?.title && asset.rightsSource?.accessedAt && isCurrent(asset));
 const activeOffers = offers.filter(offer => offer.status === "active");
 const publicValue = value => verified(value) ? value.value : null;
+const safeIdentity = value => typeof value === "string" && value.trim() &&
+  !/(заполнить|уточнить|placeholder|todo)/i.test(value) ? value : null;
 const profile = {
   project: {
     id: passport.project?.id ?? null,
-    name: passport.project?.name ?? null,
-    city: passport.project?.location?.city ?? null,
+    name: safeIdentity(passport.project?.name),
+    city: safeIdentity(passport.project?.location?.city),
     address: publicValue(passport.project?.location?.address),
     district: publicValue(passport.project?.location?.district),
     developer: publicValue(passport.project?.developer),
@@ -151,11 +155,14 @@ const profile = {
     delivery: publicValue(passport.project?.delivery),
     constructionStatus: publicValue(passport.project?.constructionStatus)
   },
-  facts: allowedFacts.map(({ id, claim, publicUse, sources }) => ({ id, claim, publicUse, sources })),
+  facts: allowedFacts.map(({ id, claim, publicUse }) => ({ id, claim, publicUse })),
   advantages: allowedAdvantages,
-  infrastructure: asArray(passport.infrastructure).filter(item => item.status === "verified" && item.source),
+  infrastructure: asArray(passport.infrastructure)
+    .filter(item => item.status === "verified" && item.source)
+    .map(({ name, category, distanceMeters, walkingMinutes, marketingMeaning, publicLabel }) =>
+      ({ name, category, distanceMeters, walkingMinutes, marketingMeaning, publicLabel })),
   offers: activeOffers,
-  assets: approvedAssets
+  assets: approvedAssets.map(({ id, url, type, alt, usage }) => ({ id, url, type, alt, usage }))
 };
 const rendererAliases = {
   hero: "hero", key: "key", gallery: "gallery", about: "about", security: "security",
@@ -199,6 +206,18 @@ const report = {
   passportPath,
   projectId: passport.project?.id ?? null,
   status: errors.length ? "blocked" : "review_required",
+  evidenceLedger: {
+    facts: facts.map(({ id, claim, status, publicUse, expiresAt, sources }) => ({
+      id, claim, status, publicUse, expiresAt: expiresAt ?? null, sources: asArray(sources)
+    })),
+    assets: assets.map(({ id, status, projectMatch, rightsStatus, rightsNote, rightsSource, validUntil }) => ({
+      id, status, projectMatch: projectMatch ?? null, rightsStatus: rightsStatus ?? null,
+      rightsNote: rightsNote ?? null, rightsSource: rightsSource ?? null, validUntil: validUntil ?? null
+    })),
+    infrastructure: asArray(passport.infrastructure).map(({ name, status, source }) => ({
+      name, status, source: source ?? null
+    }))
+  },
   summary: {
     factsTotal: facts.length,
     factsPublishable: allowedFacts.length,
@@ -229,6 +248,7 @@ const report = {
   boundaries: [
     "This is a review-only intermediate bundle, not a publishable landing page.",
     "No K15 HTML, prices, contacts, coordinates, endpoints, analytics IDs or commercial secrets are copied.",
+    "Evidence URLs and media-rights metadata stay in the internal generation report, not the public project profile.",
     "Renderer compatibility, asset rights, live integrations and visual QA require separate gates."
   ]
 };
