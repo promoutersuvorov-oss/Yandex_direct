@@ -25,6 +25,24 @@ test("K15 loads and has no horizontal overflow on target viewports", async ({ pa
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await expect(page.locator("#hero")).toBeAttached();
 
+  // Trigger real IntersectionObserver reveal and lazy-media behavior before full-page screenshots.
+  await page.setViewportSize({ width: 390, height: 844 });
+  const pageHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+  const step = Math.max(320, Math.floor(window.innerHeight * 0.7));
+  for (let y = 0; y < pageHeight; y += step) {
+    await page.evaluate(position => window.scrollTo(0, position), y);
+    await page.waitForTimeout(90);
+  }
+  await page.waitForTimeout(350);
+  const unrevealed = await page.locator(".rv").evaluateAll(nodes => nodes.filter(node => {
+    const style = getComputedStyle(node);
+    return style.display !== "none" && style.visibility !== "hidden" &&
+      node.getBoundingClientRect().height > 0 && !node.classList.contains("in");
+  }).length);
+  expect(unrevealed, "Visible reveal elements must become visible after normal scrolling").toBe(0);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(250);
+
   const viewports = [
     { name: "mobile-360", width: 360, height: 800 },
     { name: "mobile-390", width: 390, height: 844 },
