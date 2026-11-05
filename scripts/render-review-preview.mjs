@@ -48,22 +48,23 @@ const renderGallery = list => '<div class="media-grid">' + list.map((asset, inde
   '"><figcaption>' + esc(asset.type === "plan" ? "Планировка" : asset.type === "render" ? "Визуализация" : "Фотография") +
   '</figcaption></figure>'
 ).join("") + '</div>';
+const ctaAttributes = offer => `data-preview-cta="${esc(offer.id)}" data-preview-scenario="${esc(offer.scenarioId || offer.id)}" data-preview-title="${esc(offer.title)}" data-preview-required-fields="${esc(JSON.stringify(offer.requiredFields || []))}" data-preview-consent-required="${offer.consentRequired !== false}"`;
 const renderPlans = offer => (profile.apartmentPlans || []).map(plan => {
   const asset = byId(assets, plan.assetId);
   if (!asset || !safeImageUrl(asset.url)) return "";
   const rooms = plan.rooms === 0 ? "Студия" : plan.rooms + "-комнатная";
   const meta = [rooms, Number(plan.areaSqm).toLocaleString("ru-RU") + " м²", plan.floor ? plan.floor + " этаж" : ""].filter(Boolean).join(" · ");
-  const action = offer ? '<button class="cta" type="button" data-preview-cta="' + esc(offer.id) +
-    '" data-preview-title="' + esc(offer.title) + '" data-preview-plan-id="' + esc(plan.id) +
-    '" data-preview-plan-rooms="' + esc(plan.rooms) + '" data-preview-plan-area="' + esc(plan.areaSqm) +
-    '" data-preview-plan-floor="' + esc(plan.floor ?? "") + '" data-preview-plan-finishing="' + esc(plan.finishing ?? "") +
+  const action = offer ? '<button class="cta" type="button" ' + ctaAttributes(offer) +
+    ' data-preview-plan-id="' + esc(plan.id) + '" data-preview-plan-rooms="' + esc(plan.rooms) +
+    '" data-preview-plan-area="' + esc(plan.areaSqm) + '" data-preview-plan-floor="' + esc(plan.floor ?? "") +
+    '" data-preview-plan-finishing="' + esc(plan.finishing ?? "") +
     '" data-preview-plan-asset-id="' + esc(plan.assetId) + '">Обсудить эту планировку</button>' : "";
   return '<article class="plan-card"><img src="' + esc(safeImageUrl(asset.url)) + '" alt="' +
     esc(asset.alt || "Планировка квартиры") + '" loading="lazy"><div class="plan-copy"><p class="eyebrow">Планировка</p><h3>' +
     esc(plan.title || rooms) + '</h3><p>' + esc(meta) + '</p>' + (plan.finishing ? '<p>' + esc(plan.finishing) + '</p>' : "") +
     action + '</div></article>';
 }).filter(Boolean).join("");
-const renderQuiz = quiz => {
+const renderQuiz = (quiz, offer) => {
   if (!quiz) return "";
   const total = quiz.questions.length;
   const questions = quiz.questions.map((question, index) =>
@@ -73,7 +74,10 @@ const renderQuiz = quiz => {
       '" value="' + esc(option.id) + '" required><span>' + esc(option.label) + '</span></label>').join("") + '</fieldset>'
   ).join("");
   return '<form class="preview-quiz" data-preview-quiz data-result-offer="' + esc(quiz.resultOfferId) +
-    '"><h3>' + esc(quiz.title) + '</h3>' + (quiz.description ? '<p>' + esc(quiz.description) + '</p>' : "") +
+    '" data-result-scenario="' + esc(offer?.scenarioId || offer?.id || quiz.resultOfferId) +
+    '" data-preview-required-fields="' + esc(JSON.stringify(offer?.requiredFields || [])) +
+    '" data-preview-consent-required="' + (offer?.consentRequired !== false) +
+    '" data-module-id="quiz"><h3>' + esc(quiz.title) + '</h3>' + (quiz.description ? '<p>' + esc(quiz.description) + '</p>' : "") +
     '<div class="quiz-progress"><progress data-quiz-progress max="' + total + '" value="1" aria-label="Прогресс подбора"></progress>' +
     '<p data-quiz-status role="status" aria-live="polite">Вопрос 1 из ' + total + '</p></div>' +
     questions + '<div class="quiz-actions"><button class="quiz-secondary" type="button" data-quiz-prev disabled>Назад</button>' +
@@ -125,8 +129,8 @@ const labelFor = module => ({
 }[module.moduleId] || module.moduleId.replace(/[-_]/g, " "));
 const offerFor = module => (module.ctaIds || []).map(id => byId(offers, id)).find(Boolean);
 const button = (offer, fallback) => offer
-  ? `<button class="cta" type="button" data-preview-cta="${esc(offer.id)}" data-preview-title="${esc(offer.title)}">${esc(offer.title)}</button>`
-  : fallback ? `<button class="cta" type="button" data-preview-cta="generic" data-preview-title="${esc(fallback)}">${esc(fallback)}</button>` : "";
+  ? `<button class="cta" type="button" ${ctaAttributes(offer)}>${esc(offer.title)}</button>`
+  : fallback ? `<button class="cta" type="button" data-preview-cta="generic" data-preview-scenario="generic" data-preview-title="${esc(fallback)}" data-preview-required-fields="[]" data-preview-consent-required="true">${esc(fallback)}</button>` : "";
 
 function renderModule(module, index) {
   const advantagesHere = module.moduleId === "hero" ? [] : advantagesFor(module);
@@ -149,7 +153,7 @@ function renderModule(module, index) {
     : ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? ""
     : asset ? '<figure><img src="' + esc(safeImageUrl(asset.url)) + '" alt="' + esc(asset.alt || profile.project.name || "Изображение проекта") + '" loading="lazy"></figure>' : "";
   const plans = (module.moduleId === "floor-plans" || module.moduleId === "apartments") ? renderPlans(offer) : "";
-  const quiz = module.moduleId === "quiz" ? renderQuiz(profile.selectionQuiz) : "";
+  const quiz = module.moduleId === "quiz" ? renderQuiz(profile.selectionQuiz, offer) : "";
   const faq = module.moduleId === "faq" ? renderFaq(faqItems) : "";
   const cta = ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? "" : button(offer, "");
   const locationContent = module.moduleId === "location" || module.moduleId === "places" ? renderLocation() : "";
@@ -287,7 +291,10 @@ document.querySelectorAll("[data-preview-cta]").forEach(button=>button.addEventL
   finishing:button.dataset.previewPlanFinishing||null,
   assetId:button.dataset.previewPlanAssetId
  }:null;
- const payload={schemaVersion:"key-review-context/1.0",projectId:${JSON.stringify(projectId)},offerId:button.dataset.previewCta,moduleId:section?.dataset.module||null,plan};
+ const payload={schemaVersion:"key-cta-context/2.0",state:"preview_only",projectId:${JSON.stringify(projectId)},
+  conversion:{scenarioId:button.dataset.previewScenario||button.dataset.previewCta,offerId:button.dataset.previewCta==="generic"?null:button.dataset.previewCta,moduleId:section?.dataset.module||null,entityContext:plan?{plan}:{}},
+  requirements:{requiredFields:JSON.parse(button.dataset.previewRequiredFields||"[]"),consentRequired:button.dataset.previewConsentRequired!=="false"},
+  delivery:{status:"disabled_in_preview",accepted:false}};
  showPreview(button.dataset.previewTitle||"Сценарий обращения","Предпросмотр контекста обращения. Ничего не отправляется.",payload);
 }));
 document.querySelectorAll("form[data-preview-quiz]").forEach(form=>{
@@ -320,7 +327,10 @@ document.querySelectorAll("form[data-preview-quiz]").forEach(form=>{
   });
   const missing=answers.findIndex(answer=>!answer);
   if(missing!==-1){current=missing;updateStep();steps[current].querySelector("input")?.reportValidity();return;}
-  const payload={schemaVersion:"key-selection-preview/1.0",projectId:${JSON.stringify(projectId)},offerId:form.dataset.resultOffer,answers};
+  const payload={schemaVersion:"key-cta-context/2.0",state:"preview_only",projectId:${JSON.stringify(projectId)},
+   conversion:{scenarioId:form.dataset.resultScenario||form.dataset.resultOffer,offerId:form.dataset.resultOffer,moduleId:form.dataset.moduleId||"quiz",entityContext:{quizAnswers:answers}},
+   requirements:{requiredFields:JSON.parse(form.dataset.previewRequiredFields||"[]"),consentRequired:form.dataset.previewConsentRequired!=="false"},
+   delivery:{status:"disabled_in_preview",accepted:false}};
   showPreview("Подбор завершён","Ответы подготовлены локально для проверки сценария. Данные не отправляются.",payload);
  });
  updateStep();
