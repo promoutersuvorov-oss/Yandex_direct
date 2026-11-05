@@ -636,6 +636,50 @@
         },
         "variant": {
           "type": "string"
+        },
+        "userQuestion": {
+          "type": "string",
+          "description": "Какой вопрос посетителя решает модуль."
+        },
+        "whyIncluded": {
+          "type": "string",
+          "description": "Почему модуль включён или рассматривается."
+        },
+        "positionReason": {
+          "type": "string",
+          "description": "Почему модуль расположен в этой части истории."
+        },
+        "assetIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "ctaIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "qaCriteria": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "replacementModuleId": {
+          "type": "string",
+          "description": "ID модуля-замены для решения replace."
         }
       },
       "additionalProperties": false
