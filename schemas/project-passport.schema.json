@@ -1,0 +1,644 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://key.example/schemas/project-passport.schema.json",
+  "title": "KEY Project Passport",
+  "description": "Структурированный паспорт ЖК для генератора лендингов KEY. Данные отделены от движка; каждое публичное утверждение должно иметь источник и статус проверки.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "project",
+    "verification",
+    "contentStrategy",
+    "assets"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "project": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "location"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "developer": {
+          "$ref": "#/$defs/evidencedValue"
+        },
+        "class": {
+          "$ref": "#/$defs/evidencedValue"
+        },
+        "location": {
+          "type": "object",
+          "required": [
+            "city"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "city": {
+              "type": "string"
+            },
+            "address": {
+              "$ref": "#/$defs/evidencedValue"
+            },
+            "coordinates": {
+              "type": "object",
+              "required": [
+                "lat",
+                "lng"
+              ],
+              "properties": {
+                "lat": {
+                  "type": "number",
+                  "minimum": -90,
+                  "maximum": 90
+                },
+                "lng": {
+                  "type": "number",
+                  "minimum": -180,
+                  "maximum": 180
+                }
+              },
+              "additionalProperties": false
+            },
+            "district": {
+              "$ref": "#/$defs/evidencedValue"
+            }
+          }
+        },
+        "positioning": {
+          "type": "string"
+        },
+        "audiences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "delivery": {
+          "$ref": "#/$defs/evidencedValue"
+        },
+        "constructionStatus": {
+          "$ref": "#/$defs/evidencedValue"
+        },
+        "inventory": {
+          "type": "object",
+          "properties": {
+            "apartmentCount": {
+              "$ref": "#/$defs/evidencedValue"
+            },
+            "layoutsAvailable": {
+              "type": "boolean"
+            },
+            "priceFrom": {
+              "$ref": "#/$defs/evidencedValue"
+            },
+            "areaRange": {
+              "$ref": "#/$defs/evidencedValue"
+            },
+            "finishing": {
+              "$ref": "#/$defs/evidencedValue"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/fact"
+      }
+    },
+    "advantages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/advantage"
+      }
+    },
+    "infrastructure": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/infrastructureItem"
+      }
+    },
+    "offers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/offer"
+      }
+    },
+    "assets": {
+      "type": "object",
+      "required": [
+        "images"
+      ],
+      "properties": {
+        "images": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/asset"
+          }
+        },
+        "videos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/asset"
+          }
+        },
+        "plans": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/asset"
+          }
+        },
+        "documents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/asset"
+          }
+        },
+        "maps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/asset"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "contentStrategy": {
+      "type": "object",
+      "required": [
+        "coreIdea",
+        "primaryCta",
+        "modules"
+      ],
+      "properties": {
+        "coreIdea": {
+          "type": "string"
+        },
+        "primaryCta": {
+          "type": "string"
+        },
+        "secondaryCtas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "audiencePriority": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "modules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/moduleDecision"
+          }
+        },
+        "informationGaps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "visualDirection": {
+          "type": "object",
+          "properties": {
+            "mood": {
+              "type": "string"
+            },
+            "palette": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "imageTreatment": {
+              "type": "string"
+            },
+            "signatureInteraction": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "commercial": {
+      "type": "object",
+      "description": "Внутренние настройки KEY. Не выводить в публичный HTML без явного разрешения.",
+      "properties": {
+        "leadWebhookEnvKey": {
+          "type": "string"
+        },
+        "crmPipeline": {
+          "type": "string"
+        },
+        "brokerNotes": {
+          "type": "string"
+        },
+        "restrictedData": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "verification": {
+      "type": "object",
+      "required": [
+        "checkedAt",
+        "factsWithoutSources"
+      ],
+      "properties": {
+        "checkedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "factsWithoutSources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "manualReviewRequired": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": [
+        "url",
+        "title",
+        "accessedAt"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "title": {
+          "type": "string"
+        },
+        "accessedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "quoteOrEvidence": {
+          "type": "string"
+        },
+        "sourceType": {
+          "enum": [
+            "developer",
+            "official_project",
+            "document",
+            "government",
+            "map",
+            "media",
+            "other"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidencedValue": {
+      "type": "object",
+      "required": [
+        "value",
+        "status"
+      ],
+      "properties": {
+        "value": {},
+        "status": {
+          "enum": [
+            "verified",
+            "provisional",
+            "missing",
+            "conflicting",
+            "expired"
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "lastChecked": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "fact": {
+      "type": "object",
+      "required": [
+        "id",
+        "claim",
+        "status",
+        "sources",
+        "publicUse"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "claim": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "provisional",
+            "hypothesis",
+            "missing",
+            "conflicting",
+            "expired"
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "publicUse": {
+          "enum": [
+            "allowed",
+            "allowed_with_qualification",
+            "internal_only",
+            "blocked"
+          ]
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "advantage": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "benefit",
+        "supportingFactIds",
+        "strength"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "benefit": {
+          "type": "string"
+        },
+        "supportingFactIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "strength": {
+          "enum": [
+            "core",
+            "strong",
+            "supporting"
+          ]
+        },
+        "audienceFit": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hook": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "infrastructureItem": {
+      "type": "object",
+      "required": [
+        "name",
+        "category",
+        "status"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "school",
+            "kindergarten",
+            "park",
+            "shopping",
+            "transport",
+            "healthcare",
+            "leisure",
+            "other"
+          ]
+        },
+        "distanceMeters": {
+          "type": "number",
+          "minimum": 0
+        },
+        "walkingMinutes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "enum": [
+            "verified",
+            "provisional",
+            "missing",
+            "conflicting"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "marketingMeaning": {
+          "type": "string"
+        },
+        "publicLabel": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "offer": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "type",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "presentation",
+            "apartment_selection",
+            "mortgage_estimate",
+            "viewing",
+            "consultation",
+            "callback",
+            "other"
+          ]
+        },
+        "status": {
+          "enum": [
+            "active",
+            "provisional",
+            "inactive"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "requiredFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "successMessage": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "asset": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "type": {
+          "enum": [
+            "render",
+            "photo",
+            "plan",
+            "video",
+            "pdf",
+            "map",
+            "logo",
+            "other"
+          ]
+        },
+        "status": {
+          "enum": [
+            "approved",
+            "needs_review",
+            "missing",
+            "restricted"
+          ]
+        },
+        "alt": {
+          "type": "string"
+        },
+        "rightsNote": {
+          "type": "string"
+        },
+        "usage": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "moduleDecision": {
+      "type": "object",
+      "required": [
+        "moduleId",
+        "decision",
+        "reason"
+      ],
+      "properties": {
+        "moduleId": {
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "include",
+            "exclude",
+            "conditional",
+            "replace"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "requiredFactIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "variant": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
