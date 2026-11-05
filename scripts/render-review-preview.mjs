@@ -141,13 +141,16 @@ const labelFor = module => ({
   faq: "Вопросы и ответы", contacts: "Связаться с KEY"
 }[module.moduleId] || module.moduleId.replace(/[-_]/g, " "));
 const offersFor = module => (module.ctaIds || []).map(id => byId(offers, id)).filter(Boolean);
-const offerFor = module => offersFor(module)[0];
+const offerFor = module => {
+  const linkedOffers = offersFor(module);
+  if (linkedOffers.length > 1) {
+    throw new Error(`Module "${module.moduleId}" may define only one primary CTA; split distinct intents into separate modules.`);
+  }
+  return linkedOffers[0];
+};
 const button = (offer, fallback) => offer
   ? `<button class="cta" type="button" ${ctaAttributes(offer)}>${esc(offer.title)}</button>`
   : fallback ? `<button class="cta" type="button" data-preview-cta="generic" data-preview-scenario="generic" data-preview-title="${esc(fallback)}" data-preview-required-fields="[]" data-preview-consent-required="true">${esc(fallback)}</button>` : "";
-const buttons = list => list.length > 1
-  ? `<div class="cta-group" aria-label="Варианты обращения">${list.map(offer => button(offer, "")).join("")}</div>`
-  : list.length ? button(list[0], "") : "";
 
 function renderModule(module, index) {
   const advantagesHere = module.moduleId === "hero" ? [] : advantagesFor(module);
@@ -172,7 +175,7 @@ function renderModule(module, index) {
   const plans = (module.moduleId === "floor-plans" || module.moduleId === "apartments") ? renderPlans(offer) : "";
   const quiz = module.moduleId === "quiz" ? renderQuiz(profile.selectionQuiz, byId(offers, profile.selectionQuiz?.resultOfferId)) : "";
   const faq = module.moduleId === "faq" ? renderFaq(faqItems) : "";
-  const cta = ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? "" : buttons(offersFor(module));
+  const cta = ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? "" : button(offer, "");
   const locationContent = module.moduleId === "location" || module.moduleId === "places" ? renderLocation() : "";
   const headingTag = module.moduleId === "hero" ? "h1" : "h2";
   const renderVariant = module.variant === "image-led" && !image ? "feature-led" : (module.variant || "default");
