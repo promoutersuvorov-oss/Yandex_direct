@@ -10,6 +10,9 @@
 | Маркетинговый интеллект | [MARKETING_INTELLIGENCE_AND_LEARNING_LOOP.md](../product/MARKETING_INTELLIGENCE_AND_LEARNING_LOOP.md) | Как исследуем спрос, выбираем сегменты, позиционирование, hooks, офферы, лид-магниты, tripwire, воронки, CTA и учимся на результатах |
 | Бизнес-система | [BUSINESS_SYSTEM.md](../product/BUSINESS_SYSTEM.md) | Как реклама, лендинг, лид, квалификация, консультация, показ и сделка связаны в коммерческий процесс |
 | Техническая архитектура | [KEY_LANDING_SYSTEM_FOUNDATION_v1.md](KEY_LANDING_SYSTEM_FOUNDATION_v1.md) | Как данные, секции, компоненты, дизайн-система и QA реализуются в движке |
+| Каталог модулей | [MODULE_CATALOG_AND_COMPOSITION_RULES.md](MODULE_CATALOG_AND_COMPOSITION_RULES.md) | Смысловые модули, условия выбора, зависимости и индивидуальная композиция |
+| Production UI | [PRODUCTION_UI_FOUNDATION.md](../product/PRODUCTION_UI_FOUNDATION.md) | Кроссплатформенные инженерные требования и release gates |
+| Passport mapping | [PASSPORT_TO_LANDING_MAPPING.md](PASSPORT_TO_LANDING_MAPPING.md) | Связь паспорта, стратегии, манифеста и runtime; не готовый конвертер |
 | Контракт паспорта ЖК | [project-passport.schema.json](../../schemas/project-passport.schema.json) | Машинно-проверяемая структура фактов и проекта |
 | Исполнительные инструкции | [prompts/](../../prompts/) | Как AI-этапы выполняют свои задачи и передают результат следующему |
 | Эталонная реализация | [K15_landing_edited.html](../../landing/reference/K15_landing_edited.html) | Исходный объект аудита и источник UX-паттернов; не нормативный источник фактов или архитектуры |
