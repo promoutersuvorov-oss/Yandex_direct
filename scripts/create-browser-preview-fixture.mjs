@@ -38,7 +38,14 @@ passport.facts = [{
 }];
 passport.project.positioningStatus = "approved";
 passport.project.positioningFactIds = ["fixture-positioning-proof"];
-passport.advantages = [];
+passport.advantages = [{
+  id: "fixture-advantage",
+  title: "Синтетическое преимущество",
+  benefit: "Синтетическое описание для проверки композиции proof-led.",
+  hook: "Синтетический тестовый тезис.",
+  supportingFactIds: ["fixture-positioning-proof"],
+  strength: "core"
+}];
 passport.infrastructure = [];
 passport.offers = [
   { id: "presentation", title: "Получить тестовую презентацию", type: "presentation", status: "active", requiredFields: [] },
@@ -79,7 +86,10 @@ passport.contentStrategy.modules = [
   { moduleId: "hero", decision: "include", reason: "Синтетический первый экран", variant: "editorial-split", assetIds: ["fixture-hero"], ctaIds: ["presentation"] },
   { moduleId: "gallery", decision: "include", reason: "Проверка нескольких изображений", variant: "gallery-mosaic", assetIds: ["fixture-hero", "fixture-gallery"] },
   { moduleId: "floor-plans", decision: "include", reason: "Проверка данных планировки", variant: "plan-selector", assetIds: ["fixture-plan"], ctaIds: ["selection"] },
-  { moduleId: "quiz", decision: "include", reason: "Проверка локального квиза", variant: "step-form", ctaIds: ["selection"] }
+  { moduleId: "quiz", decision: "include", reason: "Проверка локального квиза", variant: "step-form", ctaIds: ["selection"] },
+  { moduleId: "lifestyle", decision: "include", reason: "Проверка image-led layout", variant: "image-led", requiredFactIds: ["fixture-positioning-proof"], assetIds: ["fixture-gallery"] },
+  { moduleId: "security", decision: "include", reason: "Проверка proof-led layout", variant: "proof-led", requiredFactIds: ["fixture-positioning-proof"] },
+  { moduleId: "developer", decision: "include", reason: "Проверка immersive layout", variant: "immersive", assetIds: ["fixture-hero"] }
 ];
 mkdirSync(dirname(output), { recursive: true });
 writeFileSync(output, JSON.stringify(passport, null, 2) + "\n", "utf8");
