@@ -65,6 +65,10 @@ try {
   const manifest = JSON.parse(readFileSync(join(output, "module-manifest.json"), "utf8"));
   assert.deepEqual(manifest.modules.map(item => item.moduleId), ["hero", "floor-plans", "gallery", "quiz"], "Explicit composition order must be respected, with hero fixed first.");
   assert.equal(report.publicationReadiness.productionReady, false);
+  assert.ok(!report.rendererAudit.selectedModules.some(item => item.moduleId === "gallery"),
+    "conditional gallery without approved project media must stay out of the selected composition");
+  assert.ok(!report.rendererAudit.selectedModules.some(item => item.moduleId === "contacts"),
+    "conditional contacts without a real active lead offer must stay out of the selected composition");
 
   // Invalid compositions must be blocked before any review bundle can be published.
   for (const [label, mutate, expected] of [
