@@ -27,7 +27,7 @@ const isCurrent = record => {
 const isSafePublicUrl = value => {
   try {
     const url = new URL(value);
-    return ["https:", "http:"].includes(url.protocol);
+    return url.protocol === "https:" && !url.username && !url.password;
   } catch {
     return false;
   }
@@ -125,8 +125,8 @@ for (const asset of assets) {
   if (asset.status === "approved" && asset.rightsStatus !== "confirmed") {
     errors.push(`Approved asset "${asset.id}" does not have confirmed usage rights.`);
   }
-  if (asset.status === "approved" && (!asset.rightsSource?.url || !asset.rightsSource?.title || !asset.rightsSource?.accessedAt)) {
-    errors.push(`Approved asset "${asset.id}" has no traceable rightsSource.`);
+  if (asset.status === "approved" && (!asset.rightsSource?.url || !isSafePublicUrl(asset.rightsSource.url) || !asset.rightsSource?.title || !asset.rightsSource?.accessedAt)) {
+    errors.push(`Approved asset "${asset.id}" has no traceable HTTPS rightsSource.`);
   }
   if (asset.status === "approved" && !isCurrent(asset)) {
     errors.push(`Approved asset "${asset.id}" has expired approval or an invalid validUntil date.`);
@@ -148,7 +148,7 @@ const allowedAdvantages = advantages.filter(item =>
   asArray(item.supportingFactIds).length > 0 &&
   asArray(item.supportingFactIds).every(id => publicFact(factById.get(id)))
 );
-const approvedAssets = assets.filter(asset => asset.status === "approved" && isSafePublicUrl(asset.url) && asset.projectMatch === "confirmed" && asset.rightsStatus === "confirmed" && asset.rightsNote?.trim() && asset.rightsSource?.url && asset.rightsSource?.title && asset.rightsSource?.accessedAt && isCurrent(asset));
+const approvedAssets = assets.filter(asset => asset.status === "approved" && isSafePublicUrl(asset.url) && asset.projectMatch === "confirmed" && asset.rightsStatus === "confirmed" && asset.rightsNote?.trim() && isSafePublicUrl(asset.rightsSource?.url) && asset.rightsSource?.title && asset.rightsSource?.accessedAt && isCurrent(asset));
 const approvedAssetIds = new Set(approvedAssets.map(asset => asset.id));
 for (const plan of asArray(passport.apartmentPlans)) {
   if (plan.status === "verified" && plan.publicUse === "allowed") {
