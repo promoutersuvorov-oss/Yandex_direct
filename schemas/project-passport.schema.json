@@ -550,6 +550,11 @@
         "id": {
           "type": "string"
         },
+        "scenarioId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$",
+          "description": "Stable conversion scenario ID; defaults to offer.id when omitted."
+        },
         "title": {
           "type": "string"
         },
@@ -578,7 +583,12 @@
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "uniqueItems": true
+        },
+        "consentRequired": {
+          "type": "boolean",
+          "description": "Consent is required by default. Setting false requires an explicitly reviewed legal basis."
         },
         "successMessage": {
           "type": "string"
