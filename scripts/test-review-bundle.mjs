@@ -9,6 +9,7 @@ try {
   const passport = JSON.parse(readFileSync("examples/project-passport.example.json", "utf8"));
   passport.project.name = "Тестовый ЖК";
   passport.project.location.city = "Тестовый город";
+  passport.project.positioning = '<img src=x onerror="alert(1)">';
   passport.verification.manualReviewRequired = false;
   passport.facts = [{
     id: "verified-1", claim: "Подтверждённое утверждение", status: "verified",
@@ -48,6 +49,8 @@ try {
   assert.equal(preview.status, 0, preview.stderr || preview.stdout);
   const html = readFileSync(join(output, "preview.html"), "utf8");
   assert.ok(html.includes("Тестовый ЖК"));
+  assert.ok(html.includes("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;"));
+  assert.ok(!html.includes('<img src=x onerror="alert(1)">'));
   assert.ok(html.includes("Подтверждённое утверждение"));
   assert.ok(html.includes("data-preview-cta=\"presentation\""));
   assert.ok(html.includes("отправка заявок отключена"));
