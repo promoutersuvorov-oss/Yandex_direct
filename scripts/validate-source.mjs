@@ -37,13 +37,13 @@ if (existsSync(htmlPath)) {
   if (!/^<!doctype html>/i.test(html.trimStart())) {
     errors.push("K15 baseline must begin with a valid HTML doctype.");
   }
-  if (!/<html\\b[^>]*lang=["']ru["']/i.test(html)) {
+  if (!/<html\b[^>]*lang=["']ru["']/i.test(html)) {
     errors.push("K15 baseline must declare Russian document language.");
   }
-  if (!/<meta\\s+name=["']viewport["']/i.test(html)) {
+  if (!/<meta\s+name=["']viewport["']/i.test(html)) {
     errors.push("K15 baseline is missing its viewport meta tag.");
   }
-  if (!/<body\\b/i.test(html) || !/<\\/html>/i.test(html)) {
+  if (!/<body\b/i.test(html) || !/<\/html>/i.test(html)) {
     errors.push("K15 baseline has an incomplete HTML document shell.");
   }
 }
