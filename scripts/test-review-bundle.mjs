@@ -85,6 +85,22 @@ try {
     assert.ok(insecureReport.blockers.some(message => message.includes(expected)), label + " must report the HTTPS policy violation.");
   }
 
+  // Public facts and apartment plans must cite traceable HTTPS evidence, not merely any URL.
+  for (const [label, mutate, expected] of [
+    ["http-fact-source", candidate => { candidate.facts[0].sources[0].url = "http://example.com/project"; }, "non-HTTPS traceable evidence"],
+    ["http-plan-source", candidate => { candidate.apartmentPlans[0].sources[0].url = "http://example.com/plan-data"; }, "non-HTTPS traceable evidence"]
+  ]) {
+    const untraceable = structuredClone(passport);
+    mutate(untraceable);
+    const untraceableInput = join(dir, label + ".json");
+    const untraceableOutput = join(dir, label + "-output");
+    writeFileSync(untraceableInput, JSON.stringify(untraceable));
+    const untraceableBuild = spawnSync(process.execPath, [resolve("scripts/build-review-bundle.mjs"), "--passport", untraceableInput, "--out", untraceableOutput], { encoding: "utf8" });
+    assert.equal(untraceableBuild.status, 1, label + " must block generation.");
+    const untraceableReport = JSON.parse(readFileSync(join(untraceableOutput, "generation-report.json"), "utf8"));
+    assert.ok(untraceableReport.blockers.some(message => message.includes(expected)), label + " must report the evidence URL violation.");
+  }
+
   // Invalid compositions must be blocked before any review bundle can be published.
   for (const [label, mutate, expected] of [
     ["duplicate-hero", candidate => candidate.contentStrategy.modules.push({ ...candidate.contentStrategy.modules[0], order: 5 }), "found 2"],
