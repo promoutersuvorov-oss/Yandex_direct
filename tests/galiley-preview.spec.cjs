@@ -11,11 +11,12 @@ test("Galiley preview renders its own project identity and garden-modern composi
   await expect(page.getByRole("heading", { level: 1, name: "ЖК «Галилей»" })).toBeVisible();
   expect(await page.locator("main [data-module]").count()).toBeGreaterThanOrEqual(3);
   await expect(page.locator("body")).toContainText("Сад внутри городского комплекса");
-  // Infrastructure is grouped by type, preserving every verified place without
-  // presenting a long undifferentiated sequence of cards.
+  // Infrastructure is grouped by type as a compact editorial list, not
+  // repeated cards with identical labels.
   await expect(page.locator(".place-group[aria-label='Школы']")).toBeVisible();
   await expect(page.locator(".place-group[aria-label='Детские сады']")).toBeVisible();
-  await expect(page.locator(".place-group .place-card")).toHaveCount(11);
+  await expect(page.locator(".place-group .place-item")).toHaveCount(11);
+  await expect(page.locator(".place-card")).toHaveCount(0);
   await expect(page.locator("body")).not.toContainText("Клубный дом «905»");
   await expect(page.locator("body")).toContainText("не принимает заявки");
   const heroLayout = await page.locator(".module.hero.text-only").evaluate(node => ({
