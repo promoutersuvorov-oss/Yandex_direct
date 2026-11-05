@@ -46,7 +46,7 @@ KLanding включает отдельный интеллектуальный м
 
 ## Материалы, перенесённые из Agency
 
-Из репозитория `nikitanecilli-bit/Agency` изучены и адаптированы полезные материалы: [каталог модулей](docs/architecture/MODULE_CATALOG_AND_COMPOSITION_RULES.md), [Production UI Foundation](docs/product/PRODUCTION_UI_FOUNDATION.md), [mapping паспорта на runtime](docs/architecture/PASSPORT_TO_LANDING_MAPPING.md). Решения о переносе и список того, что нельзя копировать напрямую, зафиксированы в [отчёте повторного использования Agency](docs/audits/AGENCY_REPOSITORY_REUSE_REVIEW_2026-11-05.md). Отдельно проверены feature-ветки Agency и зависимость PR #5 → #6 → #7: [аудит реализации и безопасного переноса кода](docs/audits/AGENCY_BRANCH_IMPLEMENTATION_REVIEW_2026-11-05.md). Для эталона K15 создана [карта соответствия смысловых модулей реальным секциям HTML](docs/audits/K15_RUNTIME_MODULE_MAPPING_2026-11-05.md).
+Из репозитория `nikitanecilli-bit/Agency` изучены и адаптированы полезные материалы: [каталог модулей](docs/architecture/MODULE_CATALOG_AND_COMPOSITION_RULES.md), [Production UI Foundation](docs/product/PRODUCTION_UI_FOUNDATION.md), [mapping паспорта на runtime](docs/architecture/PASSPORT_TO_LANDING_MAPPING.md). Решения о переносе и список того, что нельзя копировать напрямую, зафиксированы в [отчёте повторного использования Agency](docs/audits/AGENCY_REPOSITORY_REUSE_REVIEW_2026-11-05.md). Отдельно проверены feature-ветки Agency и зависимость PR #5 → #6 → #7: [аудит реализации и безопасного переноса кода](docs/audits/AGENCY_BRANCH_IMPLEMENTATION_REVIEW_2026-11-05.md). Для эталона K15 создана [карта соответствия смысловых модулей реальным секциям HTML](docs/audits/K15_RUNTIME_MODULE_MAPPING_2026-11-05.md). Углублённо проверены дополнительные ветки Agency: section renderer, readiness diagnostics, expiry/media safety, project isolation, no-false-lead-success и cross-browser matrix; выводы и фактически перенесённые решения — в [расширенном аудите веток Agency](docs/audits/AGENCY_BRANCH_DEEP_REVIEW_2026-11-05.md).
 
 ## Текущий аудит K15
 
@@ -64,6 +64,7 @@ KLanding включает отдельный интеллектуальный м
 - `ads/yandex-direct/` — стратегия, структура кампаний, объявления и правила оптимизации.
 - `analytics/` — события, UTM, атрибуция и метрики качества лидов.
 - `tests/` — автоматические проверки и сценарии пользовательского поведения.
+- `scripts/build-review-bundle.mjs` — review-only сборка профиля, манифеста секций и отчёта готовности из паспорта ЖК; не создаёт production HTML.
 
 ## Статус репозитория
 
