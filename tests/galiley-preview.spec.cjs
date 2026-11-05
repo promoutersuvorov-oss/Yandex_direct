@@ -22,7 +22,7 @@ test("Galiley preview renders its own project identity and garden-modern composi
     columns: getComputedStyle(node).gridTemplateColumns,
     copyWidth: getComputedStyle(node.querySelector(".module-copy")).maxWidth
   }));
-  expect(heroLayout.columns.trim().split(/\\s+/)).toHaveLength(1);
+  expect(heroLayout.columns.trim().split(/\s+/)).toHaveLength(1);
   expect(heroLayout.copyWidth).toBe("1040px");
 
   const cta = page.locator("button[data-preview-cta]").first();
