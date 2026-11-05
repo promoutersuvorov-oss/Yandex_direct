@@ -166,6 +166,7 @@ body[data-theme="garden-modern"] .module[data-variant="conversion-led"]{backgrou
 /* Composition archetypes change the page rhythm and geometry independently of its palette. */
 body[data-composition="editorial"] .module{max-width:1320px;grid-template-columns:minmax(0,1.12fr) minmax(280px,.88fr);padding-block:clamp(88px,12vw,168px)}
 body[data-composition="editorial"] .module-copy{max-width:650px}
+body[data-composition="editorial"] .module.text-only{grid-template-columns:minmax(0,1fr)}
 body[data-composition="editorial"] .module.hero{min-height:84vh}
 body[data-composition="editorial"] h1,body[data-composition="editorial"] h2{font-family:Georgia,"Times New Roman",serif;font-weight:400;letter-spacing:-.055em}
 body[data-composition="editorial"] figure{border-radius:2px}
@@ -174,11 +175,13 @@ body[data-composition="cinematic"] .module:nth-child(even){background:transparen
 body[data-composition="cinematic"] .module.hero{min-height:min(92svh,980px)}
 body[data-composition="cinematic"] .module.hero[data-variant]:not([data-variant="full-bleed"]):not([data-variant="immersive"]){grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 body[data-composition="cinematic"] .module-copy{max-width:760px}
+body[data-composition="cinematic"] .module.text-only{grid-template-columns:minmax(0,1fr)}
 body[data-composition="cinematic"] h1{font-size:clamp(52px,9vw,124px);letter-spacing:-.065em}
 body[data-composition="cinematic"] figure{border-radius:0}
 body[data-composition="architectural"] .module{max-width:1600px;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(24px,4vw,64px);padding-block:clamp(56px,8vw,104px);border-bottom:1px solid var(--line)}
 body[data-composition="architectural"] .module:nth-child(odd){background:transparent}
 body[data-composition="architectural"] .module-copy{max-width:680px}
+body[data-composition="architectural"] .module.text-only{grid-template-columns:minmax(0,1fr)}
 body[data-composition="architectural"] .eyebrow{font-family:Inter,Arial,sans-serif;font-variant-numeric:tabular-nums;border-bottom:1px solid var(--line);padding-bottom:12px;max-width:72px}
 body[data-composition="architectural"] h1,body[data-composition="architectural"] h2{font-family:Inter,Arial,sans-serif;font-weight:600;letter-spacing:-.07em;line-height:.98}
 body[data-composition="architectural"] figure{border-radius:0;outline:1px solid var(--line);outline-offset:8px}
