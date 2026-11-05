@@ -46,10 +46,10 @@ try {
     ] }]
   };
   passport.contentStrategy.modules = [
-    { moduleId: "hero", decision: "include", reason: "Главный блок", requiredFactIds: ["verified-1"], assetIds: ["hero"], ctaIds: ["presentation"] },
-    { moduleId: "gallery", decision: "include", reason: "Проверка галереи", assetIds: ["hero", "gallery-2"] },
-    { moduleId: "floor-plans", decision: "include", reason: "Проверка планировок", assetIds: ["plan-asset"], ctaIds: ["selection"] },
-    { moduleId: "quiz", decision: "include", reason: "Проверка квиза", ctaIds: ["selection"] }
+    { moduleId: "hero", order: 0, decision: "include", reason: "Главный блок", requiredFactIds: ["verified-1"], assetIds: ["hero"], ctaIds: ["presentation"] },
+    { moduleId: "gallery", order: 20, decision: "include", reason: "Проверка галереи", assetIds: ["hero", "gallery-2"] },
+    { moduleId: "floor-plans", order: 10, decision: "include", reason: "Проверка планировок", assetIds: ["plan-asset"], ctaIds: ["selection"] },
+    { moduleId: "quiz", order: 30, decision: "include", reason: "Проверка квиза", ctaIds: ["selection"] }
   ];
   passport.commercial.brokerNotes = "INTERNAL_NOTE";
   const input = join(dir, "passport.json");
@@ -62,6 +62,8 @@ try {
   const text = JSON.stringify(profile);
   assert.equal(report.status, "review_required");
   assert.equal(report.rendererAudit.status, "passed");
+  const manifest = JSON.parse(readFileSync(join(output, "module-manifest.json"), "utf8"));
+  assert.deepEqual(manifest.modules.map(item => item.moduleId), ["hero", "floor-plans", "gallery", "quiz"], "Explicit composition order must be respected, with hero fixed first.");
   assert.equal(report.publicationReadiness.productionReady, false);
   assert.equal(profile.facts.length, 1);
   assert.equal(profile.apartmentPlans.length, 1);
