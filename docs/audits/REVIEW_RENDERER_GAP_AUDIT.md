@@ -73,3 +73,19 @@
 - Квиз собирает и валидирует ответы, но preview не отправляет персональные данные.
 - Браузерные тесты проверяют не только отсутствие overflow, но и конкретные пользовательские сценарии.
 - Production status остаётся закрытым до фактической проверки доставки лидов, consent, прав на медиа и визуального QA.
+
+
+## Update 2026-11-05 — implemented after the initial audit
+
+The review renderer now has a first set of specialized components and explicit data gates:
+
+- **Hero:** project name is the primary heading; positioning is separate supporting copy and is not duplicated.
+- **Gallery:** renders all approved assets explicitly assigned to the gallery module in a responsive mosaic.
+- **Apartment plans:** passport now supports structured plan records (rooms, area, optional floor/finishing, asset reference, evidence, publication status). Only verified, non-expired records with an approved rights-cleared plan asset enter the public preview profile. Each plan CTA preserves its plan ID in the preview dialog.
+- **Selection quiz:** passport now supports an approved, finite-choice quiz connected to an active offer. The preview validates required radio answers and keeps answers local; it does not transmit or collect contact details.
+- **Media security:** approved public assets require HTTP(S) URLs. The renderer validates the URL again before creating an image element.
+- **CTA privacy:** public offer objects are allowlisted; internal success copy is not copied into the public profile. Preview interactions never claim that a lead was delivered.
+
+The browser CI now uses a clearly synthetic passport and local SVG assets to test the actual gallery, plan card and quiz interactions. This fixture is not a real ЖК and must never be used as a publication source.
+
+The source-integrity job and the first cross-browser run after these changes should be treated as the release evidence for this incremental preview milestone; production readiness remains false. The renderer still does not implement production lead delivery, mortgage calculations, inventory availability, complete FAQ/navigation systems or the full visual art direction required by the product standard.
