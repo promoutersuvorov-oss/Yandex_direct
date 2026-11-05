@@ -67,8 +67,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Create synthetic interactive passport fixture
+        run: node scripts/create-browser-preview-fixture.mjs --out artifacts/browser-fixture/passport.json
       - name: Build review bundle for browser validation
-        run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out artifacts/review-bundle
+        run: node scripts/build-review-bundle.mjs --passport artifacts/browser-fixture/passport.json --out artifacts/review-bundle
       - name: Render review preview for browser validation
         run: node scripts/render-review-preview.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/preview.html
       - name: Install Playwright test runner
