@@ -76,7 +76,9 @@ test("selection quiz validates required answers and keeps answers local in previ
   await page.goto(url, { waitUntil: "domcontentloaded" });
   const quiz = page.locator('form[data-preview-quiz]');
   await expect(quiz).toBeVisible();
-  await quiz.locator('input[name="purpose"][value="living"]').check();
+  const livingOption = quiz.locator('input[name="purpose"][value="living"]');
+  await livingOption.check();
+  await expect(livingOption).toBeChecked();
   await quiz.locator('button[type="submit"]').click();
 
   const dialog = page.locator("#previewNotice");
