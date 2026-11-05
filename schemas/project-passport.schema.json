@@ -82,13 +82,19 @@
           "type": "string"
         },
         "positioningStatus": {
-          "enum": ["draft", "approved", "blocked"],
+          "enum": [
+            "draft",
+            "approved",
+            "blocked"
+          ],
           "description": "Public positioning is emitted only when approved and grounded in publishable fact IDs."
         },
         "positioningFactIds": {
           "type": "array",
           "uniqueItems": true,
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         },
         "audiences": {
           "type": "array",
@@ -231,9 +237,20 @@
           "properties": {
             "theme": {
               "type": "string",
-              "enum": ["urban-noir", "warm-editorial", "garden-modern"]
+              "enum": [
+                "urban-noir",
+                "warm-editorial",
+                "garden-modern"
+              ]
             },
-            "composition": { "type": "string", "enum": ["editorial", "cinematic", "architectural"] },
+            "composition": {
+              "type": "string",
+              "enum": [
+                "editorial",
+                "cinematic",
+                "architectural"
+              ]
+            },
             "mood": {
               "type": "string"
             },
@@ -320,7 +337,9 @@
     "faq": {
       "description": "Вопросы FAQ с ответами, формируемыми исключительно из подтверждённых публичных фактов по requiredFactIds.",
       "type": "array",
-      "items": { "$ref": "#/$defs/faqItem" }
+      "items": {
+        "$ref": "#/$defs/faqItem"
+      }
     }
   },
   "$defs": {
@@ -521,12 +540,30 @@
         "distanceEvidence": {
           "type": "object",
           "description": "Separate evidence for distance/time metrics. Place existence evidence alone does not substantiate a route or distance.",
-          "required": ["method", "checkedAt", "validUntil", "source"],
+          "required": [
+            "method",
+            "checkedAt",
+            "validUntil",
+            "source"
+          ],
           "properties": {
-            "method": { "enum": ["walking_route", "straight_line"] },
-            "checkedAt": { "type": "string", "format": "date-time" },
-            "validUntil": { "type": "string", "format": "date-time" },
-            "source": { "$ref": "#/$defs/source" }
+            "method": {
+              "enum": [
+                "walking_route",
+                "straight_line"
+              ]
+            },
+            "checkedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "validUntil": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "source": {
+              "$ref": "#/$defs/source"
+            }
           },
           "additionalProperties": false
         },
@@ -552,27 +589,61 @@
         {
           "if": {
             "anyOf": [
-              { "required": ["distanceMeters"] },
-              { "required": ["walkingMinutes"] }
+              {
+                "required": [
+                  "distanceMeters"
+                ]
+              },
+              {
+                "required": [
+                  "walkingMinutes"
+                ]
+              }
             ]
           },
-          "then": { "required": ["distanceEvidence"] }
+          "then": {
+            "required": [
+              "distanceEvidence"
+            ]
+          }
         },
         {
-          "if": { "required": ["walkingMinutes"] },
-          "then": { "required": ["distanceMeters"] }
+          "if": {
+            "required": [
+              "walkingMinutes"
+            ]
+          },
+          "then": {
+            "required": [
+              "distanceMeters"
+            ]
+          }
         },
         {
           "if": {
             "properties": {
               "distanceEvidence": {
-                "properties": { "method": { "const": "straight_line" } },
-                "required": ["method"]
+                "properties": {
+                  "method": {
+                    "const": "straight_line"
+                  }
+                },
+                "required": [
+                  "method"
+                ]
               }
             },
-            "required": ["distanceEvidence"]
+            "required": [
+              "distanceEvidence"
+            ]
           },
-          "then": { "not": { "required": ["walkingMinutes"] } }
+          "then": {
+            "not": {
+              "required": [
+                "walkingMinutes"
+              ]
+            }
+          }
         }
       ],
       "additionalProperties": false
@@ -621,7 +692,12 @@
         "requiredFields": {
           "type": "array",
           "items": {
-            "enum": ["name", "phone", "preferredChannel", "preferredTime"]
+            "enum": [
+              "name",
+              "phone",
+              "preferredChannel",
+              "preferredTime"
+            ]
           },
           "uniqueItems": true
         },
@@ -641,10 +717,20 @@
       "allOf": [
         {
           "if": {
-            "properties": { "consentRequired": { "const": false } },
-            "required": ["consentRequired"]
+            "properties": {
+              "consentRequired": {
+                "const": false
+              }
+            },
+            "required": [
+              "consentRequired"
+            ]
           },
-          "then": { "required": ["consentExceptionReason"] }
+          "then": {
+            "required": [
+              "consentExceptionReason"
+            ]
+          }
         }
       ],
       "additionalProperties": false
@@ -782,7 +868,9 @@
           "items": {
             "type": "string"
           },
-          "uniqueItems": true
+          "uniqueItems": true,
+          "maxItems": 1,
+          "description": "Не более одного основного CTA на смысловой модуль; разные намерения размещаются в соответствующих отдельных модулях."
         },
         "dependencies": {
           "type": "array",
@@ -878,11 +966,28 @@
     },
     "faqItem": {
       "type": "object",
-      "required": ["id", "question", "requiredFactIds"],
+      "required": [
+        "id",
+        "question",
+        "requiredFactIds"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "question": { "type": "string", "minLength": 1 },
-        "requiredFactIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } }
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "question": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requiredFactIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        }
       },
       "additionalProperties": false
     },
