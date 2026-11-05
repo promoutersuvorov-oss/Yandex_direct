@@ -243,7 +243,10 @@ const positioningApproved = passport.project?.positioningStatus === "approved" &
 if (passport.project?.positioningStatus === "approved" && !positioningApproved) {
   errors.push("Project positioning is marked approved but lacks publishable supporting fact IDs.");
 }
+const designTheme = ["urban-noir", "warm-editorial", "garden-modern"].includes(passport.contentStrategy?.visualDirection?.theme)
+  ? passport.contentStrategy.visualDirection.theme : "urban-noir";
 const profile = {
+  design: { theme: designTheme },
   project: {
     id: passport.project?.id ?? null,
     name: safeIdentity(passport.project?.name),
