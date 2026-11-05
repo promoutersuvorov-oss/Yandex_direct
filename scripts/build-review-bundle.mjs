@@ -115,6 +115,7 @@ for (const module of modules) {
 }
 for (const asset of assets) {
   if (asset.status === "approved" && !asset.url) errors.push(`Approved asset "${asset.id}" has no URL.`);
+  if (asset.status === "approved" && !isSafePublicUrl(asset.url)) errors.push(`Approved asset "${asset.id}" has an unsafe public URL scheme.`);
   if (asset.status === "approved" && !(typeof asset.rightsNote === "string" && asset.rightsNote.trim())) {
     errors.push(`Approved asset "${asset.id}" has no rightsNote for the review trail.`);
   }
