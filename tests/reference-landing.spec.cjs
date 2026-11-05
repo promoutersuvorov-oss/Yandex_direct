@@ -18,6 +18,9 @@ test("editorial reference concept responds across viewport sizes without errors"
   const styles=await page.locator("style").textContent();
   expect(styles).toContain(".section.variant-feature-led");
   expect(styles).toContain(".section.variant-plan-selector");
+  await expect(page.locator('.section.variant-image-led .section-layout.image-first')).toHaveCount(1);
+  await expect(page.locator('.section.variant-proof-led .proof-layout')).toHaveCount(1);
+  await expect(page.locator('.section.variant-immersive > .section-image')).toHaveCount(1);
   expect(styles).toContain("prefers-reduced-motion");
 });
 
