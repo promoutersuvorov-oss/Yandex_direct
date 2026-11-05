@@ -1,0 +1,571 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": {
+    "id": "kd-905-voronezh",
+    "name": "Клубный дом «905»",
+    "developer": {
+      "value": "КРАЙС",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/klubnyy-dom-905",
+          "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+          "accessedAt": "2026-11-05T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Официальная страница объекта на сайте застройщика."
+        }
+      ],
+      "lastChecked": "2026-11-05T00:00:00Z"
+    },
+    "class": {
+      "value": null,
+      "status": "missing",
+      "sources": [],
+      "note": "Класс проекта не фиксировать без подтверждения в актуальном официальном документе."
+    },
+    "location": {
+      "city": "Воронеж",
+      "address": {
+        "value": "ул. Революции 1905 года, 14",
+        "status": "verified",
+        "sources": [
+          {
+            "url": "https://krays.ru/object/klubnyy-dom-905",
+            "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+            "accessedAt": "2026-11-05T00:00:00Z",
+            "sourceType": "official_project",
+            "quoteOrEvidence": "Адрес объекта указан на официальной странице."
+          }
+        ],
+        "lastChecked": "2026-11-05T00:00:00Z"
+      },
+      "district": {
+        "value": "Центральный",
+        "status": "verified",
+        "sources": [
+          {
+            "url": "https://krays.ru/object/klubnyy-dom-905",
+            "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+            "accessedAt": "2026-11-05T00:00:00Z",
+            "sourceType": "official_project",
+            "quoteOrEvidence": "На странице объекта указан Центральный район."
+          }
+        ],
+        "lastChecked": "2026-11-05T00:00:00Z"
+      }
+    },
+    "positioning": "Более спокойный ритм в центре города",
+    "positioningStatus": "draft",
+    "positioningFactIds": [
+      "quiet-street",
+      "central-district"
+    ],
+    "audiences": [
+      "Покупатели, которым важна центральная локация и камерный формат дома",
+      "Покупатели, рассматривающие квартиру для собственного проживания"
+    ],
+    "delivery": {
+      "value": "Q3 2024 — Q4 2026",
+      "status": "expired",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/klubnyy-dom-905",
+          "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+          "accessedAt": "2026-11-05T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "На официальной странице указан период реализации Q3 2024 — Q4 2026; срок уже требует обновления."
+        }
+      ],
+      "lastChecked": "2026-11-05T00:00:00Z",
+      "note": "Не публиковать без актуального подтверждения."
+    },
+    "constructionStatus": {
+      "value": null,
+      "status": "missing",
+      "sources": [],
+      "note": "Нужен актуальный официальный статус строительства/ввода."
+    },
+    "inventory": {
+      "apartmentCount": {
+        "value": 45,
+        "status": "verified",
+        "sources": [
+          {
+            "url": "https://krays.ru/object/klubnyy-dom-905",
+            "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+            "accessedAt": "2026-11-05T00:00:00Z",
+            "sourceType": "official_project",
+            "quoteOrEvidence": "Застройщик указывает общее количество — 45 квартир."
+          }
+        ],
+        "lastChecked": "2026-11-05T00:00:00Z"
+      },
+      "layoutsAvailable": false,
+      "priceFrom": {
+        "value": null,
+        "status": "missing",
+        "sources": []
+      },
+      "areaRange": {
+        "value": null,
+        "status": "missing",
+        "sources": []
+      },
+      "finishing": {
+        "value": "White-box как один из представленных вариантов отделки",
+        "status": "provisional",
+        "sources": [
+          {
+            "url": "https://krays.ru/object/klubnyy-dom-905",
+            "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+            "accessedAt": "2026-11-05T00:00:00Z",
+            "sourceType": "official_project",
+            "quoteOrEvidence": "На странице показан вариант White-box; состав и доступность для конкретных квартир требуют подтверждения."
+          }
+        ],
+        "lastChecked": "2026-11-05T00:00:00Z",
+        "note": "Не трактовать как комплектацию каждой квартиры."
+      }
+    }
+  },
+  "facts": [
+    {
+      "id": "central-district",
+      "claim": "Клубный дом расположен в Центральном районе Воронежа.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/klubnyy-dom-905",
+          "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+          "accessedAt": "2026-11-05T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Адрес объекта: ул. Революции 1905 года, 14; на странице указан Центральный район."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "quiet-street",
+      "claim": "Застройщик описывает расположение участка как удалённое от шумных транспортных и пешеходных магистралей.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/klubnyy-dom-905",
+          "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+          "accessedAt": "2026-11-05T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "В описании объекта говорится о тихом центре и расположении участка в стороне от шумных транспортных и пешеходных артерий."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "total-apartments",
+      "claim": "В доме заявлено 45 квартир всего.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/klubnyy-dom-905",
+          "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+          "accessedAt": "2026-11-05T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "На странице объекта застройщик указывает общее количество 45 квартир."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "architecture-7-9",
+      "claim": "Здание описано как дом высотой 7–9 этажей.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/klubnyy-dom-905",
+          "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+          "accessedAt": "2026-11-05T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "На официальной странице указана этажность 7–9 этажей."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "underground-parking",
+      "claim": "В проекте предусмотрен подземный паркинг.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/klubnyy-dom-905",
+          "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+          "accessedAt": "2026-11-05T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Официальная страница описывает подземный паркинг, включая места разных форматов и места для электромобилей."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "car-free-courtyard",
+      "claim": "Дворовая территория заявлена как пространство без движения автомобилей.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/klubnyy-dom-905",
+          "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+          "accessedAt": "2026-11-05T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "В описании двора указано отсутствие автомобильного движения."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "terraces",
+      "claim": "В проекте предусмотрены квартиры с террасами.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/klubnyy-dom-905",
+          "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+          "accessedAt": "2026-11-05T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "На странице представлены квартиры с террасами; это не означает, что терраса есть у каждой квартиры."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "white-box-option",
+      "claim": "На странице проекта представлен вариант отделки White-box.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/klubnyy-dom-905",
+          "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+          "accessedAt": "2026-11-05T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "White-box показан как вариант отделки; конкретную комплектацию и доступность нужно уточнить."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "panoramic-glazing",
+      "claim": "В архитектурном описании проекта указано панорамное остекление.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/klubnyy-dom-905",
+          "title": "Официальная страница клубного дома «905» — застройщик КРАЙС",
+          "accessedAt": "2026-11-05T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Официальная страница перечисляет панорамное остекление среди особенностей архитектуры."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    }
+  ],
+  "advantages": [
+    {
+      "id": "calmer-centre",
+      "title": "Центр с более спокойным ритмом",
+      "benefit": "Центральная локация сочетается с заявленным расположением участка в стороне от шумных магистралей.",
+      "supportingFactIds": [
+        "central-district",
+        "quiet-street"
+      ],
+      "strength": "core",
+      "hook": "Центр города — без ощущения, что вы живёте на главной магистрали."
+    },
+    {
+      "id": "club-scale",
+      "title": "Камерный масштаб",
+      "benefit": "В доме заявлено 45 квартир всего.",
+      "supportingFactIds": [
+        "total-apartments"
+      ],
+      "strength": "strong",
+      "hook": "Всего 45 квартир — камерный формат городского дома."
+    },
+    {
+      "id": "private-courtyard",
+      "title": "Двор без автомобильного движения",
+      "benefit": "В проекте заявлено дворовое пространство без движения автомобилей.",
+      "supportingFactIds": [
+        "car-free-courtyard"
+      ],
+      "strength": "strong",
+      "hook": "Двор, где сценарий пространства не строится вокруг машин."
+    },
+    {
+      "id": "parking-functionality",
+      "title": "Подземный паркинг",
+      "benefit": "Проектом предусмотрен подземный паркинг; наличие конкретных мест и условия требуют проверки.",
+      "supportingFactIds": [
+        "underground-parking"
+      ],
+      "strength": "supporting",
+      "hook": "Паркинг предусмотрен проектом — актуальные варианты стоит уточнить."
+    }
+  ],
+  "infrastructure": [],
+  "offers": [],
+  "assets": {
+    "images": [],
+    "videos": [],
+    "plans": [],
+    "documents": [],
+    "maps": []
+  },
+  "contentStrategy": {
+    "coreIdea": "Камерный городской дом в Центральном районе: спокойнее по характеру, но в центре городской жизни. Это рабочая гипотеза позиционирования, не утверждённый рекламный слоган.",
+    "primaryCta": "Уточнить актуальные варианты через KEY",
+    "secondaryCtas": [
+      "Обсудить планировки после получения актуальных материалов",
+      "Уточнить статус проекта и условия"
+    ],
+    "audiencePriority": [
+      "Покупатели для собственного проживания, которым важен центр и камерный масштаб"
+    ],
+    "modules": [
+      {
+        "moduleId": "hero",
+        "decision": "include",
+        "reason": "Сразу передаёт отличительную идею проекта без неподтверждённых коммерческих обещаний.",
+        "order": 0,
+        "variant": "editorial-split",
+        "requiredFactIds": [
+          "central-district",
+          "quiet-street"
+        ],
+        "userQuestion": "Какой здесь характер жизни?",
+        "whyIncluded": "Связывает центральную локацию с более спокойным позиционированием.",
+        "positionReason": "Первый смысловой контакт.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [],
+        "qaCriteria": [
+          "hero-copy-evidence",
+          "mobile-hero-crop"
+        ]
+      },
+      {
+        "moduleId": "about",
+        "decision": "include",
+        "reason": "Объясняет камерный масштаб и архитектурную идею.",
+        "order": 1,
+        "variant": "feature-led",
+        "requiredFactIds": [
+          "total-apartments",
+          "architecture-7-9"
+        ],
+        "userQuestion": "Что отличает дом?",
+        "whyIncluded": "Показывает масштаб без раскрытия коммерческой информации.",
+        "positionReason": "После первого экрана — доказательства идеи.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [],
+        "qaCriteria": [
+          "claims-grounded"
+        ]
+      },
+      {
+        "moduleId": "gallery",
+        "decision": "conditional",
+        "reason": "Визуальный блок важен для премиального восприятия, но публикация возможна только после подтверждения прав на материалы.",
+        "order": 2,
+        "variant": "immersive",
+        "requiredFactIds": [],
+        "userQuestion": "Как выглядит архитектура и пространство?",
+        "whyIncluded": "Визуально раскрывает характер проекта.",
+        "positionReason": "После позиционирования.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [
+          "approved-project-media"
+        ],
+        "qaCriteria": [
+          "asset-rights-confirmed",
+          "asset-project-match"
+        ]
+      },
+      {
+        "moduleId": "lifestyle",
+        "decision": "include",
+        "reason": "Показывает повседневные сценарии на основе заявленных особенностей двора и террас.",
+        "order": 3,
+        "variant": "image-led",
+        "requiredFactIds": [
+          "car-free-courtyard",
+          "terraces"
+        ],
+        "userQuestion": "Как устроено пространство для жизни?",
+        "whyIncluded": "Переводит характеристики в сценарии, не обещая одинаковую комплектацию квартир.",
+        "positionReason": "После раскрытия архитектуры.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [],
+        "qaCriteria": [
+          "terrace-not-universal",
+          "courtyard-status-check"
+        ]
+      },
+      {
+        "moduleId": "security",
+        "decision": "include",
+        "reason": "Функциональные особенности дома важны для оценки повседневного комфорта.",
+        "order": 4,
+        "variant": "proof-led",
+        "requiredFactIds": [
+          "underground-parking"
+        ],
+        "userQuestion": "Какие практические решения предусмотрены?",
+        "whyIncluded": "Показывает паркинг как функцию проекта без обещания наличия мест.",
+        "positionReason": "После эмоционального раскрытия.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [],
+        "qaCriteria": [
+          "no-parking-availability-claim"
+        ]
+      },
+      {
+        "moduleId": "location",
+        "decision": "include",
+        "reason": "Подтверждён центральный район и адрес; инфраструктурные расстояния пока не подтверждены.",
+        "order": 5,
+        "variant": "location-led",
+        "requiredFactIds": [
+          "central-district"
+        ],
+        "userQuestion": "Где находится дом?",
+        "whyIncluded": "Подтверждает городскую локацию, не выдумывая маршруты.",
+        "positionReason": "После характеристик самого дома.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [],
+        "qaCriteria": [
+          "no-unverified-walking-times"
+        ]
+      },
+      {
+        "moduleId": "floor-plans",
+        "decision": "conditional",
+        "reason": "Нужны актуальные планы, метражи и проверка соответствия конкретным лотам.",
+        "order": 6,
+        "variant": "plan-selector",
+        "requiredFactIds": [],
+        "userQuestion": "Какие квартиры доступны сейчас?",
+        "whyIncluded": "Ключевой следующий шаг после интереса к проекту.",
+        "positionReason": "Ближе к конверсии.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [
+          "current-inventory",
+          "rights-cleared-plan-assets"
+        ],
+        "qaCriteria": [
+          "plan-type-area-match",
+          "availability-freshness"
+        ]
+      },
+      {
+        "moduleId": "mortgage",
+        "decision": "exclude",
+        "reason": "Нет проверенных актуальных программ, ставок и формулы расчёта.",
+        "order": 7,
+        "variant": "conversion-led",
+        "requiredFactIds": [],
+        "userQuestion": "Какие финансовые условия доступны?",
+        "whyIncluded": "Не включать до подтверждения условий.",
+        "positionReason": "Не показывать до получения актуальных данных.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [
+          "verified-mortgage-terms"
+        ],
+        "qaCriteria": [
+          "no-invented-rates"
+        ]
+      },
+      {
+        "moduleId": "faq",
+        "decision": "include",
+        "reason": "Можно честно объяснить, что требует уточнения: срок, отделка, планировки, наличие.",
+        "order": 8,
+        "variant": "faq-accordion",
+        "requiredFactIds": [
+          "white-box-option",
+          "total-apartments"
+        ],
+        "userQuestion": "Что важно уточнить до выбора?",
+        "whyIncluded": "Закрывает возражения без подмены отсутствующих данных догадками.",
+        "positionReason": "Перед следующим шагом.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [],
+        "qaCriteria": [
+          "faq-no-unsupported-answers"
+        ]
+      },
+      {
+        "moduleId": "contacts",
+        "decision": "conditional",
+        "reason": "Показывать только после согласования реального процесса обработки обращения KEY.",
+        "order": 9,
+        "variant": "conversion-led",
+        "requiredFactIds": [],
+        "userQuestion": "Как получить актуальную информацию?",
+        "whyIncluded": "Финальная конверсия должна вести к реальному сотруднику KEY.",
+        "positionReason": "Финальный шаг.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [
+          "approved-key-lead-workflow"
+        ],
+        "qaCriteria": [
+          "real-lead-delivery",
+          "consent-and-privacy"
+        ]
+      }
+    ],
+    "informationGaps": [
+      "Актуальный статус строительства и ввод объекта",
+      "Актуальные цены, наличие квартир и парковочных мест",
+      "Планы квартир и площади с привязкой к актуальным лотам",
+      "Точные условия и состав White-box",
+      "Письменное разрешение на использование фото, рендеров, планов и видео",
+      "Подтверждённый процесс обработки лидов и показа через KEY",
+      "Маршруты и расстояния до инфраструктуры"
+    ],
+    "visualDirection": {
+      "mood": "Сдержанная архитектурная редакционность; ощущение тишины и приватности в центре города.",
+      "palette": [
+        "тёплый камень",
+        "графит",
+        "приглушённый оливковый",
+        "молочный"
+      ],
+      "imageTreatment": "Крупные архитектурные кадры, фактура материалов, спокойные кропы; только материалы с подтверждёнными правами.",
+      "signatureInteraction": "Нелинейная галерея деталей архитектуры и интерактивное раскрытие планировок после подтверждения актуальности."
+    }
+  },
+  "commercial": {
+    "leadWebhookEnvKey": "KEY_LEAD_WEBHOOK_URL",
+    "crmPipeline": "",
+    "brokerNotes": "Черновик паспорта по открытой странице застройщика. Перед публикацией сверить актуальность и юридические права.",
+    "restrictedData": [
+      "Внутренние комментарии брокера",
+      "Секреты интеграций",
+      "Закрытые коммерческие условия"
+    ]
+  },
+  "verification": {
+    "checkedAt": "2026-11-05T00:00:00Z",
+    "factsWithoutSources": [],
+    "conflicts": [
+      "Период реализации Q3 2024 — Q4 2026 требует актуализации; текущий статус объекта не установлен."
+    ],
+    "manualReviewRequired": true
+  }
+}
