@@ -12,11 +12,13 @@ test("synthetic landing renders distinct interactive modules responsively", asyn
   await expect(page.locator('[data-module="floor-plans"] .plan-card')).toHaveCount(1);
   await expect(page.locator('form[data-preview-quiz]')).toBeVisible();
 
+  await page.locator("main img").evaluateAll(images => images.forEach(image => { image.loading = "eager"; }));
+  await page.waitForFunction(() => Array.from(document.querySelectorAll("main img")).every(image => image.complete));
   const imageHealth = await page.locator("main img").evaluateAll(images =>
-    images.map(image => ({ alt: image.alt, loaded: image.complete && image.naturalWidth > 0 }))
+    images.map(image => ({ alt: image.alt, src: image.currentSrc, loaded: image.complete && image.naturalWidth > 0 }))
   );
   expect(imageHealth.length).toBeGreaterThanOrEqual(3);
-  expect(imageHealth.every(image => image.loaded)).toBeTruthy();
+  expect(imageHealth.every(image => image.loaded), JSON.stringify(imageHealth)).toBeTruthy();
 
   for (const viewport of [
     { width: 360, height: 800 },
