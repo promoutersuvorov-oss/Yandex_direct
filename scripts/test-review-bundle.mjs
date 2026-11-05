@@ -22,7 +22,7 @@ try {
     id: "presentation", title: "Презентация", type: "presentation", status: "active", successMessage: "Принято"
   }];
   passport.assets.images = [{
-    id: "hero", url: "https://example.com/hero.webp", type: "render", status: "approved", alt: "Фасад"
+    id: "hero", url: "https://example.com/hero.webp", type: "render", status: "approved", alt: "Фасад", rightsNote: "Письменное разрешение застройщика"
   }];
   passport.contentStrategy.modules = [{
     moduleId: "hero", decision: "include", reason: "Главный блок",
@@ -37,7 +37,9 @@ try {
   const profile = JSON.parse(readFileSync(join(output, "project-profile.json"), "utf8"));
   const report = JSON.parse(readFileSync(join(output, "generation-report.json"), "utf8"));
   const text = JSON.stringify(profile);
-  assert.equal(report.status, "ready_for_renderer_mapping");
+  assert.equal(report.status, "review_required");
+  assert.equal(report.rendererAudit.status, "passed");
+  assert.equal(report.publicationReadiness.productionReady, false);
   assert.equal(profile.facts.length, 1);
   assert.ok(!text.includes("INTERNAL_NOTE"));
   assert.ok(!text.includes("brokerNotes"));
