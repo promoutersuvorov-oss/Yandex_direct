@@ -29,7 +29,17 @@ const assets = profile.assets || [];
 const infrastructure = profile.infrastructure || [];
 const offers = profile.offers || [];
 const modules = manifest.modules;
-const imageFor = module => (module.assetIds || []).map(id => byId(assets, id)).find(asset => asset?.url && ["photo", "render", "plan"].includes(asset.type));
+const safeImageUrl = value => {
+  try {
+    const url = new URL(value);
+    return ["https:", "http:"].includes(url.protocol) ? url.href : null;
+  } catch {
+    return null;
+  }
+};
+const imageFor = module => (module.assetIds || [])
+  .map(id => byId(assets, id))
+  .find(asset => safeImageUrl(asset?.url) && ["photo", "render", "plan"].includes(asset.type));
 const factsFor = module => (module.requiredFactIds || []).map(id => byId(facts, id)).filter(Boolean);
 const advantagesFor = module => advantages.filter(item => (item.supportingFactIds || []).some(id => (module.requiredFactIds || []).includes(id)));
 const labelFor = module => ({
@@ -52,21 +62,22 @@ function renderModule(module, index) {
   const asset = imageFor(module);
   const offer = offerFor(module);
   const heading = module.moduleId === "hero"
-    ? (profile.project.positioning || profile.project.name || labelFor(module))
+    ? (profile.project.name || labelFor(module))
     : labelFor(module);
   const intro = module.moduleId === "hero"
     ? (profile.project.positioning || module.reason || "")
     : (module.userQuestion || module.whyIncluded || module.reason || "");
   const factList = factsHere.map(fact => `<li>${esc(fact.claim)}</li>`).join("");
   const benefitList = advantagesHere.map(item => `<article class="benefit"><h3>${esc(item.title)}</h3><p>${esc(item.benefit)}</p></article>`).join("");
-  const image = asset ? `<figure><img src="${esc(asset.url)}" alt="${esc(asset.alt || profile.project.name || "Изображение проекта")}" loading="lazy"></figure>` : "";
+  const image = asset ? `<figure><img src="${esc(safeImageUrl(asset.url))}" alt="${esc(asset.alt || profile.project.name || "Изображение проекта")}" loading="lazy"></figure>` : "";
   const cta = button(offer, module.moduleId === "hero" ? "Обсудить проект" : "");
   const extra = module.moduleId === "location" || module.moduleId === "places"
     ? infrastructure.map(item => `<li><strong>${esc(item.name)}</strong>${item.publicLabel ? ` — ${esc(item.publicLabel)}` : ""}${Number.isFinite(item.walkingMinutes) ? ` · ${esc(item.walkingMinutes)} мин пешком` : ""}</li>`).join("")
     : "";
-  return `<section class="module ${module.moduleId === "hero" ? "hero" : ""}" id="module-${esc(module.moduleId)}" aria-labelledby="heading-${index}">
+  const headingTag = module.moduleId === "hero" ? "h1" : "h2";
+  return `<section class="module ${module.moduleId === "hero" ? "hero" : ""}" data-module="${esc(module.moduleId)}" data-variant="${esc(module.variant || "default")}" id="module-${esc(module.moduleId)}" aria-labelledby="heading-${index}">
     <div class="module-copy"><p class="eyebrow">${String(index + 1).padStart(2, "0")} / ${esc(module.variant || "раздел")}</p>
-      <h2 id="heading-${index}">${esc(heading)}</h2>
+      <${headingTag} id="heading-${index}">${esc(heading)}</${headingTag}>
       ${intro ? `<p class="intro">${esc(intro)}</p>` : ""}
       ${benefitList ? `<div class="benefits">${benefitList}</div>` : ""}
       ${factList || extra ? `<ul class="facts">${factList}${extra}</ul>` : ""}
