@@ -10,7 +10,7 @@ module.exports = defineConfig({
   retries: 0,
   reporter: [["list"], ["html", { outputFolder: "playwright-report", open: "never" }]],
   use: {
-    browserName: "chromium",
+    browserName: process.env.KEY_BROWSER || "chromium",
     headless: true,
     viewport: { width: 1440, height: 900 },
     trace: "retain-on-failure",
