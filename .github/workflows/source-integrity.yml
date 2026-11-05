@@ -27,6 +27,8 @@ jobs:
         run: node scripts/validate-source.mjs
       - name: Build review-only bundle from the canonical passport example
         run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out /tmp/klanding-review-bundle
+      - name: Test review bundle evidence and privacy gates
+        run: node scripts/test-review-bundle.mjs
       - name: Run K15 static product and interaction audit
         run: node scripts/audit-k15.mjs
 
