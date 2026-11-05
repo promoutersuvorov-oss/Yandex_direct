@@ -294,3 +294,18 @@ MARKETING
 5. Какие данные отсутствуют.
 6. Какие элементы требуют ручной проверки перед публикацией.
 KEY Landing System v2.0
+
+
+## Production UI и проверка реализации
+
+Перед сборкой прочитай:
+- `docs/product/PRODUCTION_UI_FOUNDATION.md`;
+- `docs/architecture/MODULE_CATALOG_AND_COMPOSITION_RULES.md`;
+- `docs/architecture/PASSPORT_TO_LANDING_MAPPING.md`;
+- текущий runtime и исходный K15, а не только спецификации.
+
+Для каждого выбранного moduleId составь mapping: runtime component → поддерживаемый variant → required data → CTA → QA. Если модуль или вариант не реализован, прямо обозначь это и не имитируй работающую функциональность.
+
+При адаптации паспорта не меняй текущую JSON Schema и не используй legacy generator из Agency без отдельной миграции. Неподдерживаемые поля включай в отчёт, а не отбрасывай молча.
+
+Release gate разделяет source-checked, browser-checked, device-checked, integration-checked и launch-ready. Статический анализ не доказывает визуальную работу в браузере, на физическом устройстве или реальную доставку заявки.
