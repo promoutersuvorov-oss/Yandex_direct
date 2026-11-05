@@ -24,10 +24,14 @@ assert.ok(profile.facts.some(fact => fact.id === "quiet-street"));
 assert.ok(!profile.facts.some(fact => fact.id === "delivery-date"), "Expired delivery claims must not be emitted.");
 
 const selected = manifest.modules.map(module => module.moduleId);
-assert.deepEqual(selected, ["hero", "about", "lifestyle", "security", "location", "faq"]);
+assert.deepEqual(selected, ["hero", "about", "lifestyle", "security", "location"]);
 assert.ok(html.includes("Клубный дом «905»"));
 assert.ok(html.includes('<body data-theme="warm-editorial">'));
 assert.ok(html.includes("В доме заявлено 45 квартир всего."));
+assert.equal((html.match(/45 квартир/g) || []).length, 1, "The same apartment-count claim must not repeat across sections.");
+assert.ok(html.includes("ул. Революции 1905 года, 14"));
+assert.ok(!html.includes("Вопросы и ответы"), "A generic fact list must not masquerade as a functional FAQ.");
+assert.ok(html.includes("text-only"), "Sections without approved media must use a full-width text layout.");
 assert.ok(lowerHtml.includes("подземный паркинг"));
 assert.ok(lowerHtml.includes("движения автомобилей"));
 assert.ok(!html.includes("K15"));

@@ -71,10 +71,15 @@ const renderQuiz = quiz => {
     questions + '<button class="cta" type="submit">Завершить подбор</button></form>';
 };
 const factsFor = module => (module.requiredFactIds || []).map(id => byId(facts, id)).filter(Boolean);
-const advantagesFor = module => advantages.filter(item => (item.supportingFactIds || []).some(id => (module.requiredFactIds || []).includes(id)));
+const renderedAdvantageIds = new Set();
+const advantagesFor = module => advantages
+  .filter(item => (item.supportingFactIds || []).length > 0 &&
+    item.supportingFactIds.every(id => (module.requiredFactIds || []).includes(id)) &&
+    !renderedAdvantageIds.has(item.id))
+  .map(item => { renderedAdvantageIds.add(item.id); return item; });
 const labelFor = module => ({
   hero: "О проекте", key: "Главная идея", gallery: "Архитектура и пространство",
-  about: "О проекте", security: "Территория и безопасность", quiz: "Подбор квартиры",
+  about: "О проекте", security: "Практичные решения", quiz: "Подбор квартиры",
   location: "Расположение", places: "Рядом с домом", lifestyle: "Образ жизни",
   life: "Образ жизни", gift: "Презентация", presentation: "Презентация",
   apartments: "Квартиры и планировки", "floor-plans": "Планировки", price: "Условия покупки",
@@ -87,8 +92,9 @@ const button = (offer, fallback) => offer
   : fallback ? `<button class="cta" type="button" data-preview-cta="generic" data-preview-title="${esc(fallback)}">${esc(fallback)}</button>` : "";
 
 function renderModule(module, index) {
-  const factsHere = factsFor(module);
-  const advantagesHere = advantagesFor(module);
+  const advantagesHere = module.moduleId === "hero" ? [] : advantagesFor(module);
+  const benefitFactIds = new Set(advantagesHere.flatMap(item => item.supportingFactIds || []));
+  const factsHere = module.moduleId === "hero" ? [] : factsFor(module).filter(fact => !benefitFactIds.has(fact.id));
   const asset = imageFor(module);
   const moduleAssets = assetsFor(module);
   const offer = offerFor(module);
@@ -113,10 +119,14 @@ function renderModule(module, index) {
   const quiz = module.moduleId === "quiz" ? renderQuiz(profile.selectionQuiz) : "";
   const cta = ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? "" : button(offer, "");
   const extra = module.moduleId === "location" || module.moduleId === "places"
-    ? infrastructure.map(item => `<li><strong>${esc(item.name)}</strong>${item.publicLabel ? ` — ${esc(item.publicLabel)}` : ""}${Number.isFinite(item.walkingMinutes) ? ` · ${esc(item.walkingMinutes)} мин пешком` : ""}</li>`).join("")
+    ? [
+        profile.project.address ? `<li><strong>Адрес</strong> — ${esc(profile.project.address)}</li>` : "",
+        ...infrastructure.map(item => `<li><strong>${esc(item.name)}</strong>${item.publicLabel ? ` — ${esc(item.publicLabel)}` : ""}${Number.isFinite(item.walkingMinutes) ? ` · ${esc(item.walkingMinutes)} мин пешком` : ""}</li>`)
+      ].join("")
     : "";
   const headingTag = module.moduleId === "hero" ? "h1" : "h2";
-  return `<section class="module ${module.moduleId === "hero" ? "hero" : ""}" data-module="${esc(module.moduleId)}" data-variant="${esc(module.variant || "default")}" id="module-${esc(module.moduleId)}" aria-labelledby="heading-${index}">
+  const moduleClasses = ["module", module.moduleId === "hero" ? "hero" : "", image || plans ? "" : "text-only"].filter(Boolean).join(" ");
+  return `<section class="${moduleClasses}" data-module="${esc(module.moduleId)}" data-variant="${esc(module.variant || "default")}" id="module-${esc(module.moduleId)}" aria-labelledby="heading-${index}">
     <div class="module-copy"><p class="eyebrow">${String(index + 1).padStart(2, "0")} / ${esc(module.variant || "раздел")}</p>
       <${headingTag} id="heading-${index}">${esc(heading)}</${headingTag}>
       ${intro ? `<p class="intro">${esc(intro)}</p>` : ""}
@@ -147,6 +157,8 @@ const html = `<!doctype html>
 body[data-theme="warm-editorial"]{color-scheme:light;--bg:#f3eee5;--panel:#e7dfd2;--text:#25231f;--muted:#69645c;--line:#25231f24;--accent:#9a5b43;--cta-text:#fff;font-family:Georgia,"Times New Roman",serif}
 body[data-theme="warm-editorial"] .module:nth-child(odd){background:#eee7dc}
 body[data-theme="warm-editorial"] .module[data-variant="proof-led"]{background:#e5dccf}
+body[data-theme="warm-editorial"] .module[data-variant="proof-led"] .benefit{background:#d9cdbd;color:#25231f;border:1px solid #c9bca9}
+body[data-theme="warm-editorial"] .module[data-variant="proof-led"] .benefit p{color:#514a42}
 body[data-theme="warm-editorial"] .module[data-variant="conversion-led"]{background:#e9dfd3}
 body[data-theme="garden-modern"]{--bg:#101b18;--panel:#1d2c26;--text:#edf2e9;--muted:#b6c4b8;--line:#dcebdd24;--accent:#b5c89b;--cta-text:#172019;font-family:Inter,Arial,sans-serif}
 body[data-theme="garden-modern"] h1,body[data-theme="garden-modern"] h2{font-family:Inter,Arial,sans-serif;letter-spacing:-.055em;font-weight:600}
@@ -185,6 +197,7 @@ body[data-theme="garden-modern"] .module[data-variant="conversion-led"]{backgrou
 .module[data-variant="full-bleed"] figure{position:absolute;inset:0;z-index:0;border-radius:0}
 .module[data-variant="full-bleed"] figure img{height:100%;max-height:none;filter:brightness(.55)}
 .module[data-variant="full-bleed"] .module-copy{position:relative;z-index:1;max-width:760px}
+.module.text-only,.module.text-only[data-variant="location-led"]{grid-template-columns:minmax(0,1fr)}.module.text-only .module-copy{max-width:1000px}
 @media(max-width:760px){.module,.module.hero,.module[data-variant="editorial-split"],.module[data-variant="gallery-mosaic"],.module[data-variant="plan-selector"],.module[data-variant="step-form"],.module[data-variant="feature-led"],.module[data-variant="image-led"],.module[data-variant="location-led"]{grid-template-columns:1fr;min-height:unset;padding-block:68px}.module figure,.module .media-grid{grid-row:1}.module-copy{grid-row:2}.module[data-variant="full-bleed"]{display:flex;min-height:64svh;padding-block:68px}.module[data-variant="full-bleed"] figure{position:absolute;inset:0;grid-row:auto}.module[data-variant="full-bleed"] .module-copy{grid-row:auto}figure img{max-height:360px}.plan-card{grid-template-columns:1fr}.plan-card img{max-height:260px}.top{font-size:11px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
