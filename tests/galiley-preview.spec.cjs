@@ -42,21 +42,22 @@ test("Galiley preview renders its own project identity and garden-modern composi
   await expect(dialog).toContainText("Ничего не отправляется");
   await expect(page.locator("form[data-lead-form]")).toHaveCount(0);
 
-  // The hero exposes three separate KEY journeys, each with its own stable scenario
-  // and field requirements; preview clicks must never send data.
+  // Hero has one lead-magnet CTA. Other intentions belong in their own
+  // semantic modules rather than competing with the presentation offer.
   const heroCtas = page.locator("#module-hero button[data-preview-cta]");
-  await expect(heroCtas).toHaveCount(3);
-  const expectedScenarios = [
-    { scenarioId: "galiley.apartment-selection", offerId: "apartment-selection", requiredFields: ["phone"] },
-    { scenarioId: "galiley.viewing-request", offerId: "viewing-request", requiredFields: ["phone", "preferredTime"] }
-  ];
-  for (let index = 0; index < expectedScenarios.length; index += 1) {
-    await dialog.locator(".close").click();
-    await heroCtas.nth(index + 1).click();
-    const scenarioPayload = JSON.parse(await dialog.locator("#noticePayload").textContent());
-    expect(scenarioPayload.conversion).toMatchObject(expectedScenarios[index]);
-    expect(scenarioPayload.delivery).toEqual({ status: "disabled_in_preview", accepted: false });
-  }
+  await expect(heroCtas).toHaveCount(1);
+  await expect(heroCtas.first()).toHaveText("Получить презентацию ЖК");
+  await expect(heroCtas.first()).toHaveAttribute("data-preview-cta", "presentation");
+  await dialog.locator(".close").click();
+  await heroCtas.first().click();
+  const presentationPayload = JSON.parse(await dialog.locator("#noticePayload").textContent());
+  expect(presentationPayload.conversion).toMatchObject({
+    scenarioId: "galiley.presentation",
+    offerId: "presentation",
+    moduleId: "hero"
+  });
+  expect(presentationPayload.requirements.requiredFields).toEqual(["phone"]);
+  expect(presentationPayload.delivery).toEqual({ status: "disabled_in_preview", accepted: false });
 
   const dimensions = await page.evaluate(() => ({
     viewport: document.documentElement.clientWidth,
