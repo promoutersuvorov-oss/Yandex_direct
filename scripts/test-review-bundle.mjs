@@ -51,7 +51,7 @@ try {
   assert.equal(preview.status, 0, preview.stderr || preview.stdout);
   const html = readFileSync(join(output, "preview.html"), "utf8");
   assert.ok(html.includes("Тестовый ЖК"));
-  assert.ok(html.includes("<h1 id=\\"heading-0\\">Тестовый ЖК</h1>"));
+  assert.ok(html.includes('<h1 id="heading-0">Тестовый ЖК</h1>'));
   assert.equal((html.match(/&lt;img src=x onerror=&quot;alert\(1\)&quot;&gt;/g) || []).length, 1, "Hero positioning should appear once, not duplicate as the title.");
   assert.ok(html.includes("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;"));
   assert.ok(!html.includes('<img src=x onerror="alert(1)">'));
