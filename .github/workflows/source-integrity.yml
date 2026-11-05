@@ -33,6 +33,8 @@ jobs:
         run: python scripts/validate-passport-schema.py
       - name: Validate JSON artifacts and K15 baseline
         run: node scripts/validate-source.mjs
+      - name: Test first-touch and last-touch attribution
+        run: node --test tests/attribution.test.mjs
       - name: Build review-only bundle from the canonical passport example
         run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out artifacts/review-bundle
       - name: Render dynamic HTML review preview
