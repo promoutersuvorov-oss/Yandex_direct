@@ -58,6 +58,16 @@ The earlier wording that treated Q4 2026 as already expired was incorrect. The c
 
 **Decision for the passport:** do not mark the delivery period as expired. Store both delivery and construction status as provisional, so the generator does not publish them as verified facts. Keep manual review required until the current project declaration, construction permit extension/status and actual progress are checked. Do not present 31.12.2026 as a guaranteed handover date.
 
+### Additional official publications visible on 2026-11-05
+
+A fresh review of the developer's official news feed found:
+
+- [09.10.2026 — «Клубный дом 905 — образование рядом с домом»](https://krays.ru/news/klubnyy-dom-905-obrazovanie-ryadom-s-domom). The publication makes a qualitative claim about nearby schools and urban infrastructure. It does not provide verified walking distances, route times, school catchment/availability or independent quality rankings. KEY may use it only as evidence of the developer's positioning; do not turn it into a quantified proximity claim.
+- [07.10.2026 — «Квартира глазами дизайнера»](https://krays.ru/object/klubnyy-dom-905). The project page's news feed lists this publication. It may be useful as a prompt for a future interior/finishing story, but its contents and media rights must be reviewed before any reuse.
+- The developer's [news feed](https://krays.ru/news), crawled on 2026-11-05, also lists general October promotions and financing-related headlines tagged for multiple projects including КД «905». A tag or headline is not sufficient evidence of the exact applicability, eligibility, dates or terms of an offer. Do not publish any discount or mortgage claim from the listing alone.
+
+**Freshness limitation:** the official EISЖС pages visible in this check still surface the 16.09.2026 document-list entry for declaration №36-000992; the 13.10.2026 version remains unverified as a primary PDF. The 08.09.2026 construction-status snapshot is still the latest dated government status record found in this pass. Therefore this web refresh does not establish the actual construction state as of 05.11.2026; current progress and permit status remain **not verified**.
+
 ## Landing story and visitor questions
 
 The new page should answer the visitor's questions in this order, with each section included only if it earns its place:
