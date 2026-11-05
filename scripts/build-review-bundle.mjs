@@ -119,7 +119,7 @@ const profile = {
     delivery: publicValue(passport.project?.delivery),
     constructionStatus: publicValue(passport.project?.constructionStatus)
   },
-  facts: allowedFacts.map(({ id, claim, publicUse, sources }) => ({ id, claim, publicUse, sourceIds: sources.map((_, index) => `${id}:source:${index + 1}`) })),
+  facts: allowedFacts.map(({ id, claim, publicUse, sources }) => ({ id, claim, publicUse, sources })),
   advantages: allowedAdvantages,
   infrastructure: asArray(passport.infrastructure).filter(item => item.status === "verified" && item.source),
   offers: activeOffers,
