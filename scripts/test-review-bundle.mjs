@@ -69,6 +69,22 @@ try {
   assert.ok(!report.rendererAudit.selectedModules.some(item => item.moduleId === "mortgage"),
     "conditional mortgage without verified terms must stay out of the selected composition");
 
+  // Public media and the evidence trail for usage rights must use HTTPS.
+  for (const [label, mutate, expected] of [
+    ["http-media-url", candidate => { candidate.assets.images[0].url = "http://example.com/hero.webp"; }, "unsafe public URL scheme"],
+    ["http-rights-source", candidate => { candidate.assets.images[0].rightsSource.url = "http://example.com/rights"; }, "traceable HTTPS rightsSource"]
+  ]) {
+    const insecure = structuredClone(passport);
+    mutate(insecure);
+    const insecureInput = join(dir, label + ".json");
+    const insecureOutput = join(dir, label + "-output");
+    writeFileSync(insecureInput, JSON.stringify(insecure));
+    const insecureBuild = spawnSync(process.execPath, [resolve("scripts/build-review-bundle.mjs"), "--passport", insecureInput, "--out", insecureOutput], { encoding: "utf8" });
+    assert.equal(insecureBuild.status, 1, label + " must block generation.");
+    const insecureReport = JSON.parse(readFileSync(join(insecureOutput, "generation-report.json"), "utf8"));
+    assert.ok(insecureReport.blockers.some(message => message.includes(expected)), label + " must report the HTTPS policy violation.");
+  }
+
   // Invalid compositions must be blocked before any review bundle can be published.
   for (const [label, mutate, expected] of [
     ["duplicate-hero", candidate => candidate.contentStrategy.modules.push({ ...candidate.contentStrategy.modules[0], order: 5 }), "found 2"],
