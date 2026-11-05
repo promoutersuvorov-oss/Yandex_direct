@@ -20,7 +20,8 @@ async function serveSyntheticMedia(page) {
 test("synthetic landing renders distinct interactive modules responsively", async ({ page }) => {
   const pageErrors = [];
   page.on("pageerror", error => pageErrors.push(error.message));
-  await serveSyntheticMedia(page);\n  await page.goto(url, { waitUntil: "networkidle" });
+  await serveSyntheticMedia(page);
+  await page.goto(url, { waitUntil: "networkidle" });
 
   await expect(page.getByRole("heading", { level: 1, name: "Синтетический ЖК — тест интерфейса" })).toBeVisible();
   await expect(page.locator('[data-module="gallery"] .media-card')).toHaveCount(2);
