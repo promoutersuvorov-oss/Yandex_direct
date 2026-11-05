@@ -671,6 +671,11 @@
         "reason": {
           "type": "string"
         },
+        "order": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Позиция модуля в индивидуальной истории лендинга; hero всегда закрепляется первым."
+        },
         "requiredFactIds": {
           "type": "array",
           "items": {
