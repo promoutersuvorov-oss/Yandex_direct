@@ -261,7 +261,7 @@ document.querySelectorAll("[data-preview-cta]").forEach(button=>button.addEventL
   finishing:button.dataset.previewPlanFinishing||null,
   assetId:button.dataset.previewPlanAssetId
  }:null;
- const payload={schemaVersion:"key-review-context/1.0",projectId:null,offerId:button.dataset.previewCta,moduleId:section?.dataset.module||null,plan};
+ const payload={schemaVersion:"key-review-context/1.0",projectId:${JSON.stringify(projectId)},offerId:button.dataset.previewCta,moduleId:section?.dataset.module||null,plan};
  showPreview(button.dataset.previewTitle||"Сценарий обращения","Предпросмотр контекста обращения. Ничего не отправляется.",payload);
 }));
 document.querySelectorAll("form[data-preview-quiz]").forEach(form=>{
@@ -294,7 +294,7 @@ document.querySelectorAll("form[data-preview-quiz]").forEach(form=>{
   });
   const missing=answers.findIndex(answer=>!answer);
   if(missing!==-1){current=missing;updateStep();steps[current].querySelector("input")?.reportValidity();return;}
-  const payload={schemaVersion:"key-selection-preview/1.0",projectId:null,offerId:form.dataset.resultOffer,answers};
+  const payload={schemaVersion:"key-selection-preview/1.0",projectId:${JSON.stringify(projectId)},offerId:form.dataset.resultOffer,answers};
   showPreview("Подбор завершён","Ответы подготовлены локально для проверки сценария. Данные не отправляются.",payload);
  });
  updateStep();
