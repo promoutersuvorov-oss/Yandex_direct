@@ -597,6 +597,29 @@
         "rightsNote": {
           "type": "string"
         },
+        "projectMatch": {
+          "enum": [
+            "confirmed",
+            "unconfirmed",
+            "conflicting"
+          ],
+          "description": "Подтверждает, что материал относится именно к этому ЖК."
+        },
+        "rightsStatus": {
+          "enum": [
+            "confirmed",
+            "pending",
+            "blocked"
+          ],
+          "description": "Статус проверки прав на использование материала."
+        },
+        "rightsSource": {
+          "$ref": "#/$defs/source"
+        },
+        "validUntil": {
+          "type": "string",
+          "format": "date-time"
+        },
         "usage": {
           "type": "array",
           "items": {
