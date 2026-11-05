@@ -52,11 +52,11 @@ passport.offers = [
   { id: "selection", title: "Тестовый подбор", type: "apartment_selection", status: "active", requiredFields: [] }
 ];
 passport.assets.images = [
-  media("fixture-hero", "http://127.0.0.1:4173/tests/fixtures/preview-hero.svg", "render", "Синтетический фасад"),
-  media("fixture-gallery", "http://127.0.0.1:4173/tests/fixtures/preview-gallery.svg", "photo", "Синтетический двор")
+  media("fixture-hero", "https://example.invalid/tests/fixtures/preview-hero.svg", "render", "Синтетический фасад"),
+  media("fixture-gallery", "https://example.invalid/tests/fixtures/preview-gallery.svg", "photo", "Синтетический двор")
 ];
 passport.assets.plans = [
-  media("fixture-plan", "http://127.0.0.1:4173/tests/fixtures/preview-plan.svg", "plan", "Синтетическая планировка")
+  media("fixture-plan", "https://example.invalid/tests/fixtures/preview-plan.svg", "plan", "Синтетическая планировка")
 ];
 passport.apartmentPlans = [{
   id: "fixture-plan-45",
