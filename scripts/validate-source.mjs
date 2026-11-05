@@ -34,16 +34,17 @@ for (const path of [
 const htmlPath = "landing/reference/K15_landing_edited.html";
 if (existsSync(htmlPath)) {
   const html = readFileSync(htmlPath, "utf8");
-  if (!/^<!doctype html>/i.test(html.trimStart())) {
+  const normalized = html.toLowerCase();
+  if (!normalized.trimStart().startsWith("<!doctype html>")) {
     errors.push("K15 baseline must begin with a valid HTML doctype.");
   }
-  if (!/<html\b[^>]*lang=["']ru["']/i.test(html)) {
+  if (!normalized.includes('<html lang="ru"')) {
     errors.push("K15 baseline must declare Russian document language.");
   }
-  if (!/<meta\s+name=["']viewport["']/i.test(html)) {
+  if (!normalized.includes('name="viewport"')) {
     errors.push("K15 baseline is missing its viewport meta tag.");
   }
-  if (!/<body\b/i.test(html) || !/<\/html>/i.test(html)) {
+  if (!normalized.includes("<body") || !normalized.includes("</html>")) {
     errors.push("K15 baseline has an incomplete HTML document shell.");
   }
 }
