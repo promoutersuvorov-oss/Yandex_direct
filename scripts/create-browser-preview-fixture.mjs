@@ -47,14 +47,27 @@ passport.advantages = [{
   strength: "core"
 }];
 passport.infrastructure = [
-  { name: "Тестовый городской парк", category: "park", distanceMeters: 450, walkingMinutes: 6, status: "verified",
-    publicLabel: "Синтетические данные для проверки карточки инфраструктуры", source: evidence("Синтетический источник инфраструктуры", "places/park") },
-  { name: "Неподтверждённый торговый центр", category: "shopping", distanceMeters: 120, walkingMinutes: 2, status: "provisional",
+  { name: "Тестовый городской парк", category: "park", distanceMeters: 450, walkingMinutes: 6, distanceEvidence: {
+      method: "walking_route", checkedAt: stamp, validUntil: "2099-12-31T00:00:00Z",
+      source: evidence("Синтетическое подтверждение пешего маршрута", "routes/park")
+    }, status: "verified", publicLabel: "Синтетические данные для проверки карточки инфраструктуры",
+    source: evidence("Синтетический источник инфраструктуры", "places/park") },
+  { name: "Школа без подтверждённого расстояния", category: "school", status: "verified",
+    publicLabel: "Объект подтверждён, маршрут не измерялся", source: evidence("Синтетический источник школы", "places/school") },
+  { name: "Городской сквер", category: "park", distanceMeters: 1500, distanceEvidence: {
+      method: "straight_line", checkedAt: stamp, validUntil: "2099-12-31T00:00:00Z",
+      source: evidence("Синтетическое подтверждение расстояния по прямой", "routes/square")
+    }, status: "verified", source: evidence("Синтетический источник сквера", "places/square") },
+  { name: "Парк с устаревшим маршрутом", category: "park", distanceMeters: 900, walkingMinutes: 11, distanceEvidence: {
+      method: "walking_route", checkedAt: "2020-01-01T00:00:00Z", validUntil: "2020-02-01T00:00:00Z",
+      source: evidence("Устаревшее подтверждение маршрута", "routes/expired")
+    }, status: "verified", source: evidence("Синтетический источник второго парка", "places/park-expired") },
+  { name: "Неподтверждённый торговый центр", category: "shopping", status: "provisional",
     publicLabel: "Не должен появиться в публичном preview", source: evidence("Синтетический неподтверждённый источник", "places/unverified") }
 ];
 passport.offers = [
-  { id: "presentation", title: "Получить тестовую презентацию", type: "presentation", status: "active", requiredFields: [] },
-  { id: "selection", title: "Тестовый подбор", type: "apartment_selection", status: "active", requiredFields: [] }
+  { id: "presentation", scenarioId: "presentation-request", title: "Получить тестовую презентацию", type: "presentation", status: "active", requiredFields: ["name", "phone"], consentRequired: true },
+  { id: "selection", scenarioId: "guided-apartment-selection", title: "Тестовый подбор", type: "apartment_selection", status: "active", requiredFields: ["name", "phone"], consentRequired: true }
 ];
 passport.assets.images = [
   media("fixture-hero", "https://example.invalid/tests/fixtures/preview-hero.svg", "render", "Синтетический фасад"),

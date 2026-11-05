@@ -193,3 +193,39 @@ The first implementation lives in `src/attribution.mjs` and is intentionally pro
 The module currently covers K15's known UTM/click identifiers plus common Yandex, Google, VK and Meta click IDs. It does not read contact fields, infer identity, or itself persist data to browser storage. Persistence policy and consent remain the responsibility of the eventual runtime adapter. The unit suite is `tests/attribution.test.mjs`, run by the source-integrity workflow.
 
 **Integration status:** utility and tests are in the repository; the preview renderer and K15 baseline do not yet submit this state to a live CRM endpoint. Production wiring must happen in the canonical lead runtime, with server-side validation and consent-aware persistence.
+
+
+## 7. Versioned CTA context contract (review-preview milestone)
+
+The shared browser-side context envelope is `key-cta-context/2.0`. It is a local review representation, not a production lead payload and not permission to transmit personal data.
+
+```json
+{
+  "schemaVersion": "key-cta-context/2.0",
+  "state": "preview_only",
+  "projectId": "project-id",
+  "conversion": {
+    "scenarioId": "stable-scenario-id",
+    "offerId": "offer-id",
+    "moduleId": "floor-plans",
+    "entityContext": {
+      "plan": { "id": "plan-id", "rooms": 2, "areaSqm": 54.2, "assetId": "plan-asset-id" },
+      "quizAnswers": [{ "questionId": "rooms", "optionId": "two" }]
+    }
+  },
+  "requirements": {
+    "requiredFields": ["name", "phone"],
+    "consentRequired": true
+  },
+  "delivery": { "status": "disabled_in_preview", "accepted": false }
+}
+```
+
+Rules:
+- `scenarioId` is stable and distinct from the offer's storage ID; for legacy offers without it, the builder uses `offer.id` as a compatibility fallback.
+- `moduleId` identifies the actual rendered module; plan and quiz context is nested under `entityContext`, never spread into arbitrary top-level fields.
+- The public offer allowlist includes only `scenarioId`, `id`, `title`, `type`, `description`, `requiredFields`, and `consentRequired`.
+- Consent is required by default. This preview only declares the requirement; it does not collect consent or contact data and cannot be used as a production form.
+- `delivery.status=disabled_in_preview` and `accepted=false` are mandatory. A UI completion or local payload preview must never be presented as lead delivery success.
+- A future server adapter must validate the same contract, enforce the active scenario/offer registry, validate entity context against current passport/inventory, apply consent policy version and timestamp, and only then return an authoritative delivery result.
+- Production transport, retries, server validation, PII collection, consent policy and CRM/webhook remain out of scope until endpoint ownership and legal requirements are approved.

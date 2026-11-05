@@ -141,7 +141,26 @@ for (const asset of assets) {
 }
 for (const offer of offers) {
   if (offer.status === "active" && !offer.successMessage) warnings.push(`Active offer "${offer.id}" has no successMessage.`);
+  if (offer.status === "active" && offer.consentRequired === false && !offer.consentExceptionReason?.trim()) {
+    errors.push(`Active offer "${offer.id}" disables consent without a documented legal exception reason.`);
+  }
 }
+const infrastructureRecords = asArray(passport.infrastructure);
+for (const item of infrastructureRecords) {
+  if (item.status !== "verified" || !Number.isFinite(item.distanceMeters) && !Number.isFinite(item.walkingMinutes)) continue;
+  const evidence = item.distanceEvidence;
+  const supported = evidence && isTraceableSource(evidence.source) &&
+    typeof evidence.checkedAt === "string" && Number.isFinite(Date.parse(evidence.checkedAt)) &&
+    typeof evidence.validUntil === "string" && Number.isFinite(Date.parse(evidence.validUntil)) &&
+    Date.parse(evidence.validUntil) >= Date.now() &&
+    Date.parse(evidence.checkedAt) <= Date.now() &&
+    Date.parse(evidence.validUntil) >= Date.parse(evidence.checkedAt) &&
+    (evidence.method === "walking_route" || evidence.method === "straight_line") &&
+    !(evidence.method === "straight_line" && Number.isFinite(item.walkingMinutes));
+  if (!supported) warnings.push(`Infrastructure distance/time for "${item.name}" is omitted because separate, current route/distance evidence is missing or invalid.`);
+}
+const activeScenarioIds = offers.filter(offer => offer.status === "active").map(offer => offer.scenarioId || offer.id);
+if (!uniqueBy(activeScenarioIds.map(id => ({ id })), "id")) errors.push("Active offers contain duplicate scenarioId values.");
 warn(asArray(passport.verification?.conflicts).length === 0, "Passport contains unresolved verification conflicts.");
 warn(passport.verification?.manualReviewRequired !== true, "Passport explicitly requires manual review.");
 warn(safeIdentity(passport.project?.name) !== null, "Project name is missing or remains a template placeholder.");
@@ -186,13 +205,19 @@ for (const module of modules) {
   if (module.moduleId === "quiz" && module.decision === "include" && !publicSelectionQuiz) {
     errors.push('The "quiz" module is included but no approved selectionQuiz with an active result offer is available.');
   }
+  if (module.moduleId === "quiz" && module.decision === "include" && publicSelectionQuiz &&
+      !asArray(module.ctaIds).includes(rawQuiz.resultOfferId)) {
+    errors.push('The "quiz" module must reference its selectionQuiz resultOfferId in ctaIds.');
+  }
 }
 const activeOffers = offers.filter(offer => offer.status === "active").map(offer => ({
   id: offer.id,
+  scenarioId: offer.scenarioId || offer.id,
   title: offer.title,
   type: offer.type,
   description: offer.description ?? null,
-  requiredFields: asArray(offer.requiredFields)
+  requiredFields: asArray(offer.requiredFields),
+  consentRequired: offer.consentRequired !== false
 }));
 const publishableFactIds = new Set(allowedFacts.map(fact => fact.id));
 const conditionalReady = item => {
@@ -263,10 +288,31 @@ const profile = {
   },
   facts: allowedFacts.map(({ id, claim, publicUse }) => ({ id, claim, publicUse })),
   advantages: allowedAdvantages,
-  infrastructure: asArray(passport.infrastructure)
+  infrastructure: infrastructureRecords
     .filter(item => item.status === "verified" && isTraceableSource(item.source))
-    .map(({ name, category, distanceMeters, walkingMinutes, marketingMeaning, publicLabel }) =>
-      ({ name, category, distanceMeters, walkingMinutes, marketingMeaning, publicLabel })),
+    .map(item => {
+      const evidence = item.distanceEvidence;
+      const hasMetric = Number.isFinite(item.distanceMeters) || Number.isFinite(item.walkingMinutes);
+      const metricEvidenceValid = hasMetric && evidence && isTraceableSource(evidence.source) &&
+        typeof evidence.checkedAt === "string" && Number.isFinite(Date.parse(evidence.checkedAt)) &&
+        Date.parse(evidence.checkedAt) <= Date.now() &&
+        typeof evidence.validUntil === "string" && Number.isFinite(Date.parse(evidence.validUntil)) &&
+        Date.parse(evidence.validUntil) >= Date.now() &&
+        Date.parse(evidence.validUntil) >= Date.parse(evidence.checkedAt) &&
+        (evidence.method === "walking_route" || evidence.method === "straight_line") &&
+        !(evidence.method === "straight_line" && Number.isFinite(item.walkingMinutes));
+      return {
+        name: item.name,
+        category: item.category,
+        ...(metricEvidenceValid ? {
+          distanceMeters: item.distanceMeters,
+          ...(evidence.method === "walking_route" ? { walkingMinutes: item.walkingMinutes } : {}),
+          distanceMethod: evidence.method
+        } : {}),
+        marketingMeaning: item.marketingMeaning,
+        publicLabel: item.publicLabel
+      };
+    }),
   offers: activeOffers,
   apartmentPlans: publicApartmentPlans,
   selectionQuiz: publicSelectionQuiz,
@@ -284,8 +330,8 @@ const renderedSections = new Set(
 );
 const specializedCapabilities = {
   hero: { status: "implemented", behavior: "Project identity, approved positioning, assigned media and contextual preview CTA." },
-  location: { status: "implemented", behavior: "Structured address and verified nearby-place cards; distances and walking times appear only when explicitly evidenced. No map or route calculation is implied." },
-  places: { status: "implemented", behavior: "Structured address and verified nearby-place cards; distances and walking times appear only when explicitly evidenced. No map or route calculation is implied." },
+  location: { status: "implemented", behavior: "Structured address and verified nearby-place cards; distance/time metrics require separate, current route or straight-line evidence. No map or route calculation is implied." },
+  places: { status: "implemented", behavior: "Structured address and verified nearby-place cards; distance/time metrics require separate, current route or straight-line evidence. No map or route calculation is implied." },
   gallery: { status: "implemented", behavior: "Responsive gallery of approved, rights-cleared media with alt text and media-type labels." },
   apartments: { status: "implemented", behavior: "Verified apartment-plan cards with plan-specific preview CTA context." },
   "floor-plans": { status: "implemented", behavior: "Verified apartment-plan cards with plan-specific preview CTA context." },

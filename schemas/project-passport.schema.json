@@ -518,6 +518,18 @@
           "type": "integer",
           "minimum": 0
         },
+        "distanceEvidence": {
+          "type": "object",
+          "description": "Separate evidence for distance/time metrics. Place existence evidence alone does not substantiate a route or distance.",
+          "required": ["method", "checkedAt", "validUntil", "source"],
+          "properties": {
+            "method": { "enum": ["walking_route", "straight_line"] },
+            "checkedAt": { "type": "string", "format": "date-time" },
+            "validUntil": { "type": "string", "format": "date-time" },
+            "source": { "$ref": "#/$defs/source" }
+          },
+          "additionalProperties": false
+        },
         "status": {
           "enum": [
             "verified",
@@ -536,6 +548,33 @@
           "type": "string"
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "anyOf": [
+              { "required": ["distanceMeters"] },
+              { "required": ["walkingMinutes"] }
+            ]
+          },
+          "then": { "required": ["distanceEvidence"] }
+        },
+        {
+          "if": { "required": ["walkingMinutes"] },
+          "then": { "required": ["distanceMeters"] }
+        },
+        {
+          "if": {
+            "properties": {
+              "distanceEvidence": {
+                "properties": { "method": { "const": "straight_line" } },
+                "required": ["method"]
+              }
+            },
+            "required": ["distanceEvidence"]
+          },
+          "then": { "not": { "required": ["walkingMinutes"] } }
+        }
+      ],
       "additionalProperties": false
     },
     "offer": {
@@ -549,6 +588,11 @@
       "properties": {
         "id": {
           "type": "string"
+        },
+        "scenarioId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$",
+          "description": "Stable conversion scenario ID; defaults to offer.id when omitted."
         },
         "title": {
           "type": "string"
@@ -577,13 +621,32 @@
         "requiredFields": {
           "type": "array",
           "items": {
-            "type": "string"
-          }
+            "enum": ["name", "phone", "preferredChannel", "preferredTime"]
+          },
+          "uniqueItems": true
+        },
+        "consentRequired": {
+          "type": "boolean",
+          "description": "Consent is required by default. Setting false requires an explicitly reviewed legal basis."
+        },
+        "consentExceptionReason": {
+          "type": "string",
+          "minLength": 20,
+          "description": "Internal legal basis; never copied to the public offer allowlist."
         },
         "successMessage": {
           "type": "string"
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "consentRequired": { "const": false } },
+            "required": ["consentRequired"]
+          },
+          "then": { "required": ["consentExceptionReason"] }
+        }
+      ],
       "additionalProperties": false
     },
     "asset": {
