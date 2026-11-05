@@ -25,3 +25,5 @@ jobs:
           node-version: 22
       - name: Validate JSON artifacts and K15 baseline
         run: node scripts/validate-source.mjs
+      - name: Run K15 static product and interaction audit
+        run: node scripts/audit-k15.mjs
