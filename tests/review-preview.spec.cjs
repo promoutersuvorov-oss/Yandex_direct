@@ -11,6 +11,10 @@ test("synthetic landing renders distinct interactive modules responsively", asyn
   await expect(page.locator('[data-module="gallery"] .media-card')).toHaveCount(2);
   await expect(page.locator('[data-module="floor-plans"] .plan-card')).toHaveCount(1);
   await expect(page.locator('form[data-preview-quiz]')).toBeVisible();
+  const heroColumns = await page.locator('[data-module="hero"]').evaluate(el => getComputedStyle(el).gridTemplateColumns);
+  const galleryColumns = await page.locator('[data-module="gallery"] .media-grid').evaluate(el => getComputedStyle(el).gridTemplateColumns);
+  expect(heroColumns).not.toBe("none");
+  expect(galleryColumns).not.toBe("none");
 
   await page.locator("main img").evaluateAll(images => images.forEach(image => { image.loading = "eager"; }));
   await page.waitForFunction(() => Array.from(document.querySelectorAll("main img")).every(image => image.complete));

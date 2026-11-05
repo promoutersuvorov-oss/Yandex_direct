@@ -10,6 +10,8 @@ try {
   passport.project.name = "Тестовый ЖК";
   passport.project.location.city = "Тестовый город";
   passport.project.positioning = '<img src=x onerror="alert(1)">';
+  passport.project.positioningStatus = "approved";
+  passport.project.positioningFactIds = ["verified-1"];
   passport.verification.manualReviewRequired = false;
   passport.facts = [{
     id: "verified-1", claim: "Подтверждённое утверждение", status: "verified",
@@ -103,12 +105,29 @@ try {
   assert.equal(secondBuild.status, 0, secondBuild.stderr || secondBuild.stdout);
   const secondProfile = JSON.parse(readFileSync(join(secondOutput, "project-profile.json"), "utf8"));
   const secondText = JSON.stringify(secondProfile);
+  const secondPreview = spawnSync(process.execPath, [
+    resolve("scripts/render-review-preview.mjs"), "--bundle", secondOutput,
+    "--out", join(secondOutput, "preview.html")
+  ], { encoding: "utf8" });
+  assert.equal(secondPreview.status, 0, secondPreview.stderr || secondPreview.stdout);
+  const secondHtml = readFileSync(join(secondOutput, "preview.html"), "utf8");
+  assert.ok(secondHtml.includes("Второй независимый ЖК"));
+  assert.ok(!secondHtml.includes("Тестовый ЖК"));
+  assert.ok(!secondHtml.includes("K15"));
   assert.equal(secondProfile.project.id, "second-test-project");
   assert.equal(secondProfile.project.name, "Второй независимый ЖК");
   assert.ok(secondText.includes("Уникальный факт второго объекта"));
   assert.ok(!secondText.includes("Тестовый ЖК"));
   assert.ok(!secondText.includes("Подтверждённое утверждение"));
 
+  passport.project.positioningFactIds = ["missing-fact-id"];
+  writeFileSync(input, JSON.stringify(passport));
+  const unsupportedPositioning = spawnSync(process.execPath, [resolve("scripts/build-review-bundle.mjs"), "--passport", input, "--out", output], { encoding: "utf8" });
+  assert.equal(unsupportedPositioning.status, 1, "Approved positioning without public evidence must block bundle generation.");
+  const positioningReport = JSON.parse(readFileSync(join(output, "generation-report.json"), "utf8"));
+  assert.ok(positioningReport.blockers.some(message => message.includes("positioning is marked approved")));
+
+  passport.project.positioningFactIds = ["verified-1"];
   passport.facts[0].status = "provisional";
   passport.facts.push({
     id: "expired-public", claim: "Просроченное утверждение", status: "verified",

@@ -29,7 +29,15 @@ passport.project.location.city = "Тестовый город";
 passport.project.positioning = "Синтетические данные для автоматической проверки интерфейса. Не использовать в публикации.";
 passport.verification.checkedAt = stamp;
 passport.verification.manualReviewRequired = false;
-passport.facts = [];
+passport.facts = [{
+  id: "fixture-positioning-proof",
+  claim: "Синтетический тезис для тестирования вывода позиционирования.",
+  status: "verified",
+  publicUse: "allowed",
+  sources: [evidence("Синтетическое подтверждение для CI", "positioning")]
+}];
+passport.project.positioningStatus = "approved";
+passport.project.positioningFactIds = ["fixture-positioning-proof"];
 passport.advantages = [];
 passport.infrastructure = [];
 passport.offers = [

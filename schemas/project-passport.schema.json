@@ -81,6 +81,15 @@
         "positioning": {
           "type": "string"
         },
+        "positioningStatus": {
+          "enum": ["draft", "approved", "blocked"],
+          "description": "Public positioning is emitted only when approved and grounded in publishable fact IDs."
+        },
+        "positioningFactIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
         "audiences": {
           "type": "array",
           "items": {

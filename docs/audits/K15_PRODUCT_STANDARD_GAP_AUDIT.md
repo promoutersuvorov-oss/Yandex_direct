@@ -134,3 +134,9 @@ Passing CI is not equivalent to passing Gates E or F.
 ## Final assessment
 
 K15 is a useful **reference implementation and pattern source**, not yet the universal KEY product itself and not yet an independently verified production gold standard. The next work should focus on extracting and testing the universal engine, not adding more decorative sections. The first transfer test should be a second, clearly synthetic ЖК passport with a materially different strategy and section composition; it must render without K15 leakage.
+
+## Follow-up hardening identified 2026-11-05
+
+The static audit led to one additional source-level issue in the review bundle: project positioning was copied into the public profile as raw free text, unlike evidenced project fields. This could let an unapproved slogan or factual-sounding statement bypass the fact publication gate. The generator now requires `positioningStatus: approved` plus one or more `positioningFactIds`, and every referenced fact must pass the same verified/current/public-use gate as other claims. Otherwise positioning is omitted; an explicitly approved but unsupported positioning blocks bundle generation. The browser fixture uses a clearly synthetic supporting fact.
+
+The review renderer also now maps a small allowlist of strategy variants to actual layout rules (`editorial-split`, `gallery-mosaic`, `plan-selector`, `step-form`, `full-bleed`). Unknown variants remain safe fallbacks. This is the first real separation between composition metadata and visual behavior; it is not yet a complete art-direction system.

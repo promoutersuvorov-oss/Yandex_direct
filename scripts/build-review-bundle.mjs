@@ -194,6 +194,13 @@ const activeOffers = offers.filter(offer => offer.status === "active").map(offer
   requiredFields: asArray(offer.requiredFields)
 }));
 const publicValue = value => verified(value) ? value.value : null;
+const positioningFactIds = asArray(passport.project?.positioningFactIds);
+const positioningApproved = passport.project?.positioningStatus === "approved" &&
+  positioningFactIds.length > 0 &&
+  positioningFactIds.every(id => publicFact(factById.get(id)));
+if (passport.project?.positioningStatus === "approved" && !positioningApproved) {
+  errors.push("Project positioning is marked approved but lacks publishable supporting fact IDs.");
+}
 const profile = {
   project: {
     id: passport.project?.id ?? null,
@@ -203,7 +210,7 @@ const profile = {
     district: publicValue(passport.project?.location?.district),
     developer: publicValue(passport.project?.developer),
     class: publicValue(passport.project?.class),
-    positioning: passport.project?.positioning ?? null,
+    positioning: positioningApproved ? passport.project.positioning : null,
     delivery: publicValue(passport.project?.delivery),
     constructionStatus: publicValue(passport.project?.constructionStatus)
   },
