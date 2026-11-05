@@ -49,7 +49,8 @@ try {
     { moduleId: "hero", order: 0, decision: "include", reason: "Главный блок", requiredFactIds: ["verified-1"], assetIds: ["hero"], ctaIds: ["presentation"] },
     { moduleId: "gallery", order: 20, decision: "include", reason: "Проверка галереи", assetIds: ["hero", "gallery-2"] },
     { moduleId: "floor-plans", order: 10, decision: "include", reason: "Проверка планировок", assetIds: ["plan-asset"], ctaIds: ["selection"] },
-    { moduleId: "quiz", order: 30, decision: "include", reason: "Проверка квиза", ctaIds: ["selection"] }
+    { moduleId: "quiz", order: 30, decision: "include", reason: "Проверка квиза", ctaIds: ["selection"] },
+    { moduleId: "mortgage", order: 40, decision: "conditional", reason: "Условия не подтверждены" }
   ];
   passport.commercial.brokerNotes = "INTERNAL_NOTE";
   const input = join(dir, "passport.json");
@@ -65,10 +66,8 @@ try {
   const manifest = JSON.parse(readFileSync(join(output, "module-manifest.json"), "utf8"));
   assert.deepEqual(manifest.modules.map(item => item.moduleId), ["hero", "floor-plans", "gallery", "quiz"], "Explicit composition order must be respected, with hero fixed first.");
   assert.equal(report.publicationReadiness.productionReady, false);
-  assert.ok(!report.rendererAudit.selectedModules.some(item => item.moduleId === "gallery"),
-    "conditional gallery without approved project media must stay out of the selected composition");
-  assert.ok(!report.rendererAudit.selectedModules.some(item => item.moduleId === "contacts"),
-    "conditional contacts without a real active lead offer must stay out of the selected composition");
+  assert.ok(!report.rendererAudit.selectedModules.some(item => item.moduleId === "mortgage"),
+    "conditional mortgage without verified terms must stay out of the selected composition");
 
   // Invalid compositions must be blocked before any review bundle can be published.
   for (const [label, mutate, expected] of [
