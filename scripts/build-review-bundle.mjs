@@ -186,6 +186,20 @@ const selectedModules = modules.filter(item => item.decision === "include" ||
     item.moduleId === "floor-plans" ? publicApartmentPlans.length > 0 :
     item.moduleId === "quiz" ? Boolean(publicSelectionQuiz) : true
   )));
+const heroDecision = selectedModules.find(item => item.moduleId === "hero");
+if (!heroDecision) errors.push('A publishable composition must contain exactly one included "hero" module.');
+const orderedModules = selectedModules
+  .map((item, index) => ({ ...item, __sourceIndex: index }))
+  .sort((a, b) => {
+    if (a.moduleId === "hero") return b.moduleId === "hero" ? a.__sourceIndex - b.__sourceIndex : -1;
+    if (b.moduleId === "hero") return 1;
+    const ao = Number.isInteger(a.order) ? a.order : a.__sourceIndex + 1000;
+    const bo = Number.isInteger(b.order) ? b.order : b.__sourceIndex + 1000;
+    return ao - bo || a.__sourceIndex - b.__sourceIndex;
+  })
+  .map(({ __sourceIndex, ...item }) => item);
+const orderedPositions = orderedModules.map(item => item.order).filter(Number.isInteger);
+if (new Set(orderedPositions).size !== orderedPositions.length) errors.push("Included modules contain duplicate explicit order values.");
 const activeOffers = offers.filter(offer => offer.status === "active").map(offer => ({
   id: offer.id,
   title: offer.title,
@@ -236,7 +250,8 @@ const renderedSections = new Set(
 );
 const manifest = {
   projectId: passport.project?.id ?? null,
-  modules: selectedModules.map(item => ({
+  modules: orderedModules.map((item, index) => ({
+    order: Number.isInteger(item.order) ? item.order : index,
     moduleId: item.moduleId,
     rendererSectionId: rendererAliases[item.moduleId] ?? null,
     decision: item.decision,
@@ -286,6 +301,7 @@ const report = {
     advantagesPublishable: allowedAdvantages.length,
     modulesTotal: modules.length,
     modulesSelected: manifest.modules.length,
+    compositionOrder: manifest.modules.map(item => item.moduleId),
     apartmentPlansPublishable: publicApartmentPlans.length,
     selectionQuizAvailable: Boolean(publicSelectionQuiz),
     offersActive: activeOffers.length,
