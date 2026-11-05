@@ -1,4 +1,5 @@
 import { readFileSync, existsSync, statSync } from "node:fs";
+import { normalizeAttribution, mapK15LegacyConfig, buildCanonicalLeadPayload } from "./k15-legacy-adapter.mjs";
 
 const required = [
   "prompts/master-lending.md",
@@ -54,6 +55,23 @@ const adapterPath = "scripts/k15-legacy-adapter.mjs";
 if (!existsSync(adapterPath) || statSync(adapterPath).size === 0) {
   errors.push("Missing K15 legacy adapter.");
 }
+
+
+const firstTouch = normalizeAttribution({ utm_source: "yandex", yclid: "first" });
+const nextTouch = normalizeAttribution({ utm_source: "vk", gclid: "second" }, firstTouch);
+if (nextTouch.firstTouch.utm_source !== "yandex" || nextTouch.lastTouch.utm_source !== "vk") {
+  errors.push("K15 adapter must preserve first-touch and update last-touch attribution.");
+}
+const mapped = mapK15LegacyConfig({ endpoint: "private-endpoint", metrikaId: "private-id", mapLat: "51.67", mapLon: "39.18" });
+if (mapped.project.coordinates?.lat !== 51.67 ||
+    JSON.stringify(mapped).includes("private-endpoint") ||
+    JSON.stringify(mapped).includes("private-id")) {
+  errors.push("K15 adapter mapping or secret isolation failed.");
+}
+let consentGuardWorks = false;
+try { buildCanonicalLeadPayload({ name: "Test", phone: "123", preferredChannel: "call" }); }
+catch { consentGuardWorks = true; }
+if (!consentGuardWorks) errors.push("Canonical lead adapter must reject missing consent.");
 
 if (errors.length) {
   console.error(errors.map((error) => `✗ ${error}`).join("\n"));
