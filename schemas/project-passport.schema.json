@@ -518,6 +518,18 @@
           "type": "integer",
           "minimum": 0
         },
+        "distanceEvidence": {
+          "type": "object",
+          "description": "Separate evidence for distance/time metrics. Place existence evidence alone does not substantiate a route or distance.",
+          "required": ["method", "checkedAt", "validUntil", "source"],
+          "properties": {
+            "method": { "enum": ["walking_route", "straight_line"] },
+            "checkedAt": { "type": "string", "format": "date-time" },
+            "validUntil": { "type": "string", "format": "date-time" },
+            "source": { "$ref": "#/$defs/source" }
+          },
+          "additionalProperties": false
+        },
         "status": {
           "enum": [
             "verified",
@@ -536,6 +548,29 @@
           "type": "string"
         }
       },
+      "allOf": [
+        {
+          "if": {
+            "anyOf": [
+              { "required": ["distanceMeters"] },
+              { "required": ["walkingMinutes"] }
+            ]
+          },
+          "then": { "required": ["distanceEvidence"] }
+        },
+        {
+          "if": {
+            "properties": {
+              "distanceEvidence": {
+                "properties": { "method": { "const": "straight_line" } },
+                "required": ["method"]
+              }
+            },
+            "required": ["distanceEvidence"]
+          },
+          "then": { "not": { "required": ["walkingMinutes"] } }
+        }
+      ],
       "additionalProperties": false
     },
     "offer": {
