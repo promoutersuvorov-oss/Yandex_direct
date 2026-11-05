@@ -73,14 +73,33 @@ passport.selectionQuiz = {
   title: "Тестовый подбор квартиры",
   description: "Ответы используются только для проверки интерфейса и никуда не отправляются.",
   resultOfferId: "selection",
-  questions: [{
-    id: "purpose",
-    label: "Для чего выбираете квартиру?",
-    options: [
-      { id: "living", label: "Для собственного проживания" },
-      { id: "investment", label: "Для инвестиций" }
-    ]
-  }]
+  questions: [
+    {
+      id: "purpose",
+      label: "Для чего выбираете квартиру?",
+      options: [
+        { id: "living", label: "Для собственного проживания" },
+        { id: "investment", label: "Для инвестиций" }
+      ]
+    },
+    {
+      id: "rooms",
+      label: "Сколько комнат рассматриваете?",
+      options: [
+        { id: "one", label: "Одну" },
+        { id: "two", label: "Две" },
+        { id: "three", label: "Три и более" }
+      ]
+    },
+    {
+      id: "timing",
+      label: "Когда планируете покупку?",
+      options: [
+        { id: "soon", label: "В ближайшее время" },
+        { id: "later", label: "Позже" }
+      ]
+    }
+  ]
 };
 passport.contentStrategy.modules = [
   { moduleId: "hero", decision: "include", reason: "Синтетический первый экран", variant: "editorial-split", assetIds: ["fixture-hero"], ctaIds: ["presentation"] },
