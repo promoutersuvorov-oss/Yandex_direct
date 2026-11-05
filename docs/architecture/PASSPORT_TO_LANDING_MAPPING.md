@@ -72,3 +72,13 @@
 | `commercial` | Внутренние настройки KEY; не публиковать и не отдавать клиентскому JS |
 
 Не переносить legacy schema и legacy generator из Agency. До написания конвертера проверить текущий HTML/runtime и зафиксировать точное соответствие типов и полей. Схема паспорта не должна автоматически считаться схемой runtime-конфигурации.
+
+
+## 9. Ограничения текущего moduleDecision schema
+
+В текущей JSON Schema поле `contentStrategy.modules[]` поддерживает:
+- обязательные `moduleId`, `decision`, `reason`;
+- необязательные `requiredFactIds`, `variant`;
+- дополнительные необязательные поля для объяснения композиции: `userQuestion`, `whyIncluded`, `positionReason`, `assetIds`, `ctaIds`, `dependencies`, `qaCriteria`, `replacementModuleId`.
+
+Эти дополнительные поля обратно совместимы: старые паспорта могут не содержать их. Пример паспорта обновлён и показывает `include` и `conditional`. Не помещать в паспорт внутренние секреты или свободные заметки брокера, доступные публичному renderer.
