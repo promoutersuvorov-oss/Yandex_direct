@@ -95,10 +95,11 @@ const formatDistance = meters => meters < 1000
   : (meters / 1000).toLocaleString("ru-RU", { maximumFractionDigits: 1 }) + " км";
 const renderLocation = () => {
   const cards = infrastructure.map(item => {
-    const details = [
-      Number.isFinite(item.distanceMeters) ? formatDistance(item.distanceMeters) : "",
-      Number.isFinite(item.walkingMinutes) ? item.walkingMinutes.toLocaleString("ru-RU") + " мин пешком" : ""
-    ].filter(Boolean);
+    const details = Number.isFinite(item.distanceMeters)
+      ? [(item.distanceMethod === "walking_route" ? "по маршруту — " : "по прямой — ") + formatDistance(item.distanceMeters),
+         item.distanceMethod === "walking_route" && Number.isFinite(item.walkingMinutes)
+           ? item.walkingMinutes.toLocaleString("ru-RU") + " мин пешком" : ""].filter(Boolean)
+      : [];
     return '<article class="place-card"><p class="place-category">' + esc(infrastructureCategory[item.category] || infrastructureCategory.other) +
       '</p><h3>' + esc(item.name) + '</h3>' +
       (item.publicLabel ? '<p class="place-label">' + esc(item.publicLabel) + '</p>' : "") +
