@@ -53,8 +53,8 @@ passport.infrastructure = [
     publicLabel: "Не должен появиться в публичном preview", source: evidence("Синтетический неподтверждённый источник", "places/unverified") }
 ];
 passport.offers = [
-  { id: "presentation", title: "Получить тестовую презентацию", type: "presentation", status: "active", requiredFields: [] },
-  { id: "selection", title: "Тестовый подбор", type: "apartment_selection", status: "active", requiredFields: [] }
+  { id: "presentation", scenarioId: "presentation-request", title: "Получить тестовую презентацию", type: "presentation", status: "active", requiredFields: ["name", "phone"], consentRequired: true },
+  { id: "selection", scenarioId: "guided-apartment-selection", title: "Тестовый подбор", type: "apartment_selection", status: "active", requiredFields: ["name", "phone"], consentRequired: true }
 ];
 passport.assets.images = [
   media("fixture-hero", "https://example.invalid/tests/fixtures/preview-hero.svg", "render", "Синтетический фасад"),
