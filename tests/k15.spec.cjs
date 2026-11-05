@@ -25,17 +25,21 @@ test("K15 loads and has no horizontal overflow on target viewports", async ({ pa
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await expect(page.locator("#hero")).toBeAttached();
 
-  // Reveal every visible section using native element scrolling, then allow IntersectionObserver to process frames.
+  // Scroll in viewport-sized steps so IntersectionObserver is exercised without
+  // waiting once per reveal element (which made WebKit unnecessarily slow).
   const unrevealed = await page.evaluate(async () => {
     document.documentElement.style.setProperty("scroll-behavior", "auto", "important");
     const frame = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    const nodes = Array.from(document.querySelectorAll(".rv"));
-    for (const node of nodes) {
-      if (!node.checkVisibility({ checkOpacity: false, checkVisibilityCSS: true })) continue;
-      node.scrollIntoView({ block: "center", behavior: "auto" });
+    const step = Math.max(320, Math.floor(window.innerHeight * 0.8));
+    const maxY = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    for (let y = 0; y <= maxY; y += step) {
+      window.scrollTo(0, Math.min(y, maxY));
       await frame();
-      await new Promise(resolve => setTimeout(resolve, 40));
+      await new Promise(resolve => setTimeout(resolve, 25));
     }
+    window.scrollTo(0, maxY);
+    await frame();
+    const nodes = Array.from(document.querySelectorAll(".rv"));
     return nodes.filter(node =>
       node.checkVisibility({ checkOpacity: false, checkVisibilityCSS: true }) &&
       node.getBoundingClientRect().height > 0 && !node.classList.contains("in")
@@ -44,7 +48,7 @@ test("K15 loads and has no horizontal overflow on target viewports", async ({ pa
       id: node.id,
       className: String(node.className).slice(0, 100),
       top: Math.round(node.getBoundingClientRect().top + window.scrollY),
-      text: (node.innerText || "").trim().replace(/\\s+/g, " ").slice(0, 90)
+      text: (node.innerText || "").trim().replace(/\s+/g, " ").slice(0, 90)
     }));
   });
   expect(unrevealed, "Visible reveal elements must activate when scrolled into view").toEqual([]);
@@ -60,7 +64,7 @@ test("K15 loads and has no horizontal overflow on target viewports", async ({ pa
 
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
-    await page.waitForTimeout(250);
+    await page.waitForTimeout(75);
     const dimensions = await page.evaluate(() => ({
       viewport: window.innerWidth,
       document: document.documentElement.scrollWidth,
@@ -68,7 +72,7 @@ test("K15 loads and has no horizontal overflow on target viewports", async ({ pa
     }));
     await page.screenshot({
       path: testInfo.outputPath(`k15-${viewport.name}.png`),
-      fullPage: true
+      fullPage: false
     });
     expect(
       Math.max(dimensions.document, dimensions.body),
