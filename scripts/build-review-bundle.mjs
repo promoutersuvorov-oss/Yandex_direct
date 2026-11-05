@@ -186,8 +186,8 @@ const selectedModules = modules.filter(item => item.decision === "include" ||
     item.moduleId === "floor-plans" ? publicApartmentPlans.length > 0 :
     item.moduleId === "quiz" ? Boolean(publicSelectionQuiz) : true
   )));
-const heroDecision = selectedModules.find(item => item.moduleId === "hero");
-if (!heroDecision) errors.push('A publishable composition must contain exactly one included "hero" module.');
+const heroDecisions = selectedModules.filter(item => item.moduleId === "hero");
+if (heroDecisions.length !== 1) errors.push(`A publishable composition must contain exactly one included "hero" module; found ${heroDecisions.length}.`);
 const orderedModules = selectedModules
   .map((item, index) => ({ ...item, __sourceIndex: index }))
   .sort((a, b) => {
