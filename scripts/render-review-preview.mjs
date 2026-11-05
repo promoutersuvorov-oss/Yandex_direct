@@ -77,8 +77,8 @@ const labelFor = module => ({
   about: "О проекте", security: "Территория и безопасность", quiz: "Подбор квартиры",
   location: "Расположение", places: "Рядом с домом", lifestyle: "Образ жизни",
   life: "Образ жизни", gift: "Презентация", presentation: "Презентация",
-  apartments: "Квартиры и планировки", "floor-plans": "Планировки", price: "Стоимость",
-  developer: "О застройщике", mortgage: "Финансовые условия", steps: "Следующий шаг",
+  apartments: "Квартиры и планировки", "floor-plans": "Планировки", price: "Условия покупки",
+  developer: "О застройщике", mortgage: "Финансовый сценарий", steps: "Следующий шаг",
   faq: "Вопросы и ответы", contacts: "Связаться с KEY"
 }[module.moduleId] || module.moduleId.replace(/[-_]/g, " "));
 const offerFor = module => (module.ctaIds || []).map(id => byId(offers, id)).find(Boolean);
@@ -95,8 +95,13 @@ function renderModule(module, index) {
   const heading = module.moduleId === "hero"
     ? (profile.project.name || labelFor(module))
     : labelFor(module);
+  const strongestAdvantage = [...advantages].sort((a, b) =>
+    ({ core: 0, strong: 1, supporting: 2 }[a.strength] ?? 3) -
+    ({ core: 0, strong: 1, supporting: 2 }[b.strength] ?? 3)
+  )[0];
+  // Never expose the strategist's internal rationale as visitor-facing copy.
   const intro = module.moduleId === "hero"
-    ? (profile.project.positioning || module.reason || "")
+    ? (profile.project.positioning || strongestAdvantage?.benefit || "")
     : (module.userQuestion || "");
   const factList = factsHere.map(fact => `<li>${esc(fact.claim)}</li>`).join("");
   const benefitList = advantagesHere.map(item => `<article class="benefit"><h3>${esc(item.title)}</h3><p>${esc(item.benefit)}</p></article>`).join("");
@@ -149,11 +154,27 @@ const html = `<!doctype html>
 .module[data-variant="step-form"]{grid-template-columns:1fr}
 .module[data-variant="step-form"] .module-copy{max-width:1160px}
 .module[data-variant="step-form"] .preview-quiz{max-width:760px}
+.module[data-variant="feature-led"]{grid-template-columns:minmax(0,1fr)}
+.module[data-variant="feature-led"] .module-copy{max-width:900px}
+.module[data-variant="proof-led"]{background:#222720}
+.module[data-variant="proof-led"] .benefit{padding:22px 24px;background:#292e28;border:1px solid var(--line);border-radius:8px}
+.module[data-variant="image-led"]{grid-template-columns:minmax(0,1fr)}
+.module[data-variant="image-led"] .module-copy{max-width:1050px}
+.module[data-variant="image-led"] figure,.module[data-variant="image-led"] .media-grid{width:100%;max-width:1320px}
+.module[data-variant="location-led"]{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}
+.module[data-variant="location-led"] .facts{padding:24px 28px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.module[data-variant="conversion-led"]{background:#26241f}
+.module[data-variant="conversion-led"] .module-copy{max-width:900px}
+.module[data-variant="conversion-led"] .cta{font-size:16px;padding:17px 26px}
+.module[data-variant="immersive"]{position:relative;display:flex;align-items:flex-end;min-height:78vh;overflow:hidden}
+.module[data-variant="immersive"] figure{position:absolute;inset:0;z-index:0;border-radius:0}
+.module[data-variant="immersive"] figure img{height:100%;max-height:none;filter:brightness(.58)}
+.module[data-variant="immersive"] .module-copy{position:relative;z-index:1;max-width:760px}
 .module[data-variant="full-bleed"]{position:relative;display:flex;align-items:flex-end;min-height:76vh;overflow:hidden}
 .module[data-variant="full-bleed"] figure{position:absolute;inset:0;z-index:0;border-radius:0}
 .module[data-variant="full-bleed"] figure img{height:100%;max-height:none;filter:brightness(.55)}
 .module[data-variant="full-bleed"] .module-copy{position:relative;z-index:1;max-width:760px}
-@media(max-width:760px){.module,.module.hero,.module[data-variant="editorial-split"],.module[data-variant="gallery-mosaic"],.module[data-variant="plan-selector"],.module[data-variant="step-form"]{grid-template-columns:1fr;min-height:unset;padding-block:68px}.module figure,.module .media-grid{grid-row:1}.module-copy{grid-row:2}.module[data-variant="full-bleed"]{display:flex;min-height:64svh;padding-block:68px}.module[data-variant="full-bleed"] figure{position:absolute;inset:0;grid-row:auto}.module[data-variant="full-bleed"] .module-copy{grid-row:auto}figure img{max-height:360px}.plan-card{grid-template-columns:1fr}.plan-card img{max-height:260px}.top{font-size:11px}}
+@media(max-width:760px){.module,.module.hero,.module[data-variant="editorial-split"],.module[data-variant="gallery-mosaic"],.module[data-variant="plan-selector"],.module[data-variant="step-form"],.module[data-variant="feature-led"],.module[data-variant="image-led"],.module[data-variant="location-led"]{grid-template-columns:1fr;min-height:unset;padding-block:68px}.module figure,.module .media-grid{grid-row:1}.module-copy{grid-row:2}.module[data-variant="full-bleed"]{display:flex;min-height:64svh;padding-block:68px}.module[data-variant="full-bleed"] figure{position:absolute;inset:0;grid-row:auto}.module[data-variant="full-bleed"] .module-copy{grid-row:auto}figure img{max-height:360px}.plan-card{grid-template-columns:1fr}.plan-card img{max-height:260px}.top{font-size:11px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
