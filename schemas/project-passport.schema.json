@@ -559,6 +559,10 @@
           "then": { "required": ["distanceEvidence"] }
         },
         {
+          "if": { "required": ["walkingMinutes"] },
+          "then": { "required": ["distanceMeters"] }
+        },
+        {
           "if": {
             "properties": {
               "distanceEvidence": {
