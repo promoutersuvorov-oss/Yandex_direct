@@ -180,3 +180,16 @@ Migration rules:
 - No secret or K15-specific value is copied into another project.
 - The above regression scenarios pass on Chromium, Firefox and WebKit.
 - Production readiness remains false until actual CRM delivery, legal consent, analytics and device QA are verified.
+
+
+### Implemented canonical attribution utility
+
+The first implementation lives in `src/attribution.mjs` and is intentionally provider-neutral:
+- `readAttribution(search)` accepts only an explicit allowlist of UTM and click-ID keys, trims values, rejects control characters, and caps each value at 256 characters.
+- `mergeAttribution(previous, current)` preserves the original first touch while updating last touch only when a new campaign/click identifier is present.
+- `createAttributionState(search, previous)` is the entry point for a page-view journey.
+- `attributionToPayload(state)` maps the state to separate `first_touch` and `last_touch` payload fields.
+
+The module currently covers K15's known UTM/click identifiers plus common Yandex, Google, VK and Meta click IDs. It does not read contact fields, infer identity, or itself persist data to browser storage. Persistence policy and consent remain the responsibility of the eventual runtime adapter. The unit suite is `tests/attribution.test.mjs`, run by the source-integrity workflow.
+
+**Integration status:** utility and tests are in the repository; the preview renderer and K15 baseline do not yet submit this state to a live CRM endpoint. Production wiring must happen in the canonical lead runtime, with server-side validation and consent-aware persistence.
