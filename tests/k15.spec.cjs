@@ -27,8 +27,10 @@ test("K15 loads and has no horizontal overflow on target viewports", async ({ pa
 
   // Trigger real IntersectionObserver reveal and lazy-media behavior before full-page screenshots.
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; });
   const pageHeight = await page.evaluate(() => document.documentElement.scrollHeight);
-  const step = Math.max(320, Math.floor(window.innerHeight * 0.7));
+  const viewportHeight = await page.evaluate(() => window.innerHeight);
+  const step = Math.max(320, Math.floor(viewportHeight * 0.7));
   for (let y = 0; y < pageHeight; y += step) {
     await page.evaluate(position => window.scrollTo(0, position), y);
     await page.waitForTimeout(90);
