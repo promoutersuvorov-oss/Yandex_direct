@@ -36,12 +36,17 @@ test("K15 loads and has no horizontal overflow on target viewports", async ({ pa
     await page.waitForTimeout(90);
   }
   await page.waitForTimeout(350);
-  const unrevealed = await page.locator(".rv").evaluateAll(nodes => nodes.filter(node => {
-    const style = getComputedStyle(node);
-    return style.display !== "none" && style.visibility !== "hidden" &&
-      node.getBoundingClientRect().height > 0 && !node.classList.contains("in");
-  }).length);
-  expect(unrevealed, "Visible reveal elements must become visible after normal scrolling").toBe(0);
+  const unrevealed = await page.locator(".rv").evaluateAll(nodes => nodes
+    .filter(node => node.checkVisibility({ checkOpacity: false, checkVisibilityCSS: true }) &&
+      node.getBoundingClientRect().height > 0 && !node.classList.contains("in"))
+    .map(node => ({
+      tag: node.tagName,
+      id: node.id,
+      className: String(node.className).slice(0, 100),
+      top: Math.round(node.getBoundingClientRect().top + window.scrollY),
+      text: (node.innerText || "").trim().replace(/\\s+/g, " ").slice(0, 90)
+    })));
+  expect(unrevealed, "Visible reveal elements must become visible after normal scrolling").toEqual([]);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(250);
 
