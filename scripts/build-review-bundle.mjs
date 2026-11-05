@@ -19,8 +19,9 @@ const uniqueBy = (items, key) => {
 const asArray = value => Array.isArray(value) ? value : [];
 const verified = value => value?.status === "verified" && asArray(value.sources).length > 0;
 const isCurrent = record => {
-  if (!record?.expiresAt) return true;
-  const expiry = Date.parse(record.expiresAt);
+  const expiration = record?.expiresAt ?? record?.validUntil;
+  if (!expiration) return true;
+  const expiry = Date.parse(expiration);
   return Number.isFinite(expiry) && expiry >= Date.now();
 };
 const publicFact = fact => fact?.status === "verified" && isCurrent(fact) &&
@@ -107,6 +108,18 @@ for (const asset of assets) {
   if (asset.status === "approved" && !(typeof asset.rightsNote === "string" && asset.rightsNote.trim())) {
     errors.push(`Approved asset "${asset.id}" has no rightsNote for the review trail.`);
   }
+  if (asset.status === "approved" && asset.projectMatch !== "confirmed") {
+    errors.push(`Approved asset "${asset.id}" is not confirmed as belonging to this project.`);
+  }
+  if (asset.status === "approved" && asset.rightsStatus !== "confirmed") {
+    errors.push(`Approved asset "${asset.id}" does not have confirmed usage rights.`);
+  }
+  if (asset.status === "approved" && (!asset.rightsSource?.url || !asset.rightsSource?.title || !asset.rightsSource?.accessedAt)) {
+    errors.push(`Approved asset "${asset.id}" has no traceable rightsSource.`);
+  }
+  if (asset.status === "approved" && !isCurrent(asset)) {
+    errors.push(`Approved asset "${asset.id}" has expired approval or an invalid validUntil date.`);
+  }
   if (asset.group === "plans" && asset.type !== "plan") errors.push(`Asset "${asset.id}" is in assets.plans but type is not "plan".`);
 }
 for (const offer of offers) {
@@ -122,7 +135,7 @@ const allowedAdvantages = advantages.filter(item =>
   asArray(item.supportingFactIds).length > 0 &&
   asArray(item.supportingFactIds).every(id => publicFact(factById.get(id)))
 );
-const approvedAssets = assets.filter(asset => asset.status === "approved" && asset.url);
+const approvedAssets = assets.filter(asset => asset.status === "approved" && asset.url && asset.projectMatch === "confirmed" && asset.rightsStatus === "confirmed" && asset.rightsNote?.trim() && asset.rightsSource?.url && asset.rightsSource?.title && asset.rightsSource?.accessedAt && isCurrent(asset));
 const activeOffers = offers.filter(offer => offer.status === "active");
 const publicValue = value => verified(value) ? value.value : null;
 const profile = {
