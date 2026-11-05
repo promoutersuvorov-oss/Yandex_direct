@@ -181,11 +181,40 @@ for (const module of modules) {
     errors.push('The "quiz" module is included but no approved selectionQuiz with an active result offer is available.');
   }
 }
+const activeOffers = offers.filter(offer => offer.status === "active").map(offer => ({
+  id: offer.id,
+  title: offer.title,
+  type: offer.type,
+  description: offer.description ?? null,
+  requiredFields: asArray(offer.requiredFields)
+}));
+const publishableFactIds = new Set(allowedFacts.map(fact => fact.id));
+const conditionalReady = item => {
+  const requiredFactsReady = asArray(item.requiredFactIds).every(id => publishableFactIds.has(id));
+  if (!requiredFactsReady) return false;
+  switch (item.moduleId) {
+    case "floor-plans":
+    case "apartments":
+      return publicApartmentPlans.length > 0;
+    case "quiz":
+      return Boolean(publicSelectionQuiz);
+    case "gallery":
+      return approvedAssets.some(asset => ["photo", "render", "video"].includes(asset.type));
+    case "gift":
+    case "presentation":
+      return activeOffers.some(offer => offer.type === "presentation");
+    case "mortgage":
+      return activeOffers.some(offer => offer.type === "mortgage_estimate") &&
+        publishableFactIds.has("mortgage-terms");
+    case "contacts":
+      return activeOffers.some(offer => ["consultation", "callback", "apartment_selection", "viewing"].includes(offer.type));
+    default:
+      // Unknown conditional modules stay out until an explicit renderer/contract exists.
+      return false;
+  }
+};
 const selectedModules = modules.filter(item => item.decision === "include" ||
-  (item.decision === "conditional" && (
-    item.moduleId === "floor-plans" ? publicApartmentPlans.length > 0 :
-    item.moduleId === "quiz" ? Boolean(publicSelectionQuiz) : true
-  )));
+  (item.decision === "conditional" && conditionalReady(item)));
 const heroDecisions = selectedModules.filter(item => item.moduleId === "hero");
 if (heroDecisions.length !== 1) errors.push(`A publishable composition must contain exactly one included "hero" module; found ${heroDecisions.length}.`);
 const orderedModules = selectedModules
@@ -200,13 +229,6 @@ const orderedModules = selectedModules
   .map(({ __sourceIndex, ...item }) => item);
 const orderedPositions = orderedModules.map(item => item.order).filter(Number.isInteger);
 if (new Set(orderedPositions).size !== orderedPositions.length) errors.push("Included modules contain duplicate explicit order values.");
-const activeOffers = offers.filter(offer => offer.status === "active").map(offer => ({
-  id: offer.id,
-  title: offer.title,
-  type: offer.type,
-  description: offer.description ?? null,
-  requiredFields: asArray(offer.requiredFields)
-}));
 const publicValue = value => verified(value) ? value.value : null;
 const positioningFactIds = asArray(passport.project?.positioningFactIds);
 const positioningApproved = passport.project?.positioningStatus === "approved" &&
