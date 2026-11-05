@@ -37,6 +37,10 @@ jobs:
         run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out artifacts/review-bundle
       - name: Render dynamic HTML review preview
         run: node scripts/render-review-preview.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/preview.html
+      - name: Render independent editorial reference concept
+        run: node scripts/render-reference-landing.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/reference.html
+      - name: Test reference renderer structure and safety
+        run: node scripts/test-reference-renderer.mjs artifacts/review-bundle/reference.html
       - name: Test review bundle evidence and privacy gates
         run: node scripts/test-review-bundle.mjs
       - name: Run K15 static product and interaction audit
@@ -73,13 +77,15 @@ jobs:
         run: node scripts/build-review-bundle.mjs --passport artifacts/browser-fixture/passport.json --out artifacts/review-bundle
       - name: Render review preview for browser validation
         run: node scripts/render-review-preview.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/preview.html
+      - name: Render editorial reference concept for browser validation
+        run: node scripts/render-reference-landing.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/reference.html
       - name: Install Playwright test runner
         run: npm install --no-save --no-audit --no-fund @playwright/test@1.56.1
       - name: Install Playwright browser engine
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Start local static server
         run: python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/klanding-http.log 2>&1 &
-      - name: Run K15 browser smoke tests
+      - name: Run K15 and reference concept browser smoke tests
         run: npx playwright test
       - name: Upload browser evidence
         if: always()
