@@ -21,7 +21,7 @@ assert.equal(report.publicationReadiness.status, "review_required");
 assert.ok(profile.facts.length >= 5, "The real-project preview should contain verified facts from its own passport.");
 assert.ok(profile.facts.some(fact => fact.id === "total-apartments" && fact.claim.includes("45 квартир")));
 assert.ok(profile.facts.some(fact => fact.id === "quiet-street"));
-assert.ok(!profile.facts.some(fact => fact.id === "delivery-date"), "Expired delivery claims must not be emitted.");
+assert.ok(!profile.facts.some(fact => fact.id === "delivery-date"), "Unverified delivery claims must not be emitted.");
 
 const selected = manifest.modules.map(module => module.moduleId);
 assert.deepEqual(selected, ["hero", "key", "about", "lifestyle", "security", "location"]);

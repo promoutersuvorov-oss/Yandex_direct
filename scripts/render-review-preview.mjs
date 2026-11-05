@@ -123,7 +123,7 @@ function renderModule(module, index) {
   const headingTag = module.moduleId === "hero" ? "h1" : "h2";
   const moduleClasses = ["module", module.moduleId === "hero" ? "hero" : "", image || plans ? "" : "text-only"].filter(Boolean).join(" ");
   return `<section class="${moduleClasses}" data-module="${esc(module.moduleId)}" data-variant="${esc(module.variant || "default")}" id="module-${esc(module.moduleId)}" aria-labelledby="heading-${index}">
-    <div class="module-copy"><p class="eyebrow">${String(index + 1).padStart(2, "0")} / ${esc(module.variant || "раздел")}</p>
+    <div class="module-copy"><p class="eyebrow">${String(index + 1).padStart(2, "0")}</p>
       <${headingTag} id="heading-${index}">${esc(heading)}</${headingTag}>
       ${intro ? `<p class="intro">${esc(intro)}</p>` : ""}
       ${benefitList ? `<div class="benefits">${benefitList}</div>` : ""}

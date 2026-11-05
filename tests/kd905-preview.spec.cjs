@@ -8,6 +8,8 @@ test("KD 905 uses its own editorial composition and only verified project facts"
   await page.goto(url, { waitUntil: "networkidle" });
 
   await expect(page.locator("body")).toHaveAttribute("data-theme", "warm-editorial");
+  await expect(page.locator("body")).not.toContainText("EDITORIAL-SPLIT");
+  await expect(page.locator("body")).not.toContainText("IMAGE-LED");
   await expect(page.getByRole("heading", { level: 1, name: "Клубный дом «905»" })).toBeVisible();
   await expect(page.locator("main [data-module]")).toHaveCount(6);
   await expect(page.locator("body")).toContainText("45 квартир");

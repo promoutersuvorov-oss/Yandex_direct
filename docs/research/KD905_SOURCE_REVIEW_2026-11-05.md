@@ -34,12 +34,26 @@ Proposed narrative hypothesis (requires KEY approval before public use): **a pri
 
 ## Facts that must not be reused without a fresh check
 
-- The stated construction/delivery window is **Q3 2024 – Q4 2026**. As this review is dated 2026-11-05, it is time-sensitive and must be rechecked against current official documentation before any public use.
+- The developer's page still lists **Q3 2024 – Q4 2026** as the project period on 2026-11-05. Q4 2026 is therefore not an expired period on the date of this review. However, it remains a planned period, not proof of actual commissioning or key handover; see the fresh status check below.
 - Construction progress videos are not a substitute for a current formal construction-status source.
 - The page does not establish current apartment availability, current prices, actual remaining inventory, mortgage eligibility, discounts, payment schedule or parking-space availability.
 - Infrastructure names do not establish exact distances or walking times.
 - Some landscaping and resident-experience details are described as planned or future management-company activity; do not present them as completed.
 - The official page contains a rights restriction: materials may not be used without the developer's consent and a link to the source. Do not copy its images, renders, floor plans, video, copy blocks or other media into KEY pages until usage permission is documented.
+
+## Fresh construction and delivery status check — 2026-11-05
+
+The earlier wording that treated Q4 2026 as already expired was incorrect. The current date is still within Q4 2026, and the developer continues to publish this period.
+
+| Source | Latest visible evidence | How KEY should treat it |
+|---|---|---|
+| [Developer project page](https://krays.ru/object/klubnyy-dom-905) | Still lists the project period as Q3 2024 — Q4 2026 | Current developer-stated target, not a guarantee |
+| [Developer object catalog](https://krays.ru/object) | Marks КД «905» as «Строится» and shows «Есть в продаже» | Current public catalog status; availability still needs live verification |
+| [Developer homepage](https://krays.ru/) | Carries the banner «КД 905: Передача ключей уже в этом году!» | Supports the developer's Q4 2026 message, but is marketing copy |
+| [ЕИСЖС / наш.дом.рф check for house ID 61156](https://xn--80az8a.xn--d1aqf.xn--p1ai/%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B0-%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D1%80%D0%BE%D0%B5%D0%BA/%D0%B6%D0%BA-%D0%BA%D0%BB%D1%83%D0%B1%D0%BD%D1%8B%D0%B9-%D0%B4%D0%BE%D0%BC-905-61156/) | Snapshot dated 08.09.2026: status «Строится», planned commissioning IV quarter 2026, key handover 31.12.2026; also says planned construction deadlines were violated while the planned apartment handover date remained on schedule; permit shown as valid until 30.11.2026; declaration updated 07.09.2026 | High-value risk signal, but the snapshot is two months old. Obtain and inspect the latest declaration and permit before publication |
+| [Orvista snapshot](https://orvista.ru/voronezh/klubnyy-dom-905/) | Snapshot 28.10.2026 references declaration №36-000992 dated 13.10.2026 and still lists IV quarter 2026 / 31.12.2026 | Secondary aggregator; useful to locate the newer declaration, not a replacement for the primary document |
+
+**Decision for the passport:** do not mark the delivery period as expired. Store both delivery and construction status as provisional, so the generator does not publish them as verified facts. Keep manual review required until the current project declaration, construction permit extension/status and actual progress are checked. Do not present 31.12.2026 as a guaranteed handover date.
 
 ## Landing story and visitor questions
 
@@ -69,7 +83,7 @@ The source page's footer explicitly restricts use of its materials without conse
 ## Open verification tasks before a real KД «905» publication
 
 1. Obtain written rights/asset package permission from the developer or use independently licensed materials.
-2. Confirm current construction status and delivery date from current official documents.
+2. Recheck the latest project declaration, current construction permit and actual delivery schedule; the Q4 2026 target is provisional and the latest government snapshot available in this review flagged construction-schedule slippage.
 3. Confirm the 45-apartment count and whether the figure remains current.
 4. Obtain current plan set, apartment attributes and availability feed/process.
 5. Confirm which units have terraces and which finishing package applies to which units.
