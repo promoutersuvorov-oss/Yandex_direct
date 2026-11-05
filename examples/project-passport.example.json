@@ -112,7 +112,46 @@
       "Записаться на просмотр"
     ],
     "audiencePriority": [],
-    "modules": [],
+    "modules": [
+      {
+        "moduleId": "hero",
+        "decision": "include",
+        "reason": "Объясняет позиционирование проекта на первом экране.",
+        "variant": "editorial-split",
+        "requiredFactIds": [],
+        "userQuestion": "Что это за проект?",
+        "whyIncluded": "Задаёт основную идею и помогает быстро понять релевантность ЖК.",
+        "positionReason": "Первый смысловой контакт.",
+        "assetIds": [],
+        "ctaIds": [
+          "presentation"
+        ],
+        "dependencies": [],
+        "qaCriteria": [
+          "hero-copy-evidence",
+          "mobile-hero-crop"
+        ]
+      },
+      {
+        "moduleId": "floor-plans",
+        "decision": "conditional",
+        "reason": "Планировки не добавлены и должны быть проверены перед публикацией.",
+        "variant": "plan-selector",
+        "requiredFactIds": [],
+        "userQuestion": "Какие планировки доступны?",
+        "whyIncluded": "Может помочь выбрать квартиру после получения достоверных планов.",
+        "positionReason": "Добавить после блока преимуществ, если появятся проверенные планы.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [
+          "approved-plan-assets"
+        ],
+        "qaCriteria": [
+          "plan-type-area-match",
+          "plan-image-integrity"
+        ]
+      }
+    ],
     "informationGaps": [],
     "visualDirection": {
       "mood": "",
