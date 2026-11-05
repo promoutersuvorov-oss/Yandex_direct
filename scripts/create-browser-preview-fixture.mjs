@@ -113,7 +113,7 @@ passport.contentStrategy.modules = [
   { moduleId: "lifestyle", decision: "include", reason: "Проверка image-led layout", variant: "image-led", requiredFactIds: ["fixture-positioning-proof"], assetIds: ["fixture-gallery"] },
   { moduleId: "security", decision: "include", reason: "Проверка proof-led layout", variant: "proof-led", requiredFactIds: ["fixture-positioning-proof"] },
   { moduleId: "developer", decision: "include", reason: "Проверка immersive layout", variant: "immersive", assetIds: ["fixture-hero"] },
-  { moduleId: "faq", decision: "include", reason: "Проверка структурированного FAQ", variant: "faq-accordion", requiredFactIds: ["fixture-positioning-proof", "fixture-apartment-count"] }
+  { moduleId: "faq", decision: "include", reason: "Проверка структурированного FAQ", variant: "faq-accordion", requiredFactIds: ["fixture-positioning-proof"] }
 ];
 mkdirSync(dirname(output), { recursive: true });
 writeFileSync(output, JSON.stringify(passport, null, 2) + "\n", "utf8");
