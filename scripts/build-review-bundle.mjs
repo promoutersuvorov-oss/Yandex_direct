@@ -141,6 +141,9 @@ for (const asset of assets) {
 }
 for (const offer of offers) {
   if (offer.status === "active" && !offer.successMessage) warnings.push(`Active offer "${offer.id}" has no successMessage.`);
+  if (offer.status === "active" && offer.consentRequired === false && !offer.consentExceptionReason?.trim()) {
+    errors.push(`Active offer "${offer.id}" disables consent without a documented legal exception reason.`);
+  }
 }
 const activeScenarioIds = offers.filter(offer => offer.status === "active").map(offer => offer.scenarioId || offer.id);
 if (!uniqueBy(activeScenarioIds.map(id => ({ id })), "id")) errors.push("Active offers contain duplicate scenarioId values.");
