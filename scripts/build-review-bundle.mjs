@@ -188,6 +188,10 @@ for (const module of modules) {
   if (module.moduleId === "quiz" && module.decision === "include" && !publicSelectionQuiz) {
     errors.push('The "quiz" module is included but no approved selectionQuiz with an active result offer is available.');
   }
+  if (module.moduleId === "quiz" && module.decision === "include" && publicSelectionQuiz &&
+      !asArray(module.ctaIds).includes(rawQuiz.resultOfferId)) {
+    errors.push('The "quiz" module must reference its selectionQuiz resultOfferId in ctaIds.');
+  }
 }
 const activeOffers = offers.filter(offer => offer.status === "active").map(offer => ({
   id: offer.id,
