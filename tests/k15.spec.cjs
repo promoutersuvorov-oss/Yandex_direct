@@ -70,7 +70,9 @@ test("contextual presentation CTA opens its own modal and form validates", async
 
   await form.locator('[name="uname"]').fill("Тестовый пользователь");
   await form.locator('[name="uphone"]').fill("79991234567");
-  await form.locator('[name="uconsent"]').check();
+  const consent = form.locator(".consent");
+  await consent.locator(".swt").click();
+  await expect(consent.locator('[name="uconsent"]')).toBeChecked();
   await form.locator('button[type="submit"]').click();
 
   await expect(modal.locator(".thanks")).toBeVisible();
@@ -92,7 +94,9 @@ test("three-step quiz preserves answers and submits with quiz context", async ({
   await expect(form).toBeVisible();
   await form.locator('[name="uname"]').fill("Тестовый пользователь");
   await form.locator('[name="uphone"]').fill("79991234567");
-  await form.locator('[name="uconsent"]').check();
+  const consent = form.locator(".consent");
+  await consent.locator(".swt").click();
+  await expect(consent.locator('[name="uconsent"]')).toBeChecked();
   await form.locator('button[type="submit"]').click();
 
   await expect(quiz.locator(".thanks")).toBeVisible();
