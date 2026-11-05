@@ -27,6 +27,8 @@ const isCurrent = record => {
 const publicFact = fact => fact?.status === "verified" && isCurrent(fact) &&
   ["allowed", "allowed_with_qualification"].includes(fact.publicUse) &&
   asArray(fact.sources).length > 0;
+const safeIdentity = value => typeof value === "string" && value.trim() &&
+  !/(заполнить|уточнить|placeholder|todo)/i.test(value) ? value : null;
 
 let template;
 try {
@@ -140,8 +142,6 @@ const allowedAdvantages = advantages.filter(item =>
 const approvedAssets = assets.filter(asset => asset.status === "approved" && asset.url && asset.projectMatch === "confirmed" && asset.rightsStatus === "confirmed" && asset.rightsNote?.trim() && asset.rightsSource?.url && asset.rightsSource?.title && asset.rightsSource?.accessedAt && isCurrent(asset));
 const activeOffers = offers.filter(offer => offer.status === "active");
 const publicValue = value => verified(value) ? value.value : null;
-const safeIdentity = value => typeof value === "string" && value.trim() &&
-  !/(заполнить|уточнить|placeholder|todo)/i.test(value) ? value : null;
 const profile = {
   project: {
     id: passport.project?.id ?? null,
