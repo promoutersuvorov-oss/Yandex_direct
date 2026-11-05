@@ -25,6 +25,10 @@ test("synthetic landing renders distinct interactive modules responsively", asyn
 
   await expect(page.getByRole("heading", { level: 1, name: "Синтетический ЖК — тест интерфейса" })).toBeVisible();
   await expect(page.locator('[data-module="gallery"] .media-card')).toHaveCount(2);
+  await expect(page.locator('[data-module="location"] .place-card')).toHaveCount(1);
+  await expect(page.locator('[data-module="location"]')).toContainText("Тестовый городской парк");
+  await expect(page.locator('[data-module="location"]')).toContainText("450 м · 6 мин пешком");
+  await expect(page.locator('[data-module="location"]')).not.toContainText("Неподтверждённый торговый центр");
   await expect(page.locator('[data-module="floor-plans"] .plan-card')).toHaveCount(1);
   await expect(page.locator('form[data-preview-quiz]')).toBeVisible();
   await expect(page.locator('[data-module="faq"] .faq-item')).toHaveCount(2);
