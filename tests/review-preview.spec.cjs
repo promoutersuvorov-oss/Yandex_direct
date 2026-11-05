@@ -65,8 +65,15 @@ test("preview CTA preserves selected apartment context and never claims delivery
 
   const dialog = page.locator("#previewNotice");
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText("fixture-plan-45");
-  await expect(dialog).toContainText("отправка заявок отключена");
+  await expect(dialog).toContainText("Предпросмотр контекста обращения");
+  const planPayload = JSON.parse(await dialog.locator("#noticePayload").textContent());
+  expect(planPayload).toMatchObject({
+    projectId: "sample-residential-complex",
+    offerId: "selection",
+    moduleId: "floor-plans",
+    plan: { id: "fixture-plan-45", rooms: 2, areaSqm: 54.2, assetId: "fixture-plan" }
+  });
+  await expect(dialog).toContainText("Ничего не отправляется");
   await expect(page.locator("form[data-lead-form]")).toHaveCount(0);
   await dialog.locator(".close").click();
   await expect(dialog).not.toBeVisible();
@@ -76,14 +83,34 @@ test("selection quiz validates required answers and keeps answers local in previ
   await page.goto(url, { waitUntil: "domcontentloaded" });
   const quiz = page.locator('form[data-preview-quiz]');
   await expect(quiz).toBeVisible();
+  await expect(quiz.locator("[data-quiz-step]")).toHaveCount(3);
+  await expect(quiz.locator("[data-quiz-status]")).toHaveText("Вопрос 1 из 3");
+  await quiz.locator("[data-quiz-next]").click();
+  await expect(quiz.locator("[data-quiz-status]")).toHaveText("Вопрос 1 из 3");
   const livingOption = quiz.locator('input[name="purpose"][value="living"]');
   await livingOption.check();
-  await expect(livingOption).toBeChecked();
-  await quiz.locator('button[type="submit"]').click();
+  await quiz.locator("[data-quiz-next]").click();
+  await expect(quiz.locator("[data-quiz-status]")).toHaveText("Вопрос 2 из 3");
+  const roomOption = quiz.locator('input[name="rooms"][value="two"]');
+  await roomOption.check();
+  await quiz.locator("[data-quiz-next]").click();
+  await expect(quiz.locator("[data-quiz-status]")).toHaveText("Вопрос 3 из 3");
+  const timingOption = quiz.locator('input[name="timing"][value="soon"]');
+  await timingOption.check();
+  await quiz.locator("[data-quiz-submit]").click();
 
   const dialog = page.locator("#previewNotice");
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText("Ответы (1) сохранены только в этой предварительной версии");
-  await expect(dialog).toContainText("Отправка заявок отключена");
+  const quizPayload = JSON.parse(await dialog.locator("#noticePayload").textContent());
+  expect(quizPayload).toMatchObject({
+    schemaVersion: "key-selection-preview/1.0",
+    offerId: "selection",
+    answers: [
+      { questionId: "purpose", optionId: "living" },
+      { questionId: "rooms", optionId: "two" },
+      { questionId: "timing", optionId: "soon" }
+    ]
+  });
+  await expect(dialog).toContainText("Данные не отправляются");
   await expect(page.locator("form[data-lead-form]")).toHaveCount(0);
 });
