@@ -37,9 +37,39 @@ const safeImageUrl = value => {
     return null;
   }
 };
-const imageFor = module => (module.assetIds || [])
+const assetsFor = module => (module.assetIds || [])
   .map(id => byId(assets, id))
-  .find(asset => safeImageUrl(asset?.url) && ["photo", "render", "plan"].includes(asset.type));
+  .filter(asset => safeImageUrl(asset?.url) && ["photo", "render", "plan"].includes(asset.type));
+const imageFor = module => assetsFor(module)[0];
+const renderGallery = list => '<div class="media-grid">' + list.map((asset, index) =>
+  '<figure class="media-card"><img src="' + esc(safeImageUrl(asset.url)) + '" alt="' +
+  esc(asset.alt || profile.project.name || "Изображение проекта") + '" loading="' + (index === 0 ? "eager" : "lazy") +
+  '"><figcaption>' + esc(asset.type === "plan" ? "Планировка" : asset.type === "render" ? "Визуализация" : "Фотография") +
+  '</figcaption></figure>'
+).join("") + '</div>';
+const renderPlans = offer => (profile.apartmentPlans || []).map(plan => {
+  const asset = byId(assets, plan.assetId);
+  if (!asset || !safeImageUrl(asset.url)) return "";
+  const rooms = plan.rooms === 0 ? "Студия" : plan.rooms + "-комнатная";
+  const meta = [rooms, Number(plan.areaSqm).toLocaleString("ru-RU") + " м²", plan.floor ? plan.floor + " этаж" : ""].filter(Boolean).join(" · ");
+  const action = offer ? '<button class="cta" type="button" data-preview-cta="' + esc(offer.id) +
+    '" data-preview-title="' + esc(offer.title) + '" data-preview-plan-id="' + esc(plan.id) + '">Обсудить эту планировку</button>' : "";
+  return '<article class="plan-card"><img src="' + esc(safeImageUrl(asset.url)) + '" alt="' +
+    esc(asset.alt || "Планировка квартиры") + '" loading="lazy"><div class="plan-copy"><p class="eyebrow">Планировка</p><h3>' +
+    esc(plan.title || rooms) + '</h3><p>' + esc(meta) + '</p>' + (plan.finishing ? '<p>' + esc(plan.finishing) + '</p>' : "") +
+    action + '</div></article>';
+}).filter(Boolean).join("");
+const renderQuiz = quiz => {
+  if (!quiz) return "";
+  const questions = quiz.questions.map((question, index) =>
+    '<fieldset class="quiz-question"><legend>' + (index + 1) + '. ' + esc(question.label) + '</legend>' +
+    question.options.map(option => '<label class="quiz-option"><input type="radio" name="' + esc(question.id) +
+      '" value="' + esc(option.id) + '" required><span>' + esc(option.label) + '</span></label>').join("") + '</fieldset>'
+  ).join("");
+  return '<form class="preview-quiz" data-preview-quiz data-result-offer="' + esc(quiz.resultOfferId) +
+    '"><h3>' + esc(quiz.title) + '</h3>' + (quiz.description ? '<p>' + esc(quiz.description) + '</p>' : "") +
+    questions + '<button class="cta" type="submit">Завершить подбор</button></form>';
+};
 const factsFor = module => (module.requiredFactIds || []).map(id => byId(facts, id)).filter(Boolean);
 const advantagesFor = module => advantages.filter(item => (item.supportingFactIds || []).some(id => (module.requiredFactIds || []).includes(id)));
 const labelFor = module => ({
@@ -60,6 +90,7 @@ function renderModule(module, index) {
   const factsHere = factsFor(module);
   const advantagesHere = advantagesFor(module);
   const asset = imageFor(module);
+  const moduleAssets = assetsFor(module);
   const offer = offerFor(module);
   const heading = module.moduleId === "hero"
     ? (profile.project.name || labelFor(module))
@@ -69,7 +100,11 @@ function renderModule(module, index) {
     : (module.userQuestion || module.whyIncluded || module.reason || "");
   const factList = factsHere.map(fact => `<li>${esc(fact.claim)}</li>`).join("");
   const benefitList = advantagesHere.map(item => `<article class="benefit"><h3>${esc(item.title)}</h3><p>${esc(item.benefit)}</p></article>`).join("");
-  const image = asset ? `<figure><img src="${esc(safeImageUrl(asset.url))}" alt="${esc(asset.alt || profile.project.name || "Изображение проекта")}" loading="lazy"></figure>` : "";
+  const image = module.moduleId === "gallery" && moduleAssets.length
+    ? renderGallery(moduleAssets)
+    : asset ? '<figure><img src="' + esc(safeImageUrl(asset.url)) + '" alt="' + esc(asset.alt || profile.project.name || "Изображение проекта") + '" loading="lazy"></figure>' : "";
+  const plans = (module.moduleId === "floor-plans" || module.moduleId === "apartments") ? renderPlans(offer) : "";
+  const quiz = module.moduleId === "quiz" ? renderQuiz(profile.selectionQuiz) : "";
   const cta = button(offer, module.moduleId === "hero" ? "Обсудить проект" : "");
   const extra = module.moduleId === "location" || module.moduleId === "places"
     ? infrastructure.map(item => `<li><strong>${esc(item.name)}</strong>${item.publicLabel ? ` — ${esc(item.publicLabel)}` : ""}${Number.isFinite(item.walkingMinutes) ? ` · ${esc(item.walkingMinutes)} мин пешком` : ""}</li>`).join("")
@@ -81,6 +116,8 @@ function renderModule(module, index) {
       ${intro ? `<p class="intro">${esc(intro)}</p>` : ""}
       ${benefitList ? `<div class="benefits">${benefitList}</div>` : ""}
       ${factList || extra ? `<ul class="facts">${factList}${extra}</ul>` : ""}
+      ${plans}
+      ${quiz}
       ${cta}
     </div>${image}
   </section>`;
@@ -99,8 +136,8 @@ const html = `<!doctype html>
 <title>${esc(title)} — предварительная презентация</title>
 <style>
 :root{color-scheme:dark;--bg:#17191d;--panel:#202329;--text:#f5f1ea;--muted:#b9b5ae;--line:#ffffff20;--accent:#d8c6a8;--pad:clamp(22px,5vw,72px);font-family:Inter,Onest,Arial,sans-serif}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);line-height:1.55}a,button{font:inherit}.top{padding:20px var(--pad);display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);color:var(--muted);font-size:13px}.brand{color:var(--text);letter-spacing:.16em;font-weight:700}.module{min-height:52vh;padding:clamp(64px,10vw,140px) var(--pad);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(260px,.95fr);align-items:center;gap:clamp(28px,6vw,90px);border-bottom:1px solid var(--line);max-width:1440px;margin:auto}.module:nth-child(odd){background:#1b1e23}.module.hero{min-height:78vh}.module-copy{max-width:720px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--accent)}h1,h2{font-family:Georgia,serif;font-weight:500;line-height:1.05;letter-spacing:-.035em}h1{font-size:clamp(42px,7vw,88px);margin:18px 0}h2{font-size:clamp(34px,5vw,64px);margin:16px 0 24px}.intro{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:58ch}.facts{padding-left:20px;color:var(--muted);display:grid;gap:12px}.benefits{display:grid;gap:14px;margin:28px 0}.benefit{padding:18px 0;border-top:1px solid var(--line)}.benefit h3{margin:0 0 5px;font-size:18px}.benefit p{margin:0;color:var(--muted)}figure{margin:0;overflow:hidden;border-radius:8px;background:var(--panel);min-height:240px}figure img{width:100%;height:100%;min-height:240px;max-height:580px;object-fit:cover}.cta{display:inline-flex;margin-top:24px;padding:14px 22px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);color:#17191d;cursor:pointer;font-weight:600}.cta:focus-visible,.close:focus-visible{outline:3px solid white;outline-offset:4px}.footer{padding:50px var(--pad);color:var(--muted);font-size:13px}.notice{position:fixed;inset:auto 18px 18px;z-index:5;max-width:520px;margin:auto;padding:16px 18px;background:#f5f1ea;color:#17191d;border-radius:10px;box-shadow:0 12px 50px #0008;display:none}.notice[open]{display:block}.notice p{margin:0 32px 0 0}.close{position:absolute;right:10px;top:8px;border:0;background:none;font-size:24px;cursor:pointer;color:inherit}
-@media(max-width:760px){.module,.module.hero{grid-template-columns:1fr;min-height:unset;padding-block:68px}.module figure{grid-row:1}.module-copy{grid-row:2}figure img{max-height:360px}.top{font-size:11px}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);line-height:1.55}a,button{font:inherit}.top{padding:20px var(--pad);display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);color:var(--muted);font-size:13px}.brand{color:var(--text);letter-spacing:.16em;font-weight:700}.module{min-height:52vh;padding:clamp(64px,10vw,140px) var(--pad);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(260px,.95fr);align-items:center;gap:clamp(28px,6vw,90px);border-bottom:1px solid var(--line);max-width:1440px;margin:auto}.module:nth-child(odd){background:#1b1e23}.module.hero{min-height:78vh}.module-copy{max-width:720px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--accent)}h1,h2{font-family:Georgia,serif;font-weight:500;line-height:1.05;letter-spacing:-.035em}h1{font-size:clamp(42px,7vw,88px);margin:18px 0}h2{font-size:clamp(34px,5vw,64px);margin:16px 0 24px}.intro{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:58ch}.facts{padding-left:20px;color:var(--muted);display:grid;gap:12px}.benefits{display:grid;gap:14px;margin:28px 0}.benefit{padding:18px 0;border-top:1px solid var(--line)}.benefit h3{margin:0 0 5px;font-size:18px}.benefit p{margin:0;color:var(--muted)}figure{margin:0;overflow:hidden;border-radius:8px;background:var(--panel);min-height:240px}figure img{width:100%;height:100%;min-height:240px;max-height:580px;object-fit:cover}.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.media-card:first-child{grid-row:span 2}.media-card figcaption{padding:8px 12px;color:var(--muted);font-size:12px}.plan-card{display:grid;grid-template-columns:minmax(120px,.8fr) minmax(0,1fr);gap:18px;padding:18px;margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px}.plan-card img{width:100%;height:auto;align-self:center;object-fit:contain}.plan-copy h3{margin:4px 0;font-size:22px}.plan-copy p{color:var(--muted)}.plan-copy .cta{margin-top:8px}.preview-quiz{margin:24px 0;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:10px}.preview-quiz h3{font-size:24px;margin:0 0 8px}.quiz-question{border:0;border-top:1px solid var(--line);padding:18px 0;margin:0}.quiz-question legend{font-weight:600;padding:0 0 12px}.quiz-option{display:flex;gap:10px;align-items:center;padding:9px 0;cursor:pointer;color:var(--muted)}.quiz-option input{accent-color:var(--accent);width:18px;height:18px}.cta{display:inline-flex;margin-top:24px;padding:14px 22px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);color:#17191d;cursor:pointer;font-weight:600}.cta:focus-visible,.close:focus-visible{outline:3px solid white;outline-offset:4px}.footer{padding:50px var(--pad);color:var(--muted);font-size:13px}.notice{position:fixed;inset:auto 18px 18px;z-index:5;max-width:520px;margin:auto;padding:16px 18px;background:#f5f1ea;color:#17191d;border-radius:10px;box-shadow:0 12px 50px #0008;display:none}.notice[open]{display:block}.notice p{margin:0 32px 0 0}.close{position:absolute;right:10px;top:8px;border:0;background:none;font-size:24px;cursor:pointer;color:inherit}
+@media(max-width:760px){.module,.module.hero{grid-template-columns:1fr;min-height:unset;padding-block:68px}.module figure,.module .media-grid{grid-row:1}.module-copy{grid-row:2}figure img{max-height:360px}.plan-card{grid-template-columns:1fr}.plan-card img{max-height:260px}.top{font-size:11px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -115,6 +152,15 @@ ${sections || '<section class="module"><div class="module-copy"><h1>Матери
 const dialog=document.getElementById("previewNotice");
 document.querySelectorAll("[data-preview-cta]").forEach(button=>button.addEventListener("click",()=>{
  document.getElementById("noticeTitle").textContent=button.dataset.previewTitle||"Сценарий обращения";
+ const planContext=button.dataset.previewPlanId ? " Выбрана планировка: "+button.dataset.previewPlanId+"." : "";
+ document.getElementById("noticeText").textContent="Это предварительная версия: отправка заявок отключена, данные не передаются."+planContext;
+ dialog.showModal();
+}));
+document.querySelectorAll("form[data-preview-quiz]").forEach(form=>form.addEventListener("submit",event=>{
+ event.preventDefault();
+ const answers=Array.from(new FormData(form).entries());
+ document.getElementById("noticeTitle").textContent="Подбор завершён";
+ document.getElementById("noticeText").textContent="Ответы ("+answers.length+") сохранены только в этой предварительной версии. Отправка заявок отключена.";
  dialog.showModal();
 }));
 dialog.querySelector(".close").addEventListener("click",()=>dialog.close());
