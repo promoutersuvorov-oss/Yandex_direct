@@ -687,3 +687,11 @@ SOURCES ───────┘                                        │
 
 **Версия:** 1.0  
 **Следующий артефакт реализации:** заполненный `project.k15.json` и `page.k15.json` на основании фактического K15, затем план рефакторинга текущего `Index.html` без изменения внешнего вида на первом проходе.
+
+## 20. Дополнительные нормативные контракты
+
+- Каталог смысловых модулей, условия включения/исключения и правила индивидуальной композиции: [MODULE_CATALOG_AND_COMPOSITION_RULES.md](MODULE_CATALOG_AND_COMPOSITION_RULES.md).
+- Mapping паспорта, маркетинговой стратегии, манифеста и runtime: [PASSPORT_TO_LANDING_MAPPING.md](PASSPORT_TO_LANDING_MAPPING.md).
+- Production требования к Android/iOS/Desktop, интерактивам и release gates: [Production UI Foundation](../product/PRODUCTION_UI_FOUNDATION.md).
+
+Эти документы уточняют Foundation, но не заменяют текущую JSON Schema и не доказывают реализацию компонентов.
