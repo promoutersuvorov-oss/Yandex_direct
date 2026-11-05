@@ -25,6 +25,8 @@ try {
   const firstOut = join(work, "first-bundle");
   build(firstPassport, firstOut);
   const firstHtml = readFileSync(join(firstOut, "preview.html"), "utf8");
+  const firstManifest = JSON.parse(readFileSync(join(firstOut, "module-manifest.json"), "utf8"));
+  const firstReport = JSON.parse(readFileSync(join(firstOut, "generation-report.json"), "utf8"));
 
   const alternate = JSON.parse(readFileSync(firstPassport, "utf8"));
   alternate.project.id = "synthetic-riverside-residence";
@@ -43,6 +45,8 @@ try {
   const secondOut = join(work, "second-bundle");
   build(secondPassport, secondOut);
   const secondHtml = readFileSync(join(secondOut, "preview.html"), "utf8");
+  const secondManifest = JSON.parse(readFileSync(join(secondOut, "module-manifest.json"), "utf8"));
+  const secondReport = JSON.parse(readFileSync(join(secondOut, "generation-report.json"), "utf8"));
 
   const first = signature(firstHtml);
   const second = signature(secondHtml);
@@ -59,7 +63,20 @@ try {
   assert.ok(secondHtml.includes('data-variant="full-bleed"') && secondHtml.includes('data-variant="location-led"') && secondHtml.includes('data-variant="conversion-led"'), "Alternate strategy variants must reach the actual HTML renderer.");
   assert.ok(!secondHtml.includes('data-module="gallery"') && !secondHtml.includes('data-module="quiz"'), "Modules excluded by the alternate passport must not leak into its page.");
 
-  console.log("Renderer diversity passed.");
+  const firstCapabilities = new Map(firstManifest.modules.map(item => [item.moduleId, item.capability]));
+  const secondCapabilities = new Map(secondManifest.modules.map(item => [item.moduleId, item.capability]));
+  assert.equal(firstCapabilities.get("hero")?.status, "implemented", "Hero must declare its actual specialized capability.");
+  assert.equal(firstCapabilities.get("gallery")?.status, "implemented", "Gallery must declare its actual specialized capability.");
+  assert.equal(firstCapabilities.get("quiz")?.status, "implemented", "Quiz must declare its actual specialized capability.");
+  assert.equal(firstCapabilities.get("about")?.status, "partial", "Generic editorial sections must not be mislabeled as fully implemented.");
+  assert.equal(secondCapabilities.get("location")?.status, "partial", "A generic location section must not imply map or route behavior.");
+  assert.deepEqual(firstReport.rendererAudit.capabilitySummary, { implemented: 3, partial: first.length - 3, unsupported: 0 });
+  assert.deepEqual(secondReport.rendererAudit.capabilitySummary, { implemented: 1, partial: second.length - 1, unsupported: 0 });
+  assert.equal(firstReport.rendererAudit.status, "passed");
+  assert.equal(secondReport.rendererAudit.status, "passed");
+  assert.ok(firstManifest.modules.every(item => ["implemented", "partial", "unsupported"].includes(item.capability?.status)), "Every selected module must declare a capability state.");
+
+  console.log("Renderer diversity and capability contract passed.");
   console.log("Composition A: " + first.map(item => item.module + ":" + item.variant).join(" → "));
   console.log("Composition B: " + second.map(item => item.module + ":" + item.variant).join(" → "));
 } finally {
