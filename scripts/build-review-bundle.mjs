@@ -279,33 +279,68 @@ const rendererAliases = {
 const renderedSections = new Set(
   [...template.matchAll(/<section\b[^>]*\bid=["']([^"']+)["'][^>]*>/gi)].map(match => match[1])
 );
+const specializedCapabilities = {
+  hero: { status: "implemented", behavior: "Project identity, approved positioning, assigned media and contextual preview CTA." },
+  gallery: { status: "implemented", behavior: "Responsive gallery of approved, rights-cleared media with alt text and media-type labels." },
+  apartments: { status: "implemented", behavior: "Verified apartment-plan cards with plan-specific preview CTA context." },
+  "floor-plans": { status: "implemented", behavior: "Verified apartment-plan cards with plan-specific preview CTA context." },
+  quiz: { status: "implemented", behavior: "Required finite-choice answers are validated and kept local in review preview." }
+};
+const partialCapability = {
+  status: "partial",
+  behavior: "Generic editorial section: heading, approved facts, supported advantages, at most one assigned image and a preview CTA.",
+  limitations: "No dedicated interaction, layout, navigation, calculation, map, FAQ accordion or production lead delivery is implied by this status."
+};
 const manifest = {
   projectId: passport.project?.id ?? null,
-  modules: orderedModules.map((item, index) => ({
-    order: Number.isInteger(item.order) ? item.order : index,
-    moduleId: item.moduleId,
-    rendererSectionId: rendererAliases[item.moduleId] ?? null,
-    decision: item.decision,
-    reason: item.reason,
-    variant: item.variant ?? null,
-    requiredFactIds: asArray(item.requiredFactIds),
-    assetIds: asArray(item.assetIds),
-    ctaIds: asArray(item.ctaIds),
-    dependencies: asArray(item.dependencies),
-    qaCriteria: asArray(item.qaCriteria)
-  }))
+  modules: orderedModules.map((item, index) => {
+    const capability = specializedCapabilities[item.moduleId] ?? (rendererAliases[item.moduleId] ? partialCapability : {
+      status: "unsupported",
+      behavior: "No explicit renderer implementation is registered."
+    });
+    return {
+      order: Number.isInteger(item.order) ? item.order : index,
+      moduleId: item.moduleId,
+      rendererSectionId: rendererAliases[item.moduleId] ?? null,
+      capability: { ...capability },
+      decision: item.decision,
+      reason: item.reason,
+      variant: item.variant ?? null,
+      requiredFactIds: asArray(item.requiredFactIds),
+      assetIds: asArray(item.assetIds),
+      ctaIds: asArray(item.ctaIds),
+      dependencies: asArray(item.dependencies),
+      qaCriteria: asArray(item.qaCriteria)
+    };
+  })
 };
 const missingRendererSections = manifest.modules
   .filter(item => !item.rendererSectionId || !renderedSections.has(item.rendererSectionId))
   .map(item => ({ moduleId: item.moduleId, rendererSectionId: item.rendererSectionId }));
+const unsupportedCapabilities = manifest.modules
+  .filter(item => item.capability.status === "unsupported")
+  .map(item => item.moduleId);
 for (const item of missingRendererSections) {
   errors.push(`Selected module "${item.moduleId}" has no matching section in the current renderer.`);
 }
+for (const moduleId of unsupportedCapabilities) {
+  errors.push(`Selected module "${moduleId}" has no implemented renderer capability.`);
+}
 const rendererAudit = {
-  status: missingRendererSections.length ? "blocked" : "passed",
+  status: missingRendererSections.length || unsupportedCapabilities.length ? "blocked" : "passed",
   renderedSections: [...renderedSections].sort(),
-  selectedModules: manifest.modules.map(item => ({ moduleId: item.moduleId, rendererSectionId: item.rendererSectionId })),
-  missingRendererSections
+  selectedModules: manifest.modules.map(item => ({
+    moduleId: item.moduleId,
+    rendererSectionId: item.rendererSectionId,
+    capability: item.capability
+  })),
+  capabilitySummary: {
+    implemented: manifest.modules.filter(item => item.capability.status === "implemented").length,
+    partial: manifest.modules.filter(item => item.capability.status === "partial").length,
+    unsupported: unsupportedCapabilities.length
+  },
+  missingRendererSections,
+  unsupportedCapabilities
 };
 const report = {
   reportVersion: "1.0.0",
