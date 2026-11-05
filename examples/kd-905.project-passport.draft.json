@@ -353,7 +353,7 @@
         "moduleId": "about",
         "decision": "include",
         "reason": "Объясняет камерный масштаб и архитектурную идею.",
-        "order": 1,
+        "order": 2,
         "variant": "feature-led",
         "requiredFactIds": [
           "total-apartments",
@@ -373,7 +373,7 @@
         "moduleId": "gallery",
         "decision": "conditional",
         "reason": "Визуальный блок важен для премиального восприятия, но публикация возможна только после подтверждения прав на материалы.",
-        "order": 2,
+        "order": 3,
         "variant": "immersive",
         "requiredFactIds": [],
         "userQuestion": "Как выглядит архитектура и пространство?",
@@ -393,7 +393,7 @@
         "moduleId": "lifestyle",
         "decision": "include",
         "reason": "Показывает повседневные сценарии на основе заявленных особенностей двора и террас.",
-        "order": 3,
+        "order": 4,
         "variant": "image-led",
         "requiredFactIds": [
           "car-free-courtyard",
@@ -414,7 +414,7 @@
         "moduleId": "security",
         "decision": "include",
         "reason": "Функциональные особенности дома важны для оценки повседневного комфорта.",
-        "order": 4,
+        "order": 5,
         "variant": "proof-led",
         "requiredFactIds": [
           "underground-parking"
@@ -433,7 +433,7 @@
         "moduleId": "location",
         "decision": "include",
         "reason": "Подтверждён центральный район и адрес; инфраструктурные расстояния пока не подтверждены.",
-        "order": 5,
+        "order": 6,
         "variant": "location-led",
         "requiredFactIds": [
           "central-district"
@@ -452,7 +452,7 @@
         "moduleId": "floor-plans",
         "decision": "conditional",
         "reason": "Нужны актуальные планы, метражи и проверка соответствия конкретным лотам.",
-        "order": 6,
+        "order": 7,
         "variant": "plan-selector",
         "requiredFactIds": [],
         "userQuestion": "Какие квартиры доступны сейчас?",
@@ -473,7 +473,7 @@
         "moduleId": "mortgage",
         "decision": "exclude",
         "reason": "Нет проверенных актуальных программ, ставок и формулы расчёта.",
-        "order": 7,
+        "order": 8,
         "variant": "conversion-led",
         "requiredFactIds": [],
         "userQuestion": "Какие финансовые условия доступны?",
@@ -492,7 +492,7 @@
         "moduleId": "faq",
         "decision": "exclude",
         "reason": "Не включать: текущий review renderer не имеет структурированного FAQ-компонента и иначе выводит повторяющийся список фактов вместо вопросов и ответов.",
-        "order": 8,
+        "order": 9,
         "variant": "faq-accordion",
         "requiredFactIds": [
           "white-box-option",
@@ -512,7 +512,7 @@
         "moduleId": "contacts",
         "decision": "conditional",
         "reason": "Показывать только после согласования реального процесса обработки обращения KEY.",
-        "order": 9,
+        "order": 10,
         "variant": "conversion-led",
         "requiredFactIds": [],
         "userQuestion": "Как получить актуальную информацию?",
@@ -526,6 +526,24 @@
         "qaCriteria": [
           "real-lead-delivery",
           "consent-and-privacy"
+        ]
+      },
+      {
+        "moduleId": "key",
+        "decision": "include",
+        "reason": "Связывает две подтверждённые характеристики — центральный район и заявленное более спокойное расположение участка — в отличительную идею проекта.",
+        "order": 1,
+        "variant": "feature-led",
+        "requiredFactIds": [
+          "central-district",
+          "quiet-street"
+        ],
+        "userQuestion": "Какой характер у этого городского дома?",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [],
+        "qaCriteria": [
+          "positioning-grounded-in-two-facts"
         ]
       }
     ],

@@ -24,7 +24,7 @@ assert.ok(profile.facts.some(fact => fact.id === "quiet-street"));
 assert.ok(!profile.facts.some(fact => fact.id === "delivery-date"), "Expired delivery claims must not be emitted.");
 
 const selected = manifest.modules.map(module => module.moduleId);
-assert.deepEqual(selected, ["hero", "about", "lifestyle", "security", "location"]);
+assert.deepEqual(selected, ["hero", "key", "about", "lifestyle", "security", "location"]);
 assert.ok(html.includes("Клубный дом «905»"));
 assert.ok(html.includes('<body data-theme="warm-editorial">'));
 assert.ok(html.includes("В доме заявлено 45 квартир всего."));

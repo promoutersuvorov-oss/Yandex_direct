@@ -101,13 +101,9 @@ function renderModule(module, index) {
   const heading = module.moduleId === "hero"
     ? (profile.project.name || labelFor(module))
     : labelFor(module);
-  const strongestAdvantage = [...advantages].sort((a, b) =>
-    ({ core: 0, strong: 1, supporting: 2 }[a.strength] ?? 3) -
-    ({ core: 0, strong: 1, supporting: 2 }[b.strength] ?? 3)
-  )[0];
-  // Never expose the strategist's internal rationale as visitor-facing copy.
+  // Never expose the strategist's internal rationale or an unapproved positioning hypothesis.
   const intro = module.moduleId === "hero"
-    ? (profile.project.positioning || strongestAdvantage?.benefit || "")
+    ? (profile.project.positioning || "")
     : (module.userQuestion || "");
   const factList = factsHere.map(fact => `<li>${esc(fact.claim)}</li>`).join("");
   const benefitList = advantagesHere.map(item => `<article class="benefit"><h3>${esc(item.title)}</h3><p>${esc(item.benefit)}</p></article>`).join("");
