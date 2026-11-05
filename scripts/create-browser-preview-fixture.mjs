@@ -46,7 +46,12 @@ passport.advantages = [{
   supportingFactIds: ["fixture-positioning-proof"],
   strength: "core"
 }];
-passport.infrastructure = [];
+passport.infrastructure = [
+  { name: "Тестовый городской парк", category: "park", distanceMeters: 450, walkingMinutes: 6, status: "verified",
+    publicLabel: "Синтетические данные для проверки карточки инфраструктуры", source: evidence("Синтетический источник инфраструктуры", "places/park") },
+  { name: "Неподтверждённый торговый центр", category: "shopping", distanceMeters: 120, walkingMinutes: 2, status: "provisional",
+    publicLabel: "Не должен появиться в публичном preview", source: evidence("Синтетический неподтверждённый источник", "places/unverified") }
+];
 passport.offers = [
   { id: "presentation", title: "Получить тестовую презентацию", type: "presentation", status: "active", requiredFields: [] },
   { id: "selection", title: "Тестовый подбор", type: "apartment_selection", status: "active", requiredFields: [] }
@@ -108,6 +113,7 @@ passport.selectionQuiz = {
 passport.contentStrategy.modules = [
   { moduleId: "hero", decision: "include", reason: "Синтетический первый экран", variant: "editorial-split", assetIds: ["fixture-hero"], ctaIds: ["presentation"] },
   { moduleId: "gallery", decision: "include", reason: "Проверка нескольких изображений", variant: "gallery-mosaic", assetIds: ["fixture-hero", "fixture-gallery"] },
+  { moduleId: "location", decision: "include", reason: "Проверка подтверждённой инфраструктуры", variant: "location-led", userQuestion: "Что находится рядом с домом?", requiredFactIds: ["fixture-positioning-proof"] },
   { moduleId: "floor-plans", decision: "include", reason: "Проверка данных планировки", variant: "plan-selector", assetIds: ["fixture-plan"], ctaIds: ["selection"] },
   { moduleId: "quiz", decision: "include", reason: "Проверка локального квиза", variant: "step-form", ctaIds: ["selection"] },
   { moduleId: "lifestyle", decision: "include", reason: "Проверка image-led layout", variant: "image-led", requiredFactIds: ["fixture-positioning-proof"], assetIds: ["fixture-gallery"] },

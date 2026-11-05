@@ -284,6 +284,8 @@ const renderedSections = new Set(
 );
 const specializedCapabilities = {
   hero: { status: "implemented", behavior: "Project identity, approved positioning, assigned media and contextual preview CTA." },
+  location: { status: "implemented", behavior: "Structured address and verified nearby-place cards; distances and walking times appear only when explicitly evidenced. No map or route calculation is implied." },
+  places: { status: "implemented", behavior: "Structured address and verified nearby-place cards; distances and walking times appear only when explicitly evidenced. No map or route calculation is implied." },
   gallery: { status: "implemented", behavior: "Responsive gallery of approved, rights-cleared media with alt text and media-type labels." },
   apartments: { status: "implemented", behavior: "Verified apartment-plan cards with plan-specific preview CTA context." },
   "floor-plans": { status: "implemented", behavior: "Verified apartment-plan cards with plan-specific preview CTA context." },
