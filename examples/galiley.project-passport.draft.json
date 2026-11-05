@@ -587,38 +587,14 @@
   ],
   "offers": [
     {
-      "id": "consultation",
-      "scenarioId": "galiley.consultation",
-      "title": "Обсудить ЖК с KEY",
-      "type": "consultation",
+      "id": "presentation",
+      "scenarioId": "galiley.presentation",
+      "title": "Получить презентацию ЖК",
+      "type": "presentation",
       "status": "active",
+      "description": "Запросить у KEY презентацию жилого комплекса и подробную информацию о проекте.",
       "requiredFields": [
         "phone"
-      ],
-      "consentRequired": true
-    },
-    {
-      "id": "apartment-selection",
-      "scenarioId": "galiley.apartment-selection",
-      "title": "Уточнить актуальные планировки",
-      "type": "apartment_selection",
-      "status": "active",
-      "description": "Запросить у KEY актуальную информацию о доступных планировках и подходящих вариантах.",
-      "requiredFields": [
-        "phone"
-      ],
-      "consentRequired": true
-    },
-    {
-      "id": "viewing-request",
-      "scenarioId": "galiley.viewing-request",
-      "title": "Запросить просмотр",
-      "type": "viewing",
-      "status": "active",
-      "description": "Обсудить с KEY возможность и удобное время просмотра объекта.",
-      "requiredFields": [
-        "phone",
-        "preferredTime"
       ],
       "consentRequired": true
     }
@@ -632,11 +608,7 @@
   },
   "contentStrategy": {
     "coreIdea": "Не просто высотный дом, а городской сад с архитектурой, внутренними сценариями и деталями повседневного комфорта.",
-    "primaryCta": "Обсудить ЖК с KEY",
-    "secondaryCtas": [
-      "Уточнить актуальные планировки",
-      "Записаться на просмотр"
-    ],
+    "primaryCta": "Получить презентацию ЖК",
     "audiencePriority": [
       "Семьи, которым важны благоустроенная территория и повседневная инфраструктура",
       "Покупатели, которым интересна архитектура и видовые характеристики"
@@ -655,9 +627,7 @@
         "userQuestion": "Чем этот комплекс отличается?",
         "assetIds": [],
         "ctaIds": [
-          "consultation",
-          "apartment-selection",
-          "viewing-request"
+          "presentation"
         ]
       },
       {
