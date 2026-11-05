@@ -17,5 +17,5 @@ for (const [label, pattern] of [
   if (label === "no external form action") assert.equal(pattern.test(html), false, "Preview must not submit forms.");
   else assert.equal(pattern.test(html), true, "Missing " + label);
 }
-assert.equal(/<main>[\\s\\S]*<\\/main>/.test(html), true, "Expected main content landmark.");
+assert.equal(html.includes("<main>") && html.includes("</main>"), true, "Expected main content landmark.");
 console.log("PASS: independent editorial reference renderer structure and safety gates.");
