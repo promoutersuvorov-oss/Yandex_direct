@@ -49,6 +49,12 @@ if (existsSync(htmlPath)) {
   }
 }
 
+// Keep the K15 migration adapter present in the source-integrity gate.
+const adapterPath = "scripts/k15-legacy-adapter.mjs";
+if (!existsSync(adapterPath) || statSync(adapterPath).size === 0) {
+  errors.push("Missing K15 legacy adapter.");
+}
+
 if (errors.length) {
   console.error(errors.map((error) => `✗ ${error}`).join("\n"));
   process.exit(1);
