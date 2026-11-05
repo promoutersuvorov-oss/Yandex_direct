@@ -18,12 +18,13 @@ This document defines the versioned conversion context shared by rendered CTA en
 ## Invariants
 
 1. CTA `offerId` must resolve to an active offer referenced by the included module.
-2. Active scenario IDs must be unique. Legacy offers without `scenarioId` use `offer.id` as a compatibility fallback.
-3. A plan CTA carries the exact verified plan ID, room count, area, optional floor/finishing and approved asset ID.
-4. A quiz CTA carries validated question/option IDs under `entityContext.quizAnswers` and the quiz's result offer.
-5. UI completion is not delivery success. No success state may claim a lead was received until a trusted server response confirms it.
-6. The preview does not collect names, phones, consent, attribution, or other personal data and does not issue network requests.
-7. Production delivery requires a server-side adapter, endpoint ownership, schema validation, anti-spam controls, consent policy/version/timestamp, retention rules, retry semantics and CRM acceptance evidence.
+2. Each semantic module may expose at most one primary conversion CTA. Do not render competing conversion buttons side by side; a different user intent belongs to its own relevant module and CTA.
+3. Active scenario IDs must be unique. Legacy offers without `scenarioId` use `offer.id` as a compatibility fallback.
+4. A plan CTA carries the exact verified plan ID, room count, area, optional floor/finishing and approved asset ID.
+5. A quiz CTA carries validated question/option IDs under `entityContext.quizAnswers` and the quiz's result offer.
+6. UI completion is not delivery success. No success state may claim a lead was received until a trusted server response confirms it.
+7. The preview does not collect names, phones, consent, attribution, or other personal data and does not issue network requests.
+8. Production delivery requires a server-side adapter, endpoint ownership, schema validation, anti-spam controls, consent policy/version/timestamp, retention rules, retry semantics and CRM acceptance evidence.
 
 ## Future production lead envelope
 
