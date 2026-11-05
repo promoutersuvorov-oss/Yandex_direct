@@ -102,3 +102,27 @@ test("three-step quiz preserves answers and submits with quiz context", async ({
   await expect(quiz.locator(".thanks")).toBeVisible();
   await expect(quiz.locator(".thanks")).toContainText("Заявка принята");
 });
+
+
+test("failed lead transport never displays a success state", async ({ page }) => {
+  // Replace the successful mock from beforeEach with a deliberate network failure.
+  await page.unroute("https://script.google.com/**");
+  await page.route("https://script.google.com/**", route => route.abort("failed"));
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+
+  const cta = page.locator('button[data-modal="presentation"]').first();
+  await cta.scrollIntoViewIfNeeded();
+  await cta.click();
+
+  const modal = page.locator("#modal");
+  const form = modal.locator("form.lead-form");
+  await form.locator('[name="uname"]').fill("Тестовый пользователь");
+  await form.locator('[name="uphone"]').fill("79991234567");
+  await form.locator(".consent .swt").click();
+  await expect(form.locator('[name="uconsent"]')).toBeChecked();
+  await form.locator('button[type="submit"]').click();
+
+  await expect(form.locator(".ferr")).toContainText("Не удалось отправить заявку");
+  await expect(form.locator(".thanks")).toHaveCount(0);
+  await expect(form.locator('button[type="submit"]')).toBeEnabled();
+});
