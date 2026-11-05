@@ -111,7 +111,7 @@ function renderModule(module, index) {
     : asset ? '<figure><img src="' + esc(safeImageUrl(asset.url)) + '" alt="' + esc(asset.alt || profile.project.name || "Изображение проекта") + '" loading="lazy"></figure>' : "";
   const plans = (module.moduleId === "floor-plans" || module.moduleId === "apartments") ? renderPlans(offer) : "";
   const quiz = module.moduleId === "quiz" ? renderQuiz(profile.selectionQuiz) : "";
-  const cta = ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? "" : button(offer, module.moduleId === "hero" ? "Обсудить проект" : "");
+  const cta = ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? "" : button(offer, "");
   const extra = module.moduleId === "location" || module.moduleId === "places"
     ? infrastructure.map(item => `<li><strong>${esc(item.name)}</strong>${item.publicLabel ? ` — ${esc(item.publicLabel)}` : ""}${Number.isFinite(item.walkingMinutes) ? ` · ${esc(item.walkingMinutes)} мин пешком` : ""}</li>`).join("")
     : "";

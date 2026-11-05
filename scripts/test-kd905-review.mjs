@@ -29,7 +29,7 @@ assert.ok(html.includes("Клубный дом «905»"));
 assert.ok(html.includes('<body data-theme="warm-editorial">'));
 assert.ok(html.includes("В доме заявлено 45 квартир всего."));
 assert.ok(lowerHtml.includes("подземный паркинг"));
-assert.ok(lowerHtml.includes("автомобильного движения"));
+assert.ok(lowerHtml.includes("движения автомобилей"));
 assert.ok(!html.includes("K15"));
 assert.ok(!html.includes("Синтетическая резиденция"));
 
