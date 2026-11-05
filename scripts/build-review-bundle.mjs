@@ -149,6 +149,43 @@ const allowedAdvantages = advantages.filter(item =>
   asArray(item.supportingFactIds).every(id => publicFact(factById.get(id)))
 );
 const approvedAssets = assets.filter(asset => asset.status === "approved" && isSafePublicUrl(asset.url) && asset.projectMatch === "confirmed" && asset.rightsStatus === "confirmed" && asset.rightsNote?.trim() && asset.rightsSource?.url && asset.rightsSource?.title && asset.rightsSource?.accessedAt && isCurrent(asset));
+const approvedAssetIds = new Set(approvedAssets.map(asset => asset.id));
+for (const plan of asArray(passport.apartmentPlans)) {
+  if (plan.status === "verified" && plan.publicUse === "allowed") {
+    if (!asArray(plan.sources).length) errors.push(`Public apartment plan "${plan.id}" has no evidence source.`);
+    if (!isCurrent(plan)) errors.push(`Public apartment plan "${plan.id}" is expired or has an invalid expiry date.`);
+    const asset = assetById.get(plan.assetId);
+    if (!asset || asset.type !== "plan" || !approvedAssetIds.has(plan.assetId)) {
+      errors.push(`Public apartment plan "${plan.id}" does not reference an approved, rights-cleared plan asset.`);
+    }
+  }
+}
+const publicApartmentPlans = asArray(passport.apartmentPlans)
+  .filter(plan => plan.status === "verified" && plan.publicUse === "allowed" && asArray(plan.sources).length > 0 && isCurrent(plan) && approvedAssetIds.has(plan.assetId))
+  .map(({ id, title, rooms, areaSqm, floor, assetId, finishing }) => ({ id, title: title ?? null, rooms, areaSqm, floor: floor ?? null, assetId, finishing: finishing ?? null }));
+const rawQuiz = passport.selectionQuiz;
+const quizOffer = rawQuiz ? offerById.get(rawQuiz.resultOfferId) : null;
+if (rawQuiz?.status === "approved" && (!quizOffer || quizOffer.status !== "active")) {
+  errors.push(`Approved selection quiz references missing or inactive result offer "${rawQuiz.resultOfferId}".`);
+}
+const publicSelectionQuiz = rawQuiz?.status === "approved" && quizOffer?.status === "active"
+  ? { title: rawQuiz.title, description: rawQuiz.description ?? null, resultOfferId: rawQuiz.resultOfferId,
+      questions: asArray(rawQuiz.questions).map(question => ({ id: question.id, label: question.label,
+        options: asArray(question.options).map(option => ({ id: option.id, label: option.label })) })) }
+  : null;
+for (const module of modules) {
+  if (module.moduleId === "floor-plans" && module.decision === "include" && publicApartmentPlans.length === 0) {
+    errors.push('The "floor-plans" module is included but has no verified, rights-cleared apartment plans.');
+  }
+  if (module.moduleId === "quiz" && module.decision === "include" && !publicSelectionQuiz) {
+    errors.push('The "quiz" module is included but no approved selectionQuiz with an active result offer is available.');
+  }
+}
+const selectedModules = modules.filter(item => item.decision === "include" ||
+  (item.decision === "conditional" && (
+    item.moduleId === "floor-plans" ? publicApartmentPlans.length > 0 :
+    item.moduleId === "quiz" ? Boolean(publicSelectionQuiz) : true
+  )));
 const activeOffers = offers.filter(offer => offer.status === "active").map(offer => ({
   id: offer.id,
   title: offer.title,
@@ -177,6 +214,8 @@ const profile = {
     .map(({ name, category, distanceMeters, walkingMinutes, marketingMeaning, publicLabel }) =>
       ({ name, category, distanceMeters, walkingMinutes, marketingMeaning, publicLabel })),
   offers: activeOffers,
+  apartmentPlans: publicApartmentPlans,
+  selectionQuiz: publicSelectionQuiz,
   assets: approvedAssets.map(({ id, url, type, alt, usage }) => ({ id, url, type, alt, usage }))
 };
 const rendererAliases = {
@@ -190,7 +229,7 @@ const renderedSections = new Set(
 );
 const manifest = {
   projectId: passport.project?.id ?? null,
-  modules: modules.filter(item => ["include", "conditional"].includes(item.decision)).map(item => ({
+  modules: selectedModules.map(item => ({
     moduleId: item.moduleId,
     rendererSectionId: rendererAliases[item.moduleId] ?? null,
     decision: item.decision,
@@ -240,6 +279,8 @@ const report = {
     advantagesPublishable: allowedAdvantages.length,
     modulesTotal: modules.length,
     modulesSelected: manifest.modules.length,
+    apartmentPlansPublishable: publicApartmentPlans.length,
+    selectionQuizAvailable: Boolean(publicSelectionQuiz),
     offersActive: activeOffers.length,
     assetsTotal: assets.length,
     assetsApproved: approvedAssets.length
