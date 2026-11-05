@@ -47,8 +47,17 @@ passport.advantages = [{
   strength: "core"
 }];
 passport.infrastructure = [
-  { name: "Тестовый городской парк", category: "park", distanceMeters: 450, walkingMinutes: 6, status: "verified",
-    publicLabel: "Синтетические данные для проверки карточки инфраструктуры", source: evidence("Синтетический источник инфраструктуры", "places/park") },
+  { name: "Тестовый городской парк", category: "park", distanceMeters: 450, walkingMinutes: 6, distanceEvidence: {
+      method: "walking_route", checkedAt: stamp, validUntil: "2099-12-31T00:00:00Z",
+      source: evidence("Синтетическое подтверждение пешего маршрута", "routes/park")
+    }, status: "verified", publicLabel: "Синтетические данные для проверки карточки инфраструктуры",
+    source: evidence("Синтетический источник инфраструктуры", "places/park") },
+  { name: "Школа без подтверждённого расстояния", category: "school", status: "verified",
+    publicLabel: "Объект подтверждён, маршрут не измерялся", source: evidence("Синтетический источник школы", "places/school") },
+  { name: "Парк с устаревшим маршрутом", category: "park", distanceMeters: 900, walkingMinutes: 11, distanceEvidence: {
+      method: "walking_route", checkedAt: "2020-01-01T00:00:00Z", validUntil: "2020-02-01T00:00:00Z",
+      source: evidence("Устаревшее подтверждение маршрута", "routes/expired")
+    }, status: "verified", source: evidence("Синтетический источник второго парка", "places/park-expired") },
   { name: "Неподтверждённый торговый центр", category: "shopping", distanceMeters: 120, walkingMinutes: 2, status: "provisional",
     publicLabel: "Не должен появиться в публичном preview", source: evidence("Синтетический неподтверждённый источник", "places/unverified") }
 ];
