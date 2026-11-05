@@ -65,6 +65,22 @@ try {
   const manifest = JSON.parse(readFileSync(join(output, "module-manifest.json"), "utf8"));
   assert.deepEqual(manifest.modules.map(item => item.moduleId), ["hero", "floor-plans", "gallery", "quiz"], "Explicit composition order must be respected, with hero fixed first.");
   assert.equal(report.publicationReadiness.productionReady, false);
+
+  // Invalid compositions must be blocked before any review bundle can be published.
+  for (const [label, mutate, expected] of [
+    ["duplicate-hero", candidate => candidate.contentStrategy.modules.push({ ...candidate.contentStrategy.modules[0], order: 5 }), "found 2"],
+    ["duplicate-order", candidate => { candidate.contentStrategy.modules[1].order = candidate.contentStrategy.modules[2].order; }, "duplicate explicit order"]
+  ]) {
+    const invalid = structuredClone(passport);
+    mutate(invalid);
+    const invalidInput = join(dir, label + ".json");
+    const invalidOutput = join(dir, label + "-output");
+    writeFileSync(invalidInput, JSON.stringify(invalid));
+    const invalidBuild = spawnSync(process.execPath, [resolve("scripts/build-review-bundle.mjs"), "--passport", invalidInput, "--out", invalidOutput], { encoding: "utf8" });
+    assert.equal(invalidBuild.status, 1, label + " must block generation.");
+    const invalidReport = JSON.parse(readFileSync(join(invalidOutput, "generation-report.json"), "utf8"));
+    assert.ok(invalidReport.blockers.some(message => message.includes(expected)), label + " blocker must be explicit.");
+  }
   assert.equal(profile.facts.length, 1);
   assert.equal(profile.apartmentPlans.length, 1);
   assert.equal(profile.selectionQuiz.questions.length, 1);
