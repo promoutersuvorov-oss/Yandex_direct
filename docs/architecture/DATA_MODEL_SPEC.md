@@ -31,7 +31,7 @@ Hook: «Парк — часть вашего привычного маршрут
 
 ## 6. Контракт модулей
 Каждое решение по модулю содержит:
-- `moduleId` — идентификатор из `MODULE_LIBRARY.md`;
+- `moduleId` — идентификатор из `docs/architecture/MODULE_CATALOG_AND_COMPOSITION_RULES.md`;
 - `decision` — include / exclude / conditional / replace;
 - `reason` — объяснение на основе объекта и сценария;
 - `requiredFactIds` — обязательные подтверждённые факты;
@@ -40,8 +40,16 @@ Hook: «Парк — часть вашего привычного маршрут
 Модуль нельзя включать, если его обязательные факты отсутствуют, конфликтуют или заблокированы. Условный модуль должен иметь fallback.
 
 ## 7. Следующий этап
-1. Прочитать реальные `MODULE_LIBRARY.md`, `project-config.k15.js`, `content-config.k15.js`.
+1. Прочитать реальные `docs/architecture/MODULE_CATALOG_AND_COMPOSITION_RULES.md`, `project-config.k15.js`, `content-config.k15.js`.
 2. Сопоставить поля существующих конфигураций со схемой.
 3. Составить таблицу миграции: `legacy field → canonical field → transform → validation`.
 4. Не менять рабочий эталон до появления проверяемого адаптера и regression checklist.
 5. После миграции собрать паспорт K15 только из фактов с источниками и запустить QA.
+
+## 8. Связанные контракты
+
+- Каталог смысловых модулей и правила композиции: [MODULE_CATALOG_AND_COMPOSITION_RULES.md](MODULE_CATALOG_AND_COMPOSITION_RULES.md).
+- Сопоставление паспорта, стратегии, манифеста и runtime: [PASSPORT_TO_LANDING_MAPPING.md](PASSPORT_TO_LANDING_MAPPING.md).
+- Инженерные требования Android/iOS/Desktop и release gates: [Production UI Foundation](../product/PRODUCTION_UI_FOUNDATION.md).
+
+Каталог модулей не является доказательством наличия компонента. Перед генерацией обязательна проверка соответствия фактическому renderer.
