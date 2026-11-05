@@ -45,6 +45,15 @@ try {
   assert.ok(!text.includes("brokerNotes"));
 
   passport.facts[0].status = "provisional";
+  passport.facts.push({
+    id: "expired-public", claim: "Просроченное утверждение", status: "verified",
+    publicUse: "allowed", expiresAt: "2020-01-01T00:00:00Z", sources: [{
+      url: "https://example.com/old", title: "Старый источник", accessedAt: "2020-01-01T00:00:00Z", sourceType: "developer"
+    }]
+  });
+  passport.contentStrategy.modules.push({
+    moduleId: "parking", decision: "include", reason: "Проверка отсутствующего renderer"
+  });
   writeFileSync(input, JSON.stringify(passport));
   const blocked = spawnSync(process.execPath, [resolve("scripts/build-review-bundle.mjs"), "--passport", input, "--out", output], { encoding: "utf8" });
   assert.equal(blocked.status, 1, "Unverified public facts must block bundle generation.");
