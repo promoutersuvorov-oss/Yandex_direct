@@ -88,6 +88,10 @@ try {
   assert.ok(html.includes("media-grid"), "Gallery module must render a multi-image layout.");
   assert.ok(html.includes("plan-45"), "Apartment plan identity must be present in its contextual CTA.");
   assert.ok(html.includes("data-preview-quiz"), "Approved quiz must render as an interactive form.");
+  const sectionOrder = ["hero", "floor-plans", "gallery", "quiz"].map(id => html.indexOf('data-module="' + id + '"'));
+  assert.ok(sectionOrder.every((position, index) => position >= 0 && (index === 0 || position > sectionOrder[index - 1])), "Rendered HTML must preserve the strategist-defined module order.");
+  assert.ok(!html.includes("Главный блок"), "Internal module rationale must never be exposed as visitor-facing hero copy.");
+  assert.ok(html.includes('data-variant="plan-selector"') || html.includes('data-variant="default"'), "Module layout variant must reach rendered HTML.");
   assert.ok(!html.includes("data-lead-form"), "Preview must not create a lead submission form.");
   assert.ok(!html.includes("INTERNAL_NOTE"));
   assert.ok(!html.includes("script.google.com"));
