@@ -148,3 +148,16 @@ Feature-ветка включает unit/contract tests для адаптера,
 - [PR #6 — runtime contract QA / bundle](https://github.com/nikitanecilli-bit/Agency/pull/6)
 - [PR #7 — mortgage calculator / UI foundation](https://github.com/nikitanecilli-bit/Agency/pull/7)
 - [Feature branch: illustrative mortgage calculator](https://github.com/nikitanecilli-bit/Agency/tree/feat/illustrative-mortgage-calculator)
+
+
+## 8. Фактические CI-доказательства feature-веток Agency
+
+Проверены workflow runs, привязанные к точным SHA веток:
+
+| Ветка / SHA | CI run | Что прошло |
+|---|---|---|
+| `feat/passport-adapter-v1-1` / `2568b582` | [40759792679](https://github.com/nikitanecilli-bit/Agency/actions/runs/40759792679) | Passport adapter tests |
+| `feat/runtime-contract-qa` / `22ce82ab` | [40763963127](https://github.com/nikitanecilli-bit/Agency/actions/runs/40763963127) | Adapter tests + generated landing browser smoke |
+| `feat/illustrative-mortgage-calculator` / `56fbb7e9` | [42015752479](https://github.com/nikitanecilli-bit/Agency/actions/runs/42015752479) | Adapter tests, browser smoke Chromium/Firefox/WebKit, review bundle build |
+
+Это подтверждает, что код feature-ветки не только написан: для указанных SHA CI действительно завершился успешно. Но это не меняет статус PR #5/#6/#7: они остаются открытыми и зависимыми, а код не интегрирован в Agency main. Также эти тесты подтверждают контракты и сценарии legacy renderer, а не совместимость с текущей схемой и runtime KLanding.
