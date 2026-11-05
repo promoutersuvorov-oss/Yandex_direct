@@ -7,6 +7,7 @@ function arg(name, fallback) {
 }
 const passportPath = resolve(arg("--passport", "examples/project-passport.example.json"));
 const outDir = resolve(arg("--out", "review-bundle"));
+const templatePath = resolve(arg("--template", "landing/reference/K15_landing_edited.html"));
 const errors = [];
 const warnings = [];
 const check = (condition, message) => { if (!condition) errors.push(message); };
@@ -17,10 +18,22 @@ const uniqueBy = (items, key) => {
 };
 const asArray = value => Array.isArray(value) ? value : [];
 const verified = value => value?.status === "verified" && asArray(value.sources).length > 0;
-const publicFact = fact => fact?.status === "verified" &&
+const isCurrent = record => {
+  if (!record?.expiresAt) return true;
+  const expiry = Date.parse(record.expiresAt);
+  return Number.isFinite(expiry) && expiry >= Date.now();
+};
+const publicFact = fact => fact?.status === "verified" && isCurrent(fact) &&
   ["allowed", "allowed_with_qualification"].includes(fact.publicUse) &&
   asArray(fact.sources).length > 0;
 
+let template;
+try {
+  template = readFileSync(templatePath, "utf8");
+} catch (error) {
+  console.error(`Cannot read renderer template ${templatePath}: ${error.message}`);
+  process.exit(1);
+}
 let passport;
 try {
   passport = JSON.parse(readFileSync(passportPath, "utf8"));
@@ -58,6 +71,9 @@ for (const fact of facts) {
   if (["allowed", "allowed_with_qualification"].includes(fact.publicUse) && fact.status !== "verified") {
     errors.push(`Fact "${fact.id}" is public-eligible but status is ${fact.status}; only verified facts may be published.`);
   }
+  if (["allowed", "allowed_with_qualification"].includes(fact.publicUse) && !isCurrent(fact)) {
+    errors.push(`Fact "${fact.id}" is expired or has an invalid expiresAt date.`);
+  }
   if (fact.publicUse === "allowed" && asArray(fact.sources).length === 0) {
     errors.push(`Public fact "${fact.id}" has no evidence source.`);
   }
@@ -88,6 +104,9 @@ for (const module of modules) {
 }
 for (const asset of assets) {
   if (asset.status === "approved" && !asset.url) errors.push(`Approved asset "${asset.id}" has no URL.`);
+  if (asset.status === "approved" && !(typeof asset.rightsNote === "string" && asset.rightsNote.trim())) {
+    errors.push(`Approved asset "${asset.id}" has no rightsNote for the review trail.`);
+  }
   if (asset.group === "plans" && asset.type !== "plan") errors.push(`Asset "${asset.id}" is in assets.plans but type is not "plan".`);
 }
 for (const offer of offers) {
@@ -125,10 +144,20 @@ const profile = {
   offers: activeOffers,
   assets: approvedAssets
 };
+const rendererAliases = {
+  hero: "hero", key: "key", gallery: "gallery", about: "about", security: "security",
+  quiz: "quiz", location: "location", places: "location", lifestyle: "lifestyle", life: "lifestyle",
+  gift: "gift", presentation: "gift", apartments: "apartments", "floor-plans": "apartments",
+  price: "price", developer: "developer", mortgage: "mortgage", steps: "steps", faq: "faq", contacts: "contacts"
+};
+const renderedSections = new Set(
+  [...template.matchAll(/<section\\b[^>]*\\bid=["']([^"']+)["'][^>]*>/gi)].map(match => match[1])
+);
 const manifest = {
   projectId: passport.project?.id ?? null,
   modules: modules.filter(item => ["include", "conditional"].includes(item.decision)).map(item => ({
     moduleId: item.moduleId,
+    rendererSectionId: rendererAliases[item.moduleId] ?? null,
     decision: item.decision,
     reason: item.reason,
     variant: item.variant ?? null,
@@ -138,6 +167,18 @@ const manifest = {
     dependencies: asArray(item.dependencies),
     qaCriteria: asArray(item.qaCriteria)
   }))
+};
+const missingRendererSections = manifest.modules
+  .filter(item => !item.rendererSectionId || !renderedSections.has(item.rendererSectionId))
+  .map(item => ({ moduleId: item.moduleId, rendererSectionId: item.rendererSectionId }));
+for (const item of missingRendererSections) {
+  errors.push(`Selected module "${item.moduleId}" has no matching section in the current renderer.`);
+}
+const rendererAudit = {
+  status: missingRendererSections.length ? "blocked" : "passed",
+  renderedSections: [...renderedSections].sort(),
+  selectedModules: manifest.modules.map(item => ({ moduleId: item.moduleId, rendererSectionId: item.rendererSectionId })),
+  missingRendererSections
 };
 const report = {
   reportVersion: "1.0.0",
@@ -158,6 +199,20 @@ const report = {
   },
   blockers: errors,
   warnings,
+  rendererAudit,
+  publicationReadiness: {
+    status: errors.length ? "blocked" : "review_required",
+    productionReady: false,
+    gates: [
+      { id: "passport_evidence", status: errors.length ? "blocked" : "passed" },
+      { id: "section_renderer_contract", status: missingRendererSections.length ? "blocked" : "passed" },
+      { id: "privacy_notice", status: "pending_manual_configuration" },
+      { id: "lead_delivery", status: "pending_integration_test" },
+      { id: "claims_and_project_copy", status: "pending_manual_review" },
+      { id: "responsive_visual_qa", status: "pending_browser_review" }
+    ],
+    note: "A review bundle is never production-ready by itself; legal, integration and human review gates remain separate."
+  },
   boundaries: [
     "This is a review-only intermediate bundle, not a publishable landing page.",
     "No K15 HTML, prices, contacts, coordinates, endpoints, analytics IDs or commercial secrets are copied.",
