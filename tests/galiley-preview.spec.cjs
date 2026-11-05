@@ -9,7 +9,7 @@ test("Galiley preview renders its own project identity and garden-modern composi
 
   await expect(page.locator("body")).toHaveAttribute("data-theme", "garden-modern");
   await expect(page.getByRole("heading", { level: 1, name: "ЖК «Галилей»" })).toBeVisible();
-  await expect(page.locator("main [data-module]").count()).resolves.toBeGreaterThanOrEqual(3);
+  expect(await page.locator("main [data-module]").count()).toBeGreaterThanOrEqual(3);
   await expect(page.locator("body")).toContainText("городской сад");
   await expect(page.locator("body")).not.toContainText("Клубный дом «905»");
   await expect(page.locator("body")).toContainText("не принимает заявки");
