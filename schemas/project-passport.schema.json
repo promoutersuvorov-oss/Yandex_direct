@@ -229,6 +229,10 @@
         "visualDirection": {
           "type": "object",
           "properties": {
+            "theme": {
+              "type": "string",
+              "enum": ["urban-noir", "warm-editorial", "garden-modern"]
+            },
             "mood": {
               "type": "string"
             },
