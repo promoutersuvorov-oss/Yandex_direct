@@ -70,7 +70,7 @@ passport.apartmentPlans = [{
 }];
 passport.faq = [
   { id: "fixture-faq-territory", question: "Как устроена тестовая территория?", requiredFactIds: ["fixture-positioning-proof"] },
-  { id: "fixture-faq-apartments", question: "Сколько квартир в тестовом проекте?", requiredFactIds: ["fixture-apartment-count"] }
+  { id: "fixture-faq-apartments", question: "Сколько квартир в тестовом проекте?", requiredFactIds: ["fixture-positioning-proof"] }
 ];
 passport.selectionQuiz = {
   status: "approved",
