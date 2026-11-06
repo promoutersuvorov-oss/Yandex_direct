@@ -50,6 +50,8 @@ Lifestyle — самостоятельная редакционная секци
 
 ## Capability gates
 
+- `approved-faq-answers`: минимум один FAQ-вопрос, для которого все обязательные факты являются publishable Claims и имеют именованные источники.
+
 - `approved-project-media`: минимум один опубликованный asset render/photo, с подтверждёнными правами и связью с текущим projectId.
 - `current-inventory`: минимум одна прошедшая публикационные проверки планировка.
 - `rights-cleared-plan-assets`: все используемые plan assets прошли asset gate.
