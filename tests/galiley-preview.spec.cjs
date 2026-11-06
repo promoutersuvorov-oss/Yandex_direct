@@ -98,3 +98,14 @@ test("Galiley preview remains usable on a narrow mobile viewport", async ({ page
   expect(Math.max(dimensions.document, dimensions.body)).toBeLessThanOrEqual(dimensions.viewport + 1);
   await page.screenshot({ path: "test-results/galiley-preview-mobile.png", fullPage: true });
 });
+
+test("cinematic composition does not reserve an empty column for a text-only hero", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(url, { waitUntil: "networkidle" });
+  await page.locator("body").evaluate(node => node.dataset.composition = "cinematic");
+
+  const hero = page.locator("#module-hero");
+  await expect(hero).toHaveClass(/text-only/);
+  const columns = await hero.evaluate(node => getComputedStyle(node).gridTemplateColumns);
+  expect(columns.trim().split(/\\s+/)).toHaveLength(1);
+});

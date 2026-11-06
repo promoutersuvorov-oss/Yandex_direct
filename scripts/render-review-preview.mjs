@@ -266,6 +266,7 @@ body[data-composition="cinematic"] .module{max-width:none;min-height:66vh;paddin
 body[data-composition="cinematic"] .module:nth-child(even){background:transparent}
 body[data-composition="cinematic"] .module.hero{min-height:min(92svh,980px)}
 body[data-composition="cinematic"] .module.hero[data-variant]:not([data-variant="full-bleed"]):not([data-variant="immersive"]){grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+body[data-composition="cinematic"] .module.hero.text-only{grid-template-columns:minmax(0,1fr)}
 body[data-composition="cinematic"] .module-copy{max-width:760px}
 body[data-composition="cinematic"] .module.text-only{grid-template-columns:minmax(0,1fr)}
 body[data-composition="cinematic"] h1{font-size:clamp(52px,9vw,124px);letter-spacing:-.065em}
