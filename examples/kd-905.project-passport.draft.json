@@ -572,7 +572,8 @@
         "variant": "feature-led",
         "requiredFactIds": [
           "central-district",
-          "quiet-street"
+          "quiet-street",
+          "total-apartments"
         ],
         "userQuestion": "Какой характер у этого городского дома?",
         "assetIds": [],
