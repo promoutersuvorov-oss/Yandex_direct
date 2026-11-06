@@ -271,6 +271,8 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
       ...(integration.leadWorkflow?.approvalStatus === "approved" && integration.leadWorkflow?.apiContractVersion &&
         integration.leadWorkflow?.deliveryVerification?.status === "passed" && integration.leadWorkflow?.deliveryVerification?.verifiedAt &&
         integration.leadEndpoint && integration.privacyPolicyUrl && integration.privacyPolicyVersion && integration.leadWorkflow?.consentTextVersion ? ["approved-key-lead-workflow"] : []),
+      ...(landingInputs.selectionFlow?.publicEligible && offers.quiz?.offerId &&
+        landingInputs.selectionFlow.resultOfferId === offers.quiz.offerId ? ["approved-selection-flow"] : []),
       ...(integration.mortgageTerms?.approvalStatus === "approved" &&
         integration.mortgageTerms?.sourceIds?.length &&
         integration.mortgageTerms.sourceIds.every(id => (knowledge.sources || []).some(src => src.id === id)) &&
@@ -295,7 +297,8 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
   const requestedGalleryLayout = visualPlacement?.runtimeVariant || designInput.galleryLayout;
   const heroLayout = ["split", "fullscreen", "editorial"].includes(requestedHeroLayout) ? requestedHeroLayout : "split";
   const galleryLayout = ["mosaic", "editorial", "strip"].includes(requestedGalleryLayout) ? requestedGalleryLayout : "mosaic";
-  const quiz = landingInputs.selectionFlow?.publicEligible && offers.quiz &&
+  const quizModuleSelected = moduleResolution.placements.some(item => item.moduleId === "quiz");
+  const quiz = quizModuleSelected && landingInputs.selectionFlow?.publicEligible && offers.quiz &&
     landingInputs.selectionFlow.resultOfferId === offers.quiz.offerId ? {
     title: landingInputs.selectionFlow.title, description: landingInputs.selectionFlow.description || "",
     resultOfferId: landingInputs.selectionFlow.resultOfferId,
