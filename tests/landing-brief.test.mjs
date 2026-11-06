@@ -100,8 +100,10 @@ function approvedPositioningBrief() {
 }
 
 test("blocks production generation when positioning is missing", () => {
-  assert.ok(validatePositioningGate(brief).some(error => error.includes("is missing")));
-  assert.ok(validateLandingBriefReferences(brief, passport, { requirePositioningGate: true })
+  const invalid = structuredClone(brief);
+  delete invalid.strategy.positioning;
+  assert.ok(validatePositioningGate(invalid).some(error => error.includes("is missing")));
+  assert.ok(validateLandingBriefReferences(invalid, passport, { requirePositioningGate: true })
     .some(error => error.includes("Positioning Gate is missing")));
 });
 
