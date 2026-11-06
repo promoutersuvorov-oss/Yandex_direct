@@ -24,7 +24,24 @@ test("universal landing renders the demo profile and responsive editorial layout
   await page.screenshot({ path: "test-results/universal-landing-mobile.png", fullPage: true });
 });
 
-test("location section never presents a decorative placeholder as a real map", async ({ page }) => {\n  await page.goto(url);\n  await expect(page.locator("#location")).toBeVisible();\n  await expect(page.locator(".location-art")).toBeHidden();\n  await expect(page.locator(".map-orbit, .map-point")).toHaveCount(0);\n  const profile = structuredClone(productionProfile);\n  profile.locationMap = { url: "https://assets.example/location-map.webp", alt: "Карта расположения проекта", status: "approved", rightsStatus: "approved" };\n  await page.route("**/project.config.js", route => route.fulfill({\n    contentType: "application/javascript",\n    body: "window.KEY_PROJECT = " + JSON.stringify(profile) + ";"\n  }));\n  await page.goto(url);\n  await expect(page.locator("#location")).toHaveClass(/has-map/);\n  await expect(page.locator("#location-map")).toBeVisible();\n  await expect(page.locator("#location-map")).toHaveAttribute("alt", "Карта расположения проекта");\n});\n\ntest("hero CTA opens a context-specific presentation form without false delivery success", async ({ page }) => {
+test("location section never presents a decorative placeholder as a real map", async ({ page }) => {
+  await page.goto(url);
+  await expect(page.locator("#location")).toBeVisible();
+  await expect(page.locator(".location-art")).toBeHidden();
+  await expect(page.locator(".map-orbit, .map-point")).toHaveCount(0);
+  const profile = structuredClone(productionProfile);
+  profile.locationMap = { url: "https://assets.example/location-map.webp", alt: "Карта расположения проекта", status: "approved", rightsStatus: "approved" };
+  await page.route("**/project.config.js", route => route.fulfill({
+    contentType: "application/javascript",
+    body: "window.KEY_PROJECT = " + JSON.stringify(profile) + ";"
+  }));
+  await page.goto(url);
+  await expect(page.locator("#location")).toHaveClass(/has-map/);
+  await expect(page.locator("#location-map")).toBeVisible();
+  await expect(page.locator("#location-map")).toHaveAttribute("alt", "Карта расположения проекта");
+});
+
+test("hero CTA opens a context-specific presentation form without false delivery success", async ({ page }) => {
   await page.goto(url);
   await page.locator('.hero [data-open-offer="presentation"]').click();
   const dialog = page.locator("#lead-dialog");
