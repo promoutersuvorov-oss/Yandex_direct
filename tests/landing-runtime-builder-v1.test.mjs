@@ -57,3 +57,17 @@ test("does not expose internal knowledge or secret integration values in demo pr
   assert.equal(JSON.stringify(profile).includes("private"),false);
   assert.equal(profile.integration.leadEndpoint,"");
 });
+
+test("does not publish an asset associated with a different project",()=>{
+  const x=input();x.knowledge.assets=[{id:"render",assetKind:"render",url:"https://example.test/a.jpg",publicationStatus:"approved",
+    projectMatch:"confirmed",rightsStatus:"confirmed",rightsEvidenceIds:["e1"],subjectRefs:[{type:"project",id:"another-project"}],allowedContexts:[]}];
+  const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{});
+  assert.equal(profile.media.length,0);
+});
+test("quiz result must resolve to the actual quiz offer",()=>{
+  const x=input();
+  x.landingInputs.conversionCatalog.push({id:"quiz-offer",title:"Квиз",type:"apartment_selection",status:"active",consentRequired:true});
+  x.landingInputs.selectionFlow={publicEligible:true,title:"Подбор",resultOfferId:"o1",questions:[]};
+  const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{});
+  assert.equal(profile.selectionQuiz,null);
+});
