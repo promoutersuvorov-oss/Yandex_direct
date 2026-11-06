@@ -142,6 +142,10 @@ test("distinguishes walking routes from straight-line distance and unsupported m
   assert.equal(result.knowledge.routes.length, 1);
   assert.equal(result.knowledge.routes[0].mode, "walking");
   assert.equal(result.knowledge.routes[0].durationSeconds, 300);
+  assert.equal(result.knowledge.routes[0].originRef.id, result.knowledge.project.id);
+  assert.equal(result.knowledge.routes[0].evidenceIds.length, 1);
+  const routeEvidence = result.knowledge.evidence.find(item => item.id === result.knowledge.routes[0].evidenceIds[0]);
+  assert.equal(routeEvidence.sourceId, result.knowledge.routes[0].sourceIds[0]);
   assert.equal(result.knowledge.pointsOfInterest[0].status, "unknown",
     "verified means the listing is evidenced, not that the POI operational status is known");
   const poiListed = result.knowledge.claims.find(item => item.predicate === "poi.listed_by_source");
