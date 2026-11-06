@@ -213,16 +213,27 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
       assetUrl: asset.url, sources: plan.sourceIds, status: "verified", publicUse: "allowed", rightsStatus: "approved" };
   });
 
-  const findWalkingRoute = poiId => (knowledge.routes || []).find(item =>
-    item.destinationPoiId === poiId && item.method === "route" && item.mode === "walking" &&
-    isFuture(item.validUntil, now) && item.sourceIds?.length &&
-    item.sourceIds.every(id => (knowledge.sources || []).some(src => src.id === id)) &&
-    Number.isFinite(Date.parse(item.observedAt)) &&
-    (Number.isFinite(item.durationSeconds) || (Number.isFinite(item.distance?.value) && ["m","km"].includes(item.distance.unit)))
-  );
+  const findWalkingRoute = poiId => (knowledge.routes || []).find(item => {
+    const sourceIds = new Set((knowledge.sources || []).map(source => source.id));
+    const evidence = new Map((knowledge.evidence || []).map(entry => [entry.id, entry]));
+    const hasValidDistance = item.distance?.kind === "measurement" &&
+      Number.isFinite(item.distance.value) && item.distance.value >= 0 &&
+      ["m", "km"].includes(item.distance.unit);
+    const hasValidDuration = Number.isFinite(item.durationSeconds) && item.durationSeconds >= 0;
+    return item.destinationPoiId === poiId && item.originRef?.type === "project" &&
+      item.originRef.id === knowledge.project.id && item.method === "route" && item.mode === "walking" &&
+      Number.isFinite(Date.parse(item.observedAt)) && Number.isFinite(Date.parse(item.validUntil)) &&
+      Date.parse(item.validUntil) > now && Array.isArray(item.sourceIds) && item.sourceIds.length > 0 &&
+      item.sourceIds.every(id => sourceIds.has(id)) && Array.isArray(item.evidenceIds) &&
+      item.evidenceIds.length > 0 && item.evidenceIds.every(id => {
+        const entry = evidence.get(id);
+        return Boolean(entry && item.sourceIds.includes(entry.sourceId));
+      }) && (hasValidDistance || hasValidDuration);
+  });
   const infrastructure = (knowledge.pointsOfInterest || []).filter(poi => {
     const existence = (poi.claimIds || []).map(id => claims.get(id)).find(claim =>
-      claim?.predicate === "poi.listed_by_source" && claimIsPublic(claim, knowledge, now));
+      claim?.subject?.type === "poi" && claim.subject.id === poi.id &&
+      claim.predicate === "poi.listed_by_source" && claimIsPublic(claim, knowledge, now));
     return Boolean(existence && findWalkingRoute(poi.id));
   }).map(poi => {
     const route = findWalkingRoute(poi.id);
