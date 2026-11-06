@@ -46,6 +46,9 @@ test("builds a public runtime profile from a passport and approved copy",()=>{
   assert.deepEqual(profile.composition,["concept","advantages","location"]);
   assert.equal(profile.advantages.length,1);
   assert.equal(profile.advantages[0].title,"Закрытая территория");
+  assert.deepEqual(profile.advantages[0].evidence,["Официальные сведения"]);
+  assert.equal(profile.advantages[0].hook,"Короткая маркетинговая формулировка");
+  assert.equal("proof" in profile.advantages[0],false);
   assert.equal(profile.media.length,1);
   assert.equal(profile.media[0].rightsStatus,"approved");
   assert.deepEqual(profile.locationMap,{url:"https://cdn.example/location-map.webp",alt:"Карта квартала",status:"approved",rightsStatus:"approved"});
