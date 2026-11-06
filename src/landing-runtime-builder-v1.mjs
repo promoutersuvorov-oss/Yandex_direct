@@ -84,8 +84,8 @@ export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legac
     district: "", address: ""
   };
   const projectClaims = [...claims.values()].filter(item => item.subject?.type === "project" && publishableClaimIds.has(item.id));
-  const districtClaim = projectClaims.find(item => item.predicate === "project.location.district");
-  const addressClaim = projectClaims.find(item => item.predicate === "project.location.address");
+  const districtClaim = projectClaims.find(item => item.predicate === "project.district");
+  const addressClaim = projectClaims.find(item => item.predicate === "project.address");
   const claimText = item => item?.value?.value == null ? "" : String(item.value.value);
   project.district = claimText(districtClaim);
   project.address = claimText(addressClaim);
@@ -175,7 +175,7 @@ export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legac
   const palette = PALETTES[designInput.theme] || PALETTES["warm-editorial"];
   const heroLayout = ["split", "fullscreen", "editorial"].includes(designInput.heroLayout) ? designInput.heroLayout : "split";
   const galleryLayout = ["mosaic", "editorial", "strip"].includes(designInput.galleryLayout) ? designInput.galleryLayout : "mosaic";
-  const quiz = landingInputs.selectionFlow?.publicEligible && offers.quiz ? {
+  const quiz = landingInputs.selectionFlow?.publicEligible && offers.quiz &&\n    landingInputs.selectionFlow.resultOfferId === offers.quiz.offerId ? {
     title: landingInputs.selectionFlow.title, description: landingInputs.selectionFlow.description || "",
     resultOfferId: landingInputs.selectionFlow.resultOfferId,
     questions: (landingInputs.selectionFlow.questions || []).map(q => ({
