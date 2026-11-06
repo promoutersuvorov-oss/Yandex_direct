@@ -80,3 +80,29 @@ test("preserves a validated mortgage estimate in the lead context", () => {
   input.conversion.entityContext.mortgage.downPayment = 8000000;
   assert.throws(() => createLeadPayload(input), /Mortgage price and downPayment are invalid/);
 });
+
+
+test("preserves validated marketing strategy IDs in the conversion payload", () => {
+  const input = valid();
+  input.conversion = {
+    scenarioId: "presentation_request",
+    offerId: "presentation",
+    moduleId: "hero",
+    ctaId: "hero_presentation",
+    hookId: "walkable_daily_needs",
+    funnelId: "location_to_presentation",
+    segmentId: "young_professionals"
+  };
+  const conversion = createLeadPayload(input).conversion;
+  assert.deepEqual(
+    { ctaId: conversion.ctaId, hookId: conversion.hookId, funnelId: conversion.funnelId, segmentId: conversion.segmentId },
+    {
+      ctaId: "hero_presentation",
+      hookId: "walkable_daily_needs",
+      funnelId: "location_to_presentation",
+      segmentId: "young_professionals"
+    }
+  );
+  input.conversion.ctaId = "Invalid ID!";
+  assert.throws(() => createLeadPayload(input), /stable ID/);
+});
