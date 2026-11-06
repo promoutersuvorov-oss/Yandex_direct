@@ -32,12 +32,12 @@ function claimIsPublic(claim, knowledge, now) {
   return claim.sourceIds.every(id => sources.has(id)) &&
     claim.evidenceIds.every(id => evidence.has(id) && claim.sourceIds.includes(evidence.get(id).sourceId));
 }
-function assetIsPublic(asset, now, context) {
+function assetIsPublic(asset, now, context, projectId) {
   return Boolean(asset && asset.publicationStatus === "approved" &&
     asset.projectMatch === "confirmed" && asset.rightsStatus === "confirmed" &&
     asset.rightsEvidenceIds?.length && nonEmpty(asset.url) &&
     /^https:\/\//i.test(asset.url) && isFuture(asset.validUntil, now) &&
-    (!context || !asset.allowedContexts?.length || asset.allowedContexts.includes(context)));
+    asset.subjectRefs?.some(ref => ref.type === "project" && ref.id === projectId) &&\n    (!context || !asset.allowedContexts?.length || asset.allowedContexts.includes(context)));
 }
 function mapOffer(offer) {
   if (!offer || offer.status !== "active" || offer.consentRequired === false) return null;
@@ -103,14 +103,14 @@ export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legac
   }).filter(item => item.evidence.length > 0);
 
   const usableAssets = (knowledge.assets || []).filter(asset =>
-    assetIsPublic(asset, now) && ["render", "photo", "map", "plan"].includes(asset.assetKind));
+    assetIsPublic(asset, now, null, knowledge.project.id) && ["render", "photo", "map", "plan"].includes(asset.assetKind));
   const media = usableAssets.filter(asset => ["render", "photo"].includes(asset.assetKind)).map(asset => ({
     url: asset.url, alt: asset.alt || knowledge.project.name,
     caption: asset.assetKind === "render" ? "Визуализация" : "Фотография",
     type: asset.assetKind, status: "approved", rightsStatus: "approved"
   }));
   const heroMedia = media[0] || null;
-  const mapAsset = usableAssets.find(asset => asset.assetKind === "map" && assetIsPublic(asset, now, "location"));
+  const mapAsset = usableAssets.find(asset => asset.assetKind === "map" && assetIsPublic(asset, now, "location", knowledge.project.id));
   const locationMap = mapAsset ? { url: mapAsset.url, alt: mapAsset.alt || (knowledge.project.name + " — карта расположения"),
     status: "approved", rightsStatus: "approved" } : null;
 
@@ -138,7 +138,7 @@ export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legac
     return true;
   }).map(poi => {
     const route = (knowledge.routes || []).find(item => item.destinationPoiId === poi.id &&
-      item.method === "route" && item.mode === "walking" && isFuture(item.validUntil, now) && item.sourceIds?.length && item.observedAt);
+      item.method === "route" && item.mode === "walking" && isFuture(item.validUntil, now) &&\n      item.sourceIds?.length && item.sourceIds.every(id => (knowledge.sources || []).some(src => src.id === id)) &&\n      Number.isFinite(Date.parse(item.observedAt)));
     const distance = route?.distance?.value;
     const distanceLabel = typeof route?.durationSeconds === "number" ? `${Math.round(route.durationSeconds / 60)} мин. пешком` :
       typeof distance === "number" ? (distance >= 1000 ? `${(distance / 1000).toLocaleString("ru-RU")} км` : `${Math.round(distance)} м`) : "";
