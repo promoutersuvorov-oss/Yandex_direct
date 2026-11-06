@@ -51,13 +51,15 @@ test("non-mergeable section collisions are rejected",()=>{
   ]);
   assert.equal(collision.errors[0].code,"MODULE_SECTION_COLLISION");
 });
-test("FAQ remains explicitly unsupported and excluded modules do not block generation",()=>{
-  const result=resolveRuntimeModulesV1([
-    {moduleId:"faq",decision:"include",variant:"faq-accordion"},
-    {moduleId:"mortgage",decision:"exclude",variant:"conversion-led"}
-  ]);
-  assert.equal(result.errors[0].code,"MODULE_UNSUPPORTED");
-  assert.equal(LANDING_MODULE_REGISTRY_V1.faq.unsupported,true);
+test("FAQ resolves to an evidence-gated accordion section",()=>{
+  const result=resolveRuntimeModulesV1([{moduleId:"faq",decision:"include",variant:"faq-accordion",order:8,requiredFactIds:["f1"]}],
+    {publishableFactIds:["f1"],capabilities:["approved-faq-answers"]});
+  assert.deepEqual(result.errors,[]);
+  assert.deepEqual(result.composition,["faq"]);
+  assert.equal(result.placements[0].runtimeVariant,"evidence-accordion");
+  const blocked=resolveRuntimeModulesV1([{moduleId:"faq",decision:"include",variant:"faq-accordion",order:8}]);
+  assert.equal(blocked.errors[0].code,"INCLUDED_MODULE_NOT_READY");
+  assert.match(blocked.errors[0].message,/approved-faq-answers/);
 });
 
 test("lifestyle resolves to its own runtime section and requires approved story capability",()=>{
