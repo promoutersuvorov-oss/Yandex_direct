@@ -51,6 +51,7 @@ The canonical request is produced by `createLeadPayload()` in `src/lead-payload.
 **`contact`**
 - Required: `name` (string, max 100), `phone` (string, 7–15 digits after removing formatting).
 - Optional: `preferredChannel` (`phone`, `telegram`, `max`, `whatsapp`, `email`; defaults to `phone`), `preferredTime` (string, max 80).
+- The landing renders the channel and preferred-time controls only when the active offer explicitly lists `preferredChannel` or `preferredTime` in `requiredFields`. Name and phone remain required for every current lead scenario; the builder always carries those baseline requirements into the public offer profile.
 
 **`consent`**
 - Required input acceptance is `accepted: true`; the serialized payload carries `policyVersion`, `acceptedAt` (ISO 8601) and `policyUrl` (HTTP/HTTPS URL). The boolean is validated but is not repeated in the serialized object.
