@@ -26,6 +26,11 @@ test("Galiley preview renders its own project identity and garden-modern composi
   await expect(schoolGroup.locator(".place-group-count")).toContainText("5 объектов");
   await expect(kindergartenGroup.locator(".place-group-count")).toContainText("6 объектов");
   await expect(page.locator(".place-group .place-item")).toHaveCount(11);
+  // The grouped infrastructure list is the single source of visible detail;
+  // generic location facts would repeat the same schools and kindergartens.
+  const locationSection = page.locator("#module-location");
+  await expect(locationSection.locator(".facts")).toHaveCount(0);
+  await expect(locationSection.locator(".place-group")).toHaveCount(2);
   await expect(page.locator(".place-card")).toHaveCount(0);
   await expect(page.locator("body")).not.toContainText("Клубный дом «905»");
   await expect(page.locator("body")).toContainText("не принимает заявки");
