@@ -17,7 +17,7 @@
 | Production UI | [PRODUCTION_UI_FOUNDATION.md](../product/PRODUCTION_UI_FOUNDATION.md) | Кроссплатформенные инженерные требования и release gates |
 | Passport mapping | [PASSPORT_TO_LANDING_MAPPING.md](PASSPORT_TO_LANDING_MAPPING.md) | Связь паспорта, стратегии, манифеста и runtime; не готовый конвертер |
 | Контракт паспорта ЖК | [project-passport.schema.json](../../schemas/project-passport.schema.json) | Машинно-проверяемая структура фактов и проекта |
-| Контракт маркетинговой стратегии | [landing-brief.schema.json](../../schemas/landing-brief.schema.json) | Машинно-проверяемый LANDING BRIEF между Strategist и Builder: сегменты, позиционирование, hooks, offers, funnels, CTA, qualification и experiments |
+| Positioning Gate | [POSITIONING_GATE.md](POSITIONING_GATE.md) | Обязательный шлюз между исследованием и финальной сборкой: пять элементов фокуса кампании, доказательная дисциплина, статусы и условия допуска Builder-а |\n| Контракт маркетинговой стратегии | [landing-brief.schema.json](../../schemas/landing-brief.schema.json) | Машинно-проверяемый LANDING BRIEF между Strategist и Builder: buyer insights, пять элементов позиционирования, hooks, offers, funnels, CTA, qualification и experiments |
 | Исполнительные инструкции | [prompts/](../../prompts/) | Как AI-этапы выполняют свои задачи и передают результат следующему |
 | Эталонная реализация | [K15_landing_edited.html](../../landing/reference/K15_landing_edited.html) | Исходный объект аудита и источник UX-паттернов; не нормативный источник фактов или архитектуры |
 | Индекс | [README.md](../../README.md) | Навигация по проекту и текущий статус |
@@ -57,6 +57,6 @@
 
 Каждое звено получает стабильный идентификатор и версию. Решение должно иметь объяснение: почему оно выбрано, на каких фактах/гипотезах основано и какой результат ожидался.
 
-## 5. Правило изменений
+## 5. Positioning Gate как архитектурное ограничение\n\nPositioning Gate — обязательная часть потока генерации, а не факультативный чек-лист. Strategist формирует и обосновывает один фокус кампании; LANDING BRIEF передаёт его в машинно-проверяемом виде; Builder проверяет статус и не выполняет финальную сборку без `approved`. Подробная процедура, уровни применения, статусы и критерии повторного открытия описаны в [POSITIONING_GATE.md](POSITIONING_GATE.md).\n\n## 6. Правило изменений
 
 Не создавать новый главный стандарт, если требование уже принадлежит существующему каноническому документу. Изменять документ-владелец. При существенном изменении схемы или поведения фиксировать версию, миграцию и совместимость.
