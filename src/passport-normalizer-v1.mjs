@@ -389,7 +389,7 @@ export function normalizePassportV1(passport) {
       epistemicStatus: STATUS_MAP[plan.status] || "unknown",
       publicUse: provenance.sourceIds.length > 0 && provenance.evidenceIds.length > 0 &&
         planAsset.projectMatch === "confirmed" && planAsset.rightsStatus === "confirmed" &&
-        planAsset.publicationStatus === "approved"
+        planAsset.rightsEvidenceIds.length > 0 && planAsset.publicationStatus === "approved"
         ? mapPublicationPolicy(plan.publicUse) : "internal_only",
       ...(plan.expiresAt ? { validUntil: plan.expiresAt } : {})
     });
