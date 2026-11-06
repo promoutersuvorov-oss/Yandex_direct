@@ -34,7 +34,7 @@ Registry обязан фиксировать:
 
 ## FAQ component
 
-FAQ — самостоятельный accordion-компонент. Паспорт задаёт вопрос и `requiredFactIds`; свободный текст ответа не принимается. Builder публикует вопрос только когда все обязательные legacy fact IDs разрешаются в publishable Claims, а для каждого Claim найден источник с названием. Ответ состоит из точных значений Claims с указанием источников. `faq` требует capability `approved-faq-answers`; обязательный модуль без пригодных ответов блокирует сборку, conditional пропускается с warning.
+FAQ — самостоятельный accordion-компонент. Паспорт задаёт вопрос, `requiredFactIds` и `publicationStatus`. Без явного `approved` вопрос остаётся черновиком и не публикуется; свободный текст ответа не принимается. Builder публикует вопрос только когда все обязательные legacy fact IDs разрешаются в publishable Claims, а для каждого Claim найден источник с названием. Ответ состоит из точных значений Claims с указанием источников. `faq` требует capability `approved-faq-answers`; обязательный модуль без пригодных ответов блокирует сборку, conditional пропускается с warning.
 
 ## Lifestyle component
 
