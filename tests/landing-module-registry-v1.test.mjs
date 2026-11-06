@@ -98,3 +98,22 @@ test("legacy floor-plans alias and canonical apartments cannot both claim the sa
   ],{capabilities:["current-inventory","rights-cleared-plan-assets"]});
   assert.equal(result.errors[0].code,"MODULE_SECTION_COLLISION");
 });
+
+
+test("Galiley semantic variants resolve to existing hero, lifestyle, concept and FAQ runtime sections",()=>{
+  const result=resolveRuntimeModulesV1([
+    {moduleId:"hero",decision:"include",variant:"image-led",order:0},
+    {moduleId:"lifestyle",decision:"include",variant:"feature-led",order:1,requiredFactIds:["f1"]},
+    {moduleId:"about",decision:"include",variant:"architectural",order:2,requiredFactIds:["f2"]},
+    {moduleId:"faq",decision:"include",variant:"proof-led",order:3,requiredFactIds:["f3"]}
+  ],{
+    publishableFactIds:facts,
+    capabilities:["approved-lifestyle-stories","approved-faq-answers"]
+  });
+  assert.deepEqual(result.errors,[]);
+  assert.deepEqual(result.composition,["lifestyle","concept","faq"]);
+  assert.equal(result.placements.find(item=>item.moduleId==="hero").runtimeVariant,"fullscreen");
+  assert.equal(result.placements.find(item=>item.moduleId==="lifestyle").runtimeVariant,"image-led");
+  assert.equal(result.placements.find(item=>item.moduleId==="about").runtimeVariant,"feature-led");
+  assert.equal(result.placements.find(item=>item.moduleId==="faq").runtimeVariant,"evidence-accordion");
+});
