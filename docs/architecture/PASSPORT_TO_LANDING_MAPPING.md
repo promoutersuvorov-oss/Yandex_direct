@@ -45,3 +45,8 @@ node scripts/build-landing-runtime.mjs --passport passport.json --marketing mark
 `node --test tests/landing-runtime-adapter.test.mjs` проверяет утверждения, статусы и сроки фактов, привязку маркетингового слоя к проекту, права и принадлежность ассетов, состав модулей, квиз, изоляцию внутренних полей и production gates.
 
 Это первый адаптерный срез. Он не заменяет JSON Schema validation и не объявляет весь генератор production-ready.
+
+
+## Статус legacy-контракта и Passport vNext
+
+Текущий adapter принимает Project Passport schema 1.0.0. Passport vNext пока является архитектурным proposal и не является прямым входом builder. До переключения требуется normalized Project Knowledge contract, legacy adapter и parity tests. Нельзя менять или переименовывать поля паспорта, считая, что runtime уже поддерживает vNext. См. [PASSPORT_VNEXT_RUNTIME_CONSUMER_AUDIT.md](PASSPORT_VNEXT_RUNTIME_CONSUMER_AUDIT.md).
