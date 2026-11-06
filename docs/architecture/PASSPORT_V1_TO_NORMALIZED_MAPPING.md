@@ -143,8 +143,10 @@ Source описывает публикацию/документ. Evidence ука
       alt?: string,
       subjectRefs: EntityRef[],
       projectMatch: "confirmed" | "unconfirmed",
+      publicationStatus: "approved" | "pending" | "blocked" | "missing",
       rightsStatus: "confirmed" | "pending" | "blocked" | "unknown",
       rightsEvidenceIds: string[],
+      rightsLimitations: string[],
       validUntil?: string,
       allowedContexts: string[]
     }
@@ -169,7 +171,7 @@ Source описывает публикацию/документ. Evidence ука
       validUntil?: string
     }
 
-Legacy `apartmentPlans` становятся Plan только при наличии assetId, который разрешается в актив типа plan. Не создавать Property Unit на основании plan. В будущем связь с конкретной квартирой задаётся только при наличии отдельного подтверждённого unit ID.
+Legacy `apartmentPlans` становятся Plan только при наличии assetId, который разрешается в актив типа plan. Публичное использование Plan требует также approved asset, confirmed project match, confirmed rights с отдельным rights evidence и publishable plan evidence. Не создавать Property Unit на основании plan. В будущем связь с конкретной квартирой задаётся только при наличии отдельного подтверждённого unit ID.
 
 ### 3.7 POI и Route
 
@@ -195,7 +197,7 @@ Legacy `apartmentPlans` становятся Plan только при налич
       validUntil?: string
     }
 
-Legacy `infrastructure` содержит имя, категорию, статус, один источник и опциональные distance/time values с отдельным distanceEvidence. Adapter может создать POI и Claim. Route создаётся только если distanceEvidence.method = walking_route или другой реальный маршрутный метод. Для straight_line создаётся только измерение прямой дистанции; нельзя создавать пеший Route или duration. Если отсутствует стабильный POI ID, adapter генерирует детерминированный ID из projectId + normalized name + category и сохраняет исходное имя.
+Legacy `infrastructure` содержит имя, категорию, статус доказанности, один источник и опциональные distance/time values с отдельным distanceEvidence. Adapter создаёт POI со status=unknown, если отдельный operating status не задан: legacy status=verified подтверждает запись/существование по источнику, но не доказывает текущее операционное состояние. Отдельный Claim фиксирует факт перечисления POI источником и его epistemicStatus. Route создаётся только если distanceEvidence.method = walking_route или другой реальный маршрутный метод. Для straight_line создаётся только Claim измерения прямой дистанции; нельзя создавать пеший Route или duration. Если отсутствует стабильный POI ID, adapter генерирует детерминированный ID из projectId + normalized name + category и сохраняет исходное имя.
 
 ### 3.8 Структуры проекта, Property Units, Site Features
 
@@ -246,9 +248,9 @@ Legacy `infrastructure` содержит имя, категорию, стату�
 | `project.delivery` | Не используется builder напрямую | Claim + Document / Construction Event при наличии | Не создавать историю события из одного значения |
 | `project.constructionStatus` | Не используется builder напрямую | Claim + Construction Event | Сохранить modality и дату |
 | `project.inventory.apartmentCount` | Не используется builder напрямую | Aggregate Claim на уровне Project | Не создавать N квартир/Property Units |
-| `project.inventory.layoutsAvailable` | Не используется builder напрямую | Derived/readiness flag только в Landing Brief/QA | Не считать фактом наличия конкретных планов |
+| `project.inventory.layoutsAvailable` | Не используется builder напрямую | Derived/readiness flag только в Landing Inputs/QA | Не переносить в Project Knowledge и не считать фактом наличия конкретных планов |
 | `project.inventory.priceFrom` | Не используется builder напрямую | CommercialTerm или Claim с ценой и сроком действия | Нужны observedAt, currency, scope, source; не публиковать устаревшее |
-| `project.inventory.areaRange` | Не используется builder напрямую | Aggregate Claim / Measurement range | Не создавать квартиры из диапазона |
+| `project.inventory.areaRange` | Не используется builder напрямую | Internal migration warning до расширения ClaimValue | Не создавать неподдерживаемый measurement_range и не создавать квартиры из диапазона |
 | `project.inventory.finishing` | Не используется builder напрямую | Claim на уровне проекта/корпуса/единицы | Subject scope не расширять автоматически |
 | `facts[]` | publishableFactIds; marketing claim validation; advantages/modules/brief refs | Claims + Sources + Evidence | Сохранить ID, status, publicUse, expiresAt, claim; источник нормализовать отдельно |
 | `advantages[]` | Runtime advantages | Не Project Knowledge; Marketing Candidate в Landing Brief/Marketing Layer | Это интерпретация «факт → польза», не факт паспорта. Сохранить supportingFactIds как claim refs |
@@ -332,7 +334,7 @@ Warnings не должны «исправляться» догадками и н
 Зафиксировать snapshot/golden runtime profile для текущих fixtures и все существующие 16 тестов как baseline. Изменения в тестовых данных документировать.
 
 ### Step 2 — pure legacy adapter
-Создать `src/passport-normalizer-v1.mjs` с функцией `normalizePassportV1(passport, options)`, которая:
+Создать `src/passport-normalizer-v1.mjs` с чистой функцией `normalizePassportV1(passport)`, которая:
 - проверяет входную версию и минимальную структуру;
 - возвращает `{ knowledge, warnings, errors }`;
 - не изменяет исходный паспорт;
