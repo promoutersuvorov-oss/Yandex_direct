@@ -118,7 +118,7 @@ test("a marketing-only qualification never publishes infrastructure claims",()=>
   x.knowledge.routes=[{id:"route-1",destinationPoiId:"poi-1",method:"route",mode:"walking",observedAt:"2026-11-05T12:00:00Z",validUntil:"2027-11-05T12:00:00Z",sourceIds:["s1"],durationSeconds:300}];
   const qualifiedMarketing={...marketing,claimQualifications:{headline:[{factId:"f1",text:"По данным источника; сведения могут измениться."}]}};
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,qualifiedMarketing,{},{now:"2026-11-06T00:00:00Z"});
-  assert.deepEqual(profile.infrastructure[],[], "A qualifier attached to marketing copy must not authorize the same claim in location/infrastructure.");
+  assert.deepEqual(profile.infrastructure,[], "A qualifier attached to marketing copy must not authorize the same claim in location/infrastructure.");
 });
 
 test("blocks claims without linked source/evidence and candidates with missing facts",()=>{
