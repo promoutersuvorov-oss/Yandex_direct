@@ -53,7 +53,17 @@ test("builds a public runtime profile from a passport and approved copy",()=>{
   assert.equal("facts" in profile,false);
 });
 
-test("uses only approved, project-matched and rights-cleared map assets",()=>{\n  const p=passport();\n  p.assets.maps.push({id:"map-unapproved",type:"map",url:"https://cdn.example/unapproved.webp",status:"approved",projectMatch:"unconfirmed",rightsStatus:"confirmed"});\n  const profile=buildLandingProfile(p,marketing(),{}, {now:"2026-11-06T00:00:00Z"});\n  assert.equal(profile.locationMap.url,"https://cdn.example/location-map.webp");\n  const withoutMap=passport();\n  withoutMap.assets.maps=[{id:"map-restricted",type:"map",url:"https://cdn.example/restricted.webp",status:"approved",projectMatch:"confirmed",rightsStatus:"blocked"}];\n  assert.equal(buildLandingProfile(withoutMap,marketing()).locationMap,null);\n});\n\ntest("exposes the three supported gallery compositions and defaults safely",()=>{
+test("uses only approved, project-matched and rights-cleared map assets",()=>{
+  const p=passport();
+  p.assets.maps.push({id:"map-unapproved",type:"map",url:"https://cdn.example/unapproved.webp",status:"approved",projectMatch:"unconfirmed",rightsStatus:"confirmed"});
+  const profile=buildLandingProfile(p,marketing(),{}, {now:"2026-11-06T00:00:00Z"});
+  assert.equal(profile.locationMap.url,"https://cdn.example/location-map.webp");
+  const withoutMap=passport();
+  withoutMap.assets.maps=[{id:"map-restricted",type:"map",url:"https://cdn.example/restricted.webp",status:"approved",projectMatch:"confirmed",rightsStatus:"blocked"}];
+  assert.equal(buildLandingProfile(withoutMap,marketing()).locationMap,null);
+});
+
+test("exposes the three supported gallery compositions and defaults safely",()=>{
   for (const layout of ["mosaic", "editorial", "strip"]) {
     const p = passport();
     p.contentStrategy.visualDirection.galleryLayout = layout;
