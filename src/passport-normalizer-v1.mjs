@@ -124,14 +124,14 @@ function mapPublicationPolicy(value) {
 
 function makeClaim({
   id, subject, predicate, value, status, publicUse, sourceIds = [], evidenceIds = [],
-  observedAt, validUntil, limitations = []
+  modality = "declared", observedAt, validUntil, limitations = []
 }) {
   return {
     id,
     subject,
     predicate,
     value,
-    modality: "declared",
+    modality,
     epistemicStatus: STATUS_MAP[status] || "unknown",
     sourceIds,
     evidenceIds,
@@ -450,6 +450,7 @@ export function normalizePassportV1(passport) {
           subject: { type: "poi", id: poiId },
           predicate: "poi.straight_line_distance",
           value,
+          modality: "measured",
           status: item.status,
           publicUse: "allowed_with_qualification",
           sourceIds: [routeSource.sourceId],
