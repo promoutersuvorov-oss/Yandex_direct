@@ -249,7 +249,7 @@ SiteFeature описывает внутреннюю среду проекта. �
       subject: EntityRef,
       predicate: string,
       value: ClaimValue,
-      modality: "declared",
+      modality: "declared" | "designed" | "observed" | "measured" | "legally_registered" | "independently_verified",
       epistemicStatus: "verified" | "provisional" | "hypothesis" | "unknown" | "conflicting" | "outdated",
       sourceIds: string[],
       evidenceIds: string[],
