@@ -116,13 +116,19 @@ test("three-step quiz preserves answers and submits with quiz context", async ({
   for (let step = 1; step <= 3; step++) {
     const option = quiz.locator(".opt").first();
     await option.click();
-    await expect(option).toHaveClass(/sel/);
+    await expect.poll(async () => page.evaluate(() => {
+      const state = JSON.parse(sessionStorage.getItem("k15-quiz") || "{}");
+      return Object.values(state.a || {}).filter(Boolean).length;
+    })).toBe(step);
     if (step < 3) {
       await expect(quiz.locator(".qprog span")).toContainText(`${step + 1} / 3`);
     }
   }
 
   const form = quiz.locator("form.lead-form");
+  await expect(form.locator(".chips span")).toHaveCount(3);
+  const savedAnswers = await page.evaluate(() => JSON.parse(sessionStorage.getItem("k15-quiz") || "{}").a || {});
+  expect(Object.values(savedAnswers).filter(Boolean)).toHaveLength(3);
   await expect(form).toBeVisible();
   await form.locator('[name="uname"]').fill("Тестовый пользователь");
   await form.locator('[name="uphone"]').fill("79991234567");
