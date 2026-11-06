@@ -5,6 +5,7 @@
 ## Implemented gates
 
 - Module Registry V1 resolves passport module IDs and exact variants to existing runtime sections or fixed slots. Required includes fail closed when capabilities are missing; conditional modules are skipped with a diagnostic from the registry. Unknown modules, unsupported variants and section collisions are errors.
+- FAQ is a dedicated accessible accordion section. Passport entries contain questions and required fact IDs only; answers are assembled from publishable Claims and named sources. No free-form or inferred answers are generated. The `approved-faq-answers` capability gates inclusion.
 - Lifestyle is a dedicated runtime section. It renders only authored `lifestyleStories` with approved publication status, publishable supporting claims and an approved project asset whose rights explicitly allow the `lifestyle` usage context. It does not synthesize stories from raw project facts.
 
 - Project identity и projectId consistency.
