@@ -211,8 +211,9 @@ function renderModule(module, index) {
   const headingTag = module.moduleId === "hero" ? "h1" : "h2";
   const renderVariant = module.variant === "image-led" && !image ? "feature-led" : (module.variant || "default");
   const moduleClasses = ["module", module.moduleId === "hero" ? "hero" : "", image || plans ? "" : "text-only"].filter(Boolean).join(" ");
+  const moduleCopyClasses = ["module-copy", benefitList && factList ? "editorial-pair" : ""].filter(Boolean).join(" ");
   return `<section class="${moduleClasses}" data-module="${esc(module.moduleId)}" data-variant="${esc(renderVariant)}" id="module-${esc(module.moduleId)}" aria-labelledby="heading-${index}">
-    <div class="module-copy"><p class="eyebrow">${String(index + 1).padStart(2, "0")}</p>
+    <div class="${moduleCopyClasses}"><p class="eyebrow">${String(index + 1).padStart(2, "0")}</p>
       <${headingTag} id="heading-${index}">${esc(heading)}</${headingTag}>
       ${intro ? `<p class="intro">${esc(intro)}</p>` : ""}
       ${heroMeta}
@@ -332,6 +333,18 @@ body[data-composition="architectural"] .hero.text-only .hero-meta-item{min-width
 .module[data-variant="full-bleed"] .module-copy{position:relative;z-index:1;max-width:760px}
 .module.text-only,.module.text-only[data-variant="location-led"]{grid-template-columns:minmax(0,1fr);min-height:auto;padding-block:clamp(52px,7vw,88px)}.module.hero.text-only{min-height:clamp(440px,58vh,620px)}.module.text-only .module-copy{max-width:1000px}
 @media(max-width:760px){.place-list{grid-template-columns:1fr}.module.text-only,.module.hero.text-only{min-height:unset;padding-block:52px}.module,.module.hero,.module[data-variant="editorial-split"],.module[data-variant="gallery-mosaic"],.module[data-variant="plan-selector"],.module[data-variant="step-form"],.module[data-variant="feature-led"],.module[data-variant="image-led"],.module[data-variant="location-led"]{grid-template-columns:1fr;min-height:unset;padding-block:68px}.module figure,.module .media-grid{grid-row:1}.module-copy{grid-row:2}.module[data-variant="full-bleed"]{display:flex;min-height:64svh;padding-block:68px}.module[data-variant="full-bleed"] figure{position:absolute;inset:0;grid-row:auto}.module[data-variant="full-bleed"] .module-copy{grid-row:auto}figure img{max-height:360px}.plan-card{grid-template-columns:1fr}.plan-card img{max-height:260px}.top{font-size:11px}}
+/* Distinct text-only editorial layouts for feature and architectural modules. */
+.module-copy.editorial-pair{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(240px,.92fr);column-gap:clamp(24px,5vw,64px);row-gap:12px;align-items:start}
+.module-copy.editorial-pair>.eyebrow,.module-copy.editorial-pair>h2,.module-copy.editorial-pair>.intro{grid-column:1/-1}
+.module[data-variant="feature-led"] .module-copy.editorial-pair>.benefits{grid-column:1;margin:12px 0}
+.module[data-variant="feature-led"] .module-copy.editorial-pair>.benefits .benefit{height:100%;padding:clamp(22px,3vw,36px);background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px}
+.module[data-variant="feature-led"] .module-copy.editorial-pair>.benefits .benefit h3{font-size:clamp(20px,2.5vw,30px);letter-spacing:-.03em}
+.module[data-variant="feature-led"] .module-copy.editorial-pair>.facts{grid-column:2;align-self:stretch;margin:12px 0;padding:clamp(18px,2.5vw,28px);border-top:1px solid var(--accent);background:color-mix(in srgb,var(--panel) 70%,transparent);gap:14px}
+.module[data-variant="architectural"] .module-copy.editorial-pair>.benefits{grid-column:1;margin:12px 0}
+.module[data-variant="architectural"] .module-copy.editorial-pair>.benefits .benefit{padding:18px 0;border-top:2px solid var(--accent)}
+.module[data-variant="architectural"] .module-copy.editorial-pair>.facts{grid-column:2;display:grid;grid-template-columns:1fr;align-self:stretch;list-style:none;padding:0;margin:12px 0;gap:10px}
+.module[data-variant="architectural"] .module-copy.editorial-pair>.facts li{padding:14px 16px;border:1px solid var(--line);background:var(--panel);font-size:14px}
+@media(max-width:760px){.module-copy.editorial-pair{grid-template-columns:minmax(0,1fr)}.module-copy.editorial-pair>.eyebrow,.module-copy.editorial-pair>h2,.module-copy.editorial-pair>.intro,.module-copy.editorial-pair>.benefits,.module-copy.editorial-pair>.facts{grid-column:1}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>

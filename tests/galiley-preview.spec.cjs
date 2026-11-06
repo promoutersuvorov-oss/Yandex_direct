@@ -5,6 +5,7 @@ const url = "http://127.0.0.1:4173/artifacts/galiley-review/preview.html";
 test("Galiley preview renders its own project identity and garden-modern composition", async ({ page }) => {
   const pageErrors = [];
   page.on("pageerror", error => pageErrors.push(error.message));
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(url, { waitUntil: "networkidle" });
 
   await expect(page.locator("body")).toHaveAttribute("data-theme", "garden-modern");
@@ -46,6 +47,15 @@ test("Galiley preview renders its own project identity and garden-modern composi
   expect(heroLayout.headingFont).toContain("Inter");
   expect(heroLayout.backgroundImage).toContain("repeating-linear-gradient");
   expect(heroLayout.paddingTop).toBeLessThan(120);
+
+  // Strategy-selected text-only modules must have distinct two-column layouts
+  // on desktop, not merely different data-variant labels.
+  for (const moduleId of ["lifestyle", "about"]) {
+    const copy = page.locator(`#module-${moduleId} .module-copy.editorial-pair`);
+    await expect(copy).toBeVisible();
+    const columns = await copy.evaluate(node => getComputedStyle(node).gridTemplateColumns);
+    expect(columns.trim().split(/\\s+/)).toHaveLength(2);
+  }
 
   const cta = page.locator("button[data-preview-cta]").first();
   await expect(cta).toBeVisible();
@@ -94,6 +104,11 @@ test("Galiley preview remains usable on a narrow mobile viewport", async ({ page
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto(url, { waitUntil: "networkidle" });
   await expect(page.getByRole("heading", { level: 1, name: "ЖК «Галилей»" })).toBeVisible();
+  for (const moduleId of ["lifestyle", "about"]) {
+    const copy = page.locator(`#module-${moduleId} .module-copy.editorial-pair`);
+    const columns = await copy.evaluate(node => getComputedStyle(node).gridTemplateColumns);
+    expect(columns.trim().split(/\\s+/)).toHaveLength(1);
+  }
 
   const dimensions = await page.evaluate(() => ({
     viewport: document.documentElement.clientWidth,
