@@ -161,6 +161,8 @@ test("normalizes assets and plans without inventing unit records", () => {
   assert.equal(result.knowledge.plans.length, 1);
   assert.equal(result.knowledge.plans[0].assetId, "plan-asset");
   assert.equal(result.knowledge.plans[0].area.unit, "m2");
+  assert.equal(result.knowledge.plans[0].publicUse, "internal_only",
+    "a legacy rightsStatus assertion without rights evidence must not authorize publication");
   assert.deepEqual(result.knowledge.propertyUnits, []);
 });
 
