@@ -177,7 +177,9 @@ const button = (offer, fallback) => offer
 function renderModule(module, index) {
   const advantagesHere = module.moduleId === "hero" ? [] : advantagesFor(module);
   const benefitFactIds = new Set(advantagesHere.flatMap(item => item.supportingFactIds || []));
-  const factsHere = module.moduleId === "faq" ? [] : factsFor(module).filter(fact => !benefitFactIds.has(fact.id));
+  const factsHere = ["faq", "location", "places"].includes(module.moduleId)
+    ? []
+    : factsFor(module).filter(fact => !benefitFactIds.has(fact.id));
   const asset = imageFor(module);
   const moduleAssets = assetsFor(module);
   const offer = offerFor(module);
