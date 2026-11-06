@@ -31,3 +31,16 @@ test("optional editorial sections stay hidden unless selected by the module comp
   assert.match(app,/lifestyleModuleSelected && Array\.isArray\(data\.lifestyleStories\)/);
   assert.match(app,/faqModuleSelected && Array\.isArray\(data\.faqItems\)/);
 });
+
+test("lead dialog exposes offer-configured contact preferences without collecting them by default",async()=>{
+  const html=await readFile(new URL("../landing/runtime/index.html",import.meta.url),"utf8");
+  const app=await readFile(new URL("../landing/runtime/app.js",import.meta.url),"utf8");
+  assert.match(html,/<select name="preferredChannel">/);
+  assert.match(html,/<input name="preferredTime" type="text"/);
+  assert.match(html,/id="preferred-channel-field" hidden/);
+  assert.match(html,/id="preferred-time-field" hidden/);
+  assert.match(app,/requiredFields\.has\("preferredChannel"\)/);
+  assert.match(app,/requiredFields\.has\("preferredTime"\)/);
+  assert.match(app,/preferredChannel: values\.preferredChannel \|\| "phone"/);
+  assert.match(app,/preferredTime: String\(values\.preferredTime\)\.trim\(\)/);
+});
