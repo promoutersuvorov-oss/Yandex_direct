@@ -68,7 +68,7 @@ function buildMarketingStrategy(brief, passport, facts, now) {
   if (!isObject(brief) || brief.approvalStatus !== "approved") {
     throw new Error("LANDING BRIEF must be approved before it can control the public runtime");
   }
-  const errors = validateLandingBriefReferences(brief, passport, { now });
+  const errors = validateLandingBriefReferences(brief, passport, { now, requirePositioningGate: true });
   if (errors.length) throw new Error("LANDING BRIEF is invalid: " + errors.join("; "));
 
   const primaryHook = (brief.hooks || []).find(item => item.id === brief.strategy.primaryHookId);
@@ -162,6 +162,9 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
 
   const facts = publishableFactIds(passport, now);
   assertClaims(marketing, facts);
+  if (options.mode === "production" && !options.brief) {
+    throw new Error("Production mode requires an approved LANDING BRIEF with an approved Positioning Gate");
+  }
   const marketingStrategy = buildMarketingStrategy(options.brief, passport, facts, now);
   const project = {
     id: passport.project.id,
