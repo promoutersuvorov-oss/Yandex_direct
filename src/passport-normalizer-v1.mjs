@@ -62,9 +62,10 @@ function createCollector(warnings) {
       source.accessedAt,
       source.sourceType || ""
     ]);
-    if (sourceIds.has(key)) return sourceIds.get(key);
-    const id = stableId("source", key);
-    const item = {
+    let id = sourceIds.get(key);
+    if (!id) {
+      id = stableId("source", key);
+      const item = {
       id,
       ...(nonEmpty(source.url) ? { url: source.url } : {}),
       title: source.title,
@@ -72,8 +73,9 @@ function createCollector(warnings) {
       accessedAt: source.accessedAt,
       ...(source.publishedAt ? { publishedAt: source.publishedAt } : {})
     };
-    sources.push(item);
-    sourceIds.set(key, id);
+      sources.push(item);
+      sourceIds.set(key, id);
+    }
 
     if (nonEmpty(source.quoteOrEvidence)) {
       const evidenceKey = JSON.stringify([id, source.quoteOrEvidence]);
@@ -408,7 +410,7 @@ export function normalizePassportV1(passport) {
       mode: "walking",
       method: "route",
       sourceIds: [routeSource.sourceId],
-      observedAt: distanceEvidence.checkedAt || routeSource.sourceId,
+      ...(distanceEvidence.checkedAt ? { observedAt: distanceEvidence.checkedAt } : {}),
       ...(distanceEvidence.validUntil ? { validUntil: distanceEvidence.validUntil } : {})
     };
     if (typeof item.distanceMeters === "number") route.distance = { kind: "measurement", value: item.distanceMeters, unit: "m" };
