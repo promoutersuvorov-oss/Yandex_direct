@@ -4,6 +4,8 @@
 
 ## Implemented gates
 
+- Module Registry V1 resolves passport module IDs and exact variants to existing runtime sections or fixed slots. Required includes fail closed when capabilities are missing; conditional modules are skipped with a diagnostic from the registry. Unknown modules, unsupported variants and section collisions are errors.
+
 - Project identity и projectId consistency.
 - Approved marketing copy и обязательные COPY_KEYS.
 - Claim publication: verified, разрешённая publicUse, source/evidence references существуют и связаны, validUntil актуален.
@@ -18,12 +20,14 @@
 
 ## Known intentional differences / constraints
 
+- Module resolution is implemented in `src/landing-module-registry-v1.mjs`. The builder uses its section composition; generation orchestration should also retain `resolveRuntimeModulesV1(...).warnings` for QA reporting. The runtime profile itself does not expose internal diagnostics.
+
 - Builder не принимает Landing Brief и не валидирует его against raw Passport. Для production orchestration обязан передать отдельный `approvedMarketingStrategy`, предварительно проверенный соответствующим валидатором и Claim bridge. До этого production generation закрыт.
 - Address/district читаются только из publishable project claims `project.address` и `project.district`; неподтверждённые значения остаются пустыми. Normalized identity пока не содержит прямых `addressClaimId/districtClaimId` ссылок.
 - POI без walking route не показывается в legacy `infrastructure`, потому что текущий runtime UI ожидает `distanceLabel`. Для показа самого POI без выдуманного расстояния нужен отдельный UI contract.
 - Offer defaults пока сохранены для совместимости runtime, но они не означают готовность CRM/API.
 - Analytics остаётся выключенной.
-- Семантический parity с legacy builder ещё не доказан. Реальный draft 905 сейчас блокируется неизвестными runtime module IDs (например, `hero`/`about`/`gallery`): builder намеренно не угадывает их отображение на UI-секции. Нужна отдельная согласованная Module Registry/adapter mapping. Тесты проверяют, что этот конфликт не скрывается.
+- Семантический parity с legacy builder ещё не доказан. Реальный draft 905 проходит явный mapping для hero/key/about/security/location; conditional gallery и floor-plans пропускаются без assets/inventory; обязательный lifestyle image-led блокирует сборку, пока нет approved media. Это ожидаемый fail-closed результат, а не готовый production landing.
 
 ## Tests
 
