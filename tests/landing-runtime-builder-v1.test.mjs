@@ -319,3 +319,28 @@ test("FAQ draft questions are never published even when their supporting claim i
   x.landingInputs.faqDrafts=[{id:"faq-draft",question:"Черновой вопрос",requiredFactIds:["f1"],publicationStatus:"draft"}];
   assert.throws(()=>buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{}),/approved-faq-answers/);
 });
+
+
+test("approved selection flow is rendered only when the quiz module is selected",()=>{
+  const x=input();
+  x.landingInputs.conversionCatalog.push({
+    id:"quiz-offer",title:"Персональная подборка",type:"apartment_selection",
+    status:"active",consentRequired:true,scenarioId:"personal_selection"
+  });
+  x.landingInputs.selectionFlow={
+    publicEligible:true,title:"Подберём подходящий вариант",resultOfferId:"quiz-offer",
+    questions:[{id:"rooms",label:"Сколько комнат нужно?",options:[{id:"one",label:"Одна"},{id:"two",label:"Две"}]}]
+  };
+  x.landingInputs.strategy.modules.push({
+    moduleId:"quiz",decision:"include",variant:"step-form",order:8
+  });
+  const selected=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{});
+  assert.ok(selected.selectionQuiz);
+  assert.deepEqual(selected.composition,["concept","selection"]);
+
+  const excluded=structuredClone(x);
+  excluded.landingInputs.strategy.modules=excluded.landingInputs.strategy.modules.filter(item=>item.moduleId!=="quiz");
+  const notSelected=buildLandingProfileFromKnowledge(excluded.knowledge,excluded.landingInputs,excluded.refs,marketing,{},{});
+  assert.equal(notSelected.selectionQuiz,null);
+  assert.deepEqual(notSelected.composition,["concept"]);
+});
