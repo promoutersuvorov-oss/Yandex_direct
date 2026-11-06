@@ -28,6 +28,9 @@ function asClaimValue(value) {
   if (Array.isArray(value) && value.every(item => typeof item === "string")) {
     return { kind: "text_list", value: [...value] };
   }
+  if (isObject(value) && typeof value.min === "number" && typeof value.max === "number") {
+    return { kind: "measurement_range", min: value.min, max: value.max, ...(value.unit ? { unit: value.unit } : {}) };
+  }
   if (value === null || value === undefined) return null;
   return null;
 }
@@ -201,6 +204,7 @@ export function normalizePassportV1(passport) {
     city: project.location.city,
     organizationIds: []
   };
+  const organizations = [];
 
   function addEvidencedProjectClaim(field, predicate, path) {
     const entry = project.location?.[field];
@@ -231,8 +235,96 @@ export function normalizePassportV1(passport) {
     normalizedProject[field === "address" ? "addressClaimId" : "districtClaimId"] = claimId;
   }
 
-  addEvidencedProjectClaim("address", "project.address", "$.project.location.address");
-  addEvidencedProjectClaim("district", "project.district", "$.project.location.district");
+  function addProjectClaim(entry, predicate, path, options = {}) {
+    if (!isObject(entry)) return null;
+    if (entry.value === null || entry.value === undefined || entry.status === "missing") {
+      if (entry.status === "missing") warnings.push({
+        code: "PROJECT_VALUE_MISSING",
+        path,
+        message: "Поле явно отмечено как missing; claim со значением не создан."
+      });
+      return null;
+    }
+    const value = asClaimValue(entry.value);
+    if (!value) {
+      warnings.push({
+        code: "UNSUPPORTED_CLAIM_VALUE",
+        path,
+        message: "Значение не соответствует поддерживаемым типам ClaimValue; поле оставлено без нормализации."
+      });
+      return null;
+    }
+    const provenance = collector.addSources(entry.sources || [], `${path}.sources`);
+    const claimId = stableId("claim", `project:${project.id}:${predicate}`);
+    claims.push(makeClaim({
+      id: claimId,
+      subject: projectRef,
+      predicate,
+      value,
+      status: entry.status,
+      publicUse: entry.status === "verified" ? (options.publicUse || "allowed_with_qualification") : "internal_only",
+      sourceIds: provenance.sourceIds,
+      evidenceIds: provenance.evidenceIds,
+      observedAt: entry.lastChecked,
+      validUntil: entry.expiresAt,
+      limitations: [entry.note, options.limitation].filter(nonEmpty)
+    }));
+    if (!provenance.sourceIds.length) {
+      warnings.push({ code: "PROJECT_CLAIM_WITHOUT_SOURCE", path, message: "Значение сохранено как claim без нормализованного источника." });
+    }
+    return claimId;
+  }
+
+  function addRawProjectClaim(value, predicate, path, limitation) {
+    const claimValue = asClaimValue(value);
+    if (!claimValue) return null;
+    const claimId = stableId("claim", `project:${project.id}:${predicate}`);
+    claims.push(makeClaim({
+      id: claimId,
+      subject: projectRef,
+      predicate,
+      value: claimValue,
+      status: "unknown",
+      publicUse: "internal_only",
+      limitations: [limitation]
+    }));
+    warnings.push({ code: "PROJECT_VALUE_WITHOUT_PROVENANCE", path, message: "Значение перенесено только для внутреннего сохранения; нет отдельного источника и статуса подтверждения." });
+    return claimId;
+  }
+
+  function addEvidencedProjectClaim(field, predicate, path) {
+    const claimId = addProjectClaim(project.location?.[field], predicate, path);
+    if (claimId) normalizedProject[field === "address" ? "addressClaimId" : "districtClaimId"] = claimId;
+  }
+
+  const developer = project.developer;
+  if (isObject(developer) && nonEmpty(developer.value)) {
+    const provenance = collector.addSources(developer.sources || [], "$.project.developer.sources");
+    const organizationId = stableId("organization", `${project.id}:${developer.value}`);
+    organizations.push({
+      id: organizationId,
+      name: developer.value,
+      sourceIds: provenance.sourceIds,
+      evidenceIds: provenance.evidenceIds,
+      epistemicStatus: STATUS_MAP[developer.status] || "unknown"
+    });
+    normalizedProject.organizationIds.push(organizationId);
+    addProjectClaim(developer, "project.developer", "$.project.developer");
+  }
+
+  addProjectClaim(project.class, "project.class", "$.project.class");
+  addProjectClaim(project.delivery, "project.delivery", "$.project.delivery");
+  addProjectClaim(project.constructionStatus, "project.construction_status", "$.project.constructionStatus");
+  const inventory = project.inventory || {};
+  addProjectClaim(inventory.apartmentCount, "project.inventory.apartment_count", "$.project.inventory.apartmentCount");
+  addProjectClaim(inventory.priceFrom, "project.inventory.price_from", "$.project.inventory.priceFrom");
+  addProjectClaim(inventory.areaRange, "project.inventory.area_range", "$.project.inventory.areaRange");
+  addProjectClaim(inventory.finishing, "project.inventory.finishing", "$.project.inventory.finishing");
+  if (typeof inventory.layoutsAvailable === "boolean") {
+    addRawProjectClaim(inventory.layoutsAvailable, "project.inventory.layouts_available", "$.project.inventory.layoutsAvailable",
+      "Legacy boolean has no independent source/status; it is internal-only and must not be interpreted as a specific inventory list.");
+  }
+
 
   function addLegacyFact(fact, index) {
     const path = `$.facts[${index}]`;
@@ -422,6 +514,7 @@ export function normalizePassportV1(passport) {
     contractVersion: "0.1",
     source: { schemaVersion: "1.0.0", projectId: project.id },
     project: normalizedProject,
+    organizations,
     claims,
     sources: collector.sources,
     evidence: collector.evidence,
