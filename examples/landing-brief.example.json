@@ -1,0 +1,150 @@
+{
+  "_comment": "Illustrative structure only. Replace every ID and evidence reference with values from the real project passport before use.",
+  "schemaVersion": "1.0.0",
+  "projectId": "sample-residence",
+  "sourcePassportVersion": "1.0.0",
+  "approvalStatus": "draft",
+  "strategy": {
+    "coreIdea": "A calm, considered everyday environment",
+    "primarySegmentId": "young_professionals",
+    "primaryHookId": "walkable_daily_needs",
+    "primaryCtaId": "hero_presentation",
+    "positioning": {
+      "statement": "A residential project for people who value a convenient daily rhythm",
+      "supportingFactIds": [
+        "fact_infrastructure_01"
+      ],
+      "status": "draft"
+    },
+    "secondaryPositioning": []
+  },
+  "segments": [
+    {
+      "id": "young_professionals",
+      "name": "Professionals building an independent household",
+      "need": "A home that supports a convenient daily routine",
+      "jtbd": "Choose a home that balances personal space and everyday convenience",
+      "barriers": [
+        "Unclear fit of available layouts",
+        "Need to compare the project with alternatives"
+      ],
+      "criteria": [
+        "Suitable layout",
+        "Verified nearby infrastructure"
+      ],
+      "objections": [
+        "Need to understand actual travel routes"
+      ],
+      "insightStatus": "hypothesis",
+      "priority": "primary"
+    }
+  ],
+  "hooks": [
+    {
+      "id": "walkable_daily_needs",
+      "segmentIds": [
+        "young_professionals"
+      ],
+      "category": "location",
+      "message": "Everyday destinations within a practical walking route",
+      "supportingFactIds": [
+        "fact_infrastructure_01"
+      ],
+      "hypothesis": "A concrete walking-distance fact may make the location easier to imagine",
+      "riskOfMisinterpretation": "Do not imply that every daily destination is nearby",
+      "channelFormats": [
+        "search_ad",
+        "landing_hero"
+      ],
+      "status": "draft"
+    }
+  ],
+  "offers": [
+    {
+      "id": "project_presentation",
+      "type": "presentation",
+      "title": "Get the project presentation",
+      "value": "Understand the project's concept and key characteristics",
+      "deliverable": "A project presentation prepared by KEY",
+      "readiness": "conditional",
+      "deliveryMethod": "Specialist follow-up",
+      "deliverySla": "Set an operationally confirmed response time",
+      "scenarioId": "presentation_request",
+      "segmentIds": [
+        "young_professionals"
+      ],
+      "requiredFields": [
+        "name",
+        "phone"
+      ],
+      "qualificationQuestionIds": []
+    }
+  ],
+  "funnels": [
+    {
+      "id": "location_to_presentation",
+      "segmentIds": [
+        "young_professionals"
+      ],
+      "hookIds": [
+        "walkable_daily_needs"
+      ],
+      "offerId": "project_presentation",
+      "stages": [
+        {
+          "id": "ad_attention",
+          "name": "Ad attention",
+          "userAction": "Open the landing page"
+        },
+        {
+          "id": "location_interest",
+          "name": "Location interest",
+          "userAction": "Review verified nearby destinations"
+        },
+        {
+          "id": "presentation_request",
+          "name": "Presentation request",
+          "userAction": "Request the presentation"
+        }
+      ],
+      "successEvent": "qualified_presentation_request"
+    }
+  ],
+  "ctas": [
+    {
+      "id": "hero_presentation",
+      "label": "Get the presentation",
+      "moduleId": "hero",
+      "intent": "get_information",
+      "offerId": "project_presentation",
+      "funnelId": "location_to_presentation",
+      "hookId": "walkable_daily_needs",
+      "segmentIds": [
+        "young_professionals"
+      ],
+      "scenarioId": "presentation_request",
+      "placement": "hero_primary"
+    }
+  ],
+  "qualification": {
+    "questions": [],
+    "qualitySignals": [
+      "Relevant purchase criteria are captured during follow-up"
+    ],
+    "disqualificationRules": []
+  },
+  "experiments": [
+    {
+      "id": "location_hook_vs_concept_hook",
+      "hypothesis": "A verified location hook may produce more qualified presentation requests than a generic concept hook",
+      "variantA": "Location-led opening",
+      "variantB": "Concept-led opening",
+      "successMetric": "Cost per qualified lead",
+      "guardrailMetric": "Share of leads meeting target audience criteria",
+      "status": "proposed"
+    }
+  ],
+  "notes": [
+    "This example is not an approved marketing claim or production-ready offer."
+  ]
+}
