@@ -68,7 +68,18 @@
           "required": [
             "statement",
             "supportingFactIds",
-            "status"
+            "status",
+            "audienceSegmentId",
+            "primaryNeed",
+            "productFocus",
+            "primaryTrafficSource",
+            "primaryConverter",
+            "gateStatus",
+            "confidence",
+            "rationale",
+            "evidenceBasis",
+            "validationPlan",
+            "blockingIssues"
           ],
           "properties": {
             "statement": {
@@ -84,6 +95,251 @@
                 "approved",
                 "blocked"
               ]
+            },
+            "audienceSegmentId": {
+              "$ref": "#/$defs/id"
+            },
+            "primaryNeed": {
+              "type": "string",
+              "minLength": 1
+            },
+            "productFocus": {
+              "type": "string",
+              "minLength": 1
+            },
+            "primaryTrafficSource": {
+              "type": "string",
+              "minLength": 1
+            },
+            "primaryConverter": {
+              "type": "string",
+              "minLength": 1
+            },
+            "gateStatus": {
+              "enum": [
+                "hypothesis",
+                "ready_for_review",
+                "approved",
+                "blocked"
+              ]
+            },
+            "confidence": {
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            },
+            "evidenceBasis": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "audience",
+                "need",
+                "product",
+                "traffic",
+                "converter"
+              ],
+              "properties": {
+                "audience": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "finding"
+                  ],
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "fact",
+                        "research_finding",
+                        "expert_hypothesis",
+                        "unknown"
+                      ]
+                    },
+                    "finding": {
+                      "type": "string"
+                    },
+                    "sourceUrl": {
+                      "type": "string"
+                    },
+                    "checkedAt": {
+                      "type": "string"
+                    },
+                    "sampleSize": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "need": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "finding"
+                  ],
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "fact",
+                        "research_finding",
+                        "expert_hypothesis",
+                        "unknown"
+                      ]
+                    },
+                    "finding": {
+                      "type": "string"
+                    },
+                    "sourceUrl": {
+                      "type": "string"
+                    },
+                    "checkedAt": {
+                      "type": "string"
+                    },
+                    "sampleSize": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "product": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "finding"
+                  ],
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "fact",
+                        "research_finding",
+                        "expert_hypothesis",
+                        "unknown"
+                      ]
+                    },
+                    "finding": {
+                      "type": "string"
+                    },
+                    "sourceUrl": {
+                      "type": "string"
+                    },
+                    "checkedAt": {
+                      "type": "string"
+                    },
+                    "sampleSize": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "traffic": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "finding"
+                  ],
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "fact",
+                        "research_finding",
+                        "expert_hypothesis",
+                        "unknown"
+                      ]
+                    },
+                    "finding": {
+                      "type": "string"
+                    },
+                    "sourceUrl": {
+                      "type": "string"
+                    },
+                    "checkedAt": {
+                      "type": "string"
+                    },
+                    "sampleSize": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "converter": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "finding"
+                  ],
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "fact",
+                        "research_finding",
+                        "expert_hypothesis",
+                        "unknown"
+                      ]
+                    },
+                    "finding": {
+                      "type": "string"
+                    },
+                    "sourceUrl": {
+                      "type": "string"
+                    },
+                    "checkedAt": {
+                      "type": "string"
+                    },
+                    "sampleSize": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            },
+            "rationaleByElement": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "audience": {
+                  "type": "string"
+                },
+                "need": {
+                  "type": "string"
+                },
+                "product": {
+                  "type": "string"
+                },
+                "traffic": {
+                  "type": "string"
+                },
+                "converter": {
+                  "type": "string"
+                }
+              }
+            },
+            "validationPlan": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "blockingIssues": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "approvedBy": {
+              "type": "string"
+            },
+            "approvedAt": {
+              "type": "string"
             }
           }
         },
@@ -674,233 +930,6 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
-    },
-    "positioning": {
-      "type": "object",
-      "additionalProperties": false,
-      "description": "Mandatory campaign-level focus. Optional for backward compatibility; new production briefs must provide it and pass the Positioning Gate.",
-      "required": [
-        "audienceSegmentId",
-        "primaryNeed",
-        "productFocus",
-        "primaryTrafficSource",
-        "primaryConverter",
-        "gateStatus",
-        "confidence",
-        "rationale"
-      ],
-      "properties": {
-        "audienceSegmentId": {
-          "$ref": "#/$defs/id"
-        },
-        "primaryNeed": {
-          "type": "string",
-          "minLength": 1
-        },
-        "productFocus": {
-          "type": "string",
-          "minLength": 1
-        },
-        "primaryTrafficSource": {
-          "type": "string",
-          "minLength": 1
-        },
-        "primaryConverter": {
-          "type": "string",
-          "minLength": 1
-        },
-        "gateStatus": {
-          "enum": [
-            "hypothesis",
-            "ready_for_review",
-            "approved",
-            "blocked"
-          ]
-        },
-        "confidence": {
-          "enum": [
-            "low",
-            "medium",
-            "high"
-          ]
-        },
-        "rationale": {
-          "type": "string",
-          "minLength": 1
-        },
-        "evidenceBasis": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "audience": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "type": {
-                  "enum": [
-                    "fact",
-                    "research_finding",
-                    "expert_hypothesis",
-                    "unknown"
-                  ]
-                },
-                "finding": {
-                  "type": "string"
-                },
-                "sourceUrl": {
-                  "type": "string"
-                },
-                "checkedAt": {
-                  "type": "string"
-                },
-                "sampleSize": {
-                  "type": "integer",
-                  "minimum": 0
-                }
-              }
-            },
-            "need": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "type": {
-                  "enum": [
-                    "fact",
-                    "research_finding",
-                    "expert_hypothesis",
-                    "unknown"
-                  ]
-                },
-                "finding": {
-                  "type": "string"
-                },
-                "sourceUrl": {
-                  "type": "string"
-                },
-                "checkedAt": {
-                  "type": "string"
-                },
-                "sampleSize": {
-                  "type": "integer",
-                  "minimum": 0
-                }
-              }
-            },
-            "product": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "type": {
-                  "enum": [
-                    "fact",
-                    "research_finding",
-                    "expert_hypothesis",
-                    "unknown"
-                  ]
-                },
-                "finding": {
-                  "type": "string"
-                },
-                "sourceUrl": {
-                  "type": "string"
-                },
-                "checkedAt": {
-                  "type": "string"
-                }
-              }
-            },
-            "traffic": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "type": {
-                  "enum": [
-                    "fact",
-                    "research_finding",
-                    "expert_hypothesis",
-                    "unknown"
-                  ]
-                },
-                "finding": {
-                  "type": "string"
-                },
-                "sourceUrl": {
-                  "type": "string"
-                },
-                "checkedAt": {
-                  "type": "string"
-                },
-                "sampleSize": {
-                  "type": "integer",
-                  "minimum": 0
-                }
-              }
-            },
-            "converter": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "type": {
-                  "enum": [
-                    "fact",
-                    "research_finding",
-                    "expert_hypothesis",
-                    "unknown"
-                  ]
-                },
-                "finding": {
-                  "type": "string"
-                },
-                "sourceUrl": {
-                  "type": "string"
-                },
-                "checkedAt": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        },
-        "rationaleByElement": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "audience": {
-              "type": "string"
-            },
-            "need": {
-              "type": "string"
-            },
-            "product": {
-              "type": "string"
-            },
-            "traffic": {
-              "type": "string"
-            },
-            "converter": {
-              "type": "string"
-            }
-          }
-        },
-        "validationPlan": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "blockingIssues": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "approvedBy": {
-          "type": "string"
-        },
-        "approvedAt": {
-          "type": "string"
-        }
       }
     }
   },
