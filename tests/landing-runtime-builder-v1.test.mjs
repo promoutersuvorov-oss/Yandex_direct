@@ -163,3 +163,22 @@ test("FAQ answers are composed only from publishable required claims and their s
   blocked.landingInputs.faqDrafts=[{id:"faq-2",question:"Можно ли подтвердить это?",requiredFactIds:["missing"]}];
   assert.throws(()=>buildLandingProfileFromKnowledge(blocked.knowledge,blocked.landingInputs,blocked.refs,marketing,{},{}),/approved-faq-answers/);
 });
+
+test("FAQ safely formats every supported ClaimValue kind without inventing units or wording",()=>{
+  const x=input();
+  x.knowledge.claims=[
+    {...x.knowledge.claims[0],value:{kind:"text",value:"Центральный район"}},
+    {...x.knowledge.claims[0],id:"c2",value:{kind:"number",value:45}},
+    {...x.knowledge.claims[0],id:"c3",value:{kind:"boolean",value:true}},
+    {...x.knowledge.claims[0],id:"c4",value:{kind:"text_list",value:["Терраса","Панорамное остекление"]}}
+  ];
+  x.refs.factIdToClaimId={f1:"c1",f2:"c2",f3:"c3",f4:"c4"};
+  x.knowledge.sources=[{id:"s1",title:"Официальный источник"}];
+  x.knowledge.evidence=[{id:"e1",sourceId:"s1",extract:"Подтверждение"}];
+  x.landingInputs.strategy.modules=[{moduleId:"faq",decision:"include",variant:"faq-accordion",order:8,requiredFactIds:["f1","f2","f3","f4"]}];
+  x.landingInputs.faqDrafts=[{id:"faq-values",question:"Какие значения подтверждены?",requiredFactIds:["f1","f2","f3","f4"]}];
+  const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
+  assert.deepEqual(profile.faqItems[0].answer.map(item=>item.claim),[
+    "Центральный район","45","Да","Терраса, Панорамное остекление"
+  ]);
+});
