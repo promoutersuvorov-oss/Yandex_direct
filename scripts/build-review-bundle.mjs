@@ -336,7 +336,8 @@ const specializedCapabilities = {
   apartments: { status: "implemented", behavior: "Verified apartment-plan cards with plan-specific preview CTA context." },
   "floor-plans": { status: "implemented", behavior: "Verified apartment-plan cards with plan-specific preview CTA context." },
   quiz: { status: "implemented", behavior: "Required finite-choice answers are validated and kept local in review preview." },
-  faq: { status: "implemented", behavior: "Accessible disclosure list; each answer is assembled only from publishable facts explicitly assigned to that question." }
+  faq: { status: "implemented", behavior: "Accessible disclosure list; each answer is assembled only from publishable facts explicitly assigned to that question." },
+  mortgage: { status: "implemented", behavior: "Local annuity-payment estimate using only visitor-entered price, down payment, rate and term; no assumed bank terms or lead delivery." }
 };
 const partialCapability = {
   status: "partial",
