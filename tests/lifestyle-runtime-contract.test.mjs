@@ -15,3 +15,14 @@ test("lifestyle is a dedicated semantic section, not a gallery alias",()=>{
   assert.match(css,/\.lifestyle-section/);
   assert.match(css,/@media\(max-width:720px\)[\s\S]*?\.lifestyle-card\{grid-template-columns:1fr/);
 });
+
+test("FAQ is a dedicated accessible accordion with source-backed content",()=>{
+  assert.match(html,/<section class="faq-section[^"]*" id="faq"/);
+  assert.match(app,/const sectionIds = \[[^\]]*"faq"/);
+  assert.match(app,/data\.faqItems/);
+  assert.match(app,/<details class="faq-item">/);
+  assert.match(app,/item\.answer\.every/);
+  assert.match(app,/esc\(part\.claim\)/);
+  assert.match(app,/esc\(part\.sourceTitle\)/);
+  assert.match(css,/\.faq-item summary:focus-visible/);
+});
