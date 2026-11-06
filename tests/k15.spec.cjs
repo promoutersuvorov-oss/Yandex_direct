@@ -177,6 +177,9 @@ test("failed lead transport never displays a success state", async ({ page }) =>
 test("K15 navigation, gallery, apartment and location controls remain interactive", async ({ page }) => {
   await page.goto(url, { waitUntil: "domcontentloaded" });
 
+  // The burger is intentionally hidden above the 1100px breakpoint.
+  // Exercise it on a real mobile viewport, then restore desktop for the remaining controls.
+  await page.setViewportSize({ width: 390, height: 844 });
   const burger = page.locator("#burger");
   await burger.click();
   await expect(burger).toHaveAttribute("aria-expanded", "true");
@@ -185,6 +188,7 @@ test("K15 navigation, gallery, apartment and location controls remain interactiv
   await expect(burger).toHaveAttribute("aria-expanded", "false");
   await expect(page.locator("#mnav")).toHaveAttribute("aria-hidden", "true");
 
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.locator('#planTabs button[data-p="1"]').click();
   await expect(page.locator("#planTabs button[data-p=\"1\"]")).toHaveClass(/on/);
   await expect(page.locator("#planImg")).toHaveAttribute("data-zoom", /чертёж с площадями/);
