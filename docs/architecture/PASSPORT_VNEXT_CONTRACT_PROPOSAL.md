@@ -218,3 +218,8 @@ epistemicStatus, modality, freshness и publicationPolicy независимы. 
 ## 10. Совместимость с текущим runtime
 
 Текущий builder жёстко проверяет schemaVersion 1.0.0 и напрямую читает legacy-поля facts, advantages, infrastructure, offers, assets, apartmentPlans, contentStrategy и selectionQuiz. Поэтому Passport vNext не может стать прямым входом builder без адаптера. Перед JSON Schema 2.0.0 требуется normalized Project Knowledge contract, legacy adapter 1.0.0 → normalized model и parity tests. Подробный аудит зависимостей и этапов миграции: [PASSPORT_VNEXT_RUNTIME_CONSUMER_AUDIT.md](PASSPORT_VNEXT_RUNTIME_CONSUMER_AUDIT.md).
+
+
+## 11. Нормализованный внутренний контракт
+
+Предлагаемый внутренний формат между Passport Reader и Builder описан отдельно в [NORMALIZED_PROJECT_KNOWLEDGE_CONTRACT.md](NORMALIZED_PROJECT_KNOWLEDGE_CONTRACT.md). Он не является ещё одной публичной схемой паспорта или API. Его задача — изолировать runtime от версий исходного паспорта и обеспечить legacy adapter + parity tests.
