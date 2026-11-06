@@ -16,6 +16,7 @@
 | Production UI | [PRODUCTION_UI_FOUNDATION.md](../product/PRODUCTION_UI_FOUNDATION.md) | Кроссплатформенные инженерные требования и release gates |
 | Passport mapping | [PASSPORT_TO_LANDING_MAPPING.md](PASSPORT_TO_LANDING_MAPPING.md) | Связь паспорта, стратегии, манифеста и runtime; не готовый конвертер |
 | Контракт паспорта ЖК | [project-passport.schema.json](../../schemas/project-passport.schema.json) | Машинно-проверяемая структура фактов и проекта |
+| Контракт маркетинговой стратегии | [landing-brief.schema.json](../../schemas/landing-brief.schema.json) | Машинно-проверяемый LANDING BRIEF между Strategist и Builder: сегменты, позиционирование, hooks, offers, funnels, CTA, qualification и experiments |
 | Исполнительные инструкции | [prompts/](../../prompts/) | Как AI-этапы выполняют свои задачи и передают результат следующему |
 | Эталонная реализация | [K15_landing_edited.html](../../landing/reference/K15_landing_edited.html) | Исходный объект аудита и источник UX-паттернов; не нормативный источник фактов или архитектуры |
 | Индекс | [README.md](../../README.md) | Навигация по проекту и текущий статус |
