@@ -59,6 +59,7 @@ test("selection quiz preserves answers in its own CTA context", async ({ page })
   await expect(page.locator("#dialog-title")).toHaveText("Получить персональную подборку");
   await expect(page.locator("#dialog-context")).toContainText("Для себя или семьи");
   await expect(page.locator("#dialog-context")).toContainText("2");
+  await expect(page.locator("#dialog-context")).toContainText("1–3 месяца");
 });
 
 const productionProfile = {
