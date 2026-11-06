@@ -125,6 +125,17 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     return { id:story.id, title:story.title, description:story.description, sceneLabel:story.sceneLabel || "СЦЕНАРИЙ ЖИЗНИ",
       assetUrl:asset.url, alt:asset.alt || story.title, evidence, status:"approved" };
   }).filter(Boolean);
+  const faqItems = (landingInputs.faqDrafts || []).filter(item =>
+    nonEmpty(item.question) && item.requiredFactIds?.length && item.requiredFactIds.every(legacyFactIsPublic)
+  ).map(item => {
+    const answer = item.requiredFactIds.map(factId => {
+      const claim = claims.get(legacyReferences.factIdToClaimId[factId]);
+      const source = (knowledge.sources || []).find(src => claim?.sourceIds?.includes(src.id) && nonEmpty(src.title));
+      const statement = claimText(claim);
+      return source && nonEmpty(statement) ? { factId, claim:statement, sourceTitle:source.title } : null;
+    });
+    return answer.every(Boolean) ? { id:item.id, question:item.question, answer } : null;
+  }).filter(Boolean);
   const heroMedia = media[0] || null;
   const mapAsset = usableAssets.find(asset => asset.assetKind === "map" && assetIsPublic(asset, now, "location", knowledge.project.id, knowledge));
   const locationMap = mapAsset ? { url: mapAsset.url, alt: mapAsset.alt || (knowledge.project.name + " — карта расположения"),
@@ -187,6 +198,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     capabilities: [
       ...(media.length ? ["approved-project-media"] : []),
       ...(lifestyleStories.length ? ["approved-lifestyle-stories"] : []),
+      ...(faqItems.length ? ["approved-faq-answers"] : []),
       ...(plans.length ? ["current-inventory","rights-cleared-plan-assets"] : []),
       ...(integration.leadWorkflow?.approvalStatus === "approved" && integration.leadWorkflow?.apiContractVersion &&
         integration.leadWorkflow?.deliveryVerification?.status === "passed" && integration.leadWorkflow?.deliveryVerification?.verifiedAt &&
@@ -250,7 +262,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
   const profile = {
     mode: productionReady && options.mode === "production" ? "production" : "demo",
     project, composition,
-    design: { palette, heroLayout, galleryLayout }, marketing: clone(marketing.copy), advantages, media, heroMedia, lifestyleStories,
+    design: { palette, heroLayout, galleryLayout }, marketing: clone(marketing.copy), advantages, media, heroMedia, lifestyleStories, faqItems,
     locationMap, plans, infrastructure, offers,
     integration: productionReady && options.mode === "production" ?
       { leadEndpoint:endpoint, privacyPolicyUrl, privacyPolicyVersion } :
