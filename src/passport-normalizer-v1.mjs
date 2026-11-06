@@ -191,6 +191,7 @@ export function normalizePassportV1(passport) {
 
   const collector = createCollector(warnings);
   const claims = [];
+  const factIdToClaimId = {};
   const plans = [];
   const assets = [];
   const pointsOfInterest = [];
@@ -298,6 +299,7 @@ export function normalizePassportV1(passport) {
     }
     const provenance = collector.addSources(fact.sources || [], `${path}.sources`);
     const claimId = stableId("claim", `fact:${fact.id}`);
+    factIdToClaimId[fact.id] = claimId;
     claims.push(makeClaim({
       id: claimId,
       subject: projectRef,
@@ -599,5 +601,5 @@ export function normalizePassportV1(passport) {
     });
   }
 
-  return { knowledge, warnings, errors };
+  return { knowledge, legacyReferences: { factIdToClaimId }, warnings, errors };
 }
