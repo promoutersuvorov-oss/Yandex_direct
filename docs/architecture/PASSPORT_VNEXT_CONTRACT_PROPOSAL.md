@@ -223,3 +223,8 @@ epistemicStatus, modality, freshness и publicationPolicy независимы. 
 ## 11. Нормализованный внутренний контракт
 
 Предлагаемый внутренний формат между Passport Reader и Builder описан отдельно в [NORMALIZED_PROJECT_KNOWLEDGE_CONTRACT.md](NORMALIZED_PROJECT_KNOWLEDGE_CONTRACT.md). Он не является ещё одной публичной схемой паспорта или API. Его задача — изолировать runtime от версий исходного паспорта и обеспечить legacy adapter + parity tests.
+
+
+## 12. Реализационный mapping и минимальный контракт
+
+Минимальный normalized contract, точная таблица Passport 1.0.0 → NPK, migration warnings и этапы parity migration описаны в [PASSPORT_V1_TO_NORMALIZED_MAPPING.md](PASSPORT_V1_TO_NORMALIZED_MAPPING.md). Этот документ уточняет proposal и не меняет production schema 1.0.0.
