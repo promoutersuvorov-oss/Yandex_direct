@@ -149,6 +149,7 @@ test("distinguishes walking routes from straight-line distance and unsupported m
   assert.equal(poiListed.value.value, true);
   const straightLine = result.knowledge.claims.find(item => item.predicate === "poi.straight_line_distance");
   assert.equal(straightLine.value.unit, "m");
+  assert.equal(straightLine.modality, "measured");
   assert.ok(result.warnings.some(item => item.code === "ROUTE_EVIDENCE_MISSING"));
 });
 
