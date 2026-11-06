@@ -336,7 +336,7 @@ Release gate разделяет source-checked, browser-checked, device-checked,
 
 ## POSITIONING GATE — ЖЁСТКОЕ УСЛОВИЕ ДОПУСКА
 
-До генерации проверь `positioning.gateStatus` в LANDING BRIEF.
+До генерации проверь `strategy.positioning.gateStatus` в LANDING BRIEF.
 
 - Только `approved`: разрешена финальная сборка лендинга для последующего QA.
 - `hypothesis`: разрешён только явно маркированный стратегический/исследовательский прототип; запрещено называть его готовым к публикации или рекламе.
