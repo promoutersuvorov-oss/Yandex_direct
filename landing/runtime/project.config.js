@@ -3,7 +3,7 @@ window.KEY_PROJECT = {
   mode: "demo",
   project: { id: "demo-project", name: "Название жилого комплекса", city: "Ваш город", district: "", address: "" },
   composition: ["concept", "advantages", "visual-story", "location", "apartments", "calculator", "selection"],
-  design: { palette: { paper: "#f4f2ed", paperDeep: "#e9e6de", ink: "#252823", forest: "#28362f", sage: "#aeb8a7", accent: "#b7a98f" } },
+  design: { heroLayout: "split", palette: { paper: "#f4f2ed", paperDeep: "#e9e6de", ink: "#252823", forest: "#28362f", sage: "#aeb8a7", accent: "#b7a98f" } },
   marketing: {
     heroKicker: "НЕ ПРОСТО ПЛАНИРОВКА — СЦЕНАРИЙ ЖИЗНИ",
     headline: "Выбирайте дом, который подходит вашему ритму",
