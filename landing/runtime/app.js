@@ -137,7 +137,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
     button.textContent = cta.label + (arrow ? " " : "");
     if (arrow) button.append(arrow);
   }
-  for (const button of $("[data-open-offer]")) {
+  for (const button of $$("[data-open-offer]")) {
     const moduleId = button.closest("section")?.id || (button.closest("header") ? "hero" : "");
     applyStrategyCta(button, data.ctaMap?.[moduleId]);
   }
