@@ -236,6 +236,9 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
     .filter((id,index,all) => all.indexOf(id) === index);
   const strategy = passport.contentStrategy.visualDirection || {};
   const palette = PALETTES[strategy.theme] || PALETTES["warm-editorial"];
+  const allowedHeroLayouts = new Set(["split", "fullscreen", "editorial"]);
+  const requestedHeroLayout = strategy.heroLayout || "split";
+  const heroLayout = allowedHeroLayouts.has(requestedHeroLayout) ? requestedHeroLayout : "split";
   const quiz = passport.selectionQuiz?.status === "approved" && offers.quiz ? {
     title: passport.selectionQuiz.title,
     description: passport.selectionQuiz.description || "",
@@ -254,7 +257,7 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
   return {
     mode: productionReady && options.mode === "production" ? "production" : "demo",
     project, composition: ["concept", ...composition.filter(id => id !== "concept")],
-    design: { palette }, marketing: clone(marketing.copy), advantages, media, heroMedia, plans, infrastructure,
+    design: { palette, heroLayout }, marketing: clone(marketing.copy), advantages, media, heroMedia, plans, infrastructure,
     offers, integration: productionReady && options.mode === "production" ? { leadEndpoint:endpoint, privacyPolicyUrl, privacyPolicyVersion } : { leadEndpoint:"", privacyPolicyUrl:"", privacyPolicyVersion:"" },
     analytics: { enabled:false }, selectionQuiz: quiz,
     ...(marketingStrategy ? { marketingStrategy, ctaMap: marketingStrategy.ctaMap } : {})
