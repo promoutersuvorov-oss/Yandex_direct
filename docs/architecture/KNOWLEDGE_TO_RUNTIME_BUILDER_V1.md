@@ -36,15 +36,22 @@ buildLandingProfileFromKnowledge(knowledge, landingInputs, marketing, integratio
 - Все обязательные COPY_KEYS заполнены.
 
 ### Claim publication gate
-Claim допускается в public projection, только если:
-- `epistemicStatus === verified`;
-- `publicUse === "allowed"`; либо `allowed_with_qualification` только при наличии отдельной утверждённой оговорки в `marketing.claimQualifications` для того же legacy fact ID, который указан в `marketing.claimFactIds` для соответствующего COPY_KEY.
-- Оговорка должна быть непустой строкой и проходить общий approval gate `marketing.approvalStatus === "approved"`.
-- Ограничения claim (`limitations`) должны быть заполнены; qualifier не заменяет source/evidence/актуальность.
-- Builder передаёт оговорки в `profile.marketingQualifications`, а браузерный runtime отображает их отдельным текстом непосредственно рядом с соответствующим маркетинговым полем. Не допускается скрытая оговорка в футере или только в источниках.
-- есть sourceIds и evidenceIds;
-- ссылки на существующие Source/Evidence валидны;
-- срок validUntil не истёк относительно переданного `options.now`.
+Базовый publication gate для любого claim:
+- `epistemicStatus === "verified"`;
+- `publicUse === "allowed"`;
+- есть `sourceIds` и `evidenceIds`;
+- ссылки на существующие Source/Evidence валидны, каждое Evidence относится к одному из Source claim;
+- срок `validUntil` не истёк относительно переданного `options.now`.
+
+Исключение `allowed_with_qualification` действует **только в пределах одного конкретного маркетингового COPY_KEY**:
+- `marketing.approvalStatus === "approved"` и `marketing.projectId` совпадает с проектом;
+- `marketing.claimQualifications[copyKey]` содержит непустой утверждённый текст оговорки для точного legacy fact ID;
+- тот же fact ID присутствует в `marketing.claimFactIds[copyKey]`;
+- fact ID разрешается через явный ID bridge в verified claim с `publicUse === "allowed_with_qualification"`, непустыми `limitations`, валидными Source/Evidence и актуальным `validUntil`;
+- один fact ID не может иметь две конкурирующие оговорки в одном COPY_KEY;
+- builder возвращает qualifier только для соответствующего поля, runtime выводит его безопасным текстом непосредственно рядом с этим полем.
+
+**Оговорка не меняет глобальный статус claim и не создаёт общего права на публикацию.** Тот же claim остаётся закрытым для преимуществ, модулей, FAQ, инфраструктуры, планировок, характеристик проекта, сценариев жизни и любых других контекстов, если для такого контекста нет отдельного явно предусмотренного и проверенного механизма. Глобальные наборы `publishableClaimIds` и `publishableFactIds` включают только claims со статусом `allowed`.
 
 Builder не должен принимать claims по одному только статусу verified. Claim value остаётся типизированным до формирования публичной проекции.
 
