@@ -13,7 +13,56 @@
       "supportingFactIds": [
         "fact_infrastructure_01"
       ],
-      "status": "draft"
+      "status": "draft",
+      "audienceSegmentId": "young_professionals",
+      "primaryNeed": "A more convenient everyday routine",
+      "productFocus": "Selected apartments in the sample residence",
+      "primaryTrafficSource": "Yandex Direct search campaign",
+      "primaryConverter": "Request a project presentation",
+      "gateStatus": "hypothesis",
+      "confidence": "low",
+      "rationale": "Illustrative expert hypothesis only; audience, demand, apartment availability and KEY delivery process require validation.",
+      "evidenceBasis": {
+        "audience": {
+          "type": "expert_hypothesis",
+          "finding": "Illustrative segment assumption; no interviews or CRM evidence supplied."
+        },
+        "need": {
+          "type": "expert_hypothesis",
+          "finding": "Illustrative need assumption; not validated with buyer research."
+        },
+        "product": {
+          "type": "fact",
+          "finding": "The sample passport describes the residential project; selected available lots are not confirmed."
+        },
+        "traffic": {
+          "type": "unknown",
+          "finding": "Search demand and competitive analysis have not been supplied."
+        },
+        "converter": {
+          "type": "unknown",
+          "finding": "Operational readiness and delivery owner for the presentation have not been confirmed."
+        }
+      },
+      "rationaleByElement": {
+        "audience": "Illustrative only.",
+        "need": "Illustrative only.",
+        "product": "Project exists in sample passport; lot fit remains unverified.",
+        "traffic": "Requires search-demand and auction/competitor review.",
+        "converter": "Requires an approved offer and owner."
+      },
+      "validationPlan": [
+        "Interview qualified buyers and review CRM call outcomes.",
+        "Verify available lots, prices and segment fit.",
+        "Review Yandex Direct query demand and competitor messaging.",
+        "Confirm KEY presentation deliverable, owner and delivery SLA."
+      ],
+      "blockingIssues": [
+        "No validated audience research.",
+        "No verified lot-level product fit or availability.",
+        "No validated primary traffic-source evidence.",
+        "No operationally approved KEY presentation offer."
+      ]
     },
     "secondaryPositioning": []
   },
