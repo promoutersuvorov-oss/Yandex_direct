@@ -20,8 +20,13 @@ const PALETTES = Object.freeze({
   "garden-modern": { paper: "#f1f3ed", paperDeep: "#e3e9df", ink: "#263029", forest: "#30483a", sage: "#a9bca8", accent: "#c2b58f" }
 });
 const OFFER_MAP = Object.freeze({
-  presentation: "presentation", apartment_selection: "quiz", mortgage_estimate: "calculator",
-  viewing: "presentation", consultation: "presentation", callback: "presentation", other: "presentation"
+  presentation: "presentation",
+  apartment_selection: "quiz",
+  mortgage_estimate: "calculator",
+  viewing: "viewing",
+  consultation: "consultation",
+  callback: "callback",
+  other: "other"
 });
 const isObject = value => value && typeof value === "object" && !Array.isArray(value);
 const nonEmpty = value => typeof value === "string" && value.trim().length > 0;
@@ -53,7 +58,7 @@ function mapOffer(offer) {
   if (!offer || offer.status !== "active" || offer.consentRequired === false) return null;
   const id = OFFER_MAP[offer.type];
   if (!id) return null;
-  return { id, title: offer.title, scenarioId: offer.scenarioId || offer.id,
+  return { id, offerId: offer.id, type: offer.type, title: offer.title, scenarioId: offer.scenarioId || offer.id,
     description: offer.description || "Специалист KEY поможет разобраться в проекте и ответит на ваши вопросы." };
 }
 
