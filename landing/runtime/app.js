@@ -103,8 +103,24 @@ import { createAttributionState } from "../../src/attribution.mjs";
   const approvedPlans = Array.isArray(data.plans) ? data.plans.filter(p => p && p.status === "verified" && p.publicUse === "allowed" && p.rightsStatus === "approved" && p.id && p.assetId && p.title && Number.isInteger(p.rooms) && Number.isFinite(p.areaSqm) && Array.isArray(p.sources) && p.sources.length > 0 && p.assetUrl && safeUrl(p.assetUrl)) : [];
   if (approvedPlans.length) {
     planGrid.innerHTML = approvedPlans.map(plan =>
-      '<article class="plan-card"><img src="' + esc(safeUrl(plan.assetUrl)) + '" alt="' + esc(plan.title) + '" loading="lazy"><div class="plan-card-copy"><span class="eyebrow">ПЛАНИРОВКА</span><h3>' + esc(plan.title) + '</h3><p>' + esc([plan.rooms === 0 ? "Студия" : plan.rooms ? plan.rooms + " комнаты" : "", plan.areaSqm + " м²", plan.floor ? plan.floor + " этаж" : ""].filter(Boolean).join(" · ")) + '</p><button class="button button-outline" type="button" data-open-offer="plan" data-plan-id="' + esc(plan.id) + '">Обсудить планировку <span>↗</span></button></div></article>').join("");
+      '<article class="plan-card"><button class="plan-preview-trigger" type="button" data-preview-plan-id="' + esc(plan.id) + '" aria-label="Рассмотреть планировку: ' + esc(plan.title) + '"><img src="' + esc(safeUrl(plan.assetUrl)) + '" alt="' + esc(plan.title) + '" loading="lazy"><span>Рассмотреть планировку ↗</span></button><div class="plan-card-copy"><span class="eyebrow">ПЛАНИРОВКА</span><h3>' + esc(plan.title) + '</h3><p>' + esc([plan.rooms === 0 ? "Студия" : plan.rooms ? plan.rooms + " комнаты" : "", plan.areaSqm + " м²", plan.floor ? plan.floor + " этаж" : ""].filter(Boolean).join(" · ")) + '</p><button class="button button-outline" type="button" data-open-offer="plan" data-plan-id="' + esc(plan.id) + '">Обсудить планировку <span>↗</span></button></div></article>').join("");
   }
+  const planPreviewDialog = $("#plan-preview-dialog");
+  const planPreviewCta = $("#plan-preview-cta");
+  $(".plan-preview-trigger").forEach(button => button.addEventListener("click", () => {
+    const plan = approvedPlans.find(item => item.id === button.dataset.previewPlanId);
+    if (!plan) return;
+    $("#plan-preview-image").src = safeUrl(plan.assetUrl);
+    $("#plan-preview-image").alt = plan.title + " — увеличенный просмотр";
+    text("#plan-preview-title", plan.title);
+    text("#plan-preview-meta", [plan.rooms === 0 ? "Студия" : plan.rooms + " комнаты", plan.areaSqm + " м²", plan.floor ? plan.floor + " этаж" : ""].filter(Boolean).join(" · "));
+    const finishing = $("#plan-preview-finishing");
+    finishing.hidden = !plan.finishing;
+    finishing.textContent = plan.finishing ? "Отделка: " + plan.finishing : "";
+    planPreviewCta.dataset.planId = plan.id;
+    planPreviewDialog.showModal();
+  }));
+  planPreviewCta.addEventListener("click", () => planPreviewDialog.close());
 
   const locationList = $("#location-list");
   const places = Array.isArray(data.infrastructure) ? data.infrastructure.filter(p => p && p.status === "verified" && p.name && p.distanceLabel) : [];
