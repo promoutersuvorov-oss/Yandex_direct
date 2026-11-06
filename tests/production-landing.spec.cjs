@@ -169,3 +169,33 @@ test("a webhook rejection never becomes a false success state", async ({ page })
   await expect(page.locator("#form-status")).not.toContainText("Запрос принят");
   await expect(page.locator("#lead-submit")).toBeVisible();
 });
+
+test("lead payload keeps the passport offer ID instead of the runtime CTA alias", async ({ page }) => {
+  let received;
+  const profile = structuredClone(productionProfile);
+  profile.offers.presentation.offerId = "passport-presentation-v3";
+  await page.route("**/project.config.js", route => route.fulfill({
+    contentType: "application/javascript",
+    body: "window.KEY_PROJECT = " + JSON.stringify(profile) + ";"
+  }));
+  await page.route("https://hooks.example/**", async route => {
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" } });
+      return;
+    }
+    received = route.request().postDataJSON();
+    await route.fulfill({ status: 202, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" }, body: JSON.stringify({ accepted: true }) });
+  });
+  await page.goto(url);
+  await page.locator(".hero [data-open-offer='presentation']").click();
+  await page.locator('#lead-form input[name="name"]').fill("Тест");
+  await page.locator('#lead-form input[name="phone"]').fill("+7 999 123-45-67");
+  await page.locator('#lead-form input[name="consent"]').check();
+  await page.locator("#lead-submit").click();
+  await expect(page.locator("#form-status")).toContainText("Запрос принят");
+  expect(received.conversion).toMatchObject({
+    scenarioId: "presentation_request",
+    offerId: "passport-presentation-v3",
+    moduleId: "hero"
+  });
+});
