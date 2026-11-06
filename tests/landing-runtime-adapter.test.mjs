@@ -175,6 +175,7 @@ test("approved LANDING BRIEF drives public strategy and a contextual CTA map", (
   assert.equal(profile.marketingStrategy.primaryHook.message, "Закрытая территория");
   assert.equal(profile.marketingStrategy.positioning, "Проект с подтверждённой закрытой территорией");
   assert.deepEqual(profile.ctaMap.hero, {
+    moduleId: "hero",
     ctaId: "hero_presentation",
     label: "Получить презентацию",
     intent: "get_information",
