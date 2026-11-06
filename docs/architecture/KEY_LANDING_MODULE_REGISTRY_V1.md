@@ -29,8 +29,12 @@ Registry обязан фиксировать:
 | location | location-led | location | Не разрешает выводить неподтверждённые маршруты |
 | floor-plans | plan-selector | apartments | Conditional: актуальный inventory и rights-cleared plan assets |
 | mortgage | conversion-led | calculator | Требуются подтверждённые mortgage terms; generic user-input estimate не подменяет банковские условия |
-| faq | faq-accordion | unsupported | В текущем runtime нет структурированного FAQ |
+| faq | faq-accordion | faq | Только вопросы с ответами из publishable claims и source evidence |
 | contacts | conversion-led | fixed closing slot | Conditional: утверждённый реальный lead workflow |
+
+## FAQ component
+
+FAQ — самостоятельный accordion-компонент. Паспорт задаёт вопрос и `requiredFactIds`; свободный текст ответа не принимается. Builder публикует вопрос только когда все обязательные legacy fact IDs разрешаются в publishable Claims, а для каждого Claim найден источник с названием. Ответ состоит из точных значений Claims с указанием источников. `faq` требует capability `approved-faq-answers`; обязательный модуль без пригодных ответов блокирует сборку, conditional пропускается с warning.
 
 ## Lifestyle component
 
