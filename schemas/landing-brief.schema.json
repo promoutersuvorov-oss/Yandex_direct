@@ -188,6 +188,105 @@
               "experimental",
               "excluded"
             ]
+          },
+          "lifeContext": {
+            "type": "string",
+            "description": "Контекст жизненной ситуации сегмента; гипотеза, если не подтверждена исследованием."
+          },
+          "desiredOutcomes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Желаемые изменения в жизни/результаты, которые человек ищет через покупку."
+          },
+          "motivations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Рациональные и эмоциональные мотивы выбора."
+          },
+          "fears": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Страхи и риски, мешающие двигаться к обращению или покупке."
+          },
+          "expectations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Ожидания от объекта, района, процесса покупки и сопровождения."
+          },
+          "proofNeeds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Какие факты, документы, визуальные подтверждения или объяснения нужны для снятия сомнений."
+          },
+          "decisionTriggers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "События/условия, при которых сегмент может быть готов к следующему шагу."
+          },
+          "evidenceBasis": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "finding"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "customer_interview",
+                    "crm_data",
+                    "behavioral_data",
+                    "survey",
+                    "market_research",
+                    "public_research",
+                    "expert_hypothesis",
+                    "other"
+                  ]
+                },
+                "finding": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sourceUrl": {
+                  "type": "string"
+                },
+                "checkedAt": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "sampleSize": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "description": "Основание инсайта. Не указывать персональные данные респондентов."
+          },
+          "confidence": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "description": "Уверенность в гипотезах сегмента; не заменяет insightStatus."
+          },
+          "confidenceRationale": {
+            "type": "string",
+            "description": "Почему присвоен такой уровень уверенности и какие ограничения есть."
           }
         }
       }
