@@ -81,7 +81,6 @@ export function validateLandingBriefReferences(brief, passport, options = {}) {
       if (moduleIds.has(cta.moduleId)) errors.push(`Multiple CTAs target module ${cta.moduleId}; keep one primary action per module`);
       moduleIds.add(cta.moduleId);
     }
-    if (offer && offer.readiness !== "ready") errors.push(`CTA ${cta.id} uses an offer that is not ready`);
   }
 
   const strategy = brief.strategy || {};
