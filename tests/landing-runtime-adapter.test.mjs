@@ -125,7 +125,7 @@ const landingBrief = () => ({
     primaryHookId: "walkable_daily_needs",
     primaryCtaId: "hero_presentation",
     positioning: {
-      statement: "Проект с подтверждённой повседневной инфраструктурой",
+      statement: "Проект с подтверждённой закрытой территорией",
       supportingFactIds: ["f-ok"],
       status: "approved"
     }
