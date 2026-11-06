@@ -151,14 +151,17 @@ test("advantages show the feature, buyer benefit and real source separately", as
       id: "verified-advantage", title: "Закрытая территория",
       benefit: "Больше приватности в повседневной жизни.",
       strength: "core", status: "verified",
-      evidence: ["Официальная страница проекта", "Проектная документация"],
+      evidence: [
+        { claim: "Закрытая территория предусмотрена проектом", sourceTitle: "Официальная страница проекта" },
+        { claim: "Параметр подтверждён", sourceTitle: "Проектная документация" }
+      ],
       hook: "Рекламная формулировка не должна выдаваться за доказательство."
     },
     {
       id: "unverified-advantage", title: "Неподтверждённое обещание",
       benefit: "Не должно отображаться.",
       strength: "strong", status: "provisional",
-      evidence: ["Черновой источник"]
+      evidence: [{ claim: "Гипотеза", sourceTitle: "Черновой источник" }]
     },
     {
       id: "missing-evidence", title: "Без источника",
@@ -176,7 +179,7 @@ test("advantages show the feature, buyer benefit and real source separately", as
   await expect(cards.first().locator("h3")).toHaveText("Закрытая территория");
   await expect(cards.first().locator("p")).toHaveText("Больше приватности в повседневной жизни.");
   await expect(cards.first().locator(".advantage-evidence-label")).toHaveText("Фактическое основание");
-  await expect(cards.first().locator(".advantage-evidence-value")).toContainText("Официальная страница проекта");
+  await expect(cards.first().locator(".advantage-evidence-value")).toContainText("Закрытая территория предусмотрена проектом — Официальная страница проекта");
   await expect(cards.first()).not.toContainText("Рекламная формулировка не должна выдаваться за доказательство.");
   await expect(page.locator("#advantages")).toBeVisible();
   for (const width of [600, 390, 360]) {
