@@ -604,7 +604,8 @@ test("production runtime follows the selected module order instead of the static
   const order = await page.locator("main > section:not(.closing-section)").evaluateAll(nodes =>
     nodes.filter(node => !node.hidden).map(node => node.id)
   );
-  expect(order).toEqual(["location", "concept"]);
+  // Hero is a mandatory first section; strategy controls the order of the remaining sections.
+  expect(order).toEqual(["hero", "location", "concept"]);
   await expect(page.locator("#advantages")).toBeHidden();
   await expect(page.locator("#calculator")).toBeHidden();
 });
