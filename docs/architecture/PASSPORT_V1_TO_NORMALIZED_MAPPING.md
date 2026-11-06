@@ -139,7 +139,7 @@ Source описывает публикацию/документ. Evidence ука
     Asset {
       id: string,
       assetKind: "photo" | "render" | "video" | "plan" | "document" | "map" | "logo" | "other",
-      url: string,
+      url?: string,
       alt?: string,
       subjectRefs: EntityRef[],
       projectMatch: "confirmed" | "unconfirmed",
