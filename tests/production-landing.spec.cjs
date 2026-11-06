@@ -609,3 +609,68 @@ test("production runtime follows the selected module order instead of the static
   await expect(page.locator("#advantages")).toBeHidden();
   await expect(page.locator("#calculator")).toBeHidden();
 });
+
+
+test("project art direction changes the actual hero and gallery layout in the primary runtime", async ({ page }) => {
+  let activeProfile = structuredClone(productionProfile);
+  activeProfile.media = Array.from({ length: 5 }, (_, index) => ({
+    url: `https://assets.example/gallery-${index + 1}.webp`,
+    alt: `Подтверждённый материал ${index + 1}`,
+    caption: `Материал ${index + 1}`,
+    type: "render",
+    status: "approved",
+    rightsStatus: "approved"
+  }));
+  activeProfile.heroMedia = {
+    url: "https://assets.example/hero.webp",
+    alt: "Подтверждённая визуализация",
+    status: "approved",
+    rightsStatus: "approved"
+  };
+  await page.route("**/project.config.js", route => route.fulfill({
+    contentType: "application/javascript",
+    body: "window.KEY_PROJECT = " + JSON.stringify(activeProfile) + ";"
+  }));
+  await page.route("https://assets.example/**", route => route.fulfill({
+    status: 200, contentType: "image/webp", body: Buffer.from("fixture")
+  }));
+
+  const variants = [
+    { hero: "split", gallery: "mosaic", columns: 3, heroPosition: "relative" },
+    { hero: "editorial", gallery: "editorial", columns: 2, heroPosition: "relative" },
+    { hero: "fullscreen", gallery: "strip", columns: 5, heroPosition: "absolute" }
+  ];
+  const observedGalleryColumns = [];
+  for (const variant of variants) {
+    activeProfile.design = {
+      palette: { paper: "#f4f2ed", paperDeep: "#e9e6de", ink: "#252823", forest: "#28362f", sage: "#aeb8a7", accent: "#b7a98f" },
+      heroLayout: variant.hero,
+      galleryLayout: variant.gallery
+    };
+    await page.goto(url);
+    await expect(page.locator("#hero")).toHaveAttribute("data-layout", variant.hero);
+    await expect(page.locator("#visual-grid")).toHaveAttribute("data-layout", variant.gallery);
+    await expect(page.locator("#hero-media")).toBeVisible();
+    await expect(page.locator("#visual-grid .media-tile")).toHaveCount(5);
+    const desktop = await page.evaluate(() => ({
+      heroPosition: getComputedStyle(document.querySelector(".hero-art")).position,
+      galleryColumns: getComputedStyle(document.querySelector("#visual-grid")).gridTemplateColumns.split(" ").length
+    }));
+    expect(desktop.heroPosition).toBe(variant.heroPosition);
+    expect(desktop.galleryColumns).toBe(variant.columns);
+    observedGalleryColumns.push(desktop.galleryColumns);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    const mobile = await page.evaluate(() => ({
+      viewport: document.documentElement.clientWidth,
+      document: document.documentElement.scrollWidth,
+      gallery: document.querySelector("#visual-grid").scrollWidth,
+      heroPosition: getComputedStyle(document.querySelector(".hero-art")).position
+    }));
+    expect(mobile.document).toBeLessThanOrEqual(mobile.viewport + 1);
+    expect(mobile.heroPosition).toBe(variant.heroPosition);
+    if (variant.gallery === "strip") expect(mobile.gallery).toBeGreaterThan(mobile.viewport);
+    await page.setViewportSize({ width: 1440, height: 900 });
+  }
+  expect(new Set(observedGalleryColumns).size).toBe(3);
+});
