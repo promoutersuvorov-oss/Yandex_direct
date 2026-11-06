@@ -126,6 +126,7 @@ export function normalizeLandingInputsV1(passport) {
     id: item.id,
     question: item.question,
     requiredFactIds: copyStringList(item.requiredFactIds),
+    publicationStatus: item.publicationStatus === "approved" ? "approved" : "draft",
     answerStatus: "not_generated"
   })) : [];
 
