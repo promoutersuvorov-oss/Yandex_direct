@@ -1,14 +1,11 @@
+import { resolveRuntimeModulesV1 } from "./landing-module-registry-v1.mjs";
+
 const COPY_KEYS = [
   "heroKicker", "headline", "lead", "conceptTitle", "conceptCopy",
   "advantagesTitle", "advantagesIntro", "visualTitle", "visualCopy",
   "apartmentsTitle", "apartmentsIntro", "locationTitle", "locationCopy",
   "closingTitle", "closingCopy"
 ];
-const MODULE_MAP = Object.freeze({
-  concept: "concept", advantages: "advantages", "visual-story": "visual-story",
-  "floor-plans": "apartments", apartments: "apartments", location: "location",
-  calculator: "calculator", mortgage: "calculator", selection: "selection", quiz: "selection"
-});
 const PALETTES = Object.freeze({
   "urban-noir": { paper: "#f0efec", paperDeep: "#e2e0db", ink: "#202326", forest: "#252d33", sage: "#a9afb0", accent: "#b7a58e" },
   "warm-editorial": { paper: "#f4f2ed", paperDeep: "#e9e6de", ink: "#252823", forest: "#28362f", sage: "#aeb8a7", accent: "#b7a98f" },
@@ -32,13 +29,14 @@ function claimIsPublic(claim, knowledge, now) {
   return claim.sourceIds.every(id => sources.has(id)) &&
     claim.evidenceIds.every(id => evidence.has(id) && claim.sourceIds.includes(evidence.get(id).sourceId));
 }
-function assetIsPublic(asset, now, context, projectId) {
+function assetIsPublic(asset, now, context, projectId, knowledge) {
   return Boolean(asset && asset.publicationStatus === "approved" &&
     asset.projectMatch === "confirmed" && asset.rightsStatus === "confirmed" &&
     asset.rightsEvidenceIds?.length && nonEmpty(asset.url) &&
     /^https:\/\//i.test(asset.url) && isFuture(asset.validUntil, now) &&
+    asset.rightsEvidenceIds.every(id => (knowledge.evidence || []).some(item => item.id === id)) &&
     asset.subjectRefs?.some(ref => ref.type === "project" && ref.id === projectId) &&
-    (!context || !asset.allowedContexts?.length || asset.allowedContexts.includes(context)));
+    (!context || asset.allowedContexts?.includes(context)));
 }
 function mapOffer(offer) {
   if (!offer || offer.status !== "active" || offer.consentRequired === false) return null;
@@ -104,14 +102,14 @@ export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legac
   }).filter(item => item.evidence.length > 0);
 
   const usableAssets = (knowledge.assets || []).filter(asset =>
-    assetIsPublic(asset, now, null, knowledge.project.id) && ["render", "photo", "map", "plan"].includes(asset.assetKind));
+    assetIsPublic(asset, now, null, knowledge.project.id, knowledge) && ["render", "photo", "map", "plan"].includes(asset.assetKind));
   const media = usableAssets.filter(asset => ["render", "photo"].includes(asset.assetKind)).map(asset => ({
     url: asset.url, alt: asset.alt || knowledge.project.name,
     caption: asset.assetKind === "render" ? "Визуализация" : "Фотография",
     type: asset.assetKind, status: "approved", rightsStatus: "approved"
   }));
   const heroMedia = media[0] || null;
-  const mapAsset = usableAssets.find(asset => asset.assetKind === "map" && assetIsPublic(asset, now, "location", knowledge.project.id));
+  const mapAsset = usableAssets.find(asset => asset.assetKind === "map" && assetIsPublic(asset, now, "location", knowledge.project.id, knowledge));
   const locationMap = mapAsset ? { url: mapAsset.url, alt: mapAsset.alt || (knowledge.project.name + " — карта расположения"),
     status: "approved", rightsStatus: "approved" } : null;
 
@@ -119,6 +117,10 @@ export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legac
   const plans = (knowledge.plans || []).filter(plan =>
     plan.planKind === "apartment_floor_plan" && plan.epistemicStatus === "verified" &&
     plan.publicUse === "allowed" && plan.sourceIds?.length && plan.evidenceIds?.length &&
+    plan.sourceIds.every(id => (knowledge.sources || []).some(src => src.id === id)) &&
+    plan.evidenceIds.every(id => (knowledge.evidence || []).some(ev => ev.id === id && plan.sourceIds.includes(ev.sourceId))) &&
+    Number.isInteger(plan.rooms) && Number.isFinite(plan.area?.value) && plan.area.value > 0 && plan.area.unit === "m2" &&
+    (!plan.finishingClaimId || publishableClaimIds.has(plan.finishingClaimId)) &&
     isFuture(plan.validUntil, now) && assetsById.has(plan.assetId)
   ).map(plan => {
     const asset = assetsById.get(plan.assetId);
@@ -128,25 +130,26 @@ export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legac
       assetUrl: asset.url, sources: plan.sourceIds, status: "verified", publicUse: "allowed", rightsStatus: "approved" };
   });
 
+  const findWalkingRoute = poiId => (knowledge.routes || []).find(item =>
+    item.destinationPoiId === poiId && item.method === "route" && item.mode === "walking" &&
+    isFuture(item.validUntil, now) && item.sourceIds?.length &&
+    item.sourceIds.every(id => (knowledge.sources || []).some(src => src.id === id)) &&
+    Number.isFinite(Date.parse(item.observedAt)) &&
+    (Number.isFinite(item.durationSeconds) || (Number.isFinite(item.distance?.value) && ["m","km"].includes(item.distance.unit)))
+  );
   const infrastructure = (knowledge.pointsOfInterest || []).filter(poi => {
     const existence = (poi.claimIds || []).map(id => claims.get(id)).find(claim =>
       claim?.predicate === "poi.listed_by_source" && claimIsPublic(claim, knowledge, now));
-    if (!existence) return false;
-    const route = (knowledge.routes || []).find(item => item.destinationPoiId === poi.id &&
-      item.method === "route" && item.mode === "walking" && isFuture(item.validUntil, now) &&
-      item.sourceIds?.length && item.observedAt);
-    if (!route) return false;
-    return true;
+    return Boolean(existence && findWalkingRoute(poi.id));
   }).map(poi => {
-    const route = (knowledge.routes || []).find(item => item.destinationPoiId === poi.id &&
-      item.method === "route" && item.mode === "walking" && isFuture(item.validUntil, now) &&
-      item.sourceIds?.length && item.sourceIds.every(id => (knowledge.sources || []).some(src => src.id === id)) &&
-      Number.isFinite(Date.parse(item.observedAt)));
-    const distance = route?.distance?.value;
-    const distanceLabel = typeof route?.durationSeconds === "number" ? `${Math.round(route.durationSeconds / 60)} мин. пешком` :
-      typeof distance === "number" ? (distance >= 1000 ? `${(distance / 1000).toLocaleString("ru-RU")} км` : `${Math.round(distance)} м`) : "";
+    const route = findWalkingRoute(poi.id);
+    const distance = route?.distance;
+    const distanceLabel = Number.isFinite(route?.durationSeconds) ?
+      `${Math.round(route.durationSeconds / 60)} мин. пешком` :
+      distance.unit === "km" ? `${distance.value.toLocaleString("ru-RU")} км` :
+      distance.value >= 1000 ? `${(distance.value / 1000).toLocaleString("ru-RU")} км` : `${Math.round(distance.value)} м`;
     return { name: poi.name, distanceLabel, status: "verified" };
-  }).filter(item => item.distanceLabel);
+  });
 
   const offers = {};
   for (const offer of landingInputs.conversionCatalog || []) {
@@ -161,15 +164,23 @@ export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legac
   };
   Object.assign(offers, Object.fromEntries(Object.entries(defaults).filter(([key]) => !offers[key])));
 
-  const decisions = landingInputs.strategy?.modules || [];
-  const eligible = decisions.filter(item => ["include", "conditional"].includes(item.decision) &&
-    (item.requiredFactIds || []).every(legacyFactIsPublic));
-  for (const module of eligible) if (!MODULE_MAP[module.moduleId]) {
-    throw new Error(`Selected module "${module.moduleId}" has no runtime implementation; refusing to omit it silently`);
+  const moduleResolution = resolveRuntimeModulesV1(landingInputs.strategy?.modules || [], {
+    publishableFactIds: Object.entries(legacyReferences.factIdToClaimId)
+      .filter(([,claimId]) => publishableClaimIds.has(claimId)).map(([factId]) => factId),
+    capabilities: [
+      ...(media.length ? ["approved-project-media"] : []),
+      ...(plans.length ? ["current-inventory","rights-cleared-plan-assets"] : []),
+      ...(integration.leadWorkflow?.approvalStatus === "approved" && integration.leadEndpoint &&
+        integration.privacyPolicyUrl && integration.privacyPolicyVersion ? ["approved-key-lead-workflow"] : []),
+      ...(integration.mortgageTerms?.approvalStatus === "approved" && integration.mortgageTerms?.evidenceIds?.length ?
+        ["verified-mortgage-terms"] : [])
+    ]
+  });
+  if (moduleResolution.errors.length) {
+    throw new Error("Landing module registry rejected the selected strategy: " +
+      moduleResolution.errors.map(item => item.message).join(" | "));
   }
-  const composition = eligible.map(item => ({ id: MODULE_MAP[item.moduleId], order: item.order ?? 999 }))
-    .sort((a,b) => a.order - b.order).map(item => item.id)
-    .filter((id,index,all) => all.indexOf(id) === index);
+  const composition = moduleResolution.composition;
 
   const designInput = landingInputs.design || {};
   const palette = PALETTES[designInput.theme] || PALETTES["warm-editorial"];
@@ -192,7 +203,7 @@ export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legac
   if (options.mode === "production" && !productionReady) throw new Error("Production mode requires HTTPS webhook, HTTPS privacy URL and policy version");
   return {
     mode: productionReady && options.mode === "production" ? "production" : "demo",
-    project, composition: ["concept", ...composition.filter(id => id !== "concept")],
+    project, composition,
     design: { palette, heroLayout, galleryLayout }, marketing: clone(marketing.copy), advantages, media, heroMedia,
     locationMap, plans, infrastructure, offers,
     integration: productionReady && options.mode === "production" ?
