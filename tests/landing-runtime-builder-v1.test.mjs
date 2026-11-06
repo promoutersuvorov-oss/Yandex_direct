@@ -103,3 +103,11 @@ test("required included module fails when its exact runtime variant or capabilit
   x.landingInputs.strategy.modules=[{moduleId:"lifestyle",decision:"include",variant:"image-led",order:1}];
   assert.throws(()=>buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{}),/approved-project-media/);
 });
+
+test("registered hero variant overrides descriptive layout input deterministically",()=>{
+  const x=input();
+  x.landingInputs.strategy.modules=[{moduleId:"hero",decision:"include",variant:"editorial-split",order:0}];
+  x.landingInputs.design.heroLayout="fullscreen";
+  const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{});
+  assert.equal(profile.design.heroLayout,"split");
+});
