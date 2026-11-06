@@ -18,7 +18,7 @@ const passport = () => ({
   infrastructure:[
     {name:"Парк",category:"park",status:"verified",source,walkingMinutes:5,distanceMeters:350,distanceEvidence:{method:"walking_route",checkedAt:"2026-11-01T10:00:00Z",validUntil:"2027-01-01T00:00:00Z",source}}
   ],
-  offers:[{id:"presentation",title:"Получить презентацию",type:"presentation",status:"active"}],
+  offers:[{id:"presentation",title:"Получить презентацию",type:"presentation",status:"active",scenarioId:"presentation_request"}],
   assets:{images:[{id:"hero",type:"render",url:"https://cdn.example/hero.webp",status:"approved",projectMatch:"confirmed",rightsStatus:"confirmed"}],plans:[]},
   contentStrategy:{coreIdea:"Дом для своего ритма",primaryCta:"presentation",modules:[
     {moduleId:"concept",decision:"include",reason:"Раскрыть идею",order:1},
@@ -113,4 +113,91 @@ test("preserves distinct viewing, consultation and callback offers and their can
   assert.equal(profile.offers.callback.offerId,"callback-request");
   assert.equal(profile.offers.other.scenarioId,"other_request");
   assert.equal(profile.offers.other.offerId,"other-request");
+});
+
+const landingBrief = () => ({
+  schemaVersion: "1.0.0",
+  projectId: "sample-residence",
+  approvalStatus: "approved",
+  strategy: {
+    coreIdea: "Дом для своего ритма",
+    primarySegmentId: "young_professionals",
+    primaryHookId: "walkable_daily_needs",
+    primaryCtaId: "hero_presentation",
+    positioning: {
+      statement: "Проект с подтверждённой повседневной инфраструктурой",
+      supportingFactIds: ["f-ok"],
+      status: "approved"
+    }
+  },
+  segments: [{
+    id: "young_professionals", name: "Профессионалы", need: "Удобная повседневная жизнь",
+    jtbd: "Выбрать жильё под свой ритм", barriers: [], insightStatus: "hypothesis", priority: "primary"
+  }],
+  hooks: [{
+    id: "walkable_daily_needs", segmentIds: ["young_professionals"], category: "location",
+    message: "Парк в пяти минутах пешком", supportingFactIds: ["f-ok"],
+    hypothesis: "Конкретный маршрут помогает представить повседневную жизнь", status: "approved"
+  }],
+  offers: [{
+    id: "project_presentation", passportOfferId: "presentation", type: "presentation",
+    title: "Получить презентацию", value: "Разобраться в проекте",
+    deliverable: "Презентация проекта от KEY", readiness: "ready",
+    scenarioId: "presentation_request", segmentIds: ["young_professionals"]
+  }],
+  funnels: [{
+    id: "location_to_presentation", segmentIds: ["young_professionals"],
+    hookIds: ["walkable_daily_needs"], offerId: "project_presentation",
+    stages: [
+      { id: "ad_click", name: "Переход из рекламы", userAction: "Открыть лендинг" },
+      { id: "presentation_request", name: "Запрос презентации", userAction: "Оставить контакт" }
+    ],
+    successEvent: "qualified_presentation_request"
+  }],
+  ctas: [{
+    id: "hero_presentation", label: "Получить презентацию",
+    moduleId: "hero", intent: "get_information",
+    offerId: "project_presentation", funnelId: "location_to_presentation",
+    hookId: "walkable_daily_needs", segmentIds: ["young_professionals"],
+    scenarioId: "presentation_request", placement: "hero_primary"
+  }],
+  qualification: { questions: [], qualitySignals: [], disqualificationRules: [] },
+  experiments: []
+});
+
+test("approved LANDING BRIEF drives public strategy and a contextual CTA map", () => {
+  const profile = buildLandingProfile(passport(), marketing(), {}, {
+    now: "2026-11-06T00:00:00Z",
+    brief: landingBrief()
+  });
+  assert.equal(profile.marketingStrategy.coreIdea, "Дом для своего ритма");
+  assert.equal(profile.marketingStrategy.primarySegment.id, "young_professionals");
+  assert.equal(profile.marketingStrategy.primaryHook.message, "Парк в пяти минутах пешком");
+  assert.equal(profile.marketingStrategy.positioning, "Проект с подтверждённой повседневной инфраструктурой");
+  assert.deepEqual(profile.ctaMap.hero, {
+    ctaId: "hero_presentation",
+    label: "Получить презентацию",
+    intent: "get_information",
+    offerKey: "presentation",
+    offerId: "presentation",
+    scenarioId: "presentation_request",
+    funnelId: "location_to_presentation",
+    hookId: "walkable_daily_needs",
+    segmentId: "young_professionals"
+  });
+});
+
+test("does not allow draft briefs or unready offers to control the public runtime", () => {
+  const draft = landingBrief();
+  draft.approvalStatus = "draft";
+  assert.throws(() => buildLandingProfile(passport(), marketing(), {}, { brief: draft }), /must be approved/);
+  const unready = landingBrief();
+  unready.offers[0].readiness = "conditional";
+  assert.throws(() => buildLandingProfile(passport(), marketing(), {}, { brief: unready }), /not operationally ready/);
+});
+
+test("does not publish an approved hook whose evidence is no longer publishable", () => {
+  const brief = landingBrief();
+  brief.hooks[0].supportingFactIds = ["f-private"];
+  assert.throws(() => buildLandingProfile(passport(), marketing(), {}, { brief }), /non-publishable fact/);
 });
