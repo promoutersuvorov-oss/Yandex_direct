@@ -109,3 +109,11 @@ test("normalizes lifestyle story drafts without promoting them to approved conte
     description:"Черновой текст сценария",sceneLabel:"ДВОР",assetId:"courtyard-render",
     supportingFactIds:["courtyard"],publicationStatus:"draft"}]);
 });
+
+test("FAQ questions default to draft and preserve explicit editorial approval",()=>{
+  const source=basePassport();
+  source.faq=[{id:"faq-draft",question:"Черновой вопрос",requiredFactIds:["central-district"]},
+    {id:"faq-approved",question:"Согласованный вопрос",requiredFactIds:["central-district"],publicationStatus:"approved"}];
+  const result=normalizeLandingInputsV1(source);
+  assert.deepEqual(result.landingInputs.faqDrafts.map(item=>item.publicationStatus),["draft","approved"]);
+});
