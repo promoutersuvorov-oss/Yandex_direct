@@ -67,6 +67,15 @@ export function validateLandingBriefReferences(brief, passport, options = {}) {
     if (funnel?.offerId && !offerIds.has(funnel.offerId)) errors.push(`funnel ${funnel.id} references unknown offerId: ${funnel.offerId}`);
   }
   const moduleIds = new Set();
+  const intentTypes = {
+    get_information: "presentation",
+    select_apartment: "apartment_selection",
+    calculate_payment: "mortgage_estimate",
+    book_viewing: "viewing",
+    request_consultation: "consultation",
+    request_callback: "callback",
+    other: "other"
+  };
   for (const cta of list(brief.ctas)) {
     if (cta?.offerId && !offerIds.has(cta.offerId)) errors.push(`CTA ${cta.id} references unknown offerId: ${cta.offerId}`);
     if (cta?.funnelId && !funnelIds.has(cta.funnelId)) errors.push(`CTA ${cta.id} references unknown funnelId: ${cta.funnelId}`);
@@ -76,6 +85,17 @@ export function validateLandingBriefReferences(brief, passport, options = {}) {
     const offer = list(brief.offers).find(item => item?.id === cta?.offerId);
     if (offer && cta.scenarioId && offer.scenarioId !== cta.scenarioId) {
       errors.push(`CTA ${cta.id} scenarioId must match its offer scenarioId`);
+    }
+    if (offer && intentTypes[cta?.intent] && offer.type !== intentTypes[cta.intent]) {
+      errors.push(`CTA ${cta.id} intent ${cta.intent} does not match offer type ${offer.type}`);
+    }
+    const funnel = list(brief.funnels).find(item => item?.id === cta?.funnelId);
+    if (funnel && offer && funnel.offerId !== offer.id) errors.push(`CTA ${cta.id} offer does not match its funnel offer`);
+    if (funnel && cta?.hookId && !list(funnel.hookIds).includes(cta.hookId)) {
+      errors.push(`CTA ${cta.id} hook is not included in its funnel`);
+    }
+    if (funnel && list(cta?.segmentIds).some(id => !list(funnel.segmentIds).includes(id))) {
+      errors.push(`CTA ${cta.id} segment is not included in its funnel`);
     }
     if (cta?.moduleId) {
       if (moduleIds.has(cta.moduleId)) errors.push(`Multiple CTAs target module ${cta.moduleId}; keep one primary action per module`);
@@ -87,6 +107,17 @@ export function validateLandingBriefReferences(brief, passport, options = {}) {
   if (strategy.primarySegmentId && !segmentIds.has(strategy.primarySegmentId)) errors.push("strategy.primarySegmentId references an unknown segment");
   if (strategy.primaryHookId && !hookIds.has(strategy.primaryHookId)) errors.push("strategy.primaryHookId references an unknown hook");
   if (strategy.primaryCtaId && !ctaIds.has(strategy.primaryCtaId)) errors.push("strategy.primaryCtaId references an unknown CTA");
+  const primaryHook = list(brief.hooks).find(item => item?.id === strategy.primaryHookId);
+  const primaryCta = list(brief.ctas).find(item => item?.id === strategy.primaryCtaId);
+  if (primaryHook && strategy.primarySegmentId && !list(primaryHook.segmentIds).includes(strategy.primarySegmentId)) {
+    errors.push("strategy primary hook must target the primary segment");
+  }
+  if (primaryCta && strategy.primarySegmentId && !list(primaryCta.segmentIds).includes(strategy.primarySegmentId)) {
+    errors.push("strategy primary CTA must target the primary segment");
+  }
+  if (primaryCta && strategy.primaryHookId && primaryCta.hookId !== strategy.primaryHookId) {
+    errors.push("strategy primary CTA must use the primary hook");
+  }
   requireRefs(errors, "positioning supportingFactIds", strategy.positioning?.supportingFactIds, factIds);
   for (const item of list(strategy.secondaryPositioning)) {
     if (item?.segmentId && !segmentIds.has(item.segmentId)) errors.push(`secondary positioning ${item.id} references an unknown segment`);
