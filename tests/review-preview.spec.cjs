@@ -118,6 +118,25 @@ test("preview CTA preserves selected apartment context and never claims delivery
   await expect(dialog).not.toBeVisible();
 });
 
+test("mortgage calculator uses visitor-entered assumptions and calculates annuity payment locally", async ({ page }) => {
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+  const calculator = page.locator('form[data-mortgage-calculator]');
+  await expect(calculator).toBeVisible();
+  await expect(calculator.getByRole("button", { name: "Рассчитать платёж" })).toBeVisible();
+  await calculator.locator('[name="price"]').fill("10000000");
+  await calculator.locator('[name="downPayment"]').fill("2000000");
+  await calculator.locator('[name="rate"]').fill("6");
+  await calculator.locator('[name="years"]').fill("20");
+  await calculator.getByRole("button", { name: "Рассчитать платёж" }).click();
+  const result = calculator.locator("[data-mortgage-result]");
+  await expect(result).toBeVisible();
+  const expected = 8000000 * (0.06 / 12) / (1 - Math.pow(1 + 0.06 / 12, -240));
+  const shown = Number((await result.textContent()).match(/платёж — ([\d\\s]+) ₽/)[1].replace(/\\s/g, ""));
+  expect(shown).toBe(Math.round(expected));
+  await expect(calculator.locator('[name="rate"]')).toHaveAttribute("placeholder", "По условиям банка");
+  await expect(page.locator("#module-mortgage button[data-preview-cta]")).toHaveCount(0);
+});
+ 
 test("selection quiz validates required answers and keeps answers local in preview", async ({ page }) => {
   await page.goto(url, { waitUntil: "domcontentloaded" });
   const quiz = page.locator('form[data-preview-quiz]');
