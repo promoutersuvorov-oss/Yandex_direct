@@ -94,7 +94,12 @@ const formatDistance = meters => meters < 1000
   ? Math.round(meters).toLocaleString("ru-RU") + " м"
   : (meters / 1000).toLocaleString("ru-RU", { maximumFractionDigits: 1 }) + " км";
 const renderLocation = () => {
-  const cards = infrastructure.map(item => {
+  const eligibleInfrastructure = infrastructure
+    .filter(item => Number.isFinite(item.distanceMeters) && item.distanceMeters >= 0 &&
+      (item.distanceMethod === "walking_route" || item.distanceMethod === "straight_line") &&
+      !(item.distanceMethod === "straight_line" && Number.isFinite(item.walkingMinutes)))
+    .slice().sort((a, b) => a.distanceMeters - b.distanceMeters).slice(0, 4);
+  const cards = eligibleInfrastructure.map(item => {
     const details = Number.isFinite(item.distanceMeters)
       ? [(item.distanceMethod === "walking_route" ? "по маршруту — " : "по прямой — ") + formatDistance(item.distanceMeters),
          item.distanceMethod === "walking_route" && Number.isFinite(item.walkingMinutes)
