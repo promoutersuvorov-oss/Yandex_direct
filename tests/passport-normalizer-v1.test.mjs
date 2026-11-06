@@ -142,6 +142,11 @@ test("distinguishes walking routes from straight-line distance and unsupported m
   assert.equal(result.knowledge.routes.length, 1);
   assert.equal(result.knowledge.routes[0].mode, "walking");
   assert.equal(result.knowledge.routes[0].durationSeconds, 300);
+  assert.equal(result.knowledge.pointsOfInterest[0].status, "unknown",
+    "verified means the listing is evidenced, not that the POI operational status is known");
+  const poiListed = result.knowledge.claims.find(item => item.predicate === "poi.listed_by_source");
+  assert.equal(poiListed.value.kind, "boolean");
+  assert.equal(poiListed.value.value, true);
   const straightLine = result.knowledge.claims.find(item => item.predicate === "poi.straight_line_distance");
   assert.equal(straightLine.value.unit, "m");
   assert.ok(result.warnings.some(item => item.code === "ROUTE_EVIDENCE_MISSING"));
@@ -157,6 +162,32 @@ test("normalizes assets and plans without inventing unit records", () => {
   assert.equal(result.knowledge.plans[0].assetId, "plan-asset");
   assert.equal(result.knowledge.plans[0].area.unit, "m2");
   assert.deepEqual(result.knowledge.propertyUnits, []);
+});
+
+test("does not create plans from assets of another type or publish plans without asset rights", () => {
+  const input = passport();
+  input.assets.plans[0].type = "render";
+  const unresolved = normalizePassportV1(input);
+  assert.equal(unresolved.knowledge.plans.length, 0);
+  assert.ok(unresolved.warnings.some(item => item.code === "PLAN_ASSET_UNRESOLVED"));
+
+  const restricted = passport();
+  restricted.assets.plans[0].rightsStatus = "pending";
+  const result = normalizePassportV1(restricted);
+  assert.equal(result.knowledge.plans.length, 1);
+  assert.equal(result.knowledge.plans[0].publicUse, "internal_only");
+});
+
+test("does not turn layout readiness or unsupported area ranges into project claims", () => {
+  const input = passport();
+  input.project.inventory.areaRange = {
+    value: { min: 40, max: 90, unit: "m2" }, status: "verified", sources: [source]
+  };
+  const result = normalizePassportV1(input);
+  assert.equal(result.knowledge.claims.some(item => item.predicate === "project.inventory.layouts_available"), false);
+  assert.equal(result.knowledge.claims.some(item => item.predicate === "project.inventory.area_range"), false);
+  assert.ok(result.warnings.some(item => item.code === "LAYOUT_READINESS_NOT_MIGRATED"));
+  assert.ok(result.warnings.some(item => item.code === "AREA_RANGE_NOT_MAPPED"));
 });
 
 test("does not migrate marketing strategy, offers, private commercial notes or verification as project facts", () => {
