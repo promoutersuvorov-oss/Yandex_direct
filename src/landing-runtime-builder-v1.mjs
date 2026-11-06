@@ -30,11 +30,10 @@ function claimValueText(claim) {
 const clone = value => JSON.parse(JSON.stringify(value));
 const isFuture = (value, now) => !value || (Number.isFinite(Date.parse(value)) && Date.parse(value) > now);
 
-function claimIsPublic(claim, knowledge, now) {
-  // Qualification-aware copy is not implemented in the visitor-facing renderer yet.
-  // Fail closed: a qualified claim must not become an unqualified marketing statement.
+function claimIsPublic(claim, knowledge, now, qualifiedClaimIds = new Set()) {
   if (!claim || claim.epistemicStatus !== "verified" ||
-      claim.publicUse !== "allowed" ||
+      !(claim.publicUse === "allowed" ||
+        (claim.publicUse === "allowed_with_qualification" && qualifiedClaimIds.has(claim.id))) ||
       !claim.sourceIds?.length || !claim.evidenceIds?.length || !isFuture(claim.validUntil, now)) return false;
   const sources = new Map((knowledge.sources || []).map(item => [item.id, item]));
   const evidence = new Map((knowledge.evidence || []).map(item => [item.id, item]));
@@ -76,12 +75,36 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
   for (const key of COPY_KEYS) if (!nonEmpty(marketing.copy[key])) throw new Error(`Approved marketing copy is missing: ${key}`);
 
   const claims = new Map((knowledge.claims || []).map(item => [item.id, item]));
-  const publishableClaimIds = new Set([...claims.values()].filter(item => claimIsPublic(item, knowledge, now)).map(item => item.id));
+  const claimFactIds = marketing.claimFactIds || {};
+  const claimQualifications = marketing.claimQualifications || {};
+  const qualifiedClaimIds = new Set();
+  const marketingQualifications = {};
+  for (const [key, qualifications] of Object.entries(claimQualifications)) {
+    const mappedFacts = claimFactIds[key];
+    if (!COPY_KEYS.includes(key) || !Array.isArray(qualifications) || !qualifications.length || !Array.isArray(mappedFacts)) {
+      throw new Error(`Invalid approved claim qualification mapping for ${key}`);
+    }
+    const rendered = [];
+    for (const item of qualifications) {
+      if (!isObject(item) || !nonEmpty(item.factId) || !nonEmpty(item.text) || !mappedFacts.includes(item.factId)) {
+        throw new Error(`Qualification for ${key} must identify a mapped fact and contain approved text`);
+      }
+      const claimId = legacyReferences.factIdToClaimId[item.factId];
+      const claim = claims.get(claimId);
+      if (!claim || claim.publicUse !== "allowed_with_qualification" || claim.epistemicStatus !== "verified" ||
+          !Array.isArray(claim.limitations) || !claim.limitations.length) {
+        throw new Error(`Qualification for ${key} does not match a verified claim requiring qualification: ${item.factId}`);
+      }
+      qualifiedClaimIds.add(claimId);
+      rendered.push(item.text.trim());
+    }
+    marketingQualifications[key] = [...new Set(rendered)];
+  }
+  const publishableClaimIds = new Set([...claims.values()].filter(item => claimIsPublic(item, knowledge, now, qualifiedClaimIds)).map(item => item.id));
   const legacyFactIsPublic = id => {
     const claimId = legacyReferences.factIdToClaimId[id];
     return Boolean(claimId && publishableClaimIds.has(claimId));
   };
-  const claimFactIds = marketing.claimFactIds || {};
   for (const [key, ids] of Object.entries(claimFactIds)) {
     if (!COPY_KEYS.includes(key) || !Array.isArray(ids) || !ids.length) throw new Error(`Invalid marketing claim mapping for ${key}`);
     for (const id of ids) if (!legacyFactIsPublic(id)) throw new Error(`Marketing claim ${key} references non-publishable fact: ${id}`);
@@ -277,7 +300,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
   const profile = {
     mode: productionReady && options.mode === "production" ? "production" : "demo",
     project, composition,
-    design: { palette, heroLayout, galleryLayout }, marketing: clone(marketing.copy), advantages, media, heroMedia, lifestyleStories, faqItems,
+    design: { palette, heroLayout, galleryLayout }, marketing: clone(marketing.copy), marketingQualifications, advantages, media, heroMedia, lifestyleStories, faqItems,
     locationMap, plans, infrastructure, offers,
     integration: productionReady && options.mode === "production" ?
       { leadEndpoint:endpoint, privacyPolicyUrl, privacyPolicyVersion } :
