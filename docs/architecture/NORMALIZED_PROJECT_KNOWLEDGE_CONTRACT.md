@@ -17,25 +17,15 @@ Builder должен читать только normalized model. Это позв
 
 Это не означает, что нужно вводить новый сервис, базу данных или API. На первом этапе это обычный типизированный объект в коде и чистые функции преобразования.
 
-Legacy Adapter возвращает разделённый результат, а не только ProjectKnowledge:
+Legacy Adapter первой итерации возвращает нормализованное знание, предупреждения и ошибки:
 
     LegacyAdapterResult {
-      projectKnowledge: ProjectKnowledge,
-      landingInputs: {
-        landingSpecification?: LandingSpecification,
-        conversionCatalog: ConversionCatalogEntry[],
-        selectionFlow?: SelectionFlow,
-        faqDrafts: FaqDraft[]
-      },
-      internal: {
-        verificationReport?: VerificationReport,
-        marketContext?: InternalMarketContext,
-        protectedConfig?: ProtectedConfig
-      },
-      warnings: MigrationWarning[]
+      knowledge: NormalizedProjectKnowledge | null,
+      warnings: MigrationWarning[],
+      errors: MigrationError[]
     }
 
-Landing inputs и internal metadata не являются частью ProjectKnowledge и не должны сериализоваться в public project knowledge. Подробная таблица переноса legacy-полей находится в PASSPORT_VNEXT_LEGACY_FIELD_MAPPING.md.
+Landing Inputs (Landing Specification, Conversion Catalog, Selection Flow, FAQ) и protected/internal metadata остаются отдельными доменами и не копируются в Project Knowledge. Их отдельные adapter outputs будут добавляться только при реализации соответствующих consumers. Подробная таблица переноса legacy-полей находится в PASSPORT_V1_TO_NORMALIZED_MAPPING.md.
 
 ## 2. Границы модели
 
@@ -121,7 +111,7 @@ Claim, Document, Construction Event, Asset и Commercial Term могут отн�
 Для первого совместимого перехода минимально необходимы только:
 - project.id;
 - project.name;
-- project.location.city;
+- project.city;
 - contractVersion;
 - metadata о версии исходного паспорта и предупреждениях — на уровне AdapterResult.
 
