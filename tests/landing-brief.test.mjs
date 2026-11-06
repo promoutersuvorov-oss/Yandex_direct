@@ -75,6 +75,9 @@ import { validatePositioningGate } from "../src/landing-brief.mjs";
 function approvedPositioningBrief() {
   const valid = structuredClone(brief);
   valid.strategy.positioning = {
+    statement: "A convenient daily routine for young professionals",
+    supportingFactIds: ["fact_infrastructure_01"],
+    status: "approved",
     audienceSegmentId: "young_professionals",
     primaryNeed: "A more convenient everyday routine",
     productFocus: "Selected apartments in the sample residence",
