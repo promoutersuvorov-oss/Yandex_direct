@@ -59,3 +59,31 @@
 @media(max-width:720px){
   .advantage-grid{grid-template-columns:1fr}
 }
+
+
+/* Lifestyle is a distinct editorial component: authored daily-life scenarios, not a generic image gallery. */
+.lifestyle-section{padding-top:clamp(76px,9vw,126px);padding-bottom:clamp(76px,9vw,126px);background:var(--paper)}
+.lifestyle-heading{display:grid;grid-template-columns:1fr 1.5fr;gap:5vw;align-items:end;margin-bottom:44px}
+.lifestyle-heading h2{max-width:13ch}
+.lifestyle-heading>div>p{max-width:520px;color:var(--muted);font-size:15px;line-height:1.7}
+.lifestyle-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.lifestyle-card{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);min-height:330px;background:#e9e7e0}
+.lifestyle-card-media{position:relative;margin:0;min-height:330px;overflow:hidden;background:#d7d8d0}
+.lifestyle-card-media img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.lifestyle-card:hover .lifestyle-card-media img{transform:scale(1.035)}
+.lifestyle-card-media figcaption{position:absolute;left:16px;bottom:14px;padding:8px 10px;background:#202923b8;color:#fff;font-size:9px;letter-spacing:.13em}
+.lifestyle-card-copy{padding:clamp(22px,3vw,34px);display:flex;flex-direction:column;align-items:flex-start}
+.lifestyle-card-index{font-size:10px;letter-spacing:.15em;color:#82877a}
+.lifestyle-card h3{margin:34px 0 14px;font-size:clamp(23px,2.5vw,34px);line-height:1.12;letter-spacing:-.035em}
+.lifestyle-card-copy>p{font-size:13px;line-height:1.75;color:#65695f}
+.lifestyle-card-evidence{margin-top:auto;padding-top:22px}
+.lifestyle-card-evidence>span{font-size:9px;letter-spacing:.13em;color:#85877e}
+.lifestyle-card-evidence p{margin-top:7px;font-size:10px;line-height:1.55;color:#65695f}
+@media(max-width:900px){.lifestyle-grid{grid-template-columns:1fr}.lifestyle-card{min-height:290px}.lifestyle-card-media{min-height:290px}}
+@media(max-width:720px){
+ .lifestyle-heading{grid-template-columns:1fr;gap:18px;margin-bottom:28px}
+ .lifestyle-card{grid-template-columns:1fr;min-height:0}
+ .lifestyle-card-media{min-height:250px;height:62vw;max-height:360px}
+ .lifestyle-card h3{margin:22px 0 12px}
+ .lifestyle-card-evidence{padding-top:18px}
+}
