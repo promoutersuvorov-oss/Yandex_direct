@@ -45,6 +45,8 @@ jobs:
         run: node --test tests/attribution.test.mjs
       - name: Test canonical lead payload validation
         run: node --test tests/lead-payload.test.mjs
+      - name: Test passport to runtime adapter and publication gates
+        run: node --test tests/landing-runtime-adapter.test.mjs
       - name: Build review-only bundle from the canonical passport example
         run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out artifacts/review-bundle
       - name: Render dynamic HTML review preview
