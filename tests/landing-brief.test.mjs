@@ -54,3 +54,17 @@ test("keeps CTA scenario identity aligned with the selected offer", () => {
   invalid.ctas[0].scenarioId = "callback_request";
   assert.ok(validateLandingBriefReferences(invalid, passport).some(error => error.includes("scenarioId")));
 });
+
+
+test("rejects CTA intent mismatches and competing primary actions in one module", () => {
+  const invalid = structuredClone(brief);
+  invalid.ctas[0].intent = "request_callback";
+  invalid.ctas.push({
+    ...invalid.ctas[0],
+    id: "second_hero_action",
+    intent: "get_information"
+  });
+  const errors = validateLandingBriefReferences(invalid, passport);
+  assert.ok(errors.some(error => error.includes("does not match offer type")));
+  assert.ok(errors.some(error => error.includes("Multiple CTAs target module hero")));
+});
