@@ -46,6 +46,29 @@ The canonical request is produced by `createLeadPayload()` in `src/lead-payload.
 | `attribution` | First-touch and last-touch attribution, when present |
 | `analytics` | Session identifier, when present |
 
+### Field-level details verified against the current payload builder
+
+**`contact`**
+- Required: `name` (string, max 100), `phone` (string, 7–15 digits after removing formatting).
+- Optional: `preferredChannel` (`phone`, `telegram`, `max`, `whatsapp`, `email`; defaults to `phone`), `preferredTime` (string, max 80).
+
+**`consent`**
+- Required input acceptance is `accepted: true`; the serialized payload carries `policyVersion`, `acceptedAt` (ISO 8601) and `policyUrl` (HTTP/HTTPS URL). The boolean is validated but is not repeated in the serialized object.
+
+**`conversion`**
+- Required: `scenarioId`.
+- Optional stable IDs: `offerId`, `moduleId`, `ctaId`, `hookId`, `funnelId`, `segmentId`.
+- Optional `entityContext` accepts only these keys: `rooms` (integer 0–10), `planId` (string), `plan` (id, rooms, areaSqm, assetId; optional floor and finishing), `mortgage` (price, downPayment, ratePercent, termYears, estimatedMonthlyPayment), `quizAnswers`, `requestedInfo`, `preferredViewing`. Unknown keys are rejected. Mortgage values are validated as finite numbers and basic ranges, not independently verified against lender offers.
+
+**`qualification.answers`**
+- Optional object with at most 20 answer keys. Keys must match the answer-ID pattern. Values are short strings (max 160) or arrays of up to 10 strings (each max 80).
+
+**`attribution`**
+- Serialized as `first_touch` and `last_touch` objects. Each may contain only captured attribution parameters: `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `yclid`, `ysclid`, `gclid`, `gbraid`, `wbraid`, `fbclid`, `vk_click_id`, `rb_clickid`, `erid`. Values are strings capped at 256 characters.
+
+**`analytics`**
+- Optional `sessionId` only. This is payload context, not proof that an external analytics receiver is configured or enabled.
+
 The payload builder deliberately drops arbitrary browser fields and validates typed apartment-plan, mortgage and quiz context. Do not silently rename fields or reinterpret identifiers when implementing the CRM adapter. Contract changes require a schema version decision and tests.
 
 ## 4. Successful acknowledgement
