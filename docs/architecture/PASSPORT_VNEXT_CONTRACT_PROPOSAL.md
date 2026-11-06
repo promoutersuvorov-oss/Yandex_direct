@@ -1,29 +1,42 @@
-# Passport vNext — предложение контракта данных KEY
+# Passport vNext — контракт данных KEY (предложение)
 
-**Версия предложения:** 0.1  
-**Статус:** проектирование; не production schema  
-**Основание:** полевой аудит паспорта КД «905» от 2026-11-06 и текущие runtime-зависимости.
+**Версия:** 0.2  
+**Дата:** 2026-11-06  
+**Статус:** архитектурное предложение; не production schema и не команда на миграцию.  
+**Scope первой версии KEY:** городские новостройки бизнес- и премиум-сегмента.
 
-## 1. Основные решения
+## 1. Продуктовая граница
 
-1. Паспорт описывает объект недвижимости и доказательства сведений о нём. Он не выбирает ЦА, не формирует CTA и не управляет композицией страницы.
-2. Один объект может использоваться в нескольких кампаниях. Паспорт не переписывается при смене аудитории или рекламного фокуса.
-3. Факты, проектные заявления, наблюдения, гипотезы, коммерческие предложения и публикационные разрешения — разные измерения. Их нельзя сводить к одному status.
-4. Тип планировки, конкретный лот и коммерческое предложение — разные сущности.
-5. POI, расстояние по прямой и маршрут — разные сущности/измерения.
-6. Источники и доказательства должны переиспользоваться по ID.
-7. Схема должна оставаться типизированной и понятной обычному коду. Не превращать паспорт в неограниченный граф произвольных атрибутов.
-8. Неполнота данных допускается. Готовность оценивается для конкретного claim, модуля и режима публикации.
+KEY сейчас создаёт систему привлечения качественных обращений по новостройкам бизнес- и премиум-сегмента: клубным домам и городским жилым проектам в дорогих локациях с выразительной архитектурой и особенностями продукта/среды.
 
-## 2. Предлагаемая верхнеуровневая структура
+Вне scope первой версии: массовая типовая застройка, эконом/стандарт-сегмент, загородная недвижимость, коттеджные посёлки и продажа земельных участков.
+
+Это не вечный запрет на расширение. Новые сегменты добавляются только при реальной бизнес-потребности, наличии ресурсов и отдельном архитектурном решении. Сейчас не проектировать их абстракции и поля.
+
+## 2. Основные принципы
+
+1. Паспорт описывает конкретный проект, его продукт, среду и доказательства сведений. Он не выбирает аудиторию, CTA, рекламную кампанию или композицию лендинга.
+2. Один объект может использоваться в нескольких кампаниях без переписывания паспорта.
+3. Факты, заявления застройщика, наблюдения, гипотезы, коммерческие условия и права на публикацию — разные измерения.
+4. Тип планировки, конкретная единица недвижимости и коммерческое предложение — разные сущности.
+5. Внутренняя среда проекта и внешняя городская инфраструктура — разные сущности.
+6. Source отвечает «где нашли», Evidence — «какой конкретный фрагмент подтверждает утверждение».
+7. Неполнота данных допустима; отсутствие сведений не означает отсутствие характеристики в реальности.
+8. Не строить универсальный граф произвольных атрибутов и не создавать абстракции ради гипотетического будущего.
+
+## 3. Предлагаемая верхнеуровневая структура
 
     {
       "schemaVersion": "2.0.0",
       "project": {},
       "organizations": [],
+      "phases": [],
       "buildings": [],
+      "sections": [],
+      "site": {},
+      "siteFeatures": [],
+      "propertyUnits": [],
       "plans": [],
-      "lots": [],
       "pointsOfInterest": [],
       "routes": [],
       "documents": [],
@@ -36,225 +49,167 @@
       "marketContext": {}
     }
 
-Это целевой логический контракт, не окончательная JSON Schema. Коллекции необязательны: отсутствие сведений не означает отсутствие сущности в реальности.
+Это логическая модель. Не все коллекции обязательны; некоторые сущности создаются только при наличии в проекте. Точная JSON Schema будет подготовлена после проверки consumers, mapping и fixtures.
 
-## 3. Сущности и поля
+## 4. Сущности
 
-### 3.1 Project
+### 4.1 Project
+- id, name, aliases;
+- propertyType — клубный дом / городской жилой проект / иной поддерживаемый городской формат;
+- class/segment — только как доказуемые сведения с provenance, не субъективная оценка;
+- location: city, address, coordinates, district;
+- organizationIds, externalIds;
+- claimIds.
 
-- id — стабильный внутренний ID;
-- name — официальное/основное название;
-- aliases[] — прежние и альтернативные названия;
-- propertyType — клубный дом, ЖК, апартаменты, коттеджный посёлок и т. п.;
-- location.city, location.address, location.coordinates, location.district;
-- organizationIds[] — связи с застройщиком и участниками;
-- externalIds[] — ID ЕИСЖС/наш.дом.рф и других официальных реестров.
+Не хранить positioning, audiences, contentStrategy, primaryCta, visualDirection, CRM pipeline и webhook.
 
-Не хранить здесь positioning, audiences, contentStrategy, primaryCta, visualDirection, CRM pipeline и webhook.
-
-### 3.2 Organizations
-
+### 4.2 Organizations
 - id, name, legalName, role;
-- sourceIds[], evidenceIds[];
-- связи проекта с брендом, юридическим лицом, генподрядчиком и управляющей организацией.
+- sourceIds, evidenceIds.
+Роли включают застройщика, юридическое лицо, архитектурное бюро, генподрядчика и управляющую организацию. Бренд и юридическое лицо не смешиваются без основания.
 
-Не смешивать бренд застройщика и юридическое лицо без явного основания.
+### 4.3 Phases, Buildings, Sections
+Phase — необязательная очередь/этап.
+Building — корпус/здание: projectId, phaseId, name/number, floors, elevators, engineering systems, construction attributes, claimIds.
+Section — необязательная секция/подъезд внутри здания.
+Значения о сроках, статусе и характеристиках связываются с точным subject. Уровень проекта не распространяется автоматически на каждый корпус.
 
-### 3.3 Buildings
+### 4.4 Site и Site Features
+Site описывает территорию городского проекта и её границы/геометрию, если они известны. Не доказывает право собственности или доступность всей изображённой территории.
 
-Отдельные корпуса/очереди:
-- id, projectId, name, buildingNumber, phase;
-- floors, sectionsCount, entrancesCount, apartmentCount;
-- constructionTechnology, facade, engineeringSystems[], elevators[];
-- territoryFeatures[], parkingFeatures[], commonAreas[];
-- claimIds[] для доказуемых утверждений.
+Site Features — внутренние пространства и элементы среды:
+- lobby, courtyard, private_garden, terrace, playground, sports_area, lounge, coworking, concierge_area, parking, storage, other.
 
-Числовые и юридически значимые значения должны ссылаться на claims/evidence, а не жить как неподтверждённые голые числа.
+Для каждого feature фиксируются ID, тип, связь с проектом/корпусом, статус (designed / declared / under_construction / realized / unknown), claims и evidence. Не смешивать внутренние пространства с внешними POI.
 
-### 3.4 Plans — типы планировок
+### 4.5 Property Units
+Конкретные единицы недвижимости/продукта:
+- apartment;
+- apartment_with_terrace (только когда формат выделен в данных проекта);
+- serviced_apartment (только при подтверждённом юридическом/продуктовом статусе);
+- commercial_unit;
+- parking_space;
+- storage_unit;
+- other.
 
-- id, projectId, buildingId, code, name;
-- rooms, areaSqm, ceilingHeightM;
-- floorPlanAssetId, layoutVersion, geometryStatus;
-- features[] (балкон, лоджия, терраса и т. п.);
-- claimIds[], evidenceIds[], validity.
+Пентхаус, двухуровневая, видовая квартира и другие особенности чаще являются типизированными features конкретной квартиры, а не отдельным unitKind.
 
-Планировка — тип пространственного решения. Она не подтверждает наличие свободной квартиры.
+Поля по применимости: id, projectId, buildingId, sectionId, floor, unitKind, planId, area, rooms, featureIds, availabilityStatus, observedAt, validUntil, commercialTermIds, sourceIds, evidenceIds. Условные ограничения не должны требовать rooms для машиноместа или план квартиры для кладовой.
 
-### 3.5 Lots — конкретные квартиры/помещения
+План и Property Unit не одно и то же. Планировка не подтверждает доступность конкретной квартиры. Цена и наличие динамичны, имеют дату наблюдения и срок актуальности.
 
-- id, projectId, buildingId, sectionId, floor, number (если допустимо);
-- planId, rooms, areaSqm;
-- availabilityStatus;
-- price, currency, priceObservedAt, validUntil;
-- commercialTermIds[], sourceIds[], evidenceIds[].
+### 4.6 Plans
+Поддерживаемые виды:
+- apartment_floor_plan;
+- building_floor_plan;
+- section_plan;
+- floor_plan;
+- site_masterplan;
+- parking_plan;
+- other.
 
-Доступность и цена динамичны. Нельзя считать лот доступным по устаревшему срезу. Публичный runtime получает только актуальную и разрешённую проекцию.
+Поля: id, planKind, version, subject reference, assetId, geometry/scale status, evidenceIds. План должен быть связан с точным объектом/типом; render-план и техническая документация различаются.
 
-### 3.6 Points of Interest (POI)
+### 4.7 POI и Routes
+POI — внешняя городская инфраструктура. Route — отдельная запись с origin/destination, mode, distance, duration, provider, observedAt, validUntil, evidenceIds. Расстояние по прямой не равно маршруту; время не вычисляется из прямой дистанции.
 
-- id, name, category, coordinates, address;
-- operationalStatus: работает / строится / планируется / закрыто / неизвестно;
-- identityEvidenceIds[], lastVerifiedAt.
+### 4.8 Documents и Construction Events
+Document имеет тип, номер, редакцию, даты, source, asset и subject scope: project, phase, building, section или property unit. История редакций сохраняется.
 
-POI не должен содержать маркетинговую интерпретацию вроде «идеально для семей» или «всё рядом».
+Construction Event имеет eventType, plannedAt, observedAt, occurredAt, status и связи с конкретным subject, sources и evidence.
 
-### 3.7 Routes
+### 4.9 Commercial Terms
+Условия приобретения: price, discount, installment, mortgage_program, booking и другие. Хранятся с scope, условиями, ограничениями, периодом действия, датой наблюдения, источниками и evidence.
 
-Маршрут — отдельная запись:
-- id, originProjectId, destinationPoiId;
-- mode: walking / driving / public_transport / cycling;
-- distanceMeters, durationSeconds;
-- routeProvider, routeObservedAt, validUntil;
-- accessibilityNotes, evidenceIds[].
+Сценарии получения лида KEY (презентация, подбор, консультация, просмотр) не относятся к Commercial Terms. Они остаются в Conversion Catalog / Landing Brief.
 
-Расстояние по прямой не является маршрутом. Пешее время не выводится из расстояния по прямой. Формулировка «N минут» должна ссылаться на актуальный маршрут и его метод.
+### 4.10 Assets
+- id, assetType, representationType (photo / render / diagram / document / video);
+- role, url/storageRef, alt, caption;
+- depictedEntityIds, capturedAt, version;
+- rightsHolder, rightsStatus, rightsEvidenceIds;
+- allowedChannels, allowedContexts, validUntil.
 
-### 3.8 Documents и Construction Events
+Наличие URL не означает наличие прав. Фото и рендер должны различаться.
 
-Document:
-- id, projectId, buildingId;
-- documentType, number, revision, publishedAt, effectiveFrom, effectiveUntil;
-- sourceId, assetId, supersedesDocumentId.
+### 4.11 Sources, Evidence, Claims
+Source: id, url, title, publisher, sourceType, reliabilityClass, publishedAt, accessedAt, retrievedAt.
 
-Construction event:
-- id, projectId, buildingId, eventType;
-- plannedAt, observedAt, occurredAt;
-- status, sourceIds[], evidenceIds[].
+Evidence: id, sourceId, locator, quoteOrExtract, extractionMethod, observedAt, limitations.
 
-Срок ввода из новой редакции декларации не должен перезаписывать историю. Нужны версии и события, чтобы видеть, когда и кем срок был изменён.
+Claim: id, subject reference, predicate, value, unit, claimText, modality, epistemicStatus, evidenceIds, validFrom, validUntil, lastCheckedAt, publicationPolicy, limitations, conflictGroupId.
 
-### 3.9 Commercial Terms
+epistemicStatus, modality, freshness и publicationPolicy независимы. Заявление застройщика о предусмотренном объекте не равно независимому подтверждению его фактической реализации.
 
-Отдельно хранить условия покупки:
-- id, projectId, lotIds[] или scope;
-- termType: price / discount / installment / mortgage_program / booking / other;
-- value, currency, conditions[], restrictions[];
-- validFrom, validUntil, observedAt;
-- provider, sourceIds[], evidenceIds[];
-- publicationPolicy.
+### 4.12 Market Context
+Внутренние наблюдения: snapshot, period, entity/comparison set, sampling method, sample size, metrics, sourceIds, evidenceIds, limitations. Не попадает в public runtime. Количество объявлений не является числом продаж, спросом или свободным остатком.
 
-Условия девелопера не являются CTA. Сценарии «получить презентацию», «подбор», «консультация» принадлежат KEY Conversion Catalog.
+## 5. Специфика целевого сегмента
 
-### 3.10 Assets
+Паспорт должен позволять собирать, если подтверждено:
+- архитектурную концепцию, автора/бюро и особенности фасадов;
+- этажность, число квартир, плотность, число квартир на этаже;
+- лобби, ресепшен, общественные и приватные пространства;
+- двор, озеленение, приватные сады и благоустройство;
+- террасы, панорамное остекление, высоту потолков и нестандартные планировки;
+- инженерные системы, вентиляцию, кондиционирование, лифты;
+- паркинг, машиноместа, кладовые и инфраструктуру для автомобилей;
+- отделку и комплектацию;
+- видовые характеристики с привязкой к конкретному этажу/квартире;
+- внешнюю городскую инфраструктуру и проверенные маршруты.
 
-- id, projectId, assetType, representationType (photo/render/diagram/document/video);
-- role (hero/facade/courtyard/lobby/interior/plan/map/construction_progress/brand и т. п.);
-- url или storageRef, alt, caption;
-- depictedEntityIds[], createdAt, capturedAt, version;
-- rightsHolder, rightsStatus, rightsEvidenceIds[];
-- allowedChannels[], allowedContexts[], validUntil.
+Это возможные домены сбора, а не обязательные преимущества каждого объекта. Нельзя выводить преимущество из пустого поля или из самого позиционирования сегмента.
 
-Наличие URL не означает наличие прав. Render и реальная фотография не должны маркироваться одинаково.
+## 6. Что вынесено за пределы паспорта
 
-### 3.11 Sources и Evidence
-
-Source — описание источника:
-- id, url, title, publisher, sourceType, reliabilityClass;
-- publishedAt, accessedAt, retrievedAt;
-- documentId или assetId, если применимо.
-
-Evidence — конкретное доказательство:
-- id, sourceId, locator (страница, раздел, таблица, timestamp, фрагмент);
-- quoteOrExtract, extractionMethod, observedAt;
-- limitations[].
-
-Source отвечает «где нашли», Evidence — «какое конкретное место подтверждает утверждение». Один Source может иметь много Evidence.
-
-### 3.12 Claims
-
-Claim — проверяемое утверждение:
-- id, subjectType, subjectId, predicate;
-- value, unit, claimText;
-- modality: designed / declared / observed / measured / legally_registered / independently_verified;
-- epistemicStatus: verified / provisional / hypothesis / unknown / conflicting / outdated;
-- evidenceIds[];
-- validFrom, validUntil, lastCheckedAt;
-- publicationPolicy: allowed / allowed_with_qualification / internal_only / blocked;
-- limitations[], conflictGroupId.
-
-epistemicStatus, modality, freshness и publicationPolicy независимы. Например, подтверждённое заявление застройщика о предусмотренном паркинге не равно независимому подтверждению фактически построенного паркинга.
-
-### 3.13 Market Context
-
-Оставить внутренним доменом:
-- snapshotId, snapshotAt, periodStart, periodEnd;
-- entityRef, comparisonSet, samplingMethod, sampleSize;
-- metrics[] с единицами и методикой;
-- sourceIds[], evidenceIds[], limitations[];
-- observationType: asking_price / listing_count / transaction / demand_signal / advertising_signal / other.
-
-Число объявлений нельзя называть продажами, спросом или свободным остатком.
-
-## 4. Что остаётся за пределами паспорта
-
-| Сущность | Канонический слой |
+| Домен | Канонический слой |
 |---|---|
-| Сегменты, мотивы, JTBD, страхи, барьеры, критерии выбора | Customer Experience |
-| Интервью, CRM-исследования, опросы и исследовательские выводы | Customer Experience research/evidence |
-| Выбранная ЦА и главная потребность кампании | Landing Brief |
-| Positioning, hooks, message angles, CTA, funnels, qualification, experiments | Landing Brief |
-| Порядок секций, layout, визуальное направление и module configuration | Landing Specification |
-| KEY offers / lead scenarios / consent / processing workflow | KEY Conversion Catalog / Operations |
-| CRM endpoint, pipeline, env vars, API credentials | Protected Integration Config |
-| Лиды и ответы посетителей | Lead/event storage, отдельно от паспорта |
+| Сегменты, мотивы, JTBD, страхи, барьеры | Customer Experience |
+| Интервью, исследования и выводы | Customer Experience research/evidence |
+| Выбранная ЦА, потребность, продуктовый фокус, источник трафика, главный конвертер | Landing Brief / Positioning Gate |
+| Hooks, CTA, лид-магниты, воронки, квалификация, эксперименты | Landing Brief |
+| Порядок секций, layout, визуальное направление, конфигурация модулей | Landing Specification |
+| KEY lead scenarios, consent и обработка обращений | Conversion Catalog / Operations |
+| CRM endpoint, pipeline, credentials | Protected Integration Config |
+| Лиды и ответы посетителей | Lead/event storage |
 
-## 5. Миграция schema 1.0.0 → 2.0.0
+## 7. Миграционные принципы 1.0.0 → 2.0.0
 
-| Текущий путь | Целевой путь | Правило |
-|---|---|---|
-| project.id/name/location | project | Сохранить ID; нормализовать географию и evidence |
-| project.developer | organizations[] + связь с project | Сохранить значение и источник |
-| project.positioning* | Landing Brief | Перенести только как legacy draft, не автоматически approve |
-| project.audiences | Customer Experience | Перенести как неподтверждённые seed hypotheses, если нет evidence |
-| project.delivery/constructionStatus | Claims + Documents + Construction Events | Не терять историю и конфликтующие сроки |
-| project.inventory | Buildings / Plans / Lots / Commercial Terms | Разделить проектную ёмкость, планировки и наличие |
-| facts[] | Claims[] + Evidence[] + Sources[] | Сохранять IDs и publication policy; дедуплицировать источники |
-| advantages[] | Customer/Marketing Intelligence | Не мигрировать как факты; преобразовать в кандидаты интерпретаций с provenance |
-| infrastructure[] | POI[] + Routes[] + Claims[] | Разделить существование POI и маршрутные показатели |
-| offers[] | KEY Conversion Catalog | Не считать коммерческим предложением застройщика |
-| assets.* | Assets[] | Сохранить ID/права; добавить роль и связь с сущностью по мере наличия |
-| contentStrategy | Landing Brief + Landing Specification | Сохранить как legacy draft; не использовать как источник истины после перехода |
-| commercial | Protected Integration Config / private notes | Секреты не переносить в публичный паспорт; проверить доступы |
-| verification | Computed Readiness/Audit Report + Conflict records | Генерировать из фактов, источников и конфликтов |
-| apartmentPlans[] | Plans[] | Сохранить план как тип продукта, не создавать Lot автоматически |
-| selectionQuiz / faq | Landing Specification | Переносить в контекст конкретной кампании |
+- Сохранять legacy schema 1.0.0 до переноса всех consumers.
+- facts преобразовывать в Claims + Evidence + Sources без повышения статуса.
+- infrastructure разделять на POI, Route и Claim.
+- apartmentPlans преобразовывать в Plans; не создавать Property Unit автоматически.
+- inventory преобразовывать в Building/Property Unit только при достаточных данных; неоднозначности выводить в migration report.
+- advantages не считать фактами и не переносить в паспорт как доказанные преимущества.
+- offers переносить в Conversion Catalog, не смешивать с Commercial Terms.
+- contentStrategy переносить в Landing Brief / Landing Specification как draft.
+- commercial secrets не переносить в публичный паспорт.
+- verification формировать как audit/readiness report из первичных данных.
+- миграция должна быть идемпотентной и сопровождаться отчётом о потерях/неоднозначностях.
 
-Миграция должна быть идемпотентной, иметь отчёт о потерях/неоднозначностях и не повышать draft/hypothesis до approved/verified.
+## 8. Минимальные проверки будущей схемы
 
-## 6. Обратная совместимость
-
-1. Старый schema 1.0.0 остаётся читаемым на время миграции.
-2. Adapter преобразует старый паспорт в нормализованную внутреннюю модель vNext.
-3. Builder принимает нормализованную модель, а не читает legacy-поля напрямую.
-4. Для каждого перенесённого поля есть тест mapping и negative test на утечку private/internal данных.
-5. После переноса всех consumers и fixtures можно объявить schema 2.0.0 основной.
-6. Старый формат удаляется только отдельным изменением после подтверждения отсутствия потребителей.
-
-## 7. Минимальный набор проверок
-
-- stable IDs и уникальность сущностей;
-- все ссылки на source/evidence/entity разрешаются;
-- claim с publicUse allowed имеет evidence и допустимую модальность;
+- уникальность ID и разрешимость ссылок;
+- точный subject scope для claims/documents/events/assets;
+- claim, разрешённый к публикации, имеет evidence;
 - устаревшие claims не проходят public projection;
-- проектное заявление не превращается в факт физической реализации;
-- маршрутные claims требуют route evidence;
-- plan не превращается в lot;
-- lot availability/price проверяются по свежести;
-- render/photo различаются в подписи;
-- asset без подтверждённых прав не попадает в public projection;
-- marketContext, private notes и integration secrets не попадают в runtime;
-- отсутствующий домен не блокирует независимые модули;
-- старый passport fixture даёт предсказуемый migration report.
+- проектное заявление не превращается в факт реализации;
+- plan не превращается в Property Unit;
+- availability и price проходят freshness checks;
+- внешние POI не смешиваются с Site Features;
+- asset без подтверждённых прав не публикуется;
+- marketContext/private data не попадают в runtime;
+- отсутствие необязательной сущности не блокирует независимые модули;
+- migration report фиксирует потери и неоднозначности.
 
-## 8. Решения для проверки до реализации
+## 9. Условия перехода к JSON Schema 2.0.0
 
-1. Нужен ли единый registry организаций уже в первом этапе или достаточно developer entity.
-2. Какие типы недвижимости поддерживать в первой версии кроме многоквартирных ЖК.
-3. Где хранить документы и медиа: внешние URL, Project storage или оба варианта.
-4. Какую систему единиц/валют и локалей поддержать для первого рынка.
-5. Какие поля лотов можно получать законно и с какой частотой обновлять.
-6. Какие статусы availability и публикации являются каноническими.
-7. Какие права и legal review нужны для публичного использования медиа и коммерческих условий.
+До реализации требуется:
+1. сверить сущности с текущими runtime consumers;
+2. определить conditional rules для Property Unit;
+3. определить единый формат subject references;
+4. определить Site Features и связи с корпусами;
+5. завершить field mapping 1.0.0;
+6. подготовить positive/negative fixtures и migration tests.
 
-До закрытия этих вопросов не следует генерировать окончательный JSON Schema 2.0.0. Следующий этап — проверить модель на двух-трёх контрастных типах объектов и пройти полный mapping каждого текущего поля.
+До выполнения этих условий текущая schema 1.0.0 остаётся production contract. Данный документ — proposal, не изменение runtime.
