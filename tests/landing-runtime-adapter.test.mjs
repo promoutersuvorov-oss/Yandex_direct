@@ -68,6 +68,15 @@ test("rejects marketing claims backed by expired or internal-only facts",()=>{
   assert.throws(()=>buildLandingProfile(passport(),privateCopy),/non-publishable fact/);
 });
 
+test("fails explicitly when a selected eligible module has no runtime implementation",()=>{
+  const p=passport();
+  p.contentStrategy.modules.push({moduleId:"security",decision:"include",reason:"Есть подтверждённые данные",order:5});
+  assert.throws(
+    ()=>buildLandingProfile(p,marketing(),{}, {now:"2026-11-06T00:00:00Z"}),
+    /Selected module "security" has no runtime implementation/
+  );
+});
+
 test("keeps unsupported assets and unverified modules out of the profile",()=>{
   const p=passport();
   p.assets.images.push({id:"wrong",type:"render",url:"https://cdn.example/wrong.webp",status:"approved",projectMatch:"unconfirmed",rightsStatus:"confirmed"});
