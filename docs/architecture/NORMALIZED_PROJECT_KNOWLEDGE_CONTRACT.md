@@ -233,7 +233,7 @@ SiteFeature описывает внутреннюю среду проекта. �
       id: string,
       subject: EntityRef,
       predicate: string,
-      value: unknown,
+      value: string | number | boolean | string[] | Measurement,
       unit?: string,
       modality: "designed" | "declared" | "observed" | "measured" | "legally_registered" | "independently_verified",
       epistemicStatus: "verified" | "provisional" | "hypothesis" | "unknown" | "conflicting" | "outdated",
@@ -364,3 +364,8 @@ Legacy adapter должен возвращать warnings для значени�
 5. Какой минимальный формат геометрии и координат нужен, учитывая, что сейчас builder использует только текстовые POI и маршрутные подписи?
 
 Решения должны исходить из реальных источников данных и потребностей ближайшего генератора, а не из абстрактной универсальности.
+
+
+## 12. Уточнение минимального контракта и legacy mapping
+
+Более точный минимальный NPK и полное сопоставление полей паспорта 1.0.0 с целевыми доменами зафиксированы в [PASSPORT_V1_TO_NORMALIZED_MAPPING.md](PASSPORT_V1_TO_NORMALIZED_MAPPING.md). При расхождениях использовать этот mapping как более позднюю спецификацию: `Claim.value` должен быть типизированным, `apartment_with_terrace` не является отдельным `unitKind`, а текущие runtime consumers определяют минимальный обязательный набор первой реализации.
