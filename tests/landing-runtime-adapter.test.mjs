@@ -95,3 +95,22 @@ test("maps approved quiz schema only when the corresponding offer exists",()=>{
   assert.equal(profile.selectionQuiz.questions[0].id,"rooms");
   assert.equal(profile.offers.quiz.scenarioId,"selection");
 });
+
+test("preserves distinct viewing, consultation and callback offers and their canonical IDs",()=>{
+  const p=passport();
+  p.offers.push(
+    {id:"viewing-followup",title:"Записаться на просмотр",type:"viewing",status:"active",scenarioId:"book_viewing"},
+    {id:"expert-consultation",title:"Получить консультацию",type:"consultation",status:"active",scenarioId:"expert_consultation"},
+    {id:"callback-request",title:"Заказать звонок",type:"callback",status:"active",scenarioId:"callback_request"},
+    {id:"other-request",title:"Другой вопрос",type:"other",status:"active",scenarioId:"other_request"}
+  );
+  const profile=buildLandingProfile(p,marketing());
+  assert.equal(profile.offers.viewing.scenarioId,"book_viewing");
+  assert.equal(profile.offers.viewing.offerId,"viewing-followup");
+  assert.equal(profile.offers.consultation.scenarioId,"expert_consultation");
+  assert.equal(profile.offers.consultation.offerId,"expert-consultation");
+  assert.equal(profile.offers.callback.scenarioId,"callback_request");
+  assert.equal(profile.offers.callback.offerId,"callback-request");
+  assert.equal(profile.offers.other.scenarioId,"other_request");
+  assert.equal(profile.offers.other.offerId,"other-request");
+});
