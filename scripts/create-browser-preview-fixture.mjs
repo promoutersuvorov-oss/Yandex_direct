@@ -35,6 +35,12 @@ passport.facts = [{
   status: "verified",
   publicUse: "allowed",
   sources: [evidence("Синтетическое подтверждение для CI", "positioning")]
+}, {
+  id: "mortgage-terms",
+  claim: "Синтетические условия кредитования для проверки доступности ипотечного инструмента.",
+  status: "verified",
+  publicUse: "allowed_with_qualification",
+  sources: [evidence("Синтетические условия кредитования для CI", "mortgage-terms")]
 }];
 passport.project.positioningStatus = "approved";
 passport.project.positioningFactIds = ["fixture-positioning-proof"];
@@ -67,7 +73,8 @@ passport.infrastructure = [
 ];
 passport.offers = [
   { id: "presentation", scenarioId: "presentation-request", title: "Получить тестовую презентацию", type: "presentation", status: "active", requiredFields: ["name", "phone"], consentRequired: true },
-  { id: "selection", scenarioId: "guided-apartment-selection", title: "Тестовый подбор", type: "apartment_selection", status: "active", requiredFields: ["name", "phone"], consentRequired: true }
+  { id: "selection", scenarioId: "guided-apartment-selection", title: "Тестовый подбор", type: "apartment_selection", status: "active", requiredFields: ["name", "phone"], consentRequired: true },
+  { id: "mortgage-estimate", scenarioId: "mortgage-estimate", title: "Расчёт ипотечного платежа", type: "mortgage_estimate", status: "active", requiredFields: [], consentRequired: true }
 ];
 passport.assets.images = [
   media("fixture-hero", "https://example.invalid/tests/fixtures/preview-hero.svg", "render", "Синтетический фасад"),
@@ -132,7 +139,8 @@ passport.contentStrategy.modules = [
   { moduleId: "lifestyle", decision: "include", reason: "Проверка image-led layout", variant: "image-led", requiredFactIds: ["fixture-positioning-proof"], assetIds: ["fixture-gallery"] },
   { moduleId: "security", decision: "include", reason: "Проверка proof-led layout", variant: "proof-led", requiredFactIds: ["fixture-positioning-proof"] },
   { moduleId: "developer", decision: "include", reason: "Проверка immersive layout", variant: "immersive", assetIds: ["fixture-hero"] },
-  { moduleId: "faq", decision: "include", reason: "Проверка структурированного FAQ", variant: "faq-accordion", requiredFactIds: ["fixture-positioning-proof"] }
+  { moduleId: "faq", decision: "include", reason: "Проверка структурированного FAQ", variant: "faq-accordion", requiredFactIds: ["fixture-positioning-proof"] },
+  { moduleId: "mortgage", decision: "conditional", order: 90, reason: "Проверка локального расчёта по введённым посетителем параметрам", variant: "step-form", requiredFactIds: ["mortgage-terms"] }
 ];
 mkdirSync(dirname(output), { recursive: true });
 writeFileSync(output, JSON.stringify(passport, null, 2) + "\n", "utf8");
