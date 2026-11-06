@@ -74,7 +74,7 @@ import { validatePositioningGate } from "../src/landing-brief.mjs";
 
 function approvedPositioningBrief() {
   const valid = structuredClone(brief);
-  valid.positioning = {
+  valid.strategy.positioning = {
     audienceSegmentId: "young_professionals",
     primaryNeed: "A more convenient everyday routine",
     productFocus: "Selected apartments in the sample residence",
@@ -104,7 +104,7 @@ test("blocks production generation when positioning is missing", () => {
 
 test("blocks hypothesis and review statuses from production generation", () => {
   const invalid = approvedPositioningBrief();
-  invalid.positioning.gateStatus = "hypothesis";
+  invalid.strategy.positioning.gateStatus = "hypothesis";
   assert.ok(validatePositioningGate(invalid).some(error => error.includes("not approved")));
 });
 
@@ -114,8 +114,8 @@ test("approves a complete five-part positioning contract with evidence and sign-
 
 test("blocks positioning that references a missing audience segment or unverified product/converter", () => {
   const invalid = approvedPositioningBrief();
-  invalid.positioning.audienceSegmentId = "missing_segment";
-  invalid.positioning.evidenceBasis.product.type = "expert_hypothesis";
+  invalid.strategy.positioning.audienceSegmentId = "missing_segment";
+  invalid.strategy.positioning.evidenceBasis.product.type = "expert_hypothesis";
   invalid.positioning.evidenceBasis.converter.type = "unknown";
   const errors = validatePositioningGate(invalid);
   assert.ok(errors.some(error => error.includes("unknown segment")));
