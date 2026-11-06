@@ -52,6 +52,17 @@ test("builds a public runtime profile from a passport and approved copy",()=>{
   assert.equal("facts" in profile,false);
 });
 
+test("exposes the three supported gallery compositions and defaults safely",()=>{
+  for (const layout of ["mosaic", "editorial", "strip"]) {
+    const p = passport();
+    p.contentStrategy.visualDirection.galleryLayout = layout;
+    assert.equal(buildLandingProfile(p, marketing()).design.galleryLayout, layout);
+  }
+  const invalid = passport();
+  invalid.contentStrategy.visualDirection.galleryLayout = "unimplemented-layout";
+  assert.equal(buildLandingProfile(invalid, marketing()).design.galleryLayout, "mosaic");
+});
+
 test("exposes the three supported hero compositions and defaults safely",()=>{
   for (const layout of ["split", "fullscreen", "editorial"]) {
     const p = passport();
