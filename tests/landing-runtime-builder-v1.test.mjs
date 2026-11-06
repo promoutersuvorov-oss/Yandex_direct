@@ -76,6 +76,27 @@ test("fails closed on claims requiring publication qualification until qualified
     },{},{now:"2026-11-06T00:00:00Z"}),
     /must be unique per fact/
   );
+  const duplicateClaim=input();
+  duplicateClaim.knowledge.claims[0].publicUse="allowed_with_qualification";
+  duplicateClaim.knowledge.claims[0].limitations=["Характеристики могут измениться."];
+  duplicateClaim.refs.factIdToClaimId.f1Alias="c1";
+  assert.throws(
+    ()=>buildLandingProfileFromKnowledge(duplicateClaim.knowledge,duplicateClaim.landingInputs,duplicateClaim.refs,{
+      ...qualifiedMarketing,
+      claimFactIds:{headline:["f1","f1Alias"]},
+      claimQualifications:{headline:[
+        {factId:"f1",text:"Первая оговорка."},{factId:"f1Alias",text:"Вторая оговорка."}
+      ]}
+    },{},{now:"2026-11-06T00:00:00Z"}),
+    /must be unique per claim/
+  );
+  const emptyLimitations=input();
+  emptyLimitations.knowledge.claims[0].publicUse="allowed_with_qualification";
+  emptyLimitations.knowledge.claims[0].limitations=["   "];
+  assert.throws(
+    ()=>buildLandingProfileFromKnowledge(emptyLimitations.knowledge,emptyLimitations.landingInputs,emptyLimitations.refs,qualifiedMarketing,{},{now:"2026-11-06T00:00:00Z"}),
+    /non-empty qualification limitations/
+  );
   assert.throws(
     ()=>buildLandingProfileFromKnowledge(approved.knowledge,approved.landingInputs,approved.refs,{...qualifiedMarketing,claimQualifications:{headline:[{factId:"missing",text:"Оговорка"}]}},{},{now:"2026-11-06T00:00:00Z"}),
     /must identify a mapped fact/
