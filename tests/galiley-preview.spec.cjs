@@ -15,6 +15,13 @@ test("Galiley preview renders its own project identity and garden-modern composi
   await expect(page.locator("#module-hero .hero-meta")).toContainText("Воронеж");
   await expect(page.locator("#module-hero .hero-meta-item:nth-child(2) dd")).toHaveText("Ленинский район");
   await expect(page.locator("#module-hero .hero-meta")).not.toContainText("Кривошеина");
+  const heroCopy = page.locator("#module-hero .module-copy.hero-editorial");
+  await expect(heroCopy).toBeVisible();
+  await expect(heroCopy.locator(".hero-proof li")).toHaveCount(2);
+  const heroCopyColumns = await heroCopy.evaluate(node => getComputedStyle(node).gridTemplateColumns);
+  expect(heroCopyColumns.trim().split(/\\s+/)).toHaveLength(2);
+  await expect(heroCopy.locator(".hero-proof")).toContainText("сад");
+  await expect(heroCopy.locator(".hero-proof")).toContainText("баварском стиле");
   expect(await page.locator("main [data-module]").count()).toBeGreaterThanOrEqual(3);
   await expect(page.locator("body")).toContainText("Сад внутри городского комплекса");
   // Infrastructure is grouped by type as a compact editorial list, not
@@ -105,6 +112,10 @@ test("Galiley preview remains usable on a narrow mobile viewport", async ({ page
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto(url, { waitUntil: "networkidle" });
   await expect(page.getByRole("heading", { level: 1, name: "ЖК «Галилей»" })).toBeVisible();
+  const mobileHeroCopy = page.locator("#module-hero .module-copy.hero-editorial");
+  const mobileHeroColumns = await mobileHeroCopy.evaluate(node => getComputedStyle(node).gridTemplateColumns);
+  expect(mobileHeroColumns.trim().split(/\\s+/)).toHaveLength(1);
+  await expect(mobileHeroCopy.locator(".hero-proof li")).toHaveCount(2);
   for (const moduleId of ["lifestyle", "about"]) {
     const copy = page.locator(`#module-${moduleId} .module-copy.editorial-pair`);
     const columns = await copy.evaluate(node => getComputedStyle(node).gridTemplateColumns);
