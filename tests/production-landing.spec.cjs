@@ -110,6 +110,7 @@ test("approved passport quiz replaces the demo questions and submits project-spe
 
 test("production webhook receives the canonical KEY payload with consent and ad attribution", async ({ page }) => {
   let received;
+  let idempotencyKey;
   await page.route("**/project.config.js", route => route.fulfill({
     contentType: "application/javascript",
     body: "window.KEY_PROJECT = " + JSON.stringify(productionProfile) + ";"
@@ -120,6 +121,7 @@ test("production webhook receives the canonical KEY payload with consent and ad 
       return;
     }
     received = route.request().postDataJSON();
+    idempotencyKey = route.request().headers()["idempotency-key"];
     await route.fulfill({ status: 202, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" }, body: JSON.stringify({ accepted: true }) });
   });
   await page.goto(url + "?utm_source=yandex&utm_campaign=universal-test");
@@ -143,6 +145,7 @@ test("production webhook receives the canonical KEY payload with consent and ad 
   });
   expect(received.eventId).toMatch(/^evt_[a-f0-9]{32}$/);
   expect(received.leadId).toMatch(/^lead_[a-f0-9]{32}$/);
+  expect(idempotencyKey).toBe(received.eventId);
   expect(received.pageUrl).toContain("utm_source=yandex");
   expect(received.createdAt).toBeTruthy();
 });
@@ -249,4 +252,64 @@ test("approved marketing strategy controls the hero CTA and persists IDs to the 
     funnelId: "location_to_presentation",
     segmentId: "young_professionals"
   });
+});
+
+
+test("a retry reuses the same lead IDs and idempotency key after a transport failure", async ({ page }) => {
+  const deliveries = [];
+  await page.route("**/project.config.js", route => route.fulfill({
+    contentType: "application/javascript",
+    body: "window.KEY_PROJECT = " + JSON.stringify(productionProfile) + ";"
+  }));
+  await page.route("https://hooks.example/**", async route => {
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Idempotency-Key" } });
+      return;
+    }
+    deliveries.push({
+      payload: route.request().postDataJSON(),
+      key: route.request().headers()["idempotency-key"]
+    });
+    if (deliveries.length === 1) {
+      await route.fulfill({ status: 503, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" }, body: JSON.stringify({ accepted: false }) });
+    } else {
+      await route.fulfill({ status: 202, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" }, body: JSON.stringify({ accepted: true }) });
+    }
+  });
+  await page.goto(url);
+  await page.locator(".hero [data-open-offer='presentation']").click();
+  await page.locator('#lead-form input[name="name"]').fill("Повторная отправка");
+  await page.locator('#lead-form input[name="phone"]').fill("+7 999 123-45-67");
+  await page.locator('#lead-form input[name="consent"]').check();
+  await page.locator("#lead-submit").click();
+  await expect(page.locator("#form-status")).toContainText("Не удалось передать запрос");
+  await page.locator("#lead-submit").click();
+  await expect(page.locator("#form-status")).toContainText("Запрос принят");
+  expect(deliveries).toHaveLength(2);
+  expect(deliveries[1].payload.eventId).toBe(deliveries[0].payload.eventId);
+  expect(deliveries[1].payload.leadId).toBe(deliveries[0].payload.leadId);
+  expect(deliveries[0].key).toBe(deliveries[0].payload.eventId);
+  expect(deliveries[1].key).toBe(deliveries[0].payload.eventId);
+});
+
+test("a successful HTTP status without a structured acceptance acknowledgement is not success", async ({ page }) => {
+  await page.route("**/project.config.js", route => route.fulfill({
+    contentType: "application/javascript",
+    body: "window.KEY_PROJECT = " + JSON.stringify(productionProfile) + ";"
+  }));
+  await page.route("https://hooks.example/**", async route => {
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Idempotency-Key" } });
+      return;
+    }
+    await route.fulfill({ status: 202, contentType: "text/plain", headers: { "Access-Control-Allow-Origin": "*" }, body: "accepted" });
+  });
+  await page.goto(url);
+  await page.locator(".hero [data-open-offer='presentation']").click();
+  await page.locator('#lead-form input[name="name"]').fill("Тест подтверждения");
+  await page.locator('#lead-form input[name="phone"]').fill("+7 999 123-45-67");
+  await page.locator('#lead-form input[name="consent"]').check();
+  await page.locator("#lead-submit").click();
+  await expect(page.locator("#form-status")).toContainText("Не удалось передать запрос");
+  await expect(page.locator("#form-status")).not.toContainText("Запрос принят");
 });
