@@ -216,18 +216,27 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
   });
   const infrastructure = (passport.infrastructure || []).filter(item => {
     if (item.status !== "verified" || !item.name || !item.source?.url) return false;
-    if (item.distanceMeters !== undefined || item.walkingMinutes !== undefined) {
-      return item.distanceEvidence?.source?.url && future(item.distanceEvidence.validUntil, now) &&
-        (item.distanceEvidence.method !== "straight_line" || item.walkingMinutes === undefined);
-    }
+    const hasDistance = Number.isFinite(item.distanceMeters) && item.distanceMeters >= 0;
+    const hasWalkingTime = Number.isInteger(item.walkingMinutes) && item.walkingMinutes >= 0;
+    const evidence = item.distanceEvidence;
+    if (!hasDistance || !evidence?.source?.url ||
+        !Number.isFinite(Date.parse(evidence.checkedAt)) ||
+        !nonEmpty(evidence.validUntil) || !future(evidence.validUntil, now)) return false;
+    if (!["walking_route", "straight_line"].includes(evidence.method)) return false;
+    if (hasWalkingTime && evidence.method !== "walking_route") return false;
     return true;
   }).map(item => {
-    let distanceLabel = item.publicLabel || "";
-    if (!distanceLabel && item.walkingMinutes !== undefined) distanceLabel = `${item.walkingMinutes} мин. пешком`;
-    else if (!distanceLabel && item.distanceMeters !== undefined) distanceLabel = item.distanceMeters >= 1000 ?
-      `${(item.distanceMeters / 1000).toLocaleString("ru-RU")} км` : `${Math.round(item.distanceMeters)} м`;
+    const evidence = item.distanceEvidence;
+    const distance = item.distanceMeters >= 1000
+      ? `${(item.distanceMeters / 1000).toLocaleString("ru-RU")} км`
+      : `${Math.round(item.distanceMeters)} м`;
+    const distanceLabel = item.walkingMinutes !== undefined && evidence.method === "walking_route"
+      ? `${item.walkingMinutes} мин. пешком`
+      : evidence.method === "straight_line"
+        ? `${distance} по прямой`
+        : `${distance} по маршруту`;
     return { name: item.name, distanceLabel, status: "verified" };
-  }).filter(item => item.distanceLabel);
+  });
 
   const offers = {};
   for (const offer of passport.offers || []) {
