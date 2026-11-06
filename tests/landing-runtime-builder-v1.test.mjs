@@ -149,3 +149,17 @@ test("publishes lifestyle stories only with approved copy, publishable claims an
   noRights.landingInputs.lifestyleStories=x.landingInputs.lifestyleStories;
   assert.throws(()=>buildLandingProfileFromKnowledge(noRights.knowledge,noRights.landingInputs,noRights.refs,marketing,{},{}),/approved-lifestyle-stories/);
 });
+
+test("FAQ answers are composed only from publishable required claims and their source titles",()=>{
+  const x=input();
+  x.landingInputs.strategy.modules=[{moduleId:"faq",decision:"include",variant:"faq-accordion",order:8,requiredFactIds:["f1"]}];
+  x.landingInputs.faqDrafts=[{id:"faq-1",question:"Что известно о проекте?",requiredFactIds:["f1"]}];
+  const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
+  assert.deepEqual(profile.composition,["faq"]);
+  assert.deepEqual(profile.faqItems,[{id:"faq-1",question:"Что известно о проекте?",
+    answer:[{factId:"f1",claim:"Факт",sourceTitle:"Официальный источник"}]}]);
+  const blocked=input();
+  blocked.landingInputs.strategy.modules=[{moduleId:"faq",decision:"include",variant:"faq-accordion",order:8}];
+  blocked.landingInputs.faqDrafts=[{id:"faq-2",question:"Можно ли подтвердить это?",requiredFactIds:["missing"]}];
+  assert.throws(()=>buildLandingProfileFromKnowledge(blocked.knowledge,blocked.landingInputs,blocked.refs,marketing,{},{}),/approved-faq-answers/);
+});
