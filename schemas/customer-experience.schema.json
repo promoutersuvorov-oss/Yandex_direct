@@ -1,0 +1,529 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://key.local/schemas/customer-experience.schema.json",
+  "title": "KEY Customer Experience Research and Journey",
+  "description": "Evidence-aware customer research, behavioral model, customer journey and value proposition contract. This is not a source of project facts or proof of validated buyer behavior.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "status",
+    "researchBasis",
+    "segments",
+    "journeys",
+    "valuePropositions",
+    "measurementPlan",
+    "blockingIssues"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "hypothesis",
+        "research_in_progress",
+        "ready_for_review",
+        "approved",
+        "blocked"
+      ]
+    },
+    "updatedAt": {
+      "type": "string"
+    },
+    "researchBasis": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
+    },
+    "segments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/segment"
+      }
+    },
+    "journeys": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/journey"
+      }
+    },
+    "valuePropositions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/valueProposition"
+      }
+    },
+    "measurementPlan": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/measurement"
+      }
+    },
+    "blockingIssues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "approvedBy": {
+      "type": "string"
+    },
+    "approvedAt": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "description",
+        "source",
+        "method",
+        "limitations",
+        "confidence"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "interview",
+            "crm",
+            "behavioral_analytics",
+            "search_data",
+            "survey",
+            "usability_test",
+            "market_research",
+            "public_research",
+            "project_fact",
+            "expert_hypothesis",
+            "unknown"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "period": {
+          "type": "string"
+        },
+        "sampleSize": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        }
+      }
+    },
+    "insight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "statement",
+        "status",
+        "evidenceIds",
+        "confidence",
+        "rationale"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+        },
+        "statement": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "observed",
+            "validated",
+            "hypothesis",
+            "unknown"
+          ]
+        },
+        "evidenceIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "rationale": {
+          "type": "string"
+        }
+      }
+    },
+    "segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "lifeContext",
+        "jtbd",
+        "desiredOutcomes",
+        "criteria",
+        "barriers",
+        "insights"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+        },
+        "label": {
+          "type": "string"
+        },
+        "lifeContext": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/insight"
+          }
+        },
+        "jtbd": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/insight"
+          }
+        },
+        "desiredOutcomes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/insight"
+          }
+        },
+        "criteria": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/insight"
+          }
+        },
+        "barriers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/insight"
+          }
+        },
+        "motivations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/insight"
+          }
+        },
+        "fears": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/insight"
+          }
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/insight"
+          }
+        },
+        "proofNeeds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/insight"
+          }
+        },
+        "decisionTriggers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/insight"
+          }
+        }
+      }
+    },
+    "journeyStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "stage",
+        "buyerGoal",
+        "touchpoints",
+        "barriers",
+        "valueProvided",
+        "nextAction",
+        "analyticsEvents",
+        "evidenceIds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+        },
+        "stage": {
+          "type": "string"
+        },
+        "buyerGoal": {
+          "type": "string"
+        },
+        "buyerQuestion": {
+          "type": "string"
+        },
+        "thoughtsAndEmotions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/insight"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "touchpoints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "barriers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "proofNeeds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "valueProvided": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nextAction": {
+          "type": "string"
+        },
+        "ctaId": {
+          "type": "string"
+        },
+        "offerId": {
+          "type": "string"
+        },
+        "analyticsEvents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "owner": {
+          "type": "string"
+        },
+        "evidenceIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "journey": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "segmentId",
+        "status",
+        "steps"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+        },
+        "segmentId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "hypothesis",
+            "observed",
+            "validated"
+          ]
+        },
+        "entryContexts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/journeyStep"
+          }
+        }
+      }
+    },
+    "valueProposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "segmentIds",
+        "intent",
+        "problemSolved",
+        "deliverable",
+        "contactRequirement",
+        "operationalStatus",
+        "evidenceIds",
+        "limitations",
+        "successMetric"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+        },
+        "segmentIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "intent": {
+          "type": "string"
+        },
+        "problemSolved": {
+          "type": "string"
+        },
+        "deliverable": {
+          "type": "string"
+        },
+        "deliveryMethod": {
+          "type": "string"
+        },
+        "deliveryTime": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "contactRequirement": {
+          "type": "string",
+          "enum": [
+            "none",
+            "optional",
+            "required_for_delivery",
+            "required_for_personalization",
+            "required_for_follow_up",
+            "unknown"
+          ]
+        },
+        "operationalStatus": {
+          "type": "string",
+          "enum": [
+            "ready",
+            "in_progress",
+            "not_ready",
+            "unknown"
+          ]
+        },
+        "evidenceIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "successMetric": {
+          "type": "string"
+        },
+        "nextStep": {
+          "type": "string"
+        }
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "metric",
+        "stage",
+        "definition",
+        "source",
+        "guardrails"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metric": {
+          "type": "string"
+        },
+        "stage": {
+          "type": "string"
+        },
+        "definition": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "guardrails": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
