@@ -273,8 +273,13 @@ export function normalizePassportV1(passport) {
   addProjectClaim(project.constructionStatus, "project.construction_status", "$.project.constructionStatus");
   const inventory = project.inventory || {};
   addProjectClaim(inventory.apartmentCount, "project.inventory.apartment_count", "$.project.inventory.apartmentCount");
-  addProjectClaim(inventory.priceFrom, "project.inventory.price_from", "$.project.inventory.priceFrom");
-  addProjectClaim(inventory.areaRange, "project.inventory.area_range", "$.project.inventory.areaRange");
+  if (isObject(inventory.priceFrom) && inventory.priceFrom.value !== null && inventory.priceFrom.value !== undefined) {
+    warnings.push({
+      code: "PRICE_FROM_REQUIRES_COMMERCIAL_TERM",
+      path: "$.project.inventory.priceFrom",
+      message: "Цена не перенесена в Project Knowledge: для CommercialTerm необходимы валюта, scope, дата наблюдения и срок действия."
+    });
+  }
   addProjectClaim(inventory.finishing, "project.inventory.finishing", "$.project.inventory.finishing");
   if (typeof inventory.layoutsAvailable === "boolean") {
     warnings.push({
@@ -375,6 +380,22 @@ export function normalizePassportV1(passport) {
       return;
     }
     const provenance = collector.addSources(plan.sources || [], `${path}.sources`);
+    let finishingClaimId;
+    if (nonEmpty(plan.finishing)) {
+      finishingClaimId = stableId("claim", `plan:${plan.id}:finishing`);
+      claims.push(makeClaim({
+        id: finishingClaimId,
+        subject: { type: "plan", id: plan.id },
+        predicate: "plan.finishing",
+        value: { kind: "text", value: plan.finishing },
+        status: plan.status,
+        publicUse: plan.publicUse,
+        sourceIds: provenance.sourceIds,
+        evidenceIds: provenance.evidenceIds,
+        validUntil: plan.expiresAt,
+        limitations: []
+      }));
+    }
     plans.push({
       id: plan.id,
       planKind: "apartment_floor_plan",
@@ -384,10 +405,11 @@ export function normalizePassportV1(passport) {
       ...(Number.isInteger(plan.rooms) ? { rooms: plan.rooms } : {}),
       ...(typeof plan.areaSqm === "number" ? { area: { kind: "measurement", value: plan.areaSqm, unit: "m2" } } : {}),
       ...(Number.isInteger(plan.floor) ? { floor: plan.floor } : {}),
+      ...(finishingClaimId ? { finishingClaimId } : {}),
       sourceIds: provenance.sourceIds,
       evidenceIds: provenance.evidenceIds,
       epistemicStatus: STATUS_MAP[plan.status] || "unknown",
-      publicUse: provenance.sourceIds.length > 0 && provenance.evidenceIds.length > 0 &&
+      publicUse: plan.status === "verified" && provenance.sourceIds.length > 0 && provenance.evidenceIds.length > 0 &&
         planAsset.projectMatch === "confirmed" && planAsset.rightsStatus === "confirmed" &&
         planAsset.rightsEvidenceIds.length > 0 && planAsset.publicationStatus === "approved"
         ? mapPublicationPolicy(plan.publicUse) : "internal_only",
@@ -539,6 +561,20 @@ export function normalizePassportV1(passport) {
       code: "OFFERS_NOT_MIGRATED",
       path: "$.offers",
       message: "Офферы должны мигрировать в Conversion Catalog, а не в Project Knowledge."
+    });
+  }
+  if (nonEmpty(project.positioning) || Array.isArray(project.audiences) && project.audiences.length) {
+    warnings.push({
+      code: "PROJECT_POSITIONING_NOT_MIGRATED",
+      path: "$.project",
+      message: "Positioning и audiences относятся к Landing Brief/Customer Experience, а не к Project Knowledge."
+    });
+  }
+  if (isObject(project.location?.coordinates)) {
+    warnings.push({
+      code: "COORDINATES_WITHOUT_PROVENANCE",
+      path: "$.project.location.coordinates",
+      message: "Координаты не перенесены: в legacy поле нет отдельного источника и evidence."
     });
   }
   if (passport.contentStrategy || passport.selectionQuiz || passport.faq) {
