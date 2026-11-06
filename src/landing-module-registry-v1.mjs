@@ -8,7 +8,7 @@ const MODULES = {
   location: { sectionId:"location", variants:{ "location-led":"location-led" }, capabilities:[], merge:"single" },
   "floor-plans": { sectionId:"apartments", variants:{ "plan-selector":"plan-selector" }, capabilities:["current-inventory","rights-cleared-plan-assets"], merge:"single" },
   mortgage: { sectionId:"calculator", variants:{ "conversion-led":"user-input-estimate" }, capabilities:["verified-mortgage-terms"], merge:"single" },
-  faq: { unsupported:true, reason:"В текущем runtime нет структурированного FAQ-компонента." },
+  faq: { sectionId:"faq", variants:{ "faq-accordion":"evidence-accordion" }, capabilities:["approved-faq-answers"], merge:"single" },
   contacts: { slot:"closing", variants:{ "conversion-led":"closing-cta" }, capabilities:["approved-key-lead-workflow"], merge:"slot" }
 };
 
