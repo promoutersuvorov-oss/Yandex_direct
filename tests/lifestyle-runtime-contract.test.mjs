@@ -8,7 +8,7 @@ const css=readFileSync(new URL("../landing/runtime/styles.css",import.meta.url),
 
 test("lifestyle is a dedicated semantic section, not a gallery alias",()=>{
   assert.match(html,/<section class="lifestyle-section[^"]*" id="lifestyle"/);
-  assert.match(html,/<div class="lifestyle-grid" id="lifestyle-grid"><\/div>/);
+  assert.ok(html.includes('<div class="lifestyle-grid" id="lifestyle-grid"></div>'));
   assert.match(app,/const sectionIds = \[[^\]]*"lifestyle"/);
   assert.match(app,/data\.lifestyleStories/);
   assert.match(app,/story\.evidence/);
