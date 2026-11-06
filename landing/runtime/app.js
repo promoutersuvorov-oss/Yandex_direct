@@ -117,7 +117,8 @@ import { createAttributionState } from "../../src/attribution.mjs";
   }
 
   const lifestyleGrid = $("#lifestyle-grid");
-  const approvedLifestyleStories = Array.isArray(data.lifestyleStories) ? data.lifestyleStories.filter(story =>
+  const lifestyleModuleSelected = Array.isArray(data.composition) && data.composition.includes("lifestyle");
+  const approvedLifestyleStories = lifestyleModuleSelected && Array.isArray(data.lifestyleStories) ? data.lifestyleStories.filter(story =>
     story && story.status === "approved" && story.title && story.description &&
     story.assetUrl && safeUrl(story.assetUrl) &&
     Array.isArray(story.evidence) && story.evidence.length > 0
@@ -134,7 +135,8 @@ import { createAttributionState } from "../../src/attribution.mjs";
   }
 
   const faqList = $("#faq-list");
-  const approvedFaqItems = Array.isArray(data.faqItems) ? data.faqItems.filter(item =>
+  const faqModuleSelected = Array.isArray(data.composition) && data.composition.includes("faq");
+  const approvedFaqItems = faqModuleSelected && Array.isArray(data.faqItems) ? data.faqItems.filter(item =>
     item && item.question && Array.isArray(item.answer) && item.answer.length > 0 &&
     item.answer.every(part => part && part.claim && part.sourceTitle)
   ) : [];
