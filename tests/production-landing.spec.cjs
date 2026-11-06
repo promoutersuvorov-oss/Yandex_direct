@@ -313,3 +313,34 @@ test("a successful HTTP status without a structured acceptance acknowledgement i
   await expect(page.locator("#form-status")).toContainText("Не удалось передать запрос");
   await expect(page.locator("#form-status")).not.toContainText("Запрос принят");
 });
+
+
+test("all hero compositions preserve the CTA and collapse safely on mobile", async ({ page }) => {
+  for (const layout of ["split", "editorial", "fullscreen"]) {
+    const profile = structuredClone(productionProfile);
+    profile.design = { palette: {}, heroLayout: layout };
+    await page.route("**/project.config.js", route => route.fulfill({
+      contentType: "application/javascript",
+      body: "window.KEY_PROJECT = " + JSON.stringify(profile) + ";"
+    }));
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(url);
+    const hero = page.locator("#hero");
+    await expect(hero).toHaveAttribute("data-layout", layout);
+    await expect(page.locator('.hero [data-open-offer="presentation"]')).toBeVisible();
+    await expect(page.locator(".hero-art")).toBeVisible();
+    const desktopColumns = await hero.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length);
+    expect(desktopColumns).toBe(layout === "fullscreen" ? 1 : 2);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    const mobile = await page.evaluate(() => ({
+      view: document.documentElement.clientWidth,
+      document: document.documentElement.scrollWidth,
+      body: document.body.scrollWidth,
+      columns: getComputedStyle(document.querySelector("#hero")).gridTemplateColumns.split(" ").length
+    }));
+    expect(Math.max(mobile.document, mobile.body)).toBeLessThanOrEqual(mobile.view + 1);
+    expect(mobile.columns).toBe(1);
+    await expect(page.locator('.hero [data-open-offer="presentation"]')).toBeVisible();
+  }
+});
