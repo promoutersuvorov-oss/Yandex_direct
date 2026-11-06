@@ -93,10 +93,10 @@ test("global conversion choices expose each active scenario in its own preview d
   await page.goto(url, { waitUntil: "domcontentloaded" });
   const choices = page.locator('[data-module="conversion-options"]');
   await expect(choices).toBeVisible();
-  await expect(choices.locator("[data-preview-cta]")).toHaveCount(3);
+  await expect(choices.locator("[data-preview-cta]")).toHaveCount(2);
   await expect(choices).toContainText("Получить тестовую презентацию");
   await expect(choices).toContainText("Тестовый подбор");
-  await expect(choices).toContainText("Расчёт ипотечного платежа");
+  await expect(choices).not.toContainText("Расчёт ипотечного платежа");
   await choices.locator('[data-preview-cta="selection"]').click();
   const dialog = page.locator("#previewNotice");
   await expect(dialog).toBeVisible();
