@@ -109,6 +109,7 @@ test("a marketing-only qualification never publishes infrastructure claims",()=>
   const x=input();
   x.knowledge.claims[0].publicUse="allowed_with_qualification";
   x.knowledge.claims[0].limitations=["Сведения могут измениться."];
+  x.landingInputs.strategy.modules=[];
   x.knowledge.claims[0].publicUse="allowed_with_qualification";
   x.knowledge.claims[0].limitations=["Указано в источнике; сведения могут измениться."];
   x.knowledge.claims.push({...x.knowledge.claims[0],id:"c-poi",subject:{type:"poi",id:"poi-1"},predicate:"poi.listed_by_source",publicUse:"allowed_with_qualification",limitations:["Указано в источнике; сведения могут измениться."]});
