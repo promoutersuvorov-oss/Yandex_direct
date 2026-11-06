@@ -7,6 +7,7 @@ test("Galiley preview renders its own project identity and garden-modern composi
   page.on("pageerror", error => pageErrors.push(error.message));
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(url, { waitUntil: "networkidle" });
+  await page.screenshot({ path: "test-results/galiley-preview-desktop.png", fullPage: true });
 
   await expect(page.locator("body")).toHaveAttribute("data-theme", "garden-modern");
   await expect(page.locator("body")).toHaveAttribute("data-composition", "architectural");
