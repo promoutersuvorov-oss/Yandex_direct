@@ -136,7 +136,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
       assetUrl:asset.url, alt:asset.alt || story.title, evidence, status:"approved" };
   }).filter(Boolean);
   const faqItems = (landingInputs.faqDrafts || []).filter(item =>
-    nonEmpty(item.question) && item.requiredFactIds?.length && item.requiredFactIds.every(legacyFactIsPublic)
+    item.publicationStatus === "approved" && nonEmpty(item.question) && item.requiredFactIds?.length && item.requiredFactIds.every(legacyFactIsPublic)
   ).map(item => {
     const answer = item.requiredFactIds.map(factId => {
       const claim = claims.get(legacyReferences.factIdToClaimId[factId]);
