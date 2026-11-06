@@ -87,3 +87,19 @@
  .lifestyle-card h3{margin:22px 0 12px}
  .lifestyle-card-evidence{padding-top:18px}
 }
+
+/* Evidence-backed FAQ accordion; native details/summary supports keyboard interaction. */
+.faq-section{padding-top:clamp(76px,9vw,126px);padding-bottom:clamp(76px,9vw,126px);background:var(--paper)}
+.faq-heading{max-width:720px;margin-bottom:38px}.faq-heading h2{max-width:14ch}
+.faq-heading>p:last-child{max-width:560px;color:var(--muted);font-size:14px;line-height:1.7}
+.faq-list{border-top:1px solid var(--line)}.faq-item{border-bottom:1px solid var(--line)}
+.faq-item summary{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px 2px;cursor:pointer;list-style:none;font-size:clamp(17px,2vw,22px);line-height:1.35;font-weight:500}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-toggle{position:relative;flex:0 0 24px;width:24px;height:24px;border:1px solid var(--line);border-radius:50%}
+.faq-toggle:before,.faq-toggle:after{content:"";position:absolute;left:6px;right:6px;top:11px;height:1px;background:var(--ink);transition:transform .2s ease}
+.faq-toggle:after{transform:rotate(90deg)}.faq-item[open] .faq-toggle:after{transform:rotate(0)}
+.faq-answer{max-width:760px;padding:0 48px 22px 2px}.faq-answer>p{margin:0 0 8px;color:var(--muted);font-size:14px;line-height:1.75}
+.faq-answer .faq-source{font-size:10px;letter-spacing:.02em;color:#85877e;margin-bottom:16px}
+.faq-item summary:focus-visible{outline:2px solid var(--sage);outline-offset:5px}
+@media(max-width:720px){.faq-heading{margin-bottom:24px}.faq-item summary{padding:20px 0;font-size:17px}.faq-answer{padding:0 28px 18px 0}.faq-answer>p{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.faq-toggle:before,.faq-toggle:after{transition:none}}
