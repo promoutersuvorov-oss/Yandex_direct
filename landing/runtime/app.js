@@ -108,8 +108,12 @@ import { createAttributionState } from "../../src/attribution.mjs";
     heroImage.alt = heroMedia.alt || (project.name + " — визуализация проекта");
     heroImage.hidden = false;
     $(".hero-art").classList.add("has-media");
+    $(".hero-art").classList.remove("has-fallback");
     $(".hero-art").setAttribute("role", "group");
     $(".hero-art").removeAttribute("aria-label");
+  } else {
+    text("#hero-fallback-title", project.name || "Жилой проект");
+    $(".hero-art").classList.add("has-fallback");
   }
   if (approvedMedia.length) {
     visualGrid.innerHTML = approvedMedia.slice(0, 5).map((media, index) =>
@@ -176,8 +180,12 @@ import { createAttributionState } from "../../src/attribution.mjs";
   planPreviewCta.addEventListener("click", () => planPreviewDialog.close());
 
   const locationList = $("#location-list");
-  const places = Array.isArray(data.infrastructure) ? data.infrastructure.filter(p => p && p.status === "verified" && p.name && p.distanceLabel) : [];
-  if (places.length) locationList.innerHTML = places.map(place => '<li><strong>' + esc(place.name) + '</strong><span>' + esc(place.distanceLabel) + '</span></li>').join("");
+  const places = Array.isArray(data.infrastructure) ? data.infrastructure
+    .filter(p => p && p.status === "verified" && p.name && p.distanceLabel)
+    .slice().sort((a, b) => (Number.isFinite(a.distanceMeters) ? a.distanceMeters : Number.MAX_SAFE_INTEGER) - (Number.isFinite(b.distanceMeters) ? b.distanceMeters : Number.MAX_SAFE_INTEGER))
+    .slice(0, 4) : [];
+  const placeKinds = { school:"Школа", kindergarten:"Детский сад", park:"Парк", shopping:"Покупки", transport:"Транспорт", healthcare:"Здоровье", leisure:"Досуг", other:"Рядом" };
+  if (places.length) locationList.innerHTML = places.map(place => '<li><div><span class="place-kind">' + esc(placeKinds[place.category] || "Рядом") + '</span><strong>' + esc(place.name) + '</strong></div><span>' + esc(place.distanceLabel) + '</span></li>').join("");
   const locationArt = $(".location-art");
   const locationMapImage = $("#location-map");
   const locationMap = data.locationMap;
