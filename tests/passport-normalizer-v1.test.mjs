@@ -193,6 +193,29 @@ test("does not turn layout readiness or unsupported area ranges into project cla
   assert.ok(result.warnings.some(item => item.code === "AREA_RANGE_NOT_MAPPED"));
 });
 
+test("keeps price and campaign positioning out of project knowledge without complete commercial context", () => {
+  const input = passport();
+  input.project.inventory.priceFrom = { value: "от 15 млн ₽", status: "verified", sources: [source] };
+  input.project.positioning = "Тихий центр";
+  input.project.audiences = ["Покупатели для собственного проживания"];
+  const result = normalizePassportV1(input);
+  assert.equal(result.knowledge.claims.some(item => item.predicate === "project.inventory.price_from"), false);
+  assert.ok(result.warnings.some(item => item.code === "PRICE_FROM_REQUIRES_COMMERCIAL_TERM"));
+  assert.ok(result.warnings.some(item => item.code === "PROJECT_POSITIONING_NOT_MIGRATED"));
+});
+
+test("maps plan finishing into an evidenced plan claim", () => {
+  const input = passport();
+  input.apartmentPlans[0].finishing = "White-box";
+  const result = normalizePassportV1(input);
+  const plan = result.knowledge.plans[0];
+  assert.ok(plan.finishingClaimId);
+  const claim = result.knowledge.claims.find(item => item.id === plan.finishingClaimId);
+  assert.equal(claim.subject.type, "plan");
+  assert.equal(claim.value.value, "White-box");
+  assert.equal(claim.publicUse, "allowed");
+});
+
 test("does not migrate marketing strategy, offers, private commercial notes or verification as project facts", () => {
   const result = normalizePassportV1(passport());
   assert.equal("offers" in result.knowledge, false);
