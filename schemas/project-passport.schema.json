@@ -284,6 +284,57 @@
             }
           },
           "additionalProperties": false
+        },
+        "lifestyleStories": {
+          "type": "array",
+          "description": "Редакционные сценарии повседневной жизни. Публикуются только после проверки текста, supportingFactIds и визуального актива с правами для контекста lifestyle.",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "description",
+              "assetId",
+              "supportingFactIds",
+              "publicationStatus"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sceneLabel": {
+                "type": "string"
+              },
+              "assetId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "supportingFactIds": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "publicationStatus": {
+                "type": "string",
+                "enum": [
+                  "draft",
+                  "approved"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
         }
       },
       "additionalProperties": false
