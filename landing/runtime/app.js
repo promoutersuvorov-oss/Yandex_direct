@@ -84,7 +84,10 @@ import { createAttributionState } from "../../src/attribution.mjs";
   ) : [];
   if (publishableAdvantages.length) {
     advantageGrid.innerHTML = publishableAdvantages.map((item, index) => {
-      const evidence = item.evidence.filter(source => typeof source === "string" && source.trim()).slice(0, 3);
+      const evidence = item.evidence.filter(source =>
+        source && typeof source.claim === "string" && source.claim.trim() &&
+        typeof source.sourceTitle === "string" && source.sourceTitle.trim()
+      ).slice(0, 3).map(source => esc(source.claim) + " — " + esc(source.sourceTitle));
       return '<article class="advantage-card" data-strength="' + esc(item.strength || "supporting") + '">' +
         '<span class="card-index">0' + (index + 1) + '</span>' +
         '<h3>' + esc(item.title) + '</h3>' +
