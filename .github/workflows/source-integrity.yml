@@ -57,6 +57,8 @@ jobs:
         run: node --test tests/landing-inputs-normalizer-v1.test.mjs
       - name: Test normalized runtime builder publication gates
         run: node --test tests/landing-runtime-builder-v1.test.mjs
+      - name: Test KEY Landing Module Registry
+        run: node --test tests/landing-module-registry-v1.test.mjs
       - name: Build review-only bundle from the canonical passport example
         run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out artifacts/review-bundle
       - name: Render dynamic HTML review preview
