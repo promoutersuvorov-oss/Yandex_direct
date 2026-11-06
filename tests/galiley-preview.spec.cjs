@@ -24,6 +24,11 @@ test("Galiley preview renders its own project identity and garden-modern composi
   await expect(heroCopy.locator(".hero-proof")).toContainText("баварском стиле");
   expect(await page.locator("main [data-module]").count()).toBeGreaterThanOrEqual(3);
   await expect(page.locator("body")).toContainText("Сад внутри городского комплекса");
+  const lifestyleHook = page.locator("#module-lifestyle .benefit-hook");
+  await expect(lifestyleHook).toHaveText("Городской адрес — и собственный сад внутри.");
+  const lifestyleHookStyle = await lifestyleHook.evaluate(node => ({ fontSize: getComputedStyle(node).fontSize, borderTopStyle: getComputedStyle(node).borderTopStyle }));
+  expect(Number.parseFloat(lifestyleHookStyle.fontSize)).toBeGreaterThanOrEqual(25);
+  expect(lifestyleHookStyle.borderTopStyle).toBe("solid");
   // Infrastructure is grouped by type as a compact editorial list, not
   // repeated cards with identical labels.
   const schoolGroup = page.locator(".place-group").filter({ has: page.locator(".place-group-name", { hasText: "Школы" }) });
