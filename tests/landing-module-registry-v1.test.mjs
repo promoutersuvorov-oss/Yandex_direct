@@ -59,3 +59,12 @@ test("FAQ remains explicitly unsupported and excluded modules do not block gener
   assert.equal(result.errors[0].code,"MODULE_UNSUPPORTED");
   assert.equal(LANDING_MODULE_REGISTRY_V1.faq.unsupported,true);
 });
+
+test("lifestyle resolves to its own runtime section and requires approved story capability",()=>{
+  const result=resolveRuntimeModulesV1([
+    {moduleId:"lifestyle",decision:"include",variant:"image-led",order:4,requiredFactIds:["f1"]}
+  ],{publishableFactIds:["f1"],capabilities:["approved-lifestyle-stories"]});
+  assert.deepEqual(result.errors,[]);
+  assert.deepEqual(result.composition,["lifestyle"]);
+  assert.equal(result.placements[0].sectionId,"lifestyle");
+});
