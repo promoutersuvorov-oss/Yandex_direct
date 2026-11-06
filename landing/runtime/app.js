@@ -116,6 +116,23 @@ import { createAttributionState } from "../../src/attribution.mjs";
       '<figure class="media-tile ' + (index === 0 ? "media-tile-main" : "") + '"><img src="' + esc(safeUrl(media.url)) + '" alt="' + esc(media.alt || project.name || "Материал проекта") + '" loading="' + (index === 0 ? "eager" : "lazy") + '"><figcaption>' + esc(media.caption || (media.type === "render" ? "Визуализация" : "Фотография")) + '</figcaption></figure>').join("");
   }
 
+  const lifestyleGrid = $("#lifestyle-grid");
+  const approvedLifestyleStories = Array.isArray(data.lifestyleStories) ? data.lifestyleStories.filter(story =>
+    story && story.status === "approved" && story.title && story.description &&
+    story.assetUrl && safeUrl(story.assetUrl) &&
+    Array.isArray(story.evidence) && story.evidence.length > 0
+  ) : [];
+  if (approvedLifestyleStories.length) {
+    lifestyleGrid.innerHTML = approvedLifestyleStories.map((story, index) =>
+      '<article class="lifestyle-card">' +
+        '<figure class="lifestyle-card-media"><img src="' + esc(safeUrl(story.assetUrl)) + '" alt="' + esc(story.alt || story.title) + '" loading="lazy"><figcaption>' + esc(story.sceneLabel || "СЦЕНАРИЙ ЖИЗНИ") + '</figcaption></figure>' +
+        '<div class="lifestyle-card-copy"><span class="lifestyle-card-index">0' + (index + 1) + '</span><h3>' + esc(story.title) + '</h3><p>' + esc(story.description) + '</p>' +
+        '<div class="lifestyle-card-evidence"><span>ОСНОВАНИЕ</span><p>' + story.evidence.map(item => esc(item.claim) + ' — ' + esc(item.sourceTitle)).join(' · ') + '</p></div></div>' +
+      '</article>'
+    ).join("");
+    $("#lifestyle").hidden = false;
+  }
+
   const planGrid = $("#plan-grid");
   const approvedPlans = Array.isArray(data.plans) ? data.plans.filter(p => p && p.status === "verified" && p.publicUse === "allowed" && p.rightsStatus === "approved" && p.id && p.assetId && p.title && Number.isInteger(p.rooms) && Number.isFinite(p.areaSqm) && Array.isArray(p.sources) && p.sources.length > 0 && p.assetUrl && safeUrl(p.assetUrl)) : [];
   if (approvedPlans.length) {
@@ -157,7 +174,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
   }
 
   // The hero stays first. The remaining page is composed and ordered by each project's strategy.
-  const sectionIds = ["concept","advantages","visual-story","apartments","location","calculator","selection"];
+  const sectionIds = ["concept","advantages","visual-story","lifestyle","apartments","location","calculator","selection"];
   const requested = Array.isArray(data.composition) ? data.composition : sectionIds;
   const composition = requested.filter((sectionId, index) => sectionIds.includes(sectionId) && requested.indexOf(sectionId) === index);
   if (data.mode !== "demo" && !data.advantages?.some(item =>
@@ -168,6 +185,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
     )
   )) $("#advantages").hidden = true;
   if (data.mode !== "demo" && !approvedMedia.length) $("#visual-story").hidden = true;
+  if (!approvedLifestyleStories.length) $("#lifestyle").hidden = true;
   if (data.mode !== "demo" && !approvedPlans.length) $("#apartments").hidden = true;
   if (data.mode !== "demo" && !places.length && !project.city && !project.district) $("#location").hidden = true;
   const main = $("main");
