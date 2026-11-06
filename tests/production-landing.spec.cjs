@@ -7,6 +7,9 @@ test("universal landing renders the demo profile and responsive editorial layout
   await page.goto(url, { waitUntil: "networkidle" });
   await expect(page.locator("#hero-title")).toContainText("Место, которое постепенно становится вашим");
   await expect(page.locator("#footer-project")).toContainText("Демонстрационная версия");
+  const order = await page.locator("main > section").evaluateAll(nodes => nodes.map(node => node.id));
+  expect(order.indexOf("location")).toBeLessThan(order.indexOf("apartments"));
+  expect(order.at(-1)).toBe("");
   await expect(page.locator("#advantage-grid .empty-state")).toBeVisible();
   for (const viewport of [{width:360,height:800},{width:390,height:844},{width:768,height:1024},{width:1440,height:900}]) {
     await page.setViewportSize(viewport);
