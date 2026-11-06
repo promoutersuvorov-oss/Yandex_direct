@@ -1,3 +1,6 @@
+import { createLeadPayload } from "../../src/lead-payload.mjs";
+import { createAttributionState } from "../../src/attribution.mjs";
+
 (() => {
   "use strict";
   const data = window.KEY_PROJECT;
@@ -20,6 +23,7 @@
   const form = $("#lead-form");
   let activeOffer = null;
   let activeContext = {};
+  let pendingLeadIds = null;
   const fmt = value => new Intl.NumberFormat("ru-RU").format(value);
   const safeUrl = value => { if (typeof value !== "string" || !value.trim()) return ""; try { const u = new URL(value, location.href); return ["https:","http:"].includes(u.protocol) ? u.href : ""; } catch { return ""; } };
 
@@ -99,11 +103,17 @@
     const offer = data.offers && data.offers[offerId];
     if (!offer) return;
     activeOffer = { ...offer, offerId };
-    activeContext = { projectId: project.id, projectName: project.name, scenarioId: offer.scenarioId, moduleId: context.moduleId || "unknown", offerId, entityContext: context };
+    activeContext = {
+      scenarioId: offer.scenarioId,
+      offerId,
+      moduleId: context.moduleId || "unknown",
+      entityContext: context.entityContext || {},
+      qualificationAnswers: context.qualificationAnswers || null
+    };
     text("#dialog-title", offer.title || "Обсудить проект");
     text("#dialog-description", offer.description || "Оставьте контакт, чтобы специалист KEY мог помочь.");
     const contextNode = $("#dialog-context");
-    const details = Object.entries(context).filter(([key, value]) => key !== "moduleId" && value !== undefined && value !== null && value !== "");
+    const details = Object.entries(context.displayContext || {}).filter(([, value]) => value !== undefined && value !== null && value !== "");
     contextNode.hidden = !details.length;
     contextNode.textContent = details.length ? "К вашему запросу: " + details.map(([key, value]) => key + " — " + value).join(" · ") : "";
     $("#form-status").textContent = data.integration && data.integration.leadEndpoint ? "После отправки запрос будет передан специалисту KEY." : "Демонстрационный режим: endpoint отправки не настроен.";
@@ -111,9 +121,21 @@
     dialog.showModal();
   }
 
-  $$("[data-open-offer]").forEach(button => button.addEventListener("click", () => {
+  $("[data-open-offer]").forEach(button => button.addEventListener("click", () => {
     const offerId = button.dataset.openOffer;
-    openOffer(offerId, { moduleId: button.closest("section")?.id || "unknown", ...(button.dataset.planId ? { planId: button.dataset.planId } : {}) });
+    const context = { moduleId: button.closest("section")?.id || "unknown" };
+    if (button.dataset.planId) {
+      const plan = approvedPlans.find(item => item.id === button.dataset.planId);
+      if (plan) {
+        context.entityContext = { plan: {
+          id: plan.id, rooms: plan.rooms ?? 0, areaSqm: plan.areaSqm,
+          assetId: plan.assetId || plan.id, ...(plan.floor ? { floor: plan.floor } : {}),
+          ...(plan.finishing ? { finishing: plan.finishing } : {})
+        }};
+        context.displayContext = { "Планировка": plan.title, "Площадь": plan.areaSqm + " м²" };
+      }
+    }
+    openOffer(offerId, context);
   }));
   $(".dialog-close-form").addEventListener("submit", () => { activeOffer = null; activeContext = {}; });
   dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
@@ -130,15 +152,21 @@
     }
     const payment = monthlyRate === 0 ? principal / months : principal * monthlyRate / (1 - Math.pow(1 + monthlyRate, -months));
     output.innerHTML = '<span>Ориентировочный платёж</span><strong>' + fmt(Math.round(payment)) + ' ₽ / мес.</strong><button class="text-action" type="button" data-open-offer="calculator">Обсудить расчёт ↗</button>';
-    output.querySelector("[data-open-offer]").addEventListener("click", () => openOffer("calculator", { moduleId: "calculator", price, downPayment: down, rate, years, estimatedMonthlyPayment: Math.round(payment) }));
+    output.querySelector("[data-open-offer]").addEventListener("click", () => openOffer("calculator", {
+      moduleId: "calculator",
+      entityContext: { mortgage: { price, downPayment: down, ratePercent: rate, termYears: years, estimatedMonthlyPayment: Math.round(payment) } },
+      displayContext: { "Ориентировочный платёж": fmt(Math.round(payment)) + " ₽ / мес." }
+    }));
   });
 
   $("#selection-form").addEventListener("submit", event => {
     event.preventDefault();
     const answers = Object.fromEntries(new FormData(event.currentTarget));
     if (!answers.goal || !answers.rooms) return;
-    openOffer("quiz", { moduleId: "selection", ...answers });
+    openOffer("quiz", { moduleId: "selection", qualificationAnswers: answers, displayContext: answers });
   });
+
+  form.addEventListener("input", () => { if (!$("#lead-submit").disabled) pendingLeadIds = null; });
 
   form.addEventListener("submit", async event => {
     event.preventDefault();
@@ -165,47 +193,68 @@
     if (!values.consent || !values.name || !values.phone) return;
     const digits = String(values.phone).replace(/\D/g, "");
     if (digits.length < 7 || digits.length > 15) { $("#form-status").textContent = "Проверьте номер телефона."; return; }
-    const payload = {
-      schemaVersion: "1.0.0",
-      project: { id: project.id, name: project.name },
-      contact: { name: String(values.name).trim(), phone: String(values.phone).trim() },
-      consent: { accepted: true, acceptedAt: new Date().toISOString(), policyUrl, policyVersion },
-      conversion: activeContext,
-      attribution: readAttribution(),
-      pageUrl: location.href,
-      referrer: document.referrer || null,
-      createdAt: new Date().toISOString()
-    };
+    if (!pendingLeadIds) pendingLeadIds = { eventId: createStableId("evt"), leadId: createStableId("lead") };
+    const now = new Date().toISOString();
+    const width = window.innerWidth;
+    let payload;
+    try {
+      payload = createLeadPayload({
+        ...pendingLeadIds,
+        projectId: project.id,
+        createdAt: now,
+        pageUrl: location.href,
+        deviceClass: width <= 767 ? "mobile" : width <= 1024 ? "tablet" : "desktop",
+        contact: { name: String(values.name).trim(), phone: String(values.phone).trim(), preferredChannel: "phone" },
+        consent: { accepted: true, acceptedAt: now, policyUrl, policyVersion },
+        conversion: {
+          scenarioId: activeContext.scenarioId,
+          offerId: activeContext.offerId,
+          moduleId: activeContext.moduleId,
+          entityContext: activeContext.entityContext
+        },
+        ...(activeContext.qualificationAnswers ? { qualification: { answers: activeContext.qualificationAnswers } } : {}),
+        attribution: readAttribution(),
+        ...(document.referrer ? { referrer: document.referrer } : {})
+      });
+    } catch {
+      $("#form-status").textContent = "Не удалось подготовить запрос. Проверьте данные и повторите попытку.";
+      return;
+    }
     submit.disabled = true; submit.textContent = "Отправляем…"; $("#form-status").textContent = "Передаём запрос…";
     try {
       const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), credentials: "omit" });
       if (!response.ok) throw new Error("delivery_failed");
+      if ((response.headers.get("content-type") || "").includes("application/json")) {
+        const acknowledgement = await response.json();
+        if (acknowledgement?.accepted === false || acknowledgement?.success === false || acknowledgement?.status === "rejected") {
+          throw new Error("delivery_not_accepted");
+        }
+      }
       $("#form-status").textContent = "Запрос принят. Специалист KEY свяжется с вами.";
       form.reset();
+      pendingLeadIds = null;
       submit.hidden = true;
     } catch {
       $("#form-status").textContent = "Не удалось передать запрос. Проверьте соединение и попробуйте ещё раз. Ваши данные остались в форме.";
     } finally {
       submit.disabled = false;
-      if (!submit.hidden) { submit.innerHTML = 'Отправить запрос <span>↗</span>'; }
+      if (!submit.hidden) submit.innerHTML = 'Отправить запрос <span>↗</span>';
     }
   });
 
+  function createStableId(prefix) {
+    const token = window.crypto?.randomUUID
+      ? window.crypto.randomUUID().replace(/-/g, "")
+      : Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+    return prefix + "_" + token;
+  }
+
   function readAttribution() {
-    const keys = ["utm_source","utm_medium","utm_campaign","utm_term","utm_content","yclid","ysclid","gclid","gbraid","wbraid","fbclid","vk_click_id","rb_clickid","erid"];
-    const current = {}; const params = new URLSearchParams(location.search);
-    for (const key of keys) {
-      const value = params.get(key);
-      if (value && value.length <= 256 && !/[\u0000-\u001f\u007f]/.test(value)) current[key] = value;
-    }
-    let previous = {};
-    try { previous = JSON.parse(sessionStorage.getItem("key:attribution") || "{}"); } catch { previous = {}; }
-    const state = {
-      firstTouch: previous.firstTouch || (Object.keys(current).length ? current : null),
-      lastTouch: Object.keys(current).length ? current : (previous.lastTouch || null)
-    };
+    let previous = null;
+    try { previous = JSON.parse(sessionStorage.getItem("key:attribution") || "null"); } catch { previous = null; }
+    const state = createAttributionState(location.search, previous);
     try { sessionStorage.setItem("key:attribution", JSON.stringify(state)); } catch {}
-    return state.firstTouch || state.lastTouch ? { first_touch: state.firstTouch, last_touch: state.lastTouch } : null;
+    return state.firstTouch || state.lastTouch ? state : null;
   }
   if (data.analytics?.enabled) {
     document.addEventListener("click", event => {
