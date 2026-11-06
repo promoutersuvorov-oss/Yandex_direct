@@ -11,6 +11,7 @@ test("universal landing renders the demo profile and responsive editorial layout
   expect(order.indexOf("location")).toBeLessThan(order.indexOf("apartments"));
   expect(order.at(-1)).toBe("");
   await expect(page.locator("#advantage-grid .empty-state")).toBeVisible();
+  await expect(page.locator(".desktop-nav a:visible")).toHaveCount(4);
   for (const viewport of [{width:360,height:800},{width:390,height:844},{width:768,height:1024},{width:1440,height:900}]) {
     await page.setViewportSize(viewport);
     const sizes = await page.evaluate(() => ({view:document.documentElement.clientWidth,doc:document.documentElement.scrollWidth,body:document.body.scrollWidth}));
