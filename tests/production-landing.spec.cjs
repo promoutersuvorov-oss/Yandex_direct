@@ -144,6 +144,39 @@ const productionProfile = {
   analytics: { enabled: false }
 };
 
+test("no-media hero uses an intentional typographic fallback and nearby places stay concise", async ({ page }) => {
+  const profile = structuredClone(productionProfile);
+  profile.project = { id:"kd-905", name:"Клубный дом «905»", city:"Воронеж", district:"Центральный" };
+  profile.heroMedia = null;
+  profile.infrastructure = [
+    { name:"Парк «Орлёнок»", category:"park", distanceMeters:350, distanceLabel:"5 мин. пешком", status:"verified" },
+    { name:"Школа № 9", category:"school", distanceMeters:600, distanceLabel:"8 мин. пешком", status:"verified" },
+    { name:"Детский сад № 108", category:"kindergarten", distanceMeters:720, distanceLabel:"9 мин. пешком", status:"verified" },
+    { name:"Петровский сквер", category:"park", distanceMeters:900, distanceLabel:"11 мин. пешком", status:"verified" },
+    { name:"Лицей № 7", category:"school", distanceMeters:1100, distanceLabel:"14 мин. пешком", status:"verified" }
+  ];
+  await page.route("**/project.config.js", route => route.fulfill({
+    contentType: "application/javascript",
+    body: "window.KEY_PROJECT = " + JSON.stringify(profile) + ";"
+  }));
+  await page.setViewportSize({ width:1440, height:900 });
+  await page.goto(url);
+  await expect(page.locator("#hero-fallback")).toBeVisible();
+  await expect(page.locator("#hero-fallback-title")).toHaveText("Клубный дом «905»");
+  await expect(page.locator("#hero-media")).toBeHidden();
+  await expect(page.locator(".hero-art .art-building")).toBeHidden();
+  const places = page.locator("#location-list li");
+  await expect(places).toHaveCount(4);
+  await expect(places.nth(0)).toContainText("Парк «Орлёнок»");
+  await expect(places.nth(0).locator(".place-kind")).toHaveText("Парк");
+  await expect(places.nth(3)).toContainText("Петровский сквер");
+  await expect(page.locator("#location-list")).not.toContainText("Лицей № 7");
+  await page.setViewportSize({ width:390, height:844 });
+  const widths = await page.evaluate(() => ({ view:document.documentElement.clientWidth, doc:document.documentElement.scrollWidth, body:document.body.scrollWidth }));
+  expect(Math.max(widths.doc, widths.body)).toBeLessThanOrEqual(widths.view + 1);
+  await expect(page.locator("#hero-fallback")).toBeVisible();
+});
+
 test("advantages show the feature, buyer benefit and real source separately", async ({ page }) => {
   const profile = structuredClone(productionProfile);
   profile.advantages = [
