@@ -93,7 +93,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
         '<h3>' + esc(item.title) + '</h3>' +
         '<p>' + esc(item.benefit) + '</p>' +
         '<div class="advantage-evidence"><span class="advantage-evidence-label">Фактическое основание</span>' +
-        '<span class="advantage-evidence-value">' + evidence.map(esc).join(' · ') + '</span></div>' +
+        '<span class="advantage-evidence-value">' + evidence.join(' · ') + '</span></div>' +
         '</article>';
     }).join("");
   } else {
