@@ -136,7 +136,7 @@ const landingBrief = () => ({
   }],
   hooks: [{
     id: "walkable_daily_needs", segmentIds: ["young_professionals"], category: "location",
-    message: "Парк в пяти минутах пешком", supportingFactIds: ["f-ok"],
+    message: "Закрытая территория", supportingFactIds: ["f-ok"],
     hypothesis: "Конкретный маршрут помогает представить повседневную жизнь", status: "approved"
   }],
   offers: [{
@@ -172,7 +172,7 @@ test("approved LANDING BRIEF drives public strategy and a contextual CTA map", (
   });
   assert.equal(profile.marketingStrategy.coreIdea, "Дом для своего ритма");
   assert.equal(profile.marketingStrategy.primarySegment.id, "young_professionals");
-  assert.equal(profile.marketingStrategy.primaryHook.message, "Парк в пяти минутах пешком");
+  assert.equal(profile.marketingStrategy.primaryHook.message, "Закрытая территория");
   assert.equal(profile.marketingStrategy.positioning, "Проект с подтверждённой повседневной инфраструктурой");
   assert.deepEqual(profile.ctaMap.hero, {
     ctaId: "hero_presentation",
