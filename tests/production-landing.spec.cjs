@@ -24,6 +24,53 @@ test("universal landing renders the demo profile and responsive editorial layout
   await page.screenshot({ path: "test-results/universal-landing-mobile.png", fullPage: true });
 });
 
+test("apartment plans open a readable full-size preview and retain plan context", async ({ page }) => {
+  const profile = structuredClone(productionProfile);
+  profile.plans = [{
+    id: "plan-42", assetId: "plan-asset-42", title: "Двухкомнатная квартира",
+    rooms: 2, areaSqm: 64.8, floor: 7, finishing: "Без отделки",
+    assetUrl: "https://assets.example/plan-42.svg",
+    sources: [{ url: "https://developer.example/plans", title: "Планировки застройщика", accessedAt: "2026-11-06T10:00:00Z" }],
+    status: "verified", publicUse: "allowed", rightsStatus: "approved"
+  }];
+  profile.offers.plan = { title: "Обсудить планировку", scenarioId: "plan_consultation", description: "Обсудим выбранный вариант." };
+  await page.route("**/project.config.js", route => route.fulfill({
+    contentType: "application/javascript",
+    body: "window.KEY_PROJECT = " + JSON.stringify(profile) + ";"
+  }));
+  await page.route("https://assets.example/**", route => route.fulfill({
+    status: 200, contentType: "image/svg+xml", body: "<svg/>"
+  }));
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(url);
+  await expect(page.locator("#plan-grid .plan-card")).toHaveCount(1);
+  await page.locator(".plan-preview-trigger").click();
+  const preview = page.locator("#plan-preview-dialog");
+  await expect(preview).toBeVisible();
+  await expect(preview.locator("#plan-preview-title")).toHaveText("Двухкомнатная квартира");
+  await expect(preview.locator("#plan-preview-meta")).toContainText("64.8 м²");
+  await expect(preview.locator("#plan-preview-image")).toBeVisible();
+  await preview.locator("#plan-preview-cta").click();
+  await expect(preview).toBeHidden();
+  await expect(page.locator("#lead-dialog")).toBeVisible();
+  await expect(page.locator("#dialog-title")).toHaveText("Обсудить планировку");
+  await expect(page.locator("#dialog-context")).toContainText("Двухкомнатная квартира");
+  await expect(page.locator("#dialog-context")).toContainText("64.8 м²");
+  for (const width of [600, 390, 360]) {
+    await page.setViewportSize({ width, height: 844 });
+    const metrics = await page.locator(".plan-card").evaluate(node => ({
+      card: node.getBoundingClientRect().width,
+      image: node.querySelector(".plan-preview-trigger").getBoundingClientRect().width,
+      copy: node.querySelector(".plan-card-copy").getBoundingClientRect().width,
+      columns: getComputedStyle(node).gridTemplateColumns.split(" ").length
+    }));
+    expect(metrics.columns).toBe(1);
+    expect(metrics.image).toBeGreaterThan(metrics.card - 2);
+    expect(metrics.copy).toBeGreaterThan(metrics.card - 2);
+    const pageWidths = await page.evaluate(() => ({ view: document.documentElement.clientWidth, doc: document.documentElement.scrollWidth, body: document.body.scrollWidth }));
+    expect(Math.max(pageWidths.doc, pageWidths.body)).toBeLessThanOrEqual(pageWidths.view + 1);
+  }
+});
 test("location section never presents a decorative placeholder as a real map", async ({ page }) => {
   await page.goto(url);
   await expect(page.locator("#location")).toBeVisible();
