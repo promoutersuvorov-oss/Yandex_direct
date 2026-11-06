@@ -198,7 +198,7 @@ function renderModule(module, index) {
   const heroMeta = heroMetaItems.length
     ? `<dl class="hero-meta" aria-label="Расположение проекта">${heroMetaItems.map(([label, value]) => `<div class="hero-meta-item"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join("")}</dl>`
     : "";
-  const benefitList = advantagesHere.map(item => `<article class="benefit"><h3>${esc(item.title)}</h3><p>${esc(item.benefit)}</p></article>`).join("");
+  const benefitList = advantagesHere.map(item => `<article class="benefit"><h3>${esc(item.title)}</h3><p>${esc(item.benefit)}</p>${item.hook ? `<p class="benefit-hook">${esc(item.hook)}</p>` : ""}</article>`).join("");
   const image = module.moduleId === "gallery" && moduleAssets.length
     ? renderGallery(moduleAssets)
     : ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? ""
@@ -283,6 +283,15 @@ body[data-composition="architectural"] .eyebrow{font-family:Inter,Arial,sans-ser
 body[data-composition="architectural"] h1,body[data-composition="architectural"] h2{font-family:Inter,Arial,sans-serif;font-weight:600;letter-spacing:-.07em;line-height:.98}
 body[data-composition="architectural"] figure{border-radius:0;outline:1px solid var(--line);outline-offset:8px}
 @media(max-width:760px){body[data-composition="editorial"] .module,body[data-composition="cinematic"] .module,body[data-composition="architectural"] .module{padding-block:60px}body[data-composition="cinematic"] .module.hero{min-height:68svh}body[data-composition="architectural"] figure{outline-offset:4px}}
+/* Marketing hooks are evidence-linked copy from the project strategy, not invented decorative claims. */
+.benefit-hook{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line);color:var(--accent);font-family:Georgia,"Times New Roman",serif;font-size:clamp(20px,2.6vw,30px);line-height:1.18;letter-spacing:-.025em}
+.module[data-module="lifestyle"] .benefits{margin-top:36px}
+.module[data-module="lifestyle"] .benefit{max-width:880px;padding:clamp(26px,4vw,48px);background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:2px}
+.module[data-module="lifestyle"] .benefit h3{font-size:clamp(24px,3.4vw,42px);line-height:1.08;letter-spacing:-.04em;font-weight:500}
+.module[data-module="lifestyle"] .benefit>p:not(.benefit-hook){max-width:56ch;font-size:17px;line-height:1.65}
+.module[data-module="lifestyle"] .benefit-hook{max-width:24ch;font-size:clamp(25px,3.6vw,42px)}
+@media(max-width:760px){.module[data-module="lifestyle"] .benefit{padding:24px 20px}.module[data-module="lifestyle"] .benefit-hook{max-width:18ch}}
+
 /* Text-only hero art direction: evidence-backed location metadata replaces empty space, never synthetic project imagery. */
 .hero-meta{display:flex;flex-wrap:wrap;gap:clamp(22px,5vw,64px);margin:clamp(28px,5vw,56px) 0 0;padding:18px 0 0;border-top:1px solid var(--line)}
 .hero-meta-item{display:grid;gap:5px;min-width:120px;margin:0}
