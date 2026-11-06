@@ -72,6 +72,16 @@ The current renderer has an explicit allowlist of visual variants:
 
 Unknown variants fall back to the safe base layout. Variants are responsive and must not create horizontal overflow. This is a small first implementation of strategy-to-art-direction mapping, not a complete design system.
 
+### Text-only hero art direction
+
+A missing approved hero image must not create an empty or misleading media slot. The renderer keeps the hero text-only and applies the selected composition archetype to its typography, background geometry and metadata rail:
+
+- `editorial` — restrained asymmetry, large editorial typography and a compact evidence-backed location rail;
+- `cinematic` — full-height typographic treatment with a subtle abstract geometry layer, without implying a project photograph or rendering;
+- `architectural` — measured grid treatment, strong typographic scale and a structured location rail.
+
+The location rail may display only the project's public city and verified district. It deliberately omits the street address from the hero, does not manufacture a tagline, and never substitutes stock or synthetic imagery for approved project media. If no verified district exists, that item is omitted. These treatments are visual scaffolding, not evidence of architecture, landscape or amenities.
+
 ## Security and privacy requirements
 
 - Escape all passport-derived text before HTML insertion.
