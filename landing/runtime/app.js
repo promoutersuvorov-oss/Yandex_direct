@@ -232,6 +232,13 @@ import { createAttributionState } from "../../src/attribution.mjs";
   if (!approvedLifestyleStories.length) $("#lifestyle").hidden = true;
   if (data.mode !== "demo" && !approvedPlans.length) $("#apartments").hidden = true;
   if (data.mode !== "demo" && !places.length && !project.city && !project.district) $("#location").hidden = true;
+  // Strategy composition is authoritative: static template sections not selected by the
+  // project must never leak into the generated landing. Preserve content-based hidden gates.
+  for (const sectionId of sectionIds) {
+    const section = $("#" + sectionId);
+    if (section && !composition.includes(sectionId)) section.hidden = true;
+  }
+  if (data.mode !== "demo" && !data.selectionQuiz) $("#selection").hidden = true;
   const main = $("main");
   const closing = $(".closing-section", main);
   for (const sectionId of composition) {
