@@ -89,6 +89,22 @@ test("general CTA exposes a stable scenario contract and never claims delivery",
   await expect(dialog).toContainText("Ничего не отправляется");
 });
 
+test("global conversion choices expose each active scenario in its own preview dialog", async ({ page }) => {
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+  const choices = page.locator('[data-module="conversion-options"]');
+  await expect(choices).toBeVisible();
+  await expect(choices.locator("[data-preview-cta]")).toHaveCount(3);
+  await expect(choices).toContainText("Получить тестовую презентацию");
+  await expect(choices).toContainText("Тестовый подбор");
+  await expect(choices).toContainText("Расчёт ипотечного платежа");
+  await choices.locator('[data-preview-cta="selection"]').click();
+  const dialog = page.locator("#previewNotice");
+  await expect(dialog).toBeVisible();
+  const payload = JSON.parse(await dialog.locator("#noticePayload").textContent());
+  expect(payload.conversion).toMatchObject({ scenarioId: "guided-apartment-selection", offerId: "selection", moduleId: "conversion-options" });
+  expect(payload.delivery).toMatchObject({ status: "disabled_in_preview", accepted: false });
+  await expect(dialog).toContainText("Ничего не отправляется");
+});
 test("preview CTA preserves selected apartment context and never claims delivery", async ({ page }) => {
   await page.goto(url, { waitUntil: "domcontentloaded" });
   const planCta = page.locator('[data-preview-plan-id="fixture-plan-45"]');
