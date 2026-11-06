@@ -107,5 +107,5 @@ test("cinematic composition does not reserve an empty column for a text-only her
   const hero = page.locator("#module-hero");
   await expect(hero).toHaveClass(/text-only/);
   const columns = await hero.evaluate(node => getComputedStyle(node).gridTemplateColumns);
-  expect(columns.trim().split(/\\s+/)).toHaveLength(1);
+  expect(columns.trim().split(/\s+/)).toHaveLength(1);
 });
