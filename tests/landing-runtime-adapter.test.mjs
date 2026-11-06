@@ -202,3 +202,12 @@ test("does not publish an approved hook whose evidence is no longer publishable"
   brief.hooks[0].supportingFactIds = ["f-private"];
   assert.throws(() => buildLandingProfile(passport(), marketing(), {}, { brief }), /supportingFactIds references unknown ID/);
 });
+
+test("does not let a CTA use a draft marketing hook", () => {
+  const brief = landingBrief();
+  brief.hooks[0].status = "hypothesis";
+  assert.throws(
+    () => buildLandingProfile(passport(), marketing(), {}, { brief }),
+    /hook that is not approved or tested/
+  );
+});
