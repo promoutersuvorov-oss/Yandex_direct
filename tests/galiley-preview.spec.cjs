@@ -10,7 +10,7 @@ test("Galiley preview renders its own project identity and garden-modern composi
   await expect(page.locator("body")).toHaveAttribute("data-theme", "garden-modern");
   await expect(page.getByRole("heading", { level: 1, name: "ЖК «Галилей»" })).toBeVisible();
   await expect(page.locator("#module-hero .hero-meta")).toContainText("Воронеж");
-  await expect(page.locator("#module-hero .hero-meta")).toHaveText("Ленинский");
+  await expect(page.locator("#module-hero .hero-meta-item:nth-child(2) dd")).toHaveText("Ленинский район");
   await expect(page.locator("#module-hero .hero-meta")).not.toContainText("Кривошеина");
   expect(await page.locator("main [data-module]").count()).toBeGreaterThanOrEqual(3);
   await expect(page.locator("body")).toContainText("Сад внутри городского комплекса");

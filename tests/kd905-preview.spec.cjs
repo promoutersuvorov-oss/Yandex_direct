@@ -21,7 +21,7 @@ test("KD 905 uses its own editorial composition and only verified project facts"
   await expect(page.getByRole("heading", { name: "Вопросы и ответы" })).toHaveCount(0);
   await expect(page.locator('main [data-module="hero"]')).toHaveClass(/text-only/);
   await expect(page.locator("#module-hero .hero-meta")).toContainText("Воронеж");
-  await expect(page.locator("#module-hero .hero-meta")).toHaveText("Центральный");
+  await expect(page.locator("#module-hero .hero-meta-item:nth-child(2) dd")).toHaveText("Центральный");
   await expect(page.locator("#module-hero .hero-meta")).not.toContainText("Революции 1905 года");
   await expect(page.locator('main [data-module="lifestyle"]')).toHaveAttribute("data-variant", "feature-led");
 
