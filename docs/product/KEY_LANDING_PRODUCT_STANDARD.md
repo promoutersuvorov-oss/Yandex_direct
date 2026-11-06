@@ -370,6 +370,6 @@ LANDING BRIEF не заменяет дизайн-стратегию: он зад
 
 Для каждого элемента фиксируются evidence basis, confidence, rationale и статус. До подтверждения гипотезы стратегия остаётся гипотезой. Отсутствие данных не заполняется догадками.
 
-Builder получает разрешение на финальную сборку только при `positioning.gateStatus=approved`. При `hypothesis`, `ready_for_review` или `blocked` допускаются только стратегический черновик, исследовательский прототип или возврат на доработку — не production-ready лендинг.
+Builder получает разрешение на финальную сборку только при `strategy.positioning.gateStatus=approved`. При `hypothesis`, `ready_for_review` или `blocked` допускаются только стратегический черновик, исследовательский прототип или возврат на доработку — не production-ready лендинг.
 
 Критерии и статусы описаны в [архитектурном Positioning Gate](../architecture/POSITIONING_GATE.md).
