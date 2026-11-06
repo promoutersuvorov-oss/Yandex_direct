@@ -20,7 +20,7 @@
 
 ## Known intentional differences / constraints
 
-- Module resolution is implemented in `src/landing-module-registry-v1.mjs`. The builder uses its section composition; generation orchestration should also retain `resolveRuntimeModulesV1(...).warnings` for QA reporting. The runtime profile itself does not expose internal diagnostics.
+- Module resolution is implemented in `src/landing-module-registry-v1.mjs`. The builder uses its section composition. `buildLandingProfileFromKnowledgeWithDiagnostics()` returns `{ profile, warnings }` for QA orchestration; `buildLandingProfileFromKnowledge()` remains a compatibility wrapper returning only the runtime profile. Diagnostics are not serialized into the public runtime profile.
 
 - Builder не принимает Landing Brief и не валидирует его against raw Passport. Для production orchestration обязан передать отдельный `approvedMarketingStrategy`, предварительно проверенный соответствующим валидатором и Claim bridge. До этого production generation закрыт.
 - Address/district читаются только из publishable project claims `project.address` и `project.district`; неподтверждённые значения остаются пустыми. Normalized identity пока не содержит прямых `addressClaimId/districtClaimId` ссылок.
