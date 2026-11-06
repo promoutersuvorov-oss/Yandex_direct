@@ -11,6 +11,11 @@
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
   const project = data.project;
   const marketing = data.marketing;
+  const palette = data.design?.palette || {};
+  const paletteKeys = { paper: "--paper", paperDeep: "--paper-deep", ink: "--ink", forest: "--forest", sage: "--sage", accent: "--accent" };
+  for (const [key, cssVar] of Object.entries(paletteKeys)) {
+    if (typeof palette[key] === "string" && /^#[0-9a-f]{6}$/i.test(palette[key])) document.documentElement.style.setProperty(cssVar, palette[key]);
+  }
   const dialog = $("#lead-dialog");
   const form = $("#lead-form");
   let activeOffer = null;
