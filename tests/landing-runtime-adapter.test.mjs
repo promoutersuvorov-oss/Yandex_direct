@@ -12,8 +12,9 @@ const passport = () => ({
     {id:"f-private",claim:"Внутреннее",status:"verified",publicUse:"internal_only",sources:[source]}
   ],
   advantages:[
-    {id:"a-ok",title:"Закрытая территория",benefit:"Больше приватности",supportingFactIds:["f-ok"],strength:"strong"},
-    {id:"a-bad",title:"Старая акция",benefit:"Выгодная цена",supportingFactIds:["f-expired"],strength:"strong"}
+    {id:"a-ok",title:"Закрытая территория",benefit:"Больше приватности",supportingFactIds:["f-ok"],strength:"strong",hook:"Короткая маркетинговая формулировка"},
+    {id:"a-bad",title:"Старая акция",benefit:"Выгодная цена",supportingFactIds:["f-expired"],strength:"strong"},
+    {id:"a-empty",title:"Без основания",benefit:"Не должно попасть в runtime",supportingFactIds:[],strength:"supporting"}
   ],
   infrastructure:[
     {name:"Парк",category:"park",status:"verified",source,walkingMinutes:5,distanceMeters:350,distanceEvidence:{method:"walking_route",checkedAt:"2026-11-01T10:00:00Z",validUntil:"2027-01-01T00:00:00Z",source}}
