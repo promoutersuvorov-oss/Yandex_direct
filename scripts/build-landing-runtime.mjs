@@ -223,10 +223,14 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
   };
   Object.assign(offers, Object.fromEntries(Object.entries(defaults).filter(([key]) => !offers[key])));
   const decisions = (passport.contentStrategy.modules || []).filter(m => ["include", "conditional"].includes(m.decision));
-  const composition = decisions
-    .filter(m => (m.requiredFactIds || []).every(id => facts.has(id)))
+  const eligibleDecisions = decisions.filter(m => (m.requiredFactIds || []).every(id => facts.has(id)));
+  for (const module of eligibleDecisions) {
+    if (!MODULE_MAP[module.moduleId]) {
+      throw new Error(`Selected module "${module.moduleId}" has no runtime implementation; refusing to omit it silently`);
+    }
+  }
+  const composition = eligibleDecisions
     .map(m => ({ id: MODULE_MAP[m.moduleId], order: m.order ?? 999 }))
-    .filter(m => m.id)
     .sort((a,b) => a.order - b.order)
     .map(m => m.id)
     .filter((id,index,all) => all.indexOf(id) === index);
