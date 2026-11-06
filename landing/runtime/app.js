@@ -89,11 +89,11 @@
     const section = $("#" + sectionId);
     if (section && !section.hidden) main.insertBefore(section, closing);
   }
-  for (const link of $(".desktop-nav a")) {
+  for (const link of $$(".desktop-nav a")) {
     const target = $(link.getAttribute("href"));
     if (!target || target.hidden) link.hidden = true;
   }
-  if ($(".desktop-nav a:not([hidden])").length === 0) $(".desktop-nav").hidden = true;
+  if ($$(".desktop-nav a:not([hidden])").length === 0) $(".desktop-nav").hidden = true;
 
   function openOffer(offerId, context = {}) {
     const offer = data.offers && data.offers[offerId];
