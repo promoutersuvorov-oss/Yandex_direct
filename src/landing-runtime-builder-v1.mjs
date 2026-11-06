@@ -37,7 +37,8 @@ function assetIsPublic(asset, now, context, projectId) {
     asset.projectMatch === "confirmed" && asset.rightsStatus === "confirmed" &&
     asset.rightsEvidenceIds?.length && nonEmpty(asset.url) &&
     /^https:\/\//i.test(asset.url) && isFuture(asset.validUntil, now) &&
-    asset.subjectRefs?.some(ref => ref.type === "project" && ref.id === projectId) &&\n    (!context || !asset.allowedContexts?.length || asset.allowedContexts.includes(context)));
+    asset.subjectRefs?.some(ref => ref.type === "project" && ref.id === projectId) &&
+    (!context || !asset.allowedContexts?.length || asset.allowedContexts.includes(context)));
 }
 function mapOffer(offer) {
   if (!offer || offer.status !== "active" || offer.consentRequired === false) return null;
@@ -138,7 +139,9 @@ export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legac
     return true;
   }).map(poi => {
     const route = (knowledge.routes || []).find(item => item.destinationPoiId === poi.id &&
-      item.method === "route" && item.mode === "walking" && isFuture(item.validUntil, now) &&\n      item.sourceIds?.length && item.sourceIds.every(id => (knowledge.sources || []).some(src => src.id === id)) &&\n      Number.isFinite(Date.parse(item.observedAt)));
+      item.method === "route" && item.mode === "walking" && isFuture(item.validUntil, now) &&
+      item.sourceIds?.length && item.sourceIds.every(id => (knowledge.sources || []).some(src => src.id === id)) &&
+      Number.isFinite(Date.parse(item.observedAt)));
     const distance = route?.distance?.value;
     const distanceLabel = typeof route?.durationSeconds === "number" ? `${Math.round(route.durationSeconds / 60)} мин. пешком` :
       typeof distance === "number" ? (distance >= 1000 ? `${(distance / 1000).toLocaleString("ru-RU")} км` : `${Math.round(distance)} м`) : "";
