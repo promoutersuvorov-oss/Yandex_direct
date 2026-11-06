@@ -28,9 +28,6 @@ function asClaimValue(value) {
   if (Array.isArray(value) && value.every(item => typeof item === "string")) {
     return { kind: "text_list", value: [...value] };
   }
-  if (isObject(value) && typeof value.min === "number" && typeof value.max === "number") {
-    return { kind: "measurement_range", min: value.min, max: value.max, ...(value.unit ? { unit: value.unit } : {}) };
-  }
   if (value === null || value === undefined) return null;
   return null;
 }
@@ -286,7 +283,6 @@ export function normalizePassportV1(passport) {
       epistemicStatus: STATUS_MAP[developer.status] || "unknown"
     });
     normalizedProject.organizationIds.push(organizationId);
-    addProjectClaim(developer, "project.developer", "$.project.developer");
   }
 
   addProjectClaim(project.class, "project.class", "$.project.class");
@@ -356,6 +352,9 @@ export function normalizePassportV1(passport) {
           message: "Права отмечены как confirmed, но отдельное evidence не приложено; право использования требует повторной проверки."
         });
       }
+      if (asset.projectMatch === "conflicting") {
+        warnings.push({ code: "ASSET_PROJECT_MATCH_CONFLICTING", path, message: "Актив имеет конфликтующую привязку к проекту и нормализован как unconfirmed." });
+      }
       assets.push({
         id: asset.id,
         assetKind: asset.type === "pdf" ? "document" : (["photo", "render", "video", "plan", "map", "logo"].includes(asset.type) ? asset.type : "other"),
@@ -364,7 +363,7 @@ export function normalizePassportV1(passport) {
         subjectRefs: [projectRef],
         projectMatch: asset.projectMatch === "confirmed" ? "confirmed" : "unconfirmed",
         publicationStatus: asset.status === "approved" ? "approved" : asset.status === "restricted" ? "blocked" : asset.status === "missing" ? "missing" : "pending",
-        rightsStatus: asset.rightsStatus === "confirmed" ? "confirmed" : asset.rightsStatus === "blocked" ? "blocked" : "unknown",
+        rightsStatus: asset.rightsStatus === "confirmed" ? "confirmed" : asset.rightsStatus === "blocked" ? "blocked" : asset.rightsStatus === "pending" ? "pending" : "unknown",
         rightsEvidenceIds: rights.evidenceId ? [rights.evidenceId] : [],
         rightsLimitations: nonEmpty(asset.rightsNote) ? [asset.rightsNote] : [],
         ...(asset.validUntil ? { validUntil: asset.validUntil } : {}),
@@ -380,12 +379,14 @@ export function normalizePassportV1(passport) {
       warnings.push({ code: "PLAN_MALFORMED", path, message: "Планировка без id или assetId пропущена." });
       return;
     }
-    if (!assetById.has(plan.assetId)) {
+    const planAsset = assetById.get(plan.assetId);
+    if (!planAsset || planAsset.assetKind !== "plan") {
       warnings.push({
         code: "PLAN_ASSET_UNRESOLVED",
         path,
-        message: `Для планировки "${plan.id}" не найден актив "${plan.assetId}". План сохранён без публикационной связи.`
+        message: `Для планировки "${plan.id}" не найден связанный актив типа plan; запись пропущена.`
       });
+      return;
     }
     const provenance = collector.addSources(plan.sources || [], `${path}.sources`);
     plans.push({
@@ -397,11 +398,12 @@ export function normalizePassportV1(passport) {
       ...(Number.isInteger(plan.rooms) ? { rooms: plan.rooms } : {}),
       ...(typeof plan.areaSqm === "number" ? { area: { kind: "measurement", value: plan.areaSqm, unit: "m2" } } : {}),
       ...(Number.isInteger(plan.floor) ? { floor: plan.floor } : {}),
-      ...(nonEmpty(plan.finishing) ? { finishing: plan.finishing } : {}),
       sourceIds: provenance.sourceIds,
       evidenceIds: provenance.evidenceIds,
       epistemicStatus: STATUS_MAP[plan.status] || "unknown",
-      publicUse: provenance.sourceIds.length > 0 && provenance.evidenceIds.length > 0
+      publicUse: provenance.sourceIds.length > 0 && provenance.evidenceIds.length > 0 &&
+        planAsset.projectMatch === "confirmed" && planAsset.rightsStatus === "confirmed" &&
+        planAsset.publicationStatus === "approved"
         ? mapPublicationPolicy(plan.publicUse) : "internal_only",
       ...(plan.expiresAt ? { validUntil: plan.expiresAt } : {})
     });
@@ -416,12 +418,12 @@ export function normalizePassportV1(passport) {
     const poiId = stableId("poi", `${project.id}:${item.category || "other"}:${item.name}`);
     const poiClaimIds = [];
     const poiSources = item.source ? collector.addEvidenceForSource(item.source, `${path}.source`) : { sourceId: null, evidenceId: null };
-    const existenceClaimId = stableId("claim", `poi:${poiId}:status`);
+    const existenceClaimId = stableId("claim", `poi:${poiId}:listed`);
     claims.push(makeClaim({
       id: existenceClaimId,
       subject: { type: "poi", id: poiId },
-      predicate: "poi.status",
-      value: { kind: "text", value: item.status || "unknown" },
+      predicate: "poi.listed_by_source",
+      value: { kind: "boolean", value: true },
       status: item.status,
       publicUse: item.status === "verified" && poiSources.sourceId ? "allowed_with_qualification" : "internal_only",
       sourceIds: poiSources.sourceId ? [poiSources.sourceId] : [],
@@ -433,7 +435,7 @@ export function normalizePassportV1(passport) {
       id: poiId,
       name: item.name,
       category: item.category || "other",
-      status: item.status || "unknown",
+      status: "unknown",
       sourceIds: poiSources.sourceId ? [poiSources.sourceId] : [],
       claimIds: poiClaimIds
     });
@@ -521,6 +523,13 @@ export function normalizePassportV1(passport) {
     ...(passport.marketContext ? { internalMarketContext: clone(passport.marketContext) } : {})
   };
 
+  if (isObject(inventory.areaRange) && inventory.areaRange.value !== null && inventory.areaRange.value !== undefined) {
+    warnings.push({
+      code: "AREA_RANGE_NOT_MAPPED",
+      path: "$.project.inventory.areaRange",
+      message: "Диапазон площади не помещается в текущий ClaimValue; он не преобразован в неподдерживаемый тип measurement_range."
+    });
+  }
   if ((passport.facts || []).length === 0) {
     warnings.push({ code: "NO_LEGACY_FACTS", path: "$.facts", message: "Паспорт не содержит facts; claims не созданы." });
   }
