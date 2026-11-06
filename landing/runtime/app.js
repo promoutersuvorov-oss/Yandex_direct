@@ -15,8 +15,11 @@ import { createAttributionState } from "../../src/attribution.mjs";
   const project = data.project;
   const marketing = data.marketing;
   const heroLayout = ["split", "fullscreen", "editorial"].includes(data.design?.heroLayout) ? data.design.heroLayout : "split";
+  const galleryLayout = ["mosaic", "editorial", "strip"].includes(data.design?.galleryLayout) ? data.design.galleryLayout : "mosaic";
   const hero = document.querySelector("#hero");
   if (hero) hero.dataset.layout = heroLayout;
+  const visualGrid = $("#visual-grid");
+  if (visualGrid) visualGrid.dataset.layout = galleryLayout;
   const palette = data.design?.palette || {};
   const paletteKeys = { paper: "--paper", paperDeep: "--paper-deep", ink: "--ink", forest: "--forest", sage: "--sage", accent: "--accent" };
   for (const [key, cssVar] of Object.entries(paletteKeys)) {
@@ -80,7 +83,6 @@ import { createAttributionState } from "../../src/attribution.mjs";
     advantageGrid.innerHTML = '<p class="empty-state">Добавьте подтверждённые преимущества проекта и объяснение их пользы для покупателя. Непроверенные гипотезы не публикуются.</p>';
   }
 
-  const visualGrid = $("#visual-grid");
   const approvedMedia = Array.isArray(data.media) ? data.media.filter(m => m && m.status === "approved" && m.rightsStatus === "approved" && safeUrl(m.url)) : [];
   const heroMedia = data.heroMedia;
   if (heroMedia && heroMedia.status === "approved" && heroMedia.rightsStatus === "approved" && safeUrl(heroMedia.url)) {
