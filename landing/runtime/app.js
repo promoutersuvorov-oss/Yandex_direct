@@ -123,7 +123,32 @@ import { createAttributionState } from "../../src/attribution.mjs";
     const target = $(link.getAttribute("href"));
     if (!target || target.hidden) link.hidden = true;
   }
-  if ($$(".desktop-nav a:not([hidden])").length === 0) $(".desktop-nav").hidden = true;
+  if ($(".desktop-nav a:not([hidden])").length === 0) $(".desktop-nav").hidden = true;
+  function applyStrategyCta(button, cta) {
+    if (!button || !cta || button.dataset.openOffer !== cta.offerKey) return;
+    button.dataset.ctaId = cta.ctaId;
+    button.dataset.hookId = cta.hookId || "";
+    button.dataset.funnelId = cta.funnelId || "";
+    button.dataset.segmentId = cta.segmentId || "";
+    const arrow = button.querySelector("span");
+    button.textContent = cta.label + (arrow ? " " : "");
+    if (arrow) button.append(arrow);
+  }
+  for (const button of $("[data-open-offer]")) {
+    const moduleId = button.closest("section")?.id || (button.closest("header") ? "hero" : "");
+    applyStrategyCta(button, data.ctaMap?.[moduleId]);
+  }
+  const selectionCta = data.ctaMap?.selection;
+  const selectionSubmit = $("#selection-form button[type='submit']");
+  if (selectionCta && selectionSubmit) {
+    selectionSubmit.textContent = selectionCta.label;
+    selectionSubmit.dataset.ctaId = selectionCta.ctaId;
+    selectionSubmit.dataset.hookId = selectionCta.hookId || "";
+    selectionSubmit.dataset.funnelId = selectionCta.funnelId || "";
+    selectionSubmit.dataset.segmentId = selectionCta.segmentId || "";
+  }
+
+
 
   function openOffer(offerId, context = {}) {
     const offer = data.offers && data.offers[offerId];
@@ -137,6 +162,10 @@ import { createAttributionState } from "../../src/attribution.mjs";
       scenarioId: offer.scenarioId,
       offerId: offer.offerId || offerId,
       moduleId: context.moduleId || "unknown",
+      ctaId: context.ctaId || "",
+      hookId: context.hookId || "",
+      funnelId: context.funnelId || "",
+      segmentId: context.segmentId || "",
       entityContext: context.entityContext || {},
       qualificationAnswers: context.qualificationAnswers || null
     };
@@ -153,7 +182,13 @@ import { createAttributionState } from "../../src/attribution.mjs";
 
   $$("[data-open-offer]").forEach(button => button.addEventListener("click", () => {
     const offerId = button.dataset.openOffer;
-    const context = { moduleId: button.closest("section")?.id || (button.closest("header") ? "header" : "unknown") };
+    const context = {
+      moduleId: button.closest("section")?.id || (button.closest("header") ? "hero" : "unknown"),
+      ctaId: button.dataset.ctaId || "",
+      hookId: button.dataset.hookId || "",
+      funnelId: button.dataset.funnelId || "",
+      segmentId: button.dataset.segmentId || ""
+    };
     if (button.dataset.planId) {
       const plan = approvedPlans.find(item => item.id === button.dataset.planId);
       if (plan) {
@@ -181,9 +216,22 @@ import { createAttributionState } from "../../src/attribution.mjs";
       output.textContent = "Проверьте параметры: первоначальный взнос должен быть меньше стоимости квартиры."; return;
     }
     const payment = monthlyRate === 0 ? principal / months : principal * monthlyRate / (1 - Math.pow(1 + monthlyRate, -months));
-    output.innerHTML = '<span>Ориентировочный платёж</span><strong>' + fmt(Math.round(payment)) + ' ₽ / мес.</strong><button class="text-action" type="button" data-open-offer="calculator">Обсудить расчёт ↗</button>';
-    output.querySelector("[data-open-offer]").addEventListener("click", () => openOffer("calculator", {
+    const calculatorCta = data.ctaMap?.calculator;
+    const calculatorLabel = calculatorCta?.label || "Обсудить расчёт";
+    output.innerHTML = '<span>Ориентировочный платёж</span><strong>' + fmt(Math.round(payment)) + ' ₽ / мес.</strong><button class="text-action" type="button" data-open-offer="calculator">' + esc(calculatorLabel) + ' ↗</button>';
+    const calculatorButton = output.querySelector("[data-open-offer]");
+    if (calculatorCta) {
+      calculatorButton.dataset.ctaId = calculatorCta.ctaId;
+      calculatorButton.dataset.hookId = calculatorCta.hookId || "";
+      calculatorButton.dataset.funnelId = calculatorCta.funnelId || "";
+      calculatorButton.dataset.segmentId = calculatorCta.segmentId || "";
+    }
+    calculatorButton.addEventListener("click", () => openOffer("calculator", {
       moduleId: "calculator",
+      ctaId: calculatorCta?.ctaId || "",
+      hookId: calculatorCta?.hookId || "",
+      funnelId: calculatorCta?.funnelId || "",
+      segmentId: calculatorCta?.segmentId || "",
       entityContext: { mortgage: { price, downPayment: down, ratePercent: rate, termYears: years, estimatedMonthlyPayment: Math.round(payment) } },
       displayContext: { "Ориентировочный платёж": fmt(Math.round(payment)) + " ₽ / мес." }
     }));
@@ -193,7 +241,16 @@ import { createAttributionState } from "../../src/attribution.mjs";
     event.preventDefault();
     const answers = Object.fromEntries(new FormData(event.currentTarget));
     if (!Object.keys(answers).length) return;
-    openOffer("quiz", { moduleId: "selection", qualificationAnswers: answers, displayContext: answers });
+    const cta = data.ctaMap?.selection;
+    openOffer("quiz", {
+      moduleId: "selection",
+      ctaId: cta?.ctaId || "",
+      hookId: cta?.hookId || "",
+      funnelId: cta?.funnelId || "",
+      segmentId: cta?.segmentId || "",
+      qualificationAnswers: answers,
+      displayContext: answers
+    });
   });
 
   form.addEventListener("input", () => { if (!$("#lead-submit").disabled) pendingLeadIds = null; });
@@ -240,6 +297,10 @@ import { createAttributionState } from "../../src/attribution.mjs";
           scenarioId: activeContext.scenarioId,
           offerId: activeContext.offerId,
           moduleId: activeContext.moduleId,
+          ctaId: activeContext.ctaId,
+          hookId: activeContext.hookId,
+          funnelId: activeContext.funnelId,
+          segmentId: activeContext.segmentId,
           entityContext: activeContext.entityContext
         },
         ...(activeContext.qualificationAnswers ? { qualification: { answers: activeContext.qualificationAnswers } } : {}),
