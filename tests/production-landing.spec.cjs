@@ -144,6 +144,59 @@ const productionProfile = {
   analytics: { enabled: false }
 };
 
+test("advantages show the feature, buyer benefit and real source separately", async ({ page }) => {
+  const profile = structuredClone(productionProfile);
+  profile.advantages = [
+    {
+      id: "verified-advantage", title: "Закрытая территория",
+      benefit: "Больше приватности в повседневной жизни.",
+      strength: "core", status: "verified",
+      evidence: ["Официальная страница проекта", "Проектная документация"],
+      hook: "Рекламная формулировка не должна выдаваться за доказательство."
+    },
+    {
+      id: "unverified-advantage", title: "Неподтверждённое обещание",
+      benefit: "Не должно отображаться.",
+      strength: "strong", status: "provisional",
+      evidence: ["Черновой источник"]
+    },
+    {
+      id: "missing-evidence", title: "Без источника",
+      benefit: "Тоже не должно отображаться.",
+      strength: "strong", status: "verified", evidence: []
+    }
+  ];
+  await page.route("**/project.config.js", route => route.fulfill({
+    contentType: "application/javascript",
+    body: "window.KEY_PROJECT = " + JSON.stringify(profile) + ";"
+  }));
+  await page.goto(url);
+  const cards = page.locator("#advantage-grid .advantage-card");
+  await expect(cards).toHaveCount(1);
+  await expect(cards.first().locator("h3")).toHaveText("Закрытая территория");
+  await expect(cards.first().locator("p")).toHaveText("Больше приватности в повседневной жизни.");
+  await expect(cards.first().locator(".advantage-evidence-label")).toHaveText("Фактическое основание");
+  await expect(cards.first().locator(".advantage-evidence-value")).toContainText("Официальная страница проекта");
+  await expect(cards.first()).not.toContainText("Рекламная формулировка не должна выдаваться за доказательство.");
+  await expect(page.locator("#advantages")).toBeVisible();
+  for (const width of [600, 390, 360]) {
+    await page.setViewportSize({ width, height: 844 });
+    const metrics = await cards.first().evaluate(node => ({
+      width: node.getBoundingClientRect().width,
+      gridColumns: getComputedStyle(node.parentElement).gridTemplateColumns.split(" ").length,
+      evidenceWidth: node.querySelector(".advantage-evidence").getBoundingClientRect().width
+    }));
+    expect(metrics.gridColumns).toBe(1);
+    expect(metrics.evidenceWidth).toBeGreaterThan(0);
+    const pageWidths = await page.evaluate(() => ({
+      view: document.documentElement.clientWidth,
+      doc: document.documentElement.scrollWidth,
+      body: document.body.scrollWidth
+    }));
+    expect(Math.max(pageWidths.doc, pageWidths.body)).toBeLessThanOrEqual(pageWidths.view + 1);
+  }
+});
+
 test("approved passport quiz replaces the demo questions and submits project-specific answers", async ({ page }) => {
   const profile = structuredClone(productionProfile);
   profile.offers.quiz = { title: "Подобрать квартиру", scenarioId: "passport_selection", description: "Ответьте на вопросы." };
