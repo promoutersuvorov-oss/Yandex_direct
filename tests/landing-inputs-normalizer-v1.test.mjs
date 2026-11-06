@@ -100,7 +100,7 @@ test("rejects unsupported passport versions and incomplete identity", () => {
 });
 
 test("normalizes lifestyle story drafts without promoting them to approved content",()=>{
-  const source=validPassport();
+  const source=basePassport();
   source.contentStrategy.lifestyleStories=[{id:"courtyard-morning",title:"Утро во дворе",description:"Черновой текст сценария",
     sceneLabel:"ДВОР",assetId:"courtyard-render",supportingFactIds:["courtyard"],publicationStatus:"draft"}];
   const result=normalizeLandingInputsV1(source);
