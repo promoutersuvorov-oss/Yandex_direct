@@ -42,6 +42,17 @@ test("fails closed on claims requiring publication qualification until qualified
     /non-publishable fact/,
     "A claim requiring qualification must not be inserted into visitor-facing copy without a rendered qualifier."
   );
+  const approved=input();
+  approved.knowledge.claims[0].publicUse="allowed_with_qualification";
+  approved.knowledge.claims[0].limitations=["Характеристики могут измениться."];
+  const qualifiedMarketing={...marketing,claimQualifications:{headline:[{factId:"f1",text:"Сведения указаны по данным застройщика; характеристики могут измениться."}]}};
+  const qualifiedProfile=buildLandingProfileFromKnowledge(approved.knowledge,approved.landingInputs,approved.refs,qualifiedMarketing,{},{now:"2026-11-06T00:00:00Z"});
+  assert.deepEqual(qualifiedProfile.marketingQualifications.headline,["Сведения указаны по данным застройщика; характеристики могут измениться."]);
+  assert.equal(qualifiedProfile.marketing.headline,marketing.copy.headline);
+  assert.throws(
+    ()=>buildLandingProfileFromKnowledge(approved.knowledge,approved.landingInputs,approved.refs,{...qualifiedMarketing,claimQualifications:{headline:[{factId:"missing",text:"Оговорка"}]}},{},{now:"2026-11-06T00:00:00Z"}),
+    /must identify a mapped fact/
+  );
   const y=input();
   y.knowledge.claims[0].publicUse="internal_only";
   assert.throws(()=>buildLandingProfileFromKnowledge(y.knowledge,y.landingInputs,y.refs,marketing,{},{}),/non-publishable fact/);
