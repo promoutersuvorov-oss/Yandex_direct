@@ -112,6 +112,9 @@ jobs:
         browser: [chromium, firefox, webkit]
     env:
       KEY_BROWSER: ${{ matrix.browser }}
+      # Firefox in the official container runs as root; GitHub's default HOME
+      # points to a pwuser-owned directory and prevents Firefox from launching.
+      HOME: /root
     steps:
       - name: Checkout
         uses: actions/checkout@v4
