@@ -344,7 +344,7 @@ body[data-composition="architectural"] .hero.text-only .hero-meta-item{min-width
 .module[data-variant="architectural"] .module-copy.editorial-pair>.benefits .benefit{padding:18px 0;border-top:2px solid var(--accent)}
 .module[data-variant="architectural"] .module-copy.editorial-pair>.facts{grid-column:2;display:grid;grid-template-columns:1fr;align-self:stretch;list-style:none;padding:0;margin:12px 0;gap:10px}
 .module[data-variant="architectural"] .module-copy.editorial-pair>.facts li{padding:14px 16px;border:1px solid var(--line);background:var(--panel);font-size:14px}
-@media(max-width:760px){.module-copy.editorial-pair{grid-template-columns:minmax(0,1fr)}.module-copy.editorial-pair>.eyebrow,.module-copy.editorial-pair>h2,.module-copy.editorial-pair>.intro,.module-copy.editorial-pair>.benefits,.module-copy.editorial-pair>.facts{grid-column:1}}
+@media(max-width:760px){.module-copy.editorial-pair{grid-template-columns:minmax(0,1fr)}.module-copy.editorial-pair>.eyebrow,.module-copy.editorial-pair>h2,.module-copy.editorial-pair>.intro,.module-copy.editorial-pair>.benefits,.module-copy.editorial-pair>.facts{grid-column:1}.module[data-variant="feature-led"] .module-copy.editorial-pair>.facts,.module[data-variant="architectural"] .module-copy.editorial-pair>.facts{grid-column:1}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
