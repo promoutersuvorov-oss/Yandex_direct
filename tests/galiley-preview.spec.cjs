@@ -54,7 +54,7 @@ test("Galiley preview renders its own project identity and garden-modern composi
     const copy = page.locator(`#module-${moduleId} .module-copy.editorial-pair`);
     await expect(copy).toBeVisible();
     const columns = await copy.evaluate(node => getComputedStyle(node).gridTemplateColumns);
-    expect(columns.trim().split(/\\s+/)).toHaveLength(2);
+    expect(columns.trim().split(/\s+/)).toHaveLength(2);
   }
 
   const cta = page.locator("button[data-preview-cta]").first();
@@ -107,7 +107,7 @@ test("Galiley preview remains usable on a narrow mobile viewport", async ({ page
   for (const moduleId of ["lifestyle", "about"]) {
     const copy = page.locator(`#module-${moduleId} .module-copy.editorial-pair`);
     const columns = await copy.evaluate(node => getComputedStyle(node).gridTemplateColumns);
-    expect(columns.trim().split(/\\s+/)).toHaveLength(1);
+    expect(columns.trim().split(/\s+/)).toHaveLength(1);
   }
 
   const dimensions = await page.evaluate(() => ({
