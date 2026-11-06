@@ -35,6 +35,32 @@ import { createAttributionState } from "../../src/attribution.mjs";
   text("#apartments-title", marketing.apartmentsTitle); text("#apartments-intro", marketing.apartmentsIntro);
   text("#location-title", marketing.locationTitle); text("#location-copy", marketing.locationCopy);
   text("#closing-title", marketing.closingTitle); text("#closing-copy", marketing.closingCopy);
+  if (data.selectionQuiz && Array.isArray(data.selectionQuiz.questions) && data.selectionQuiz.questions.length && data.offers?.quiz) {
+    text("#selection-title", data.selectionQuiz.title);
+    text("#selection-copy", data.selectionQuiz.description || marketing.selectionCopy || "Ответьте на несколько вопросов — специалист KEY поможет определить следующий шаг.");
+    const quizForm = $("#selection-form");
+    for (const fieldset of $("fieldset", quizForm)) fieldset.remove();
+    for (const question of data.selectionQuiz.questions) {
+      const fieldset = document.createElement("fieldset");
+      const legend = document.createElement("legend");
+      legend.textContent = question.label;
+      fieldset.append(legend);
+      question.options.forEach((option, index) => {
+        const label = document.createElement("label");
+        label.className = "choice";
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = question.id;
+        input.value = option.id;
+        input.required = index === 0;
+        const span = document.createElement("span");
+        span.textContent = option.label;
+        label.append(input, span);
+        fieldset.append(label);
+      });
+      quizForm.insertBefore(fieldset, quizForm.querySelector('button[type="submit"]'));
+    }
+  }
   text("#art-caption", [project.city, project.district].filter(Boolean).join(" · ") || "АРХИТЕКТУРА · ПРОСТРАНСТВО · ВАШ РИТМ");
   text("#footer-project", data.mode === "demo" ? "Демонстрационная версия. Не использовать как предложение о продаже." : "Актуальные условия уточняйте у специалиста KEY.");
   if (project.city || project.district) {
@@ -166,7 +192,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
   $("#selection-form").addEventListener("submit", event => {
     event.preventDefault();
     const answers = Object.fromEntries(new FormData(event.currentTarget));
-    if (!answers.goal || !answers.rooms || !answers.timing) return;
+    if (!Object.keys(answers).length) return;
     openOffer("quiz", { moduleId: "selection", qualificationAnswers: answers, displayContext: answers });
   });
 
