@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildLandingProfile } from "../scripts/build-landing-runtime.mjs";
+import { readFileSync } from "node:fs";
+import { buildLandingProfile, buildCanonicalLandingProfile } from "../scripts/build-landing-runtime.mjs";
 import { normalizePassportV1 } from "../src/passport-normalizer-v1.mjs";
 
 const source = {
@@ -379,5 +380,47 @@ test("does not let a CTA use a draft marketing hook", () => {
   assert.throws(
     () => buildLandingProfile(passport(), marketing(), {}, { brief }),
     /hook that is not approved or tested/
+  );
+});
+
+
+const canonicalMarketing = projectId => ({
+  projectId, approvalStatus:"approved",
+  copy:Object.fromEntries([
+    "heroKicker","headline","lead","conceptTitle","conceptCopy","advantagesTitle","advantagesIntro",
+    "visualTitle","visualCopy","apartmentsTitle","apartmentsIntro","locationTitle","locationCopy",
+    "closingTitle","closingCopy"
+  ].map(key => [key, key + " copy"])),
+  claimFactIds:{}
+});
+
+test("canonical CLI builder uses normalized knowledge and the shared module registry", () => {
+  const passport = JSON.parse(readFileSync(new URL("../examples/project-passport.example.json", import.meta.url), "utf8"));
+  const result = buildCanonicalLandingProfile(passport, canonicalMarketing(passport.project.id), {}, {
+    now:"2026-11-06T00:00:00Z"
+  });
+  assert.equal(result.profile.project.id, passport.project.id);
+  assert.equal(result.profile.mode, "demo");
+  assert.equal(result.profile.design.palette.paper, "#f0efec");
+  assert.ok(result.warnings.some(item => item.code === "CONDITIONAL_MODULE_NOT_READY" && item.moduleId === "floor-plans"));
+  assert.equal(result.profile.plans.length, 0);
+});
+
+test("canonical CLI builder fails closed for the real KD 905 draft when an included module lacks approved assets", () => {
+  const passport = JSON.parse(readFileSync(new URL("../examples/kd-905.project-passport.draft.json", import.meta.url), "utf8"));
+  assert.throws(
+    () => buildCanonicalLandingProfile(passport, canonicalMarketing(passport.project.id), {}, {
+      now:"2026-11-06T00:00:00Z"
+    }),
+    /Landing module registry rejected the selected strategy/
+  );
+});
+
+test("canonical CLI builder rejects unknown included modules instead of silently omitting them", () => {
+  const passport = JSON.parse(readFileSync(new URL("../examples/project-passport.example.json", import.meta.url), "utf8"));
+  passport.contentStrategy.modules.push({moduleId:"invented-section",decision:"include",variant:"default",order:9});
+  assert.throws(
+    () => buildCanonicalLandingProfile(passport, canonicalMarketing(passport.project.id)),
+    /Модуль "invented-section" отсутствует в Module Registry/
   );
 });
