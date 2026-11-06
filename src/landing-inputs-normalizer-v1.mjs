@@ -154,6 +154,11 @@ export function normalizeLandingInputsV1(passport) {
     positioning,
     design,
     marketingCandidates: candidates,
+    lifestyleStories: Array.isArray(strategy.lifestyleStories) ? strategy.lifestyleStories.filter(isObject).map(item => ({
+      id:item.id, title:item.title, description:item.description, sceneLabel:item.sceneLabel || "",
+      assetId:item.assetId, supportingFactIds:copyStringList(item.supportingFactIds),
+      publicationStatus:item.publicationStatus || "draft"
+    })) : [],
     conversionCatalog: offers,
     ...(selectionFlow ? { selectionFlow } : {}),
     faqDrafts: faq,
