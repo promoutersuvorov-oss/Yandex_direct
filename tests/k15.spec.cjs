@@ -212,23 +212,17 @@ test("K15 navigation, gallery, apartment and location controls remain interactiv
   await infraSection.evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
   await expect(infraSection).toHaveClass(/in/);
 
-  const infrastructureTabs = page.locator("#iPills button[data-i]");
-  await expect(infrastructureTabs).toHaveCount(7);
+  // The final K15 editorial CSS intentionally hides the redundant pill tabs.
+  // Verify the visible carousel controls instead of asserting hidden tabs are usable.
   const firstPlace = await page.locator("#iName").textContent();
-  const secondPlaceTab = page.locator('#iPills button[data-i="1"]');
-  // The tab strip itself owns horizontal scrolling. Set its scroll position
-  // directly; scrollIntoViewIfNeeded is unreliable for overflow-only children.
-  await page.locator("#iPills").evaluate(strip => {
-    const tab = strip.querySelector('button[data-i="1"]');
-    const tabLeft = tab.getBoundingClientRect().left - strip.getBoundingClientRect().left + strip.scrollLeft;
-    strip.scrollLeft = tabLeft - Math.max(0, (strip.clientWidth - tab.clientWidth) / 2);
-  });
-  await expect(secondPlaceTab).toBeVisible();
-  await secondPlaceTab.click();
-  await expect(page.locator('#iPills button[data-i="1"]')).toHaveAttribute("aria-selected", "true");
-  await expect(page.locator("#iName")).not.toHaveText(firstPlace);
+  await expect(page.locator("#iCnt")).toHaveText(/^1 \/ 7$/);
   await page.locator("#iNext").click();
-  await expect(page.locator("#iCnt")).toHaveText(/^3 \/ \d+$/);
+  await expect(page.locator("#iName")).not.toHaveText(firstPlace);
+  await expect(page.locator("#iCnt")).toHaveText(/^2 \/ 7$/);
+  await page.locator("#iNext").click();
+  await expect(page.locator("#iCnt")).toHaveText(/^3 \/ 7$/);
+  await page.locator("#iPrev").click();
+  await expect(page.locator("#iCnt")).toHaveText(/^2 \/ 7$/);
 
   const firstFaq = page.locator(".faq-list details").first();
   await firstFaq.locator("summary").click();
