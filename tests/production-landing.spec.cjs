@@ -164,7 +164,8 @@ test("no-media hero uses an intentional typographic fallback and nearby places s
   await expect(page.locator("#hero-fallback")).toBeVisible();
   await expect(page.locator("#hero-fallback-title")).toHaveText("Клубный дом «905»");
   await expect(page.locator("#hero-media")).toBeHidden();
-  await expect(page.locator(".hero-art .art-building")).toBeHidden();
+  await expect(page.locator(".hero-art .art-building").first()).toBeHidden();
+  await expect(page.locator(".hero-art .art-building").nth(1)).toBeHidden();
   const places = page.locator("#location-list li");
   await expect(places).toHaveCount(4);
   await expect(places.nth(0)).toContainText("Парк «Орлёнок»");
