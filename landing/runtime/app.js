@@ -14,6 +14,9 @@ import { createAttributionState } from "../../src/attribution.mjs";
   const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
   const project = data.project;
   const marketing = data.marketing;
+  const heroLayout = ["split", "fullscreen", "editorial"].includes(data.design?.heroLayout) ? data.design.heroLayout : "split";
+  const hero = document.querySelector("#hero");
+  if (hero) hero.dataset.layout = heroLayout;
   const palette = data.design?.palette || {};
   const paletteKeys = { paper: "--paper", paperDeep: "--paper-deep", ink: "--ink", forest: "--forest", sage: "--sage", accent: "--accent" };
   for (const [key, cssVar] of Object.entries(paletteKeys)) {
