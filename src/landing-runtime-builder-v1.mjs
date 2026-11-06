@@ -196,7 +196,9 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
   const locationMap = mapAsset ? { url: mapAsset.url, alt: mapAsset.alt || (knowledge.project.name + " — карта расположения"),
     status: "approved", rightsStatus: "approved" } : null;
 
-  const assetsById = new Map(usableAssets.filter(asset => asset.assetKind === "plan").map(asset => [asset.id, asset]));
+  const assetsById = new Map((knowledge.assets || []).filter(asset =>
+    asset.assetKind === "plan" && assetIsPublic(asset, now, "floor-plans", knowledge.project.id, knowledge)
+  ).map(asset => [asset.id, asset]));
   const plans = (knowledge.plans || []).filter(plan =>
     plan.planKind === "apartment_floor_plan" && plan.epistemicStatus === "verified" &&
     plan.publicUse === "allowed" && plan.sourceIds?.length && plan.evidenceIds?.length &&
