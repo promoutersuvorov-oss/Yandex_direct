@@ -106,3 +106,12 @@ test("preserves validated marketing strategy IDs in the conversion payload", () 
   input.conversion.ctaId = "Invalid ID!";
   assert.throws(() => createLeadPayload(input), /stable ID/);
 });
+
+test("preserves required contact channel and preferred callback time",()=>{
+  const input=valid();
+  input.contact.preferredChannel="telegram";
+  input.contact.preferredTime="После 18:00";
+  const payload=createLeadPayload(input);
+  assert.equal(payload.contact.preferredChannel,"telegram");
+  assert.equal(payload.contact.preferredTime,"После 18:00");
+});
