@@ -41,7 +41,8 @@ test("approved claim qualifications render adjacent to their exact copy field as
   await expect(headlineNote).toHaveClass(/claim-qualification/);
   await expect(headlineNote).toHaveText("По данным застройщика; характеристики могут измениться.");
   await expect(page.locator("#location-copy").locator("xpath=following-sibling::*[1]")).toHaveText("<img src=x onerror=alert(1)>");
-  await expect(page.locator("#location-copy").locator("xpath=following-sibling::*[1] img")).toHaveCount(0);
+  const injectedImageCount = await page.locator("#location-copy").evaluate(node => node.nextElementSibling.querySelectorAll("img").length);
+  expect(injectedImageCount).toBe(0);
   await expect(page.locator(".claim-qualification")).toHaveCount(2);
   await expect(page.locator("#concept-copy").locator("xpath=following-sibling::*[1]")).toHaveCount(0);
 });
