@@ -227,7 +227,8 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
     project, composition: ["concept", ...composition.filter(id => id !== "concept")],
     design: { palette }, marketing: clone(marketing.copy), advantages, media, heroMedia, plans, infrastructure,
     offers, integration: productionReady && options.mode === "production" ? { leadEndpoint:endpoint, privacyPolicyUrl, privacyPolicyVersion } : { leadEndpoint:"", privacyPolicyUrl:"", privacyPolicyVersion:"" },
-    analytics: { enabled:false }, selectionQuiz: quiz,\n    ...(marketingStrategy ? { marketingStrategy, ctaMap: marketingStrategy.ctaMap } : {})
+    analytics: { enabled:false }, selectionQuiz: quiz,
+    ...(marketingStrategy ? { marketingStrategy, ctaMap: marketingStrategy.ctaMap } : {})
   };
 }
 
