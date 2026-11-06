@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { buildLandingProfile } from "../scripts/build-landing-runtime.mjs";
+import { normalizePassportV1 } from "../src/passport-normalizer-v1.mjs";
 
 const source = { url:"https://developer.example/project", title:"Официальные сведения", accessedAt:"2026-11-01T10:00:00Z" };
 const passport = () => ({
@@ -57,6 +58,45 @@ test("builds a public runtime profile from a passport and approved copy",()=>{
   assert.equal("commercial" in profile,false);
   assert.equal("facts" in profile,false);
   assert.equal("marketContext" in profile,false);
+});
+
+test("records a legacy runtime parity baseline alongside normalized project knowledge", () => {
+  const input = passport();
+  const profile = buildLandingProfile(input, marketing(), {}, { now: "2026-11-06T00:00:00Z" });
+  const normalized = normalizePassportV1(input);
+  assert.deepEqual(normalized.errors, []);
+
+  assert.deepEqual({
+    mode: profile.mode,
+    projectId: profile.project.id,
+    composition: profile.composition,
+    advantageTitles: profile.advantages.map(item => item.title),
+    mediaUrls: profile.media.map(item => item.url),
+    locationMapUrl: profile.locationMap?.url || null,
+    firstWalkingLabel: profile.infrastructure[0].distanceLabel
+  }, {
+    mode: "demo",
+    projectId: "sample-residence",
+    composition: ["concept", "advantages", "location"],
+    advantageTitles: ["Закрытая территория"],
+    mediaUrls: ["https://cdn.example/hero.webp"],
+    locationMapUrl: "https://cdn.example/location-map.webp",
+    firstWalkingLabel: "5 мин. пешком"
+  });
+
+  const normalizedFact = normalized.knowledge.claims.find(item =>
+    item.predicate === "project.fact" && item.value.value === profile.advantages[0].evidence[0].claim
+  );
+  assert.ok(normalizedFact, "the legacy runtime's published advantage must have a normalized claim");
+  assert.equal(normalizedFact.epistemicStatus, "verified");
+  assert.equal(normalizedFact.publicUse, "allowed");
+  assert.equal(normalized.knowledge.sources.find(item => item.id === normalizedFact.sourceIds[0]).title,
+    profile.advantages[0].evidence[0].sourceTitle);
+
+  assert.equal(normalized.knowledge.routes.length, 1);
+  assert.equal(normalized.knowledge.routes[0].durationSeconds, 300);
+  assert.equal(normalized.knowledge.routes[0].distance.value, 350);
+  assert.equal(normalized.knowledge.assets.length, 2);
 });
 
 test("uses only approved, project-matched and rights-cleared map assets",()=>{
