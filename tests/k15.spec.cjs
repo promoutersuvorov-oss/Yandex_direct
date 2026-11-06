@@ -220,7 +220,8 @@ test("K15 navigation, gallery, apartment and location controls remain interactiv
   // directly; scrollIntoViewIfNeeded is unreliable for overflow-only children.
   await page.locator("#iPills").evaluate(strip => {
     const tab = strip.querySelector('button[data-i="1"]');
-    strip.scrollLeft = tab.offsetLeft - Math.max(0, (strip.clientWidth - tab.clientWidth) / 2);
+    const tabLeft = tab.getBoundingClientRect().left - strip.getBoundingClientRect().left + strip.scrollLeft;
+    strip.scrollLeft = tabLeft - Math.max(0, (strip.clientWidth - tab.clientWidth) / 2);
   });
   await expect(secondPlaceTab).toBeVisible();
   await secondPlaceTab.click();
