@@ -89,8 +89,25 @@ function buildMarketingStrategy(brief, passport, facts, now) {
     if (mappedOffer.scenarioId !== strategyOffer.scenarioId) {
       throw new Error(`LANDING BRIEF CTA ${cta.id} scenario does not match the operational offer`);
     }
+    const moduleOfferTypes = {
+      hero: "presentation",
+      closing: "presentation",
+      apartments: "consultation",
+      calculator: "mortgage_estimate",
+      selection: "apartment_selection"
+    };
+    if (!moduleOfferTypes[cta.moduleId]) {
+      throw new Error(`LANDING BRIEF CTA ${cta.id} targets a module without a supported runtime CTA anchor: ${cta.moduleId}`);
+    }
+    if (moduleOfferTypes[cta.moduleId] !== strategyOffer.type) {
+      throw new Error(`LANDING BRIEF CTA ${cta.id} offer type is incompatible with runtime module ${cta.moduleId}`);
+    }
+    if (cta.moduleId === "selection" && passport.selectionQuiz?.status !== "approved") {
+      throw new Error(`LANDING BRIEF CTA ${cta.id} requires an approved passport selectionQuiz`);
+    }
     const segmentId = cta.segmentIds?.[0] || brief.strategy.primarySegmentId;
     ctaMap[cta.moduleId] = {
+      moduleId: cta.moduleId,
       ctaId: cta.id,
       label: cta.label,
       intent: cta.intent,
