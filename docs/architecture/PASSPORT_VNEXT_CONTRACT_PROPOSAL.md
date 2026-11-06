@@ -213,3 +213,8 @@ epistemicStatus, modality, freshness и publicationPolicy независимы. 
 6. подготовить positive/negative fixtures и migration tests.
 
 До выполнения этих условий текущая schema 1.0.0 остаётся production contract. Данный документ — proposal, не изменение runtime.
+
+
+## 10. Совместимость с текущим runtime
+
+Текущий builder жёстко проверяет schemaVersion 1.0.0 и напрямую читает legacy-поля facts, advantages, infrastructure, offers, assets, apartmentPlans, contentStrategy и selectionQuiz. Поэтому Passport vNext не может стать прямым входом builder без адаптера. Перед JSON Schema 2.0.0 требуется normalized Project Knowledge contract, legacy adapter 1.0.0 → normalized model и parity tests. Подробный аудит зависимостей и этапов миграции: [PASSPORT_VNEXT_RUNTIME_CONSUMER_AUDIT.md](PASSPORT_VNEXT_RUNTIME_CONSUMER_AUDIT.md).
