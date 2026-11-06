@@ -75,12 +75,23 @@ import { createAttributionState } from "../../src/attribution.mjs";
   }
 
   const advantageGrid = $("#advantage-grid");
-  if (Array.isArray(data.advantages) && data.advantages.length) {
-    advantageGrid.innerHTML = data.advantages.filter(item => item && item.title && item.benefit && item.status === "verified").map((item, index) =>
-      '<article class="advantage-card"><span class="card-index">0' + (index + 1) + '</span><h3>' + esc(item.title) + '</h3><p>' + esc(item.benefit) + '</p>' +
-      (item.proof ? '<small>' + esc(item.proof) + '</small>' : '') + '</article>').join("");
+  const publishableAdvantages = Array.isArray(data.advantages) ? data.advantages.filter(item =>
+    item && item.title && item.benefit && item.status === "verified" &&
+    Array.isArray(item.evidence) && item.evidence.some(source => typeof source === "string" && source.trim())
+  ) : [];
+  if (publishableAdvantages.length) {
+    advantageGrid.innerHTML = publishableAdvantages.map((item, index) => {
+      const evidence = item.evidence.filter(source => typeof source === "string" && source.trim()).slice(0, 3);
+      return '<article class="advantage-card" data-strength="' + esc(item.strength || "supporting") + '">' +
+        '<span class="card-index">0' + (index + 1) + '</span>' +
+        '<h3>' + esc(item.title) + '</h3>' +
+        '<p>' + esc(item.benefit) + '</p>' +
+        '<div class="advantage-evidence"><span class="advantage-evidence-label">Фактическое основание</span>' +
+        '<span class="advantage-evidence-value">' + evidence.map(esc).join(' · ') + '</span></div>' +
+        '</article>';
+    }).join("");
   } else {
-    advantageGrid.innerHTML = '<p class="empty-state">Добавьте подтверждённые преимущества проекта и объяснение их пользы для покупателя. Непроверенные гипотезы не публикуются.</p>';
+    advantageGrid.innerHTML = '<p class="empty-state">Добавьте подтверждённые преимущества проекта, объяснение их пользы для покупателя и источники фактов. Непроверенные или неподкреплённые утверждения не публикуются.</p>';
   }
 
   const approvedMedia = Array.isArray(data.media) ? data.media.filter(m => m && m.status === "approved" && m.rightsStatus === "approved" && safeUrl(m.url)) : [];
