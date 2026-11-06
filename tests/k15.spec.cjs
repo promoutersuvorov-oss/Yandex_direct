@@ -195,11 +195,16 @@ test("K15 navigation, gallery, apartment and location controls remain interactiv
   await expect(page.locator("#mnav")).toHaveAttribute("aria-hidden", "true");
 
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.locator('#planTabs button[data-p="1"]').click();
-  await expect(page.locator("#planTabs button[data-p=\"1\"]")).toHaveClass(/on/);
+  const plan3d = page.locator('#planTabs button[data-p="0"]');
+  const plan2d = page.locator('#planTabs button[data-p="1"]');
+  await plan2d.click();
+  await expect(plan2d).toHaveClass(/on/);
   await expect(page.locator("#planImg")).toHaveAttribute("data-zoom", /чертёж с площадями/);
-  await page.locator('#planTabs button[data-p="0"]').click();
+  await expect(page.locator("#planImg .slot")).toHaveAttribute("data-img", "plan-2d.jpg");
+  await plan3d.click();
+  await expect(plan3d).toHaveClass(/on/);
   await expect(page.locator("#planImg")).toHaveAttribute("data-zoom", /3D-вид/);
+  await expect(page.locator("#planImg .slot")).toHaveAttribute("data-img", "plan-3room.jpg");
 
   await page.locator("#aptNext").click();
   await expect(page.locator("#aptCnt")).toHaveText(/^2 \/ \d+$/);
