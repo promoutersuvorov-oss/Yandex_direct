@@ -173,8 +173,14 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
       ...(integration.leadWorkflow?.approvalStatus === "approved" && integration.leadWorkflow?.apiContractVersion &&
         integration.leadWorkflow?.deliveryVerification?.status === "passed" && integration.leadWorkflow?.deliveryVerification?.verifiedAt &&
         integration.leadEndpoint && integration.privacyPolicyUrl && integration.privacyPolicyVersion && integration.leadWorkflow?.consentTextVersion ? ["approved-key-lead-workflow"] : []),
-      ...(integration.mortgageTerms?.approvalStatus === "approved" && integration.mortgageTerms?.evidenceIds?.length ?
-        ["verified-mortgage-terms"] : [])
+      ...(integration.mortgageTerms?.approvalStatus === "approved" &&
+        integration.mortgageTerms?.sourceIds?.length &&
+        integration.mortgageTerms.sourceIds.every(id => (knowledge.sources || []).some(src => src.id === id)) &&
+        integration.mortgageTerms?.evidenceIds?.length &&
+        integration.mortgageTerms.evidenceIds.every(id => (knowledge.evidence || []).some(ev =>
+          ev.id === id && integration.mortgageTerms.sourceIds.includes(ev.sourceId))) &&
+        Number.isFinite(Date.parse(integration.mortgageTerms?.observedAt)) &&
+        isFuture(integration.mortgageTerms?.validUntil, now) ? ["verified-mortgage-terms"] : [])
     ]
   });
   if (moduleResolution.errors.length) {
