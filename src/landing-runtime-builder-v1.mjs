@@ -31,8 +31,10 @@ const clone = value => JSON.parse(JSON.stringify(value));
 const isFuture = (value, now) => !value || (Number.isFinite(Date.parse(value)) && Date.parse(value) > now);
 
 function claimIsPublic(claim, knowledge, now) {
+  // Qualification-aware copy is not implemented in the visitor-facing renderer yet.
+  // Fail closed: a qualified claim must not become an unqualified marketing statement.
   if (!claim || claim.epistemicStatus !== "verified" ||
-      !["allowed", "allowed_with_qualification"].includes(claim.publicUse) ||
+      claim.publicUse !== "allowed" ||
       !claim.sourceIds?.length || !claim.evidenceIds?.length || !isFuture(claim.validUntil, now)) return false;
   const sources = new Map((knowledge.sources || []).map(item => [item.id, item]));
   const evidence = new Map((knowledge.evidence || []).map(item => [item.id, item]));
