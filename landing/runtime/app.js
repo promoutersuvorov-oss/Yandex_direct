@@ -49,6 +49,16 @@
 
   const visualGrid = $("#visual-grid");
   const approvedMedia = Array.isArray(data.media) ? data.media.filter(m => m && m.status === "approved" && m.rightsStatus === "approved" && safeUrl(m.url)) : [];
+  const heroMedia = data.heroMedia;
+  if (heroMedia && heroMedia.status === "approved" && heroMedia.rightsStatus === "approved" && safeUrl(heroMedia.url)) {
+    const heroImage = $("#hero-media");
+    heroImage.src = safeUrl(heroMedia.url);
+    heroImage.alt = heroMedia.alt || (project.name + " — визуализация проекта");
+    heroImage.hidden = false;
+    $(".hero-art").classList.add("has-media");
+    $(".hero-art").setAttribute("role", "group");
+    $(".hero-art").removeAttribute("aria-label");
+  }
   if (approvedMedia.length) {
     visualGrid.innerHTML = approvedMedia.slice(0, 5).map((media, index) =>
       '<figure class="media-tile ' + (index === 0 ? "media-tile-main" : "") + '"><img src="' + esc(safeUrl(media.url)) + '" alt="' + esc(media.alt || project.name || "Материал проекта") + '" loading="' + (index === 0 ? "eager" : "lazy") + '"><figcaption>' + esc(media.caption || (media.type === "render" ? "Визуализация" : "Фотография")) + '</figcaption></figure>').join("");
@@ -64,6 +74,26 @@
   const locationList = $("#location-list");
   const places = Array.isArray(data.infrastructure) ? data.infrastructure.filter(p => p && p.status === "verified" && p.name && p.distanceLabel) : [];
   if (places.length) locationList.innerHTML = places.map(place => '<li><strong>' + esc(place.name) + '</strong><span>' + esc(place.distanceLabel) + '</span></li>').join("");
+
+  // The hero stays first. The remaining page is composed and ordered by each project's strategy.
+  const sectionIds = ["concept","advantages","visual-story","apartments","location","calculator","selection"];
+  const requested = Array.isArray(data.composition) ? data.composition : sectionIds;
+  const composition = requested.filter((sectionId, index) => sectionIds.includes(sectionId) && requested.indexOf(sectionId) === index);
+  if (data.mode !== "demo" && !data.advantages?.some(item => item?.status === "verified" && item.title && item.benefit)) $("#advantages").hidden = true;
+  if (data.mode !== "demo" && !approvedMedia.length) $("#visual-story").hidden = true;
+  if (data.mode !== "demo" && !approvedPlans.length) $("#apartments").hidden = true;
+  if (data.mode !== "demo" && !places.length && !project.city && !project.district) $("#location").hidden = true;
+  const main = $("main");
+  const closing = $(".closing-section", main);
+  for (const sectionId of composition) {
+    const section = $("#" + sectionId);
+    if (section && !section.hidden) main.insertBefore(section, closing);
+  }
+  for (const link of $(".desktop-nav a")) {
+    const target = $(link.getAttribute("href"));
+    if (!target || target.hidden) link.hidden = true;
+  }
+  if ($(".desktop-nav a:not([hidden])").length === 0) $(".desktop-nav").hidden = true;
 
   function openOffer(offerId, context = {}) {
     const offer = data.offers && data.offers[offerId];
