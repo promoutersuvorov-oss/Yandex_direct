@@ -133,6 +133,23 @@ import { createAttributionState } from "../../src/attribution.mjs";
     $("#lifestyle").hidden = false;
   }
 
+  const faqList = $("#faq-list");
+  const approvedFaqItems = Array.isArray(data.faqItems) ? data.faqItems.filter(item =>
+    item && item.question && Array.isArray(item.answer) && item.answer.length > 0 &&
+    item.answer.every(part => part && part.claim && part.sourceTitle)
+  ) : [];
+  if (approvedFaqItems.length) {
+    faqList.innerHTML = approvedFaqItems.map(item =>
+      '<details class="faq-item"><summary>' + esc(item.question) + '<span class="faq-toggle" aria-hidden="true"></span></summary>' +
+      '<div class="faq-answer">' + item.answer.map(part =>
+        '<p>' + esc(part.claim) + '</p><p class="faq-source">Источник: ' + esc(part.sourceTitle) + '</p>'
+      ).join("") + '</div></details>'
+    ).join("");
+    $("#faq").hidden = false;
+  } else {
+    $("#faq").hidden = true;
+  }
+
   const planGrid = $("#plan-grid");
   const approvedPlans = Array.isArray(data.plans) ? data.plans.filter(p => p && p.status === "verified" && p.publicUse === "allowed" && p.rightsStatus === "approved" && p.id && p.assetId && p.title && Number.isInteger(p.rooms) && Number.isFinite(p.areaSqm) && Array.isArray(p.sources) && p.sources.length > 0 && p.assetUrl && safeUrl(p.assetUrl)) : [];
   if (approvedPlans.length) {
@@ -174,7 +191,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
   }
 
   // The hero stays first. The remaining page is composed and ordered by each project's strategy.
-  const sectionIds = ["concept","advantages","visual-story","lifestyle","apartments","location","calculator","selection"];
+  const sectionIds = ["concept","advantages","visual-story","lifestyle","apartments","location","faq","calculator","selection"];
   const requested = Array.isArray(data.composition) ? data.composition : sectionIds;
   const composition = requested.filter((sectionId, index) => sectionIds.includes(sectionId) && requested.indexOf(sectionId) === index);
   if (data.mode !== "demo" && !data.advantages?.some(item =>
