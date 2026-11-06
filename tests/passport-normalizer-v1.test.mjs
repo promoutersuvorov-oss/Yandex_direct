@@ -252,3 +252,22 @@ test("normalizes the real 905 draft without fabricating units, offers or plans",
   assert.ok(result.warnings.some(item => item.code === "OFFERS_NOT_MIGRATED") === false);
   assert.equal("internalMarketContext" in result.knowledge, true);
 });
+
+
+test("returns an explicit deterministic bridge from legacy fact IDs to normalized claim IDs", () => {
+  const input = passport();
+  input.facts = [
+    { id: "fact-alpha", claim: "Подтверждённое утверждение", status: "verified",
+      publicUse: "allowed", sources: [source] },
+    { id: "fact-beta", claim: "Второе утверждение", status: "provisional",
+      publicUse: "internal_only", sources: [source] }
+  ];
+  const first = normalizePassportV1(input);
+  const second = normalizePassportV1(input);
+  assert.deepEqual(first.legacyReferences, second.legacyReferences);
+  assert.equal(first.legacyReferences.factIdToClaimId["fact-alpha"],
+    first.knowledge.claims.find(item => item.value.value === "Подтверждённое утверждение").id);
+  assert.equal(first.legacyReferences.factIdToClaimId["fact-beta"],
+    first.knowledge.claims.find(item => item.value.value === "Второе утверждение").id);
+  assert.deepEqual(Object.keys(first.legacyReferences.factIdToClaimId).sort(), ["fact-alpha", "fact-beta"]);
+});
