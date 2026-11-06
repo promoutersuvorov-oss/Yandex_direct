@@ -112,6 +112,6 @@ Positioning Gate считается полезным не потому, что �
 
 ## 11. Программный контракт
 
-Перед production generation orchestration обязана вызвать `validateLandingBriefReferences(brief, passport, { requirePositioningGate: true })` из `src/landing-brief.mjs`. Любая ошибка блокирует финальную сборку и публикацию. Опция `requirePositioningGate` включается явно, чтобы не ломать legacy/review-only brief и существующие исследовательские материалы; отсутствие позиционирования в таком режиме не является production approval.
+Перед production generation orchestration обязана вызвать `validateLandingBriefReferences(brief, passport, { requirePositioningGate: true })` из `src/landing-brief.mjs`. Любая ошибка блокирует финальную сборку и публикацию. Опция `requirePositioningGate` включается явно, чтобы не ломать legacy/review-only brief и существующие исследовательские материалы; отсутствие позиционирования в таком режиме не является production approval. Проверка читает канонический объект `strategy.positioning`, а не отдельное поле верхнего уровня. Для статуса `approved` одновременно требуются `status=approved`, `gateStatus=approved`, подтверждённая доказательная база по всем пяти элементам и данные об утверждающем лице/дате. Экспертные гипотезы могут оставаться в исследовательском черновике, но не проходят production approval.
 
 Проверки шлюза покрываются `tests/landing-brief.test.mjs`: отсутствие позиционирования, неутверждённый статус, корректный пятиэлементный контракт, неизвестный сегмент и отсутствие подтверждения продуктовой/операционной готовности.
