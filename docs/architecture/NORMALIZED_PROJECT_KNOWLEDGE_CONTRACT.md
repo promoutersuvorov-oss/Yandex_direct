@@ -17,7 +17,7 @@ Builder должен читать только normalized model. Это позв
 
 Это не означает, что нужно вводить новый сервис, базу данных или API. На первом этапе это обычный типизированный объект в коде и чистые функции преобразования.
 
-Legacy Adapter первой итерации возвращает нормализованное знание, предупреждения и ошибки:
+Legacy Adapter первой итерации возвращает нормализованное знание, явный bridge для ссылок из legacy паспорта, предупреждения и ошибки:
 
     LegacyAdapterResult {
       knowledge: NormalizedProjectKnowledge | null,
@@ -372,7 +372,7 @@ Landing Brief и Landing Specification остаются отдельными в�
 | marketContext | InternalMarketContext | Только internal-only |
 | verification | Вычисляемый audit report | Не дублировать как первичный источник истины |
 
-Legacy adapter должен возвращать warnings для значений, которые нельзя безопасно нормализовать. Он не должен додумывать связи, геометрию, subject или доказательства.
+Legacy adapter возвращает deterministic `legacyReferences.factIdToClaimId` для каждого успешно нормализованного legacy fact. Это migration metadata, не часть Project Knowledge и не публичный runtime field. Builder использует bridge вместо текстового сопоставления. Adapter также возвращает warnings для значений, которые нельзя безопасно нормализовать. Он не должен додумывать связи, геометрию, subject или доказательства.
 
 ## 7. Вопросы, которые должны быть закрыты перед реализацией
 
