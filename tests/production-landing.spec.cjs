@@ -52,7 +52,7 @@ test("selection quiz preserves answers in its own CTA context", async ({ page })
   await page.goto(url);
   await page.locator('label.choice').filter({ hasText: "Для себя или семьи" }).click();
   await page.locator('label.choice').filter({ hasText: /^2$/ }).click();
-  await page.locator('input[name="timing"][value="В течение 1–3 месяцев"]').check();
+  await page.locator('label.choice').filter({ hasText: "1–3 месяца" }).click();
   await expect(page.locator('input[name="goal"][value="Для себя или семьи"]')).toBeChecked();
   await expect(page.locator('input[name="timing"][value="В течение 1–3 месяцев"]')).toBeChecked();
   await expect(page.locator('input[name="rooms"][value="2"]')).toBeChecked();
