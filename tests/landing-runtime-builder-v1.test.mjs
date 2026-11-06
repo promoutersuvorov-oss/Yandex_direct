@@ -200,6 +200,22 @@ test("builds the real KD 905 draft without inventing plans, distances, assets or
   assert.throws(()=>buildLandingProfileFromKnowledge(normalized.knowledge,landing.landingInputs,normalized.legacyReferences,approvedCopy,{},{now:"2026-11-06T00:00:00Z"}),/approved-lifestyle-stories/);
 });
 
+test("apartment plans require an asset explicitly cleared for the floor-plans context",()=>{
+  const x=input();
+  x.knowledge.assets=[{id:"plan-asset",assetKind:"plan",url:"https://assets.example.test/plan.svg",
+    publicationStatus:"approved",projectMatch:"confirmed",rightsStatus:"confirmed",rightsEvidenceIds:["e1"],
+    subjectRefs:[{type:"project",id:"p1"}],allowedContexts:["floor-plans"]}];
+  x.knowledge.plans=[{id:"plan-1",planKind:"apartment_floor_plan",epistemicStatus:"verified",publicUse:"allowed",
+    sourceIds:["s1"],evidenceIds:["e1"],rooms:2,area:{value:58,unit:"m2"},assetId:"plan-asset",
+    validUntil:"2027-11-06T00:00:00Z"}];
+  const allowed=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
+  assert.equal(allowed.plans.length,1);
+  const restricted=structuredClone(x);
+  restricted.knowledge.assets[0].allowedContexts=["gallery"];
+  const blocked=buildLandingProfileFromKnowledge(restricted.knowledge,restricted.landingInputs,restricted.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
+  assert.deepEqual(blocked.plans,[]);
+});
+
 test("conditional gallery and floor plans are omitted when their capabilities are unavailable",()=>{
   const x=input();
   x.landingInputs.strategy.modules=[
