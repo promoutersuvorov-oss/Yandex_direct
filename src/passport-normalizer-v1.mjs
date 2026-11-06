@@ -138,7 +138,9 @@ function makeClaim({
     epistemicStatus: STATUS_MAP[status] || "unknown",
     sourceIds,
     evidenceIds,
-    publicUse: mapPublicationPolicy(publicUse),
+    publicUse: sourceIds.length > 0 && evidenceIds.length > 0
+      ? mapPublicationPolicy(publicUse)
+      : "internal_only",
     ...(observedAt ? { observedAt } : {}),
     ...(validUntil ? { validUntil } : {}),
     limitations: [...limitations]
@@ -347,6 +349,13 @@ export function normalizePassportV1(passport) {
       const rights = asset.rightsSource
         ? collector.addEvidenceForSource(asset.rightsSource, `${path}.rightsSource`)
         : { sourceId: null, evidenceId: null };
+      if (asset.rightsStatus === "confirmed" && !rights.evidenceId) {
+        warnings.push({
+          code: "ASSET_RIGHTS_EVIDENCE_MISSING",
+          path,
+          message: "Права отмечены как confirmed, но отдельное evidence не приложено; право использования требует повторной проверки."
+        });
+      }
       assets.push({
         id: asset.id,
         assetKind: asset.type === "pdf" ? "document" : (["photo", "render", "video", "plan", "map", "logo"].includes(asset.type) ? asset.type : "other"),
@@ -354,9 +363,11 @@ export function normalizePassportV1(passport) {
         ...(nonEmpty(asset.alt) ? { alt: asset.alt } : {}),
         subjectRefs: [projectRef],
         projectMatch: asset.projectMatch === "confirmed" ? "confirmed" : "unconfirmed",
+        publicationStatus: asset.status === "approved" ? "approved" : asset.status === "restricted" ? "blocked" : asset.status === "missing" ? "missing" : "pending",
         rightsStatus: asset.rightsStatus === "confirmed" ? "confirmed" : asset.rightsStatus === "blocked" ? "blocked" : "unknown",
         rightsEvidenceIds: rights.evidenceId ? [rights.evidenceId] : [],
-        validUntil: asset.validUntil,
+        rightsLimitations: nonEmpty(asset.rightsNote) ? [asset.rightsNote] : [],
+        ...(asset.validUntil ? { validUntil: asset.validUntil } : {}),
         allowedContexts: Array.isArray(asset.usage) ? [...asset.usage] : []
       });
     });
@@ -388,8 +399,10 @@ export function normalizePassportV1(passport) {
       ...(Number.isInteger(plan.floor) ? { floor: plan.floor } : {}),
       ...(nonEmpty(plan.finishing) ? { finishing: plan.finishing } : {}),
       sourceIds: provenance.sourceIds,
+      evidenceIds: provenance.evidenceIds,
       epistemicStatus: STATUS_MAP[plan.status] || "unknown",
-      publicUse: mapPublicationPolicy(plan.publicUse),
+      publicUse: provenance.sourceIds.length > 0 && provenance.evidenceIds.length > 0
+        ? mapPublicationPolicy(plan.publicUse) : "internal_only",
       ...(plan.expiresAt ? { validUntil: plan.expiresAt } : {})
     });
   });
@@ -469,6 +482,10 @@ export function normalizePassportV1(passport) {
       return;
     }
 
+    if (!nonEmpty(distanceEvidence.checkedAt)) {
+      warnings.push({ code: "ROUTE_OBSERVED_AT_MISSING", path, message: "Маршрут не создан: отсутствует дата проверки маршрута." });
+      return;
+    }
     const routeId = stableId("route", `${project.id}:${poiId}:walking:${distanceEvidence.checkedAt || ""}`);
     const route = {
       id: routeId,
