@@ -189,6 +189,12 @@ function renderModule(module, index) {
     ? (profile.project.positioning || "")
     : (module.userQuestion || "");
   const factList = factsHere.map(fact => `<li>${esc(fact.claim)}</li>`).join("");
+  const heroMetaItems = module.moduleId === "hero"
+    ? [["Город", profile.project.city], ["Район", profile.project.district]].filter(([, value]) => typeof value === "string" && value.trim())
+    : [];
+  const heroMeta = heroMetaItems.length
+    ? `<dl class="hero-meta" aria-label="Расположение проекта">${heroMetaItems.map(([label, value]) => `<div class="hero-meta-item"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join("")}</dl>`
+    : "";
   const benefitList = advantagesHere.map(item => `<article class="benefit"><h3>${esc(item.title)}</h3><p>${esc(item.benefit)}</p></article>`).join("");
   const image = module.moduleId === "gallery" && moduleAssets.length
     ? renderGallery(moduleAssets)
@@ -207,6 +213,7 @@ function renderModule(module, index) {
     <div class="module-copy"><p class="eyebrow">${String(index + 1).padStart(2, "0")}</p>
       <${headingTag} id="heading-${index}">${esc(heading)}</${headingTag}>
       ${intro ? `<p class="intro">${esc(intro)}</p>` : ""}
+      ${heroMeta}
       ${benefitList ? `<div class="benefits">${benefitList}</div>` : ""}
       ${factList ? `<ul class="facts">${factList}</ul>` : ""}
       ${locationContent}
@@ -271,6 +278,24 @@ body[data-composition="architectural"] .eyebrow{font-family:Inter,Arial,sans-ser
 body[data-composition="architectural"] h1,body[data-composition="architectural"] h2{font-family:Inter,Arial,sans-serif;font-weight:600;letter-spacing:-.07em;line-height:.98}
 body[data-composition="architectural"] figure{border-radius:0;outline:1px solid var(--line);outline-offset:8px}
 @media(max-width:760px){body[data-composition="editorial"] .module,body[data-composition="cinematic"] .module,body[data-composition="architectural"] .module{padding-block:60px}body[data-composition="cinematic"] .module.hero{min-height:68svh}body[data-composition="architectural"] figure{outline-offset:4px}}
+/* Text-only hero art direction: evidence-backed location metadata replaces empty space, never synthetic project imagery. */
+.hero-meta{display:flex;flex-wrap:wrap;gap:clamp(22px,5vw,64px);margin:clamp(28px,5vw,56px) 0 0;padding:18px 0 0;border-top:1px solid var(--line)}
+.hero-meta-item{display:grid;gap:5px;min-width:120px;margin:0}
+.hero-meta dt{color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+.hero-meta dd{margin:0;color:var(--text);font-size:14px;font-weight:550}
+body[data-composition="editorial"] .hero.text-only{background:linear-gradient(115deg,transparent 0 68%,color-mix(in srgb,var(--accent) 7%,transparent) 68% 100%)}
+body[data-composition="editorial"] .hero.text-only h1{max-width:10ch;font-size:clamp(54px,8.4vw,112px);line-height:.98}
+body[data-composition="editorial"] .hero.text-only .hero-meta{max-width:680px}
+body[data-composition="cinematic"] .hero.text-only{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 78% 24%,rgba(216,198,168,.15),transparent 42%),linear-gradient(135deg,transparent 58%,rgba(216,198,168,.055))}
+body[data-composition="cinematic"] .hero.text-only:after{content:"";position:absolute;z-index:-1;right:-10vw;top:10%;width:min(48vw,620px);aspect-ratio:1;border:1px solid var(--line);border-radius:50%;box-shadow:0 0 0 42px rgba(255,255,255,.018),0 0 0 84px rgba(255,255,255,.012);pointer-events:none}
+body[data-composition="cinematic"] .hero.text-only h1{max-width:11ch;font-size:clamp(58px,10vw,136px);line-height:.9}
+body[data-composition="cinematic"] .hero.text-only .hero-meta{max-width:760px;margin-top:clamp(38px,7vw,82px)}
+body[data-composition="architectural"] .hero.text-only{position:relative;isolation:isolate;background-image:repeating-linear-gradient(90deg,transparent 0 119px,var(--line) 120px 121px),repeating-linear-gradient(0deg,transparent 0 119px,var(--line) 120px 121px);background-size:100% 100%;background-position:center}
+body[data-composition="architectural"] .hero.text-only .module-copy{max-width:1040px}
+body[data-composition="architectural"] .hero.text-only h1{max-width:9ch;font-size:clamp(58px,9.4vw,128px)}
+body[data-composition="architectural"] .hero.text-only .hero-meta{max-width:620px;margin-left:auto;border-top:0;border-left:2px solid var(--accent);padding:4px 0 4px 22px;gap:24px}
+body[data-composition="architectural"] .hero.text-only .hero-meta-item{min-width:150px}
+@media(max-width:760px){.hero-meta{gap:18px 28px;margin-top:28px;padding-top:14px}body[data-composition="cinematic"] .hero.text-only:after{right:-34vw;top:18%;width:78vw}body[data-composition="architectural"] .hero.text-only .hero-meta{margin-left:0;padding-left:16px;gap:16px}}
 /* Strategy-selected variants are real layout choices, not passive metadata. */
 .module[data-variant="editorial-split"]{grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:clamp(32px,7vw,110px)}
 .module[data-variant="gallery-mosaic"]{grid-template-columns:minmax(220px,.72fr) minmax(0,1.28fr)}
