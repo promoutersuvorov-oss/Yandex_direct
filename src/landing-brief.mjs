@@ -124,7 +124,6 @@ export function validateLandingBriefReferences(brief, passport, options = {}) {
     if (item?.segmentId && !segmentIds.has(item.segmentId)) errors.push(`secondary positioning ${item.id} references an unknown segment`);
     requireRefs(errors, `secondary positioning ${item?.id} supportingFactIds`, item?.supportingFactIds, factIds);
   }
-  if (options.requirePositioningGate) errors.push(...validatePositioningGate(brief));
   return errors;
 }
 
