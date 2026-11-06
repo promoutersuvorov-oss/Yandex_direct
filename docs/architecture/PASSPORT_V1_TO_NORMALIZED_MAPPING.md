@@ -249,8 +249,9 @@ Legacy `infrastructure` содержит имя, категорию, стату�
 | `project.constructionStatus` | Не используется builder напрямую | Claim + Construction Event | Сохранить modality и дату |
 | `project.inventory.apartmentCount` | Не используется builder напрямую | Aggregate Claim на уровне Project | Не создавать N квартир/Property Units |
 | `project.inventory.layoutsAvailable` | Не используется builder напрямую | Derived/readiness flag только в Landing Inputs/QA | Не переносить в Project Knowledge и не считать фактом наличия конкретных планов |
-| `project.inventory.priceFrom` | Не используется builder напрямую | CommercialTerm или Claim с ценой и сроком действия | Нужны observedAt, currency, scope, source; не публиковать устаревшее |
+| `project.inventory.priceFrom` | Не используется builder напрямую | CommercialTerm | Без валюты, scope, observedAt и validUntil не переносить как Claim/CommercialTerm; вернуть warning |
 | `project.inventory.areaRange` | Не используется builder напрямую | Internal migration warning до расширения ClaimValue | Не создавать неподдерживаемый measurement_range и не создавать квартиры из диапазона |
+| `project.positioning`, `project.audiences` | Не используется builder напрямую | Landing Brief / Customer Experience | Не переносить в Project Knowledge; сохранить только в кампанийном/покупательском контексте |
 | `project.inventory.finishing` | Не используется builder напрямую | Claim на уровне проекта/корпуса/единицы | Subject scope не расширять автоматически |
 | `facts[]` | publishableFactIds; marketing claim validation; advantages/modules/brief refs | Claims + Sources + Evidence | Сохранить ID, status, publicUse, expiresAt, claim; источник нормализовать отдельно |
 | `advantages[]` | Runtime advantages | Не Project Knowledge; Marketing Candidate в Landing Brief/Marketing Layer | Это интерпретация «факт → польза», не факт паспорта. Сохранить supportingFactIds как claim refs |
@@ -281,6 +282,8 @@ Adapter обязан возвращать предупреждения для:
 - walkingMinutes при method=straight_line;
 - плана с отсутствующим или неподходящим assetId;
 - property count / area range без отдельных units;
+- priceFrom без валюты, scope и срока действия;
+- project positioning/audiences, которые относятся к кампании и Customer Experience;
 - неоднозначного developer brand vs legal entity;
 - отсутствующей даты актуальности для динамических данных;
 - asset с rightsStatus неизвестным или без evidence;
