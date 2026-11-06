@@ -126,7 +126,7 @@ test("three-step quiz preserves answers and submits with quiz context", async ({
   }
 
   const form = quiz.locator("form.lead-form");
-  await expect(form.locator(".chips span")).toHaveCount(3);
+  await expect(quiz.locator(".chips span")).toHaveCount(3);
   const savedAnswers = await page.evaluate(() => JSON.parse(sessionStorage.getItem("k15-quiz") || "{}").a || {});
   expect(Object.values(savedAnswers).filter(Boolean)).toHaveLength(3);
   await expect(form).toBeVisible();
