@@ -565,3 +565,28 @@ test("all gallery compositions preserve their layout and contain horizontal scro
     await expect(grid.locator(".media-tile img")).toHaveCount(5);
   }
 });
+
+
+test("production strategy hides every static section that was not selected", async ({ page }) => {
+  const profile = structuredClone(productionProfile);
+  profile.composition = ["concept", "location"];
+  profile.selectionQuiz = {
+    title: "Подбор квартиры",
+    description: "Ответьте на вопрос.",
+    resultOfferId: "quiz-offer",
+    questions: [{ id: "rooms", label: "Сколько комнат?", options: [{ id: "one", label: "Одна" }] }]
+  };
+  await page.route("**/project.config.js", route => route.fulfill({
+    contentType: "application/javascript",
+    body: "window.KEY_PROJECT = " + JSON.stringify(profile) + ";"
+  }));
+  await page.goto(url);
+
+  await expect(page.locator("#concept")).toBeVisible();
+  await expect(page.locator("#location")).toBeVisible();
+  for (const id of ["advantages", "visual-story", "lifestyle", "apartments", "faq", "calculator", "selection"]) {
+    await expect(page.locator("#" + id), "unselected section " + id + " must stay hidden").toBeHidden();
+  }
+  await expect(page.locator('.desktop-nav a[href="#calculator"]')).toBeHidden();
+  await expect(page.locator('.desktop-nav a[href="#selection"]')).toBeHidden();
+});
