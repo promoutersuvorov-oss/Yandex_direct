@@ -224,7 +224,6 @@ test("K15 navigation, gallery, apartment and location controls remain interactiv
   });
   await expect(secondPlaceTab).toBeVisible();
   await secondPlaceTab.click();
-  await secondPlaceTab.click();
   await expect(page.locator('#iPills button[data-i="1"]')).toHaveAttribute("aria-selected", "true");
   await expect(page.locator("#iName")).not.toHaveText(firstPlace);
   await page.locator("#iNext").click();
