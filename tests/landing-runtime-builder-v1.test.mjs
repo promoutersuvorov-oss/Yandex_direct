@@ -101,7 +101,7 @@ test("conditional gallery and floor plans are omitted when their capabilities ar
 test("required included module fails when its exact runtime variant or capability is unavailable",()=>{
   const x=input();
   x.landingInputs.strategy.modules=[{moduleId:"lifestyle",decision:"include",variant:"image-led",order:1}];
-  assert.throws(()=>buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{}),/approved-project-media/);
+  assert.throws(()=>buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{}),/approved-lifestyle-stories/);
 });
 
 test("registered hero variant overrides descriptive layout input deterministically",()=>{
