@@ -28,6 +28,7 @@ const passport = () => ({
     {moduleId:"floor-plans",decision:"include",reason:"Нет подтверждённых планов",order:4,requiredFactIds:["f-expired"]},
     {moduleId:"calculator",decision:"exclude",reason:"Не нужен"}
   ],visualDirection:{theme:"urban-noir"}},
+  marketContext:{snapshotAt:"2026-11-06T00:00:00Z",observations:[{id:"market-test",entity:"Конкурент",status:"provisional",sourceReliability:"aggregator",metrics:{averagePricePerSqmRub:123000},sources:[source],limitations:["Не является официальным прайсом"]}]},
   verification:{checkedAt:"2026-11-01T10:00:00Z",factsWithoutSources:[]}
 });
 const marketing = () => ({
@@ -55,6 +56,7 @@ test("builds a public runtime profile from a passport and approved copy",()=>{
   assert.equal(profile.infrastructure[0].distanceLabel,"5 мин. пешком");
   assert.equal("commercial" in profile,false);
   assert.equal("facts" in profile,false);
+  assert.equal("marketContext" in profile,false);
 });
 
 test("uses only approved, project-matched and rights-cleared map assets",()=>{
