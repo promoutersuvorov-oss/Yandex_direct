@@ -9,7 +9,7 @@
 ## 1. Сводка
 
 - В каталоге описано **24 module ID**.
-- В `LANDING_MODULE_REGISTRY_V1` зарегистрировано **10 ID**.
+- В `LANDING_MODULE_REGISTRY_V1` зарегистрировано **12 ID** после устранения двух обнаруженных несовпадений.
 - Registry содержит строгие проверки неизвестных ID, неподдерживаемых вариантов, зависимостей и конфликтов секций.
 - Некоторые сценарии существуют в основном runtime, но не имеют соответствующего ID/variant в Registry V1.
 - Часть каталога — не самостоятельные секции, а UI-примитивы/навигационные элементы. Их нужно учитывать отдельным типом контракта, а не добавлять механически в список секций.
@@ -35,9 +35,9 @@
 | `security` | Registered | Registry направляет в общий `advantages` с evidence cards; самостоятельная security-секция не доказана | Partial / shared |
 | `location` | Registered | Секция location и тест запрета декоративной карты как реальной | Implemented first slice; map limitations |
 | `lifestyle` | Registered | Отдельная секция с approved stories/media capability gate | Implemented first slice; strict data gate |
-| `quiz` | Not registered | Основной runtime имеет selection quiz с паспортными вопросами, ответами и CTA context; Registry V1 не регистрирует ID `quiz` | Runtime exists; composition gap |
+| `quiz` | Registered (добавлено в ходе аудита) | Registry направляет canonical ID в секцию `selection`; builder требует `approved-selection-flow` и выбранный модуль | Implemented first slice; browser verification pending |
 | `gift` | Not registered | Самостоятельная выдача реального материала не подтверждена | Not implemented |
-| `apartments` | Not registered | Основной runtime выводит проверенные планы, lightbox/dialog и контекст выбранного плана; Registry использует ID `floor-plans`, которого нет в каталоге под таким названием | Runtime exists; ID contract mismatch |
+| `apartments` | Registered (добавлено в ходе аудита) | Canonical ID направляется в секцию `apartments`; старый `floor-plans` сохранён как совместимый alias | Implemented first slice; browser verification pending |
 | `price` | Not registered | Есть ипотечный калькулятор, но отдельный актуальный price/price-list module не доказан | Partial; do not equate with calculator |
 | `mortgage` | Registered | Visitor-input estimate calculator и свой следующий CTA; тест сценария | Implemented first slice; calculation assumptions must be explicit |
 | `developer` | Not registered | Самостоятельный verified developer profile/documents module не найден | Not implemented |
@@ -54,17 +54,13 @@
 
 ## 3. Contract mismatches requiring a decision
 
-### 3.1. ID mismatch: apartments vs floor-plans
+### 3.1. ID mismatch: apartments vs floor-plans — исправлено в Registry V1
 
-Каталог использует `apartments`, Registry V1 — `floor-plans`. Основной runtime умеет отображать планы, но генератор не должен требовать от стратегии неочевидный alias.
+Каталог использует canonical ID `apartments`; исторический Registry ID — `floor-plans`. В Registry V1 теперь зарегистрированы оба ID с одинаковыми требованиями к текущему inventory и правам на plan assets. Оба разрешаются в секцию `apartments`; одновременное включение обоих блокируется как section collision. Старый ID сохранён для обратной совместимости.
 
-Решение: выбрать один canonical ID (предпочтительно `apartments`, поскольку он уже закреплён в продуктовой терминологии) и описать временный alias `floor-plans → apartments` с тестом совместимости и deprecation policy. Не переименовывать поля паспорта или runtime profile без миграционного плана.
+### 3.2. ID mismatch: quiz vs selection — исправлено в Registry V1
 
-### 3.2. ID mismatch: quiz vs selection
-
-Каталог описывает `quiz`, основной runtime использует `selection` как секцию/offer context, а builder содержит alias mapping. Registry V1 не регистрирует `quiz` или `selection`.
-
-Решение: зафиксировать canonical module ID `quiz`; внутренний runtime section ID `selection` оставить implementation detail. Добавить явный registry mapping и contract test.
+Каталог использует canonical module ID `quiz`; внутренний runtime section ID — `selection`. Registry V1 теперь разрешает `quiz → selection` через вариант `step-form` и capability `approved-selection-flow`. Builder публикует selectionQuiz только если модуль выбран стратегией и flow связан с активным quiz offer.
 
 ### 3.3. Секции и примитивы смешаны в одном каталоге
 
@@ -118,3 +114,15 @@
 
 Связанный аудит: [KEY Landing Product Implementation Audit](KEY_LANDING_PRODUCT_IMPLEMENTATION_AUDIT_2026-11-07.md).  
 Нормативные документы остаются: [KEY Landing Product Standard](../product/KEY_LANDING_PRODUCT_STANDARD.md) и [Module Catalog](../architecture/MODULE_CATALOG_AND_COMPOSITION_RULES.md).
+
+
+## 7. Исправления после первичной матрицы
+
+На commit `480a6681a26fc1daef41289f650870aad57157ea` внесены:
+- canonical registry entries `apartments` и `quiz`, при сохранении legacy alias `floor-plans`;
+- gate selection quiz по module placement и approved selection flow;
+- скрытие статических секций, отсутствующих в composition, и скрытие production quiz при отсутствии approved selection quiz;
+- unit tests для registry aliases и builder gating;
+- browser regression test на исключённые секции и навигационные ссылки.
+
+Source-integrity на этом commit прошёл успешно. Три браузерных job были запущены; на момент обновления отчёта они ещё не завершили инициализацию контейнеров. Поэтому исправления пока не помечаются как полностью browser-verified.
