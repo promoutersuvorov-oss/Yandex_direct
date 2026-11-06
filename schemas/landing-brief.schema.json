@@ -272,7 +272,8 @@
           "deliverable",
           "readiness",
           "scenarioId",
-          "segmentIds"
+          "segmentIds",
+          "passportOfferId"
         ],
         "properties": {
           "id": {
@@ -334,6 +335,10 @@
           },
           "qualificationQuestionIds": {
             "$ref": "#/$defs/idList"
+          },
+          "passportOfferId": {
+            "$ref": "#/$defs/id",
+            "description": "ID operational offer in the project passport; keeps strategy offer identity separate from deliverable configuration."
           }
         }
       }
