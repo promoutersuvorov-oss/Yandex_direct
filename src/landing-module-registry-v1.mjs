@@ -7,6 +7,8 @@ const MODULES = {
   security: { sectionId:"advantages", variants:{ "proof-led":"evidence-cards" }, capabilities:[], merge:"append" },
   location: { sectionId:"location", variants:{ "location-led":"location-led" }, capabilities:[], merge:"single" },
   "floor-plans": { sectionId:"apartments", variants:{ "plan-selector":"plan-selector" }, capabilities:["current-inventory","rights-cleared-plan-assets"], merge:"single" },
+  apartments: { sectionId:"apartments", variants:{ "plan-selector":"plan-selector" }, capabilities:["current-inventory","rights-cleared-plan-assets"], merge:"single" },
+  quiz: { sectionId:"selection", variants:{ "step-form":"step-form" }, capabilities:["approved-selection-flow"], merge:"single" },
   mortgage: { sectionId:"calculator", variants:{ "conversion-led":"user-input-estimate" }, capabilities:["verified-mortgage-terms"], merge:"single" },
   faq: { sectionId:"faq", variants:{ "faq-accordion":"evidence-accordion" }, capabilities:["approved-faq-answers"], merge:"single" },
   contacts: { slot:"closing", variants:{ "conversion-led":"closing-cta" }, capabilities:["approved-key-lead-workflow"], merge:"slot" }
