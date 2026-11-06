@@ -206,35 +206,6 @@ export function normalizePassportV1(passport) {
   };
   const organizations = [];
 
-  function addEvidencedProjectClaim(field, predicate, path) {
-    const entry = project.location?.[field];
-    if (!isObject(entry) || entry.value === null || entry.value === undefined || entry.status === "missing") return;
-    const value = asClaimValue(entry.value);
-    if (!value) {
-      warnings.push({
-        code: "UNSUPPORTED_CLAIM_VALUE",
-        path,
-        message: "Значение не соответствует поддерживаемым типам ClaimValue; поле оставлено без нормализации."
-      });
-      return;
-    }
-    const provenance = collector.addSources(entry.sources || [], `${path}.sources`);
-    const claimId = stableId("claim", `project:${project.id}:${predicate}`);
-    claims.push(makeClaim({
-      id: claimId,
-      subject: projectRef,
-      predicate,
-      value,
-      status: entry.status,
-      publicUse: entry.status === "verified" ? "allowed_with_qualification" : "internal_only",
-      sourceIds: provenance.sourceIds,
-      evidenceIds: provenance.evidenceIds,
-      observedAt: entry.lastChecked,
-      limitations: entry.note ? [entry.note] : []
-    }));
-    normalizedProject[field === "address" ? "addressClaimId" : "districtClaimId"] = claimId;
-  }
-
   function addProjectClaim(entry, predicate, path, options = {}) {
     if (!isObject(entry)) return null;
     if (entry.value === null || entry.value === undefined || entry.status === "missing") {
