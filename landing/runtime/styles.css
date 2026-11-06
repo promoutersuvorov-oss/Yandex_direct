@@ -119,3 +119,6 @@
 .location-list strong{font-weight:500}
 .location-list li>span{flex:0 0 auto}
 @media(max-width:720px){.hero-fallback{padding:24px}.hero-fallback-title{font-size:clamp(58px,18vw,100px);max-width:8ch}}
+
+/* Approved legal/editorial qualification displayed adjacent to the exact copy it qualifies. */
+.claim-qualification{display:block;margin-top:8px;max-width:72ch;font-size:11px;line-height:1.55;letter-spacing:.01em;color:#777970;font-weight:400}
