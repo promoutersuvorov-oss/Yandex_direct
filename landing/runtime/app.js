@@ -109,6 +109,19 @@ import { createAttributionState } from "../../src/attribution.mjs";
   const locationList = $("#location-list");
   const places = Array.isArray(data.infrastructure) ? data.infrastructure.filter(p => p && p.status === "verified" && p.name && p.distanceLabel) : [];
   if (places.length) locationList.innerHTML = places.map(place => '<li><strong>' + esc(place.name) + '</strong><span>' + esc(place.distanceLabel) + '</span></li>').join("");
+  const locationArt = $(".location-art");
+  const locationMapImage = $("#location-map");
+  const locationMap = data.locationMap;
+  if (locationMap && locationMap.status === "approved" && locationMap.rightsStatus === "approved" && safeUrl(locationMap.url)) {
+    locationMapImage.src = safeUrl(locationMap.url);
+    locationMapImage.alt = locationMap.alt || (project.name + " — карта расположения");
+    locationMapImage.hidden = false;
+    $("#location-map-caption").hidden = false;
+    locationArt.hidden = false;
+    $("#location").classList.add("has-map");
+  } else {
+    locationArt.hidden = true;
+  }
 
   // The hero stays first. The remaining page is composed and ordered by each project's strategy.
   const sectionIds = ["concept","advantages","visual-story","apartments","location","calculator","selection"];
