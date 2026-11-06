@@ -39,7 +39,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
     text("#selection-title", data.selectionQuiz.title);
     text("#selection-copy", data.selectionQuiz.description || marketing.selectionCopy || "Ответьте на несколько вопросов — специалист KEY поможет определить следующий шаг.");
     const quizForm = $("#selection-form");
-    for (const fieldset of $("fieldset", quizForm)) fieldset.remove();
+    for (const fieldset of $$("fieldset", quizForm)) fieldset.remove();
     for (const question of data.selectionQuiz.questions) {
       const fieldset = document.createElement("fieldset");
       const legend = document.createElement("legend");
