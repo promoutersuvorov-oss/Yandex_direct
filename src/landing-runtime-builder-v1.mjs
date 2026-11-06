@@ -39,7 +39,7 @@ function assetIsPublic(asset, now, context, projectId, knowledge) {
     (!context || asset.allowedContexts?.includes(context)));
 }
 function mapOffer(offer) {
-  if (!offer || offer.status !== "active" || offer.consentRequired === false) return null;
+  if (!offer || offer.status !== "active" || offer.consentRequired !== true) return null;
   const id = OFFER_MAP[offer.type];
   if (!id) return null;
   return { id, offerId: offer.id, type: offer.type, title: offer.title, scenarioId: offer.scenarioId || offer.id,
@@ -162,7 +162,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     quiz: { title: "Получить персональную подборку", scenarioId: "personal_selection", description: "Передадим ваши ответы специалисту KEY." },
     calculator: { title: "Обсудить расчёт", scenarioId: "payment_consultation", description: "Поможем проверить исходные параметры расчёта." }
   };
-  Object.assign(offers, Object.fromEntries(Object.entries(defaults).filter(([key]) => !offers[key])));
+  if (options.mode !== "production") Object.assign(offers, Object.fromEntries(Object.entries(defaults).filter(([key]) => !offers[key])));
 
   const moduleResolution = resolveRuntimeModulesV1(landingInputs.strategy?.modules || [], {
     publishableFactIds: Object.entries(legacyReferences.factIdToClaimId)
@@ -170,8 +170,9 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     capabilities: [
       ...(media.length ? ["approved-project-media"] : []),
       ...(plans.length ? ["current-inventory","rights-cleared-plan-assets"] : []),
-      ...(integration.leadWorkflow?.approvalStatus === "approved" && integration.leadEndpoint &&
-        integration.privacyPolicyUrl && integration.privacyPolicyVersion ? ["approved-key-lead-workflow"] : []),
+      ...(integration.leadWorkflow?.approvalStatus === "approved" && integration.leadWorkflow?.apiContractVersion &&
+        integration.leadWorkflow?.deliveryVerification?.status === "passed" && integration.leadWorkflow?.deliveryVerification?.verifiedAt &&
+        integration.leadEndpoint && integration.privacyPolicyUrl && integration.privacyPolicyVersion && integration.leadWorkflow?.consentTextVersion ? ["approved-key-lead-workflow"] : []),
       ...(integration.mortgageTerms?.approvalStatus === "approved" && integration.mortgageTerms?.evidenceIds?.length ?
         ["verified-mortgage-terms"] : [])
     ]
@@ -203,8 +204,25 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
   const privacyPolicyVersion = integration.privacyPolicyVersion || "";
   if (endpoint && !/^https:\/\//i.test(endpoint)) throw new Error("Production leadEndpoint must use HTTPS");
   if (privacyPolicyUrl && !/^https:\/\//i.test(privacyPolicyUrl)) throw new Error("privacyPolicyUrl must use HTTPS");
-  const productionReady = Boolean(endpoint && privacyPolicyUrl && nonEmpty(privacyPolicyVersion));
-  if (options.mode === "production" && !productionReady) throw new Error("Production mode requires HTTPS webhook, HTTPS privacy URL and policy version");
+  const productionReady = Boolean(endpoint && privacyPolicyUrl && nonEmpty(privacyPolicyVersion) &&
+    integration.leadWorkflow?.approvalStatus === "approved" &&
+    nonEmpty(integration.leadWorkflow?.apiContractVersion) &&
+    integration.leadWorkflow?.deliveryVerification?.status === "passed" &&
+    Number.isFinite(Date.parse(integration.leadWorkflow?.deliveryVerification?.verifiedAt)) &&
+    nonEmpty(integration.leadWorkflow?.consentTextVersion));
+  if (options.mode === "production" && !productionReady) {
+    throw new Error("Production mode requires an approved lead workflow, verified API delivery contract, consent text version, HTTPS endpoint and privacy policy");
+  }
+  if (options.mode === "production" && !offers.presentation?.offerId) {
+    throw new Error("Production mode requires an explicit active presentation offer; demo defaults are not publishable");
+  }
+  if (options.mode === "production") {
+    for (const [sectionId, cta] of Object.entries(options.approvedMarketingStrategy?.ctaMap || {})) {
+      if (!cta || !nonEmpty(cta.ctaId) || !nonEmpty(cta.label) || !offers[cta.offerKey]) {
+        throw new Error(`Production CTA mapping for "${sectionId}" must reference an explicit active offer and include ctaId/label`);
+      }
+    }
+  }
   const profile = {
     mode: productionReady && options.mode === "production" ? "production" : "demo",
     project, composition,
