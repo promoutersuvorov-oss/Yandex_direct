@@ -234,7 +234,7 @@ test("K15 navigation, gallery, apartment and location controls remain interactiv
   await page.keyboard.press("Escape");
   await expect(lightbox).not.toBeVisible();
 
-  await page.locator("[data-about]").first().click();
+  await page.locator("[data-about]:visible").first().click();
   const aboutDialog = page.locator("#aboutDlg");
   await expect(aboutDialog).toBeVisible();
   await page.keyboard.press("Escape");
