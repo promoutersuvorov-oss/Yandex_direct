@@ -18,6 +18,8 @@
 | Passport mapping | [PASSPORT_TO_LANDING_MAPPING.md](PASSPORT_TO_LANDING_MAPPING.md) | Связь паспорта, стратегии, манифеста и runtime; не готовый конвертер |
 | Контракт паспорта ЖК | [project-passport.schema.json](../../schemas/project-passport.schema.json) | Машинно-проверяемая структура фактов и проекта |
 | Positioning Gate | [POSITIONING_GATE.md](POSITIONING_GATE.md) | Обязательный шлюз между исследованием и финальной сборкой: пять элементов фокуса кампании, доказательная дисциплина, статусы и условия допуска Builder-а |\n| Контракт маркетинговой стратегии | [landing-brief.schema.json](../../schemas/landing-brief.schema.json) | Машинно-проверяемый LANDING BRIEF между Strategist и Builder: buyer insights, пять элементов позиционирования, hooks, offers, funnels, CTA, qualification и experiments |
+| Customer Experience Architecture | [CUSTOMER_EXPERIENCE_ARCHITECTURE.md](CUSTOMER_EXPERIENCE_ARCHITECTURE.md) | Обязательный слой buyer research, behavioral model, CJM, value proposition, progressive conversion и измерения качества лидов |
+| Контракт Customer Experience | [customer-experience.schema.json](../../schemas/customer-experience.schema.json) | Машинно-проверяемые evidence, сегменты, journey steps, ценностные предложения и метрики |
 | Исполнительные инструкции | [prompts/](../../prompts/) | Как AI-этапы выполняют свои задачи и передают результат следующему |
 | Эталонная реализация | [K15_landing_edited.html](../../landing/reference/K15_landing_edited.html) | Исходный объект аудита и источник UX-паттернов; не нормативный источник фактов или архитектуры |
 | Индекс | [README.md](../../README.md) | Навигация по проекту и текущий статус |
