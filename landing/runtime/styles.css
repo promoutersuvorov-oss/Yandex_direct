@@ -6,7 +6,7 @@
 @media(max-width:390px){:root{--gutter:19px}.plan-card{grid-template-columns:1fr}.plan-preview-trigger{min-height:210px;padding:10px}.plan-preview-trigger img{min-height:190px}.plan-card-copy{min-height:200px}.calculator-row{grid-template-columns:1fr}.header-action{display:none}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}}
 
-.hero-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.hero-art.has-media:before{display:none}.hero-art.has-media .art-sun,.hero-art.has-media .art-building{display:none}.hero-art.has-media .art-caption{color:#fff;text-shadow:0 1px 8px #0008;background:linear-gradient(transparent,#0005);padding:36px 20px 18px;left:0;right:0;bottom:0}.section-shell[hidden],.desktop-nav[hidden],.desktop-nav a[hidden]{display:none!important}
+.hero-media[hidden]{display:none!important}.hero-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.hero-art.has-media:before{display:none}.hero-art.has-media .art-sun,.hero-art.has-media .art-building{display:none}.hero-art.has-media .art-caption{color:#fff;text-shadow:0 1px 8px #0008;background:linear-gradient(transparent,#0005);padding:36px 20px 18px;left:0;right:0;bottom:0}.section-shell[hidden],.desktop-nav[hidden],.desktop-nav a[hidden]{display:none!important}
 
 
 /* Project-level hero compositions: shared content, genuinely distinct layouts. */
