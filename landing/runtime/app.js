@@ -16,7 +16,7 @@
   let activeOffer = null;
   let activeContext = {};
   const fmt = value => new Intl.NumberFormat("ru-RU").format(value);
-  const safeUrl = value => { try { const u = new URL(value, location.href); return ["https:","http:"].includes(u.protocol) ? u.href : ""; } catch { return ""; } };
+  const safeUrl = value => { if (typeof value !== "string" || !value.trim()) return ""; try { const u = new URL(value, location.href); return ["https:","http:"].includes(u.protocol) ? u.href : ""; } catch { return ""; } };
 
   document.title = (project.name || "Жилой комплекс") + " — KEY";
   text("#hero-kicker", marketing.heroKicker); text("#hero-title", marketing.headline); text("#hero-lead", marketing.lead);
@@ -125,7 +125,7 @@
       schemaVersion: "1.0.0",
       project: { id: project.id, name: project.name },
       contact: { name: String(values.name).trim(), phone: String(values.phone).trim() },
-      consent: { accepted: true, acceptedAt: new Date().toISOString(), policyUrl: safeUrl(data.integration?.privacyPolicyUrl) },
+      consent: { accepted: true, acceptedAt: new Date().toISOString(), policyUrl, policyVersion },
       conversion: activeContext,
       attribution: readAttribution(),
       pageUrl: location.href,
