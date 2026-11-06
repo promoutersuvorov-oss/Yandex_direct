@@ -120,6 +120,12 @@ test("three-step quiz preserves answers and submits with quiz context", async ({
       const state = JSON.parse(sessionStorage.getItem("k15-quiz") || "{}");
       return Object.values(state.a || {}).filter(Boolean).length;
     })).toBe(step);
+    // The answer is saved immediately, while advancing the quiz step is delayed.
+    // Wait for the persisted step transition before interacting with the next question.
+    await expect.poll(async () => page.evaluate(() => {
+      const state = JSON.parse(sessionStorage.getItem("k15-quiz") || "{}");
+      return state.step;
+    })).toBe(step);
     if (step < 3) {
       await expect(quiz.locator(".qprog span")).toContainText(`${step + 1} / 3`);
       const nextQuestion = step === 1 ? "Какая площадь вам нужна?" : "Как планируете покупать?";
@@ -201,7 +207,12 @@ test("K15 navigation, gallery, apartment and location controls remain interactiv
   await expect(page.locator("#aptCnt")).toHaveText(/^1 \/ \d+$/);
 
   const firstPlace = await page.locator("#iName").textContent();
-  await page.locator('#iPills button[data-i="1"]').click();
+  const secondPlaceTab = page.locator('#iPills button[data-i="1"]');
+  // The infrastructure tabs form a horizontally scrollable strip; reveal the
+  // second tab inside that strip before clicking it (especially in WebKit).
+  await secondPlaceTab.evaluate(el => el.scrollIntoView({ block: "nearest", inline: "center", behavior: "instant" }));
+  await expect(secondPlaceTab).toBeInViewport();
+  await secondPlaceTab.click();
   await expect(page.locator('#iPills button[data-i="1"]')).toHaveAttribute("aria-selected", "true");
   await expect(page.locator("#iName")).not.toHaveText(firstPlace);
   await page.locator("#iNext").click();
