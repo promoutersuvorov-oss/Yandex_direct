@@ -80,9 +80,37 @@ const productionProfile = {
   analytics: { enabled: false }
 };
 
+test("approved passport quiz replaces the demo questions and submits project-specific answers", async ({ page }) => {
+  const profile = structuredClone(productionProfile);
+  profile.offers.quiz = { title: "Подобрать квартиру", scenarioId: "passport_selection", description: "Ответьте на вопросы." };
+  profile.selectionQuiz = {
+    title: "Подбор под ваш сценарий",
+    description: "Два коротких вопроса.",
+    resultOfferId: "selection",
+    questions: [
+      { id: "purpose", label: "Для чего выбираете квартиру?", options: [{ id: "family", label: "Для семьи" }, { id: "invest", label: "Для инвестиций" }] },
+      { id: "budget", label: "Какой бюджет рассматриваете?", options: [{ id: "low", label: "До 10 млн" }, { id: "high", label: "Более 10 млн" }] }
+    ]
+  };
+  await page.route("**/project.config.js", route => route.fulfill({
+    contentType: "application/javascript",
+    body: "window.KEY_PROJECT = " + JSON.stringify(profile) + ";"
+  }));
+  await page.goto(url);
+  await expect(page.locator("#selection-title")).toHaveText("Подбор под ваш сценарий");
+  await expect(page.locator("#selection-form fieldset")).toHaveCount(2);
+  await page.locator('label.choice').filter({ hasText: "Для семьи" }).click();
+  await page.locator('label.choice').filter({ hasText: "Более 10 млн" }).click();
+  await page.locator('#selection-form button[type="submit"]').click();
+  await expect(page.locator("#lead-dialog")).toBeVisible();
+  await expect(page.locator("#dialog-title")).toHaveText("Подобрать квартиру");
+  await expect(page.locator("#dialog-context")).toContainText("family");
+  await expect(page.locator("#dialog-context")).toContainText("high");
+});
+
 test("production webhook receives the canonical KEY payload with consent and ad attribution", async ({ page }) => {
   let received;
-  await page.route("**/project.demo.js", route => route.fulfill({
+  await page.route("**/project.config.js", route => route.fulfill({
     contentType: "application/javascript",
     body: "window.KEY_PROJECT = " + JSON.stringify(productionProfile) + ";"
   }));
@@ -120,7 +148,7 @@ test("production webhook receives the canonical KEY payload with consent and ad 
 });
 
 test("a webhook rejection never becomes a false success state", async ({ page }) => {
-  await page.route("**/project.demo.js", route => route.fulfill({
+  await page.route("**/project.config.js", route => route.fulfill({
     contentType: "application/javascript",
     body: "window.KEY_PROJECT = " + JSON.stringify(productionProfile) + ";"
   }));
