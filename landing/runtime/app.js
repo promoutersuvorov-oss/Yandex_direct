@@ -118,7 +118,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
   }
   const planPreviewDialog = $("#plan-preview-dialog");
   const planPreviewCta = $("#plan-preview-cta");
-  $(".plan-preview-trigger").forEach(button => button.addEventListener("click", () => {
+  $$(".plan-preview-trigger").forEach(button => button.addEventListener("click", () => {
     const plan = approvedPlans.find(item => item.id === button.dataset.previewPlanId);
     if (!plan) return;
     $("#plan-preview-image").src = safeUrl(plan.assetUrl);
@@ -231,7 +231,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
     dialog.showModal();
   }
 
-  $$("[data-open-offer]").forEach(button => button.addEventListener("click", () => {
+  $$$("[data-open-offer]").forEach(button => button.addEventListener("click", () => {
     const offerId = button.dataset.openOffer;
     const context = {
       moduleId: button.closest("section")?.id || (button.closest("header") ? "hero" : "unknown"),
@@ -428,5 +428,5 @@ import { createAttributionState } from "../../src/attribution.mjs";
     menu.setAttribute("aria-expanded", String(!open));
     $(".desktop-nav").classList.toggle("nav-open", !open);
   });
-  $$(".desktop-nav a").forEach(link => link.addEventListener("click", () => { menu.setAttribute("aria-expanded", "false"); $(".desktop-nav").classList.remove("nav-open"); }));
+  $$$(".desktop-nav a").forEach(link => link.addEventListener("click", () => { menu.setAttribute("aria-expanded", "false"); $(".desktop-nav").classList.remove("nav-open"); }));
 })();
