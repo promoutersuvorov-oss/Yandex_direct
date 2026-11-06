@@ -590,3 +590,21 @@ test("production strategy hides every static section that was not selected", asy
   await expect(page.locator('.desktop-nav a[href="#calculator"]')).toBeHidden();
   await expect(page.locator('.desktop-nav a[href="#selection"]')).toBeHidden();
 });
+
+
+test("production runtime follows the selected module order instead of the static template order", async ({ page }) => {
+  const profile = structuredClone(productionProfile);
+  profile.composition = ["location", "concept"];
+  await page.route("**/project.config.js", route => route.fulfill({
+    contentType: "application/javascript",
+    body: "window.KEY_PROJECT = " + JSON.stringify(profile) + ";"
+  }));
+  await page.goto(url);
+
+  const order = await page.locator("main > section:not(.closing-section)").evaluateAll(nodes =>
+    nodes.filter(node => !node.hidden).map(node => node.id)
+  );
+  expect(order).toEqual(["location", "concept"]);
+  await expect(page.locator("#advantages")).toBeHidden();
+  await expect(page.locator("#calculator")).toBeHidden();
+});
