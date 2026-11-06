@@ -111,3 +111,19 @@ test("registered hero variant overrides descriptive layout input deterministical
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{});
   assert.equal(profile.design.heroLayout,"split");
 });
+
+test("production mode requires a verified lead API workflow and explicit offers, not demo defaults",()=>{
+  const x=input();
+  const strategy={approvalStatus:"approved",ctaMap:{}};
+  const integration={leadEndpoint:"https://api.example.test/leads",privacyPolicyUrl:"https://example.test/privacy",
+    privacyPolicyVersion:"v1"};
+  assert.throws(()=>buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,integration,
+    {mode:"production",approvedMarketingStrategy:strategy}),/verified API delivery contract/);
+});
+test("offers without explicit consent are not eligible for runtime",()=>{
+  const x=input();
+  x.landingInputs.conversionCatalog[0].consentRequired=false;
+  const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{});
+  assert.equal(profile.offers.presentation.scenarioId,"presentation_request");
+  assert.equal(profile.offers.presentation.offerId,undefined);
+});
