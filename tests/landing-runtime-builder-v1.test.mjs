@@ -107,11 +107,7 @@ test("fails closed on claims requiring publication qualification until qualified
 });
 test("a marketing-only qualification never publishes infrastructure claims",()=>{
   const x=input();
-  x.knowledge.claims[0].id="c-poi";
-  x.knowledge.claims[0].subject={type:"poi",id:"poi-1"};
-  x.knowledge.claims[0].predicate="poi.listed_by_source";
-  x.knowledge.claims[0].publicUse="allowed_with_qualification";
-  x.knowledge.claims[0].limitations=["Указано в источнике; сведения могут измениться."];
+  x.knowledge.claims.push({...x.knowledge.claims[0],id:"c-poi",subject:{type:"poi",id:"poi-1"},predicate:"poi.listed_by_source",publicUse:"allowed_with_qualification",limitations:["Указано в источнике; сведения могут измениться."]});
   x.knowledge.pointsOfInterest=[{id:"poi-1",name:"Городской парк",claimIds:["c-poi"]}];
   x.knowledge.routes=[{id:"route-1",destinationPoiId:"poi-1",method:"route",mode:"walking",observedAt:"2026-11-05T12:00:00Z",validUntil:"2027-11-05T12:00:00Z",sourceIds:["s1"],durationSeconds:300}];
   const qualifiedMarketing={...marketing,claimQualifications:{headline:[{factId:"f1",text:"По данным источника; сведения могут измениться."}]}};
