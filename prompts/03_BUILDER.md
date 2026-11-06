@@ -348,3 +348,12 @@ Release gate разделяет source-checked, browser-checked, device-checked,
 Проверь, что каждый модуль и текст поддерживают утверждённую связку: сегмент → потребность → продуктовый фокус → рекламное намерение/источник → конвертер. Вспомогательные калькуляторы, карты, планировки и квизы допустимы только как поддержка этого сценария или снятие конкретного барьера. Не превращай их в конкурирующие главные предложения.
 
 Статус `approved` не даёт права публиковать неподтверждённые факты, обещания или неготовые офферы: действуют все остальные Claim Verification, offer readiness, asset rights и QA gates.
+
+
+### Обязательная программная проверка
+
+Production orchestration до передачи Brief в финальную сборку обязана вызвать:
+
+`validateLandingBriefReferences(brief, passport, { requirePositioningGate: true })`
+
+Любая ошибка валидации блокирует production generation/release и возвращает Brief на исправление. Режим без `requirePositioningGate` допустим только для legacy-совместимости и review-only материалов; он не является разрешением на production.
