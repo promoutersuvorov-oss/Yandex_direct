@@ -203,6 +203,9 @@ test("lead payload keeps the passport offer ID instead of the runtime CTA alias"
 test("approved marketing strategy controls the hero CTA and persists IDs to the lead", async ({ page }) => {
   let received;
   const profile = structuredClone(productionProfile);
+  profile.marketingStrategy = {
+    primaryHook: { message: "Закрытая территория" }
+  };
   profile.ctaMap = {
     hero: {
       ctaId: "hero_presentation",
@@ -229,6 +232,7 @@ test("approved marketing strategy controls the hero CTA and persists IDs to the 
     await route.fulfill({ status: 202, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" }, body: JSON.stringify({ accepted: true }) });
   });
   await page.goto(url);
+  await expect(page.locator("#hero-meta")).toContainText("Закрытая территория");
   await expect(page.locator(".hero [data-open-offer='presentation']")).toHaveText("Получить презентацию ↗");
   await page.locator(".hero [data-open-offer='presentation']").click();
   await page.locator('#lead-form input[name="name"]').fill("Тест стратегии");
