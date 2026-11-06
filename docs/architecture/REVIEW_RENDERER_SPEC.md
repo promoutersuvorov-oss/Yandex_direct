@@ -55,6 +55,7 @@ Current module families include:
 - `floor-plans` / `apartments` — evidence-backed plan cards and contextual plan CTA;
 - `quiz` — approved finite-choice quiz; answers remain local to the preview;
 - `mortgage` — local annuity-payment calculator; the visitor enters price, down payment, annual rate and term. No bank rate, apartment price or loan condition is assumed, and no lead is sent;
+- global conversion choices — a project-wide panel lists every active offer as a distinct preview-only scenario; each action preserves its own offer/scenario identifiers and never sends a lead;
 - `location` / `places` — verified infrastructure facts;
 - additional mapped editorial sections such as `about`, `security`, `lifestyle`, `gift`, `price`, `developer`, `mortgage`, `steps`, `faq` and `contacts`.
 
