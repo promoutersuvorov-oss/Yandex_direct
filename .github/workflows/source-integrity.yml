@@ -49,6 +49,8 @@ jobs:
         run: node --test tests/lead-payload.test.mjs
       - name: Test passport to runtime adapter and publication gates
         run: node --test tests/landing-runtime-adapter.test.mjs
+      - name: Test Passport 1.0.0 normalization and provenance preservation
+        run: node --test tests/passport-normalizer-v1.test.mjs
       - name: Test LANDING BRIEF reference integrity
         run: node --test tests/landing-brief.test.mjs
       - name: Build review-only bundle from the canonical passport example
