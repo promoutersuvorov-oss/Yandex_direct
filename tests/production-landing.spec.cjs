@@ -344,3 +344,47 @@ test("all hero compositions preserve the CTA and collapse safely on mobile", asy
     await expect(page.locator('.hero [data-open-offer="presentation"]')).toBeVisible();
   }
 });
+
+
+test("all gallery compositions preserve their layout and contain horizontal scrolling on mobile", async ({ page }) => {
+  for (const layout of ["mosaic", "editorial", "strip"]) {
+    const profile = structuredClone(productionProfile);
+    profile.design = { palette: {}, heroLayout: "split", galleryLayout: layout };
+    profile.media = [1,2,3,4,5].map(index => ({
+      id: "gallery-" + index,
+      url: "https://assets.example/gallery-" + index + ".jpg",
+      alt: "Тестовое изображение " + index,
+      caption: "Кадр " + index,
+      type: "render",
+      status: "approved",
+      rightsStatus: "approved"
+    }));
+    await page.route("**/project.config.js", route => route.fulfill({
+      contentType: "application/javascript",
+      body: "window.KEY_PROJECT = " + JSON.stringify(profile) + ";"
+    }));
+    await page.route("https://assets.example/**", route => route.fulfill({
+      status: 200, contentType: "image/svg+xml",
+      body: "<svg xmlns='http://www.w3.org/2000/svg' width='640' height='480'><rect width='640' height='480' fill='#aab4a6'/></svg>"
+    }));
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(url);
+    const grid = page.locator("#visual-grid");
+    await expect(grid).toHaveAttribute("data-layout", layout);
+    await expect(grid.locator(".media-tile")).toHaveCount(5);
+    const desktop = await grid.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length);
+    expect(desktop).toBe(layout === "strip" ? 5 : layout === "editorial" ? 2 : 3);
+    await page.setViewportSize({ width: 390, height: 844 });
+    const mobile = await page.evaluate(() => ({
+      view: document.documentElement.clientWidth,
+      doc: document.documentElement.scrollWidth,
+      body: document.body.scrollWidth,
+      grid: document.querySelector("#visual-grid"),
+      gridClient: document.querySelector("#visual-grid").clientWidth,
+      gridScroll: document.querySelector("#visual-grid").scrollWidth
+    }));
+    expect(Math.max(mobile.doc, mobile.body)).toBeLessThanOrEqual(mobile.view + 1);
+    if (layout === "strip") expect(mobile.gridScroll).toBeGreaterThan(mobile.gridClient);
+    await expect(grid.locator(".media-tile img")).toHaveCount(5);
+  }
+});
