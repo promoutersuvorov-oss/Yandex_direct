@@ -25,3 +25,6 @@
 .hero[data-layout="fullscreen"] .hero-index{z-index:2;color:#e3e8df}
 @media(max-width:1000px){.hero[data-layout="editorial"]{grid-template-columns:minmax(0,1.1fr) minmax(240px,.9fr);gap:3vw}.hero[data-layout="editorial"] h1{font-size:clamp(52px,7vw,86px)}}
 @media(max-width:720px){.hero[data-layout="editorial"]{grid-template-columns:1fr;gap:28px}.hero[data-layout="editorial"] .hero-copy{padding-bottom:0}.hero[data-layout="editorial"] h1{font-size:clamp(50px,13vw,76px);max-width:10ch}.hero[data-layout="editorial"] .hero-art{height:58svh;min-height:330px}.hero[data-layout="fullscreen"]{min-height:calc(100svh - 68px);padding-top:52px;padding-bottom:54px;grid-template-columns:1fr;gap:24px}.hero[data-layout="fullscreen"] .hero-copy{padding:0;max-width:620px}.hero[data-layout="fullscreen"] h1{font-size:clamp(48px,12vw,76px);max-width:9ch}.hero[data-layout="fullscreen"] .hero-art{height:auto;min-height:0;inset:0}.hero[data-layout="fullscreen"] .hero-action-wrap{align-items:flex-start;flex-direction:column}}
+
+/* Keep project-level hero variants inside the mobile viewport. */
+@media(max-width:720px){.hero[data-layout="split"],.hero[data-layout="editorial"],.hero[data-layout="fullscreen"]{grid-template-columns:minmax(0,1fr)}}
