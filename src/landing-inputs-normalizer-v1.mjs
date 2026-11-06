@@ -126,6 +126,10 @@ export function normalizeLandingInputsV1(passport) {
     id: item.id,
     question: item.question,
     requiredFactIds: copyStringList(item.requiredFactIds),
+    claimQualifications: Array.isArray(item.claimQualifications) ? item.claimQualifications.filter(isObject).map(entry => ({
+      factId: entry.factId,
+      text: entry.text
+    })) : [],
     publicationStatus: item.publicationStatus === "approved" ? "approved" : "draft",
     answerStatus: "not_generated"
   })) : [];

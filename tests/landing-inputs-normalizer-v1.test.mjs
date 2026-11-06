@@ -65,6 +65,15 @@ test("keeps offers, quiz and FAQ as distinct conversion entities with explicit g
   assert.ok(blocked.warnings.some(item => item.code === "QUIZ_RESULT_OFFER_MISSING"));
 });
 
+test("preserves FAQ claim qualifications as answer-scoped publication metadata", () => {
+  const p = basePassport();
+  p.faq[0].claimQualifications = [{ factId: "central-district", text: "Сведения приведены по данным источника." }];
+  const result = normalizeLandingInputsV1(p);
+  assert.deepEqual(result.landingInputs.faqDrafts[0].claimQualifications, [
+    { factId: "central-district", text: "Сведения приведены по данным источника." }
+  ]);
+});
+
 test("does not promote hypotheses or positioning into facts and keeps layout readiness explicit", () => {
   const p = basePassport();
   p.project.positioningStatus = "draft";

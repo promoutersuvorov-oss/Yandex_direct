@@ -294,6 +294,58 @@ test("FAQ answers are composed only from publishable required claims and their s
   assert.throws(()=>buildLandingProfileFromKnowledge(blocked.knowledge,blocked.landingInputs,blocked.refs,marketing,{},{}),/approved-faq-answers/);
 });
 
+test("FAQ qualifications are scoped to the exact approved answer and never leak to other modules", () => {
+  const x = input();
+  x.knowledge.claims[0].publicUse = "allowed_with_qualification";
+  x.knowledge.claims[0].limitations = ["Характеристика указана в материалах застройщика."];
+  x.landingInputs.strategy.modules = [
+    { moduleId: "faq", decision: "include", variant: "faq-accordion", order: 8, requiredFactIds: ["f1"] }
+  ];
+  x.landingInputs.faqDrafts = [{
+    id: "faq-qualified", question: "Что известно о проекте?", requiredFactIds: ["f1"],
+    publicationStatus: "approved",
+    claimQualifications: [{ factId: "f1", text: "Сведения приведены по данным застройщика; характеристики могут измениться." }]
+  }];
+  const noMarketingClaims = { ...marketing, claimFactIds: {} };
+  const profile = buildLandingProfileFromKnowledge(x.knowledge, x.landingInputs, x.refs, noMarketingClaims, {}, {
+    now: "2026-11-06T00:00:00Z"
+  });
+  assert.deepEqual(profile.composition, ["faq"]);
+  assert.deepEqual(profile.faqItems[0].answer, [{
+    factId: "f1", claim: "Факт", sourceTitle: "Официальный источник",
+    qualification: "Сведения приведены по данным застройщика; характеристики могут измениться."
+  }]);
+
+  const noQualifier = structuredClone(x);
+  noQualifier.landingInputs.faqDrafts[0].claimQualifications = [];
+  assert.throws(
+    () => buildLandingProfileFromKnowledge(noQualifier.knowledge, noQualifier.landingInputs, noQualifier.refs, noMarketingClaims, {}, {
+      now: "2026-11-06T00:00:00Z"
+    }),
+    /approved-faq-answers|неподтверждённые обязательные факты/
+  );
+
+  const leaked = structuredClone(x);
+  leaked.landingInputs.strategy.modules.push({
+    moduleId: "about", decision: "include", variant: "feature-led", order: 1, requiredFactIds: ["f1"]
+  });
+  assert.throws(
+    () => buildLandingProfileFromKnowledge(leaked.knowledge, leaked.landingInputs, leaked.refs, noMarketingClaims, {}, {
+      now: "2026-11-06T00:00:00Z"
+    }),
+    /неподтверждённые обязательные факты/
+  );
+
+  const invalid = structuredClone(x);
+  invalid.landingInputs.faqDrafts[0].claimQualifications[0].text = " ";
+  assert.throws(
+    () => buildLandingProfileFromKnowledge(invalid.knowledge, invalid.landingInputs, invalid.refs, noMarketingClaims, {}, {
+      now: "2026-11-06T00:00:00Z"
+    }),
+    /FAQ qualification must identify/
+  );
+});
+
 test("FAQ safely formats every supported ClaimValue kind without inventing units or wording",()=>{
   const x=input();
   x.knowledge.claims=[

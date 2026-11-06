@@ -165,7 +165,9 @@ import { createAttributionState } from "../../src/attribution.mjs";
     faqList.innerHTML = approvedFaqItems.map(item =>
       '<details class="faq-item"><summary>' + esc(item.question) + '<span class="faq-toggle" aria-hidden="true"></span></summary>' +
       '<div class="faq-answer">' + item.answer.map(part =>
-        '<p>' + esc(part.claim) + '</p><p class="faq-source">Источник: ' + esc(part.sourceTitle) + '</p>'
+        '<p>' + esc(part.claim) + '</p>' +
+        (part.qualification ? '<p class="faq-qualification">Уточнение: ' + esc(part.qualification) + '</p>' : '') +
+        '<p class="faq-source">Источник: ' + esc(part.sourceTitle) + '</p>'
       ).join("") + '</div></details>'
     ).join("");
     $("#faq").hidden = false;

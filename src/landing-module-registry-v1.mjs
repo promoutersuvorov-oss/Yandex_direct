@@ -26,6 +26,7 @@ export function resolveRuntimeModulesV1(modules, options = {}) {
   const warnings = [];
   const capabilities = new Set(options.capabilities || []);
   const publishableFactIds = new Set(options.publishableFactIds || []);
+  const publishableFactIdsByModule = options.publishableFactIdsByModule || {};
   const sectionOrders = new Map();
   const slotPlacements = [];
   const sectionPlacements = [];
@@ -59,7 +60,11 @@ export function resolveRuntimeModulesV1(modules, options = {}) {
       errors.push({code:"MODULE_VARIANT_UNSUPPORTED",moduleId:module.moduleId,variant,message:`Вариант "${variant || "(не указан)"}" не поддерживается для модуля "${module.moduleId}".`});
       continue;
     }
-    const missingFacts = (module.requiredFactIds || []).filter(id => !publishableFactIds.has(id));
+    const modulePublishableFactIds = new Set([
+      ...publishableFactIds,
+      ...(Array.isArray(publishableFactIdsByModule[module.moduleId]) ? publishableFactIdsByModule[module.moduleId] : [])
+    ]);
+    const missingFacts = (module.requiredFactIds || []).filter(id => !modulePublishableFactIds.has(id));
     const missingCapabilities = (definition.capabilities || []).filter(id => !capabilities.has(id));
     if (missingFacts.length || missingCapabilities.length) {
       const detail = [

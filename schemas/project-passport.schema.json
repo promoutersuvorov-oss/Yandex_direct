@@ -1146,6 +1146,28 @@
           ],
           "default": "draft",
           "description": "Статус редакционного согласования вопроса; в публичный FAQ попадают только approved."
+        },
+        "claimQualifications": {
+          "type": "array",
+          "description": "Оговорки, привязанные к конкретному факту внутри конкретного FAQ-ответа. Не дают разрешение на публикацию этого факта в других модулях.",
+          "items": {
+            "type": "object",
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
         }
       },
       "additionalProperties": false

@@ -180,14 +180,47 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     return { id:story.id, title:story.title, description:story.description, sceneLabel:story.sceneLabel || "СЦЕНАРИЙ ЖИЗНИ",
       assetUrl:asset.url, alt:asset.alt || story.title, evidence, status:"approved" };
   }).filter(Boolean);
-  const faqItems = (landingInputs.faqDrafts || []).filter(item =>
-    item.publicationStatus === "approved" && nonEmpty(item.question) && item.requiredFactIds?.length && item.requiredFactIds.every(legacyFactIsPublic)
-  ).map(item => {
+  const faqQualificationByItem = new Map();
+  const faqItems = (landingInputs.faqDrafts || []).filter(item => {
+    if (item.publicationStatus !== "approved" || !nonEmpty(item.question) || !item.requiredFactIds?.length) return false;
+    if (item.claimQualifications !== undefined && !Array.isArray(item.claimQualifications)) {
+      throw new Error(`FAQ qualification mapping must be an array: ${item.id || "unknown"}`);
+    }
+    const qualifications = new Map();
+    const seenClaimIds = new Set();
+    for (const entry of item.claimQualifications || []) {
+      if (!isObject(entry) || !nonEmpty(entry.factId) || !nonEmpty(entry.text) || !item.requiredFactIds.includes(entry.factId)) {
+        throw new Error(`FAQ qualification must identify a required fact and contain approved text: ${item.id || "unknown"}`);
+      }
+      if (qualifications.has(entry.factId)) {
+        throw new Error(`FAQ qualification must be unique per fact: ${item.id || "unknown"} / ${entry.factId}`);
+      }
+      const claimId = legacyReferences.factIdToClaimId[entry.factId];
+      const claim = claims.get(claimId);
+      if (!claim || claim.publicUse !== "allowed_with_qualification" || claim.epistemicStatus !== "verified" ||
+          !Array.isArray(claim.limitations) || !claim.limitations.length || !claim.limitations.every(nonEmpty) ||
+          !claimIsPublic(claim, knowledge, now, new Set([claimId]))) {
+        throw new Error(`FAQ qualification does not match a current, evidenced verified claim requiring qualification: ${entry.factId}`);
+      }
+      if (seenClaimIds.has(claimId)) {
+        throw new Error(`FAQ qualification must be unique per claim: ${item.id || "unknown"} / ${claimId}`);
+      }
+      seenClaimIds.add(claimId);
+      qualifications.set(entry.factId, entry.text.trim());
+    }
+    faqQualificationByItem.set(item.id, qualifications);
+    return item.requiredFactIds.every(factId => legacyFactIsPublic(factId) || qualifications.has(factId));
+  }).map(item => {
+    const qualifications = faqQualificationByItem.get(item.id) || new Map();
     const answer = item.requiredFactIds.map(factId => {
       const claim = claims.get(legacyReferences.factIdToClaimId[factId]);
       const source = (knowledge.sources || []).find(src => claim?.sourceIds?.includes(src.id) && nonEmpty(src.title));
       const statement = claimValueText(claim);
-      return source && nonEmpty(statement) ? { factId, claim:statement, sourceTitle:source.title } : null;
+      const qualification = qualifications.get(factId);
+      return source && nonEmpty(statement) ? {
+        factId, claim:statement, sourceTitle:source.title,
+        ...(qualification ? { qualification } : {})
+      } : null;
     });
     return answer.every(Boolean) ? { id:item.id, question:item.question, answer } : null;
   }).filter(Boolean);
@@ -263,6 +296,10 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
   const moduleResolution = resolveRuntimeModulesV1(landingInputs.strategy?.modules || [], {
     publishableFactIds: Object.entries(legacyReferences.factIdToClaimId)
       .filter(([,claimId]) => publishableClaimIds.has(claimId)).map(([factId]) => factId),
+    publishableFactIdsByModule: {
+      faq: [...new Set(faqItems.flatMap(item => item.answer
+        .filter(part => nonEmpty(part.qualification)).map(part => part.factId)))]
+    },
     capabilities: [
       ...(media.length ? ["approved-project-media"] : []),
       ...(lifestyleStories.length ? ["approved-lifestyle-stories"] : []),
