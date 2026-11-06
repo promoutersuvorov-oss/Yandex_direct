@@ -103,3 +103,19 @@
 .faq-item summary:focus-visible{outline:2px solid var(--sage);outline-offset:5px}
 @media(max-width:720px){.faq-heading{margin-bottom:24px}.faq-item summary{padding:20px 0;font-size:17px}.faq-answer{padding:0 28px 18px 0}.faq-answer>p{font-size:13px}}
 @media(prefers-reduced-motion:reduce){.faq-toggle:before,.faq-toggle:after{transition:none}}
+
+
+/* No-media hero: a deliberate typographic composition, never a fake project photograph. */
+.hero-fallback{display:none;position:absolute;inset:0;overflow:hidden;padding:clamp(24px,4vw,58px);flex-direction:column;justify-content:space-between;background:radial-gradient(circle at 78% 18%,#e8dfcf 0 10%,transparent 10.2%),linear-gradient(145deg,#dfe2d8 0%,#c8d0c3 48%,#9da99c 100%);color:#26332c}
+.hero-art.has-fallback .hero-fallback{display:flex}
+.hero-art.has-fallback .art-sun,.hero-art.has-fallback .art-building{display:none}
+.hero-fallback-kicker,.hero-fallback-index{font-size:9px;letter-spacing:.2em;font-weight:600;color:#536253}
+.hero-fallback-title{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-size:clamp(58px,11vw,150px);line-height:.86;letter-spacing:-.07em;max-width:7ch;overflow-wrap:anywhere}
+.hero-fallback-index{align-self:flex-end;padding-top:18px;border-top:1px solid #53625366;width:100%;text-align:right}
+.hero-art.has-media .hero-fallback{display:none}
+.location-list li{align-items:center}
+.location-list .place-kind{display:block;margin-bottom:4px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#8a8b82}
+.location-list li>div{min-width:0}
+.location-list strong{font-weight:500}
+.location-list li>span{flex:0 0 auto}
+@media(max-width:720px){.hero-fallback{padding:24px}.hero-fallback-title{font-size:clamp(58px,18vw,100px);max-width:8ch}}
