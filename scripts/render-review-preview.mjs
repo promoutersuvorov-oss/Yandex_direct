@@ -191,6 +191,7 @@ function renderModule(module, index) {
     ? (profile.project.positioning || "")
     : (module.userQuestion || "");
   const factList = factsHere.map(fact => `<li>${esc(fact.claim)}</li>`).join("");
+  const factsClass = module.moduleId === "hero" ? "facts hero-proof" : "facts";
   const heroMetaItems = module.moduleId === "hero"
     ? [["Город", profile.project.city], ["Район", profile.project.district]].filter(([, value]) => typeof value === "string" && value.trim())
     : [];
@@ -211,14 +212,14 @@ function renderModule(module, index) {
   const headingTag = module.moduleId === "hero" ? "h1" : "h2";
   const renderVariant = module.variant === "image-led" && !image ? "feature-led" : (module.variant || "default");
   const moduleClasses = ["module", module.moduleId === "hero" ? "hero" : "", image || plans ? "" : "text-only"].filter(Boolean).join(" ");
-  const moduleCopyClasses = ["module-copy", benefitList && factList ? "editorial-pair" : ""].filter(Boolean).join(" ");
+  const moduleCopyClasses = ["module-copy", module.moduleId === "hero" ? "hero-editorial" : "", benefitList && factList ? "editorial-pair" : ""].filter(Boolean).join(" ");
   return `<section class="${moduleClasses}" data-module="${esc(module.moduleId)}" data-variant="${esc(renderVariant)}" id="module-${esc(module.moduleId)}" aria-labelledby="heading-${index}">
     <div class="${moduleCopyClasses}"><p class="eyebrow">${String(index + 1).padStart(2, "0")}</p>
       <${headingTag} id="heading-${index}">${esc(heading)}</${headingTag}>
       ${intro ? `<p class="intro">${esc(intro)}</p>` : ""}
       ${heroMeta}
       ${benefitList ? `<div class="benefits">${benefitList}</div>` : ""}
-      ${factList ? `<ul class="facts">${factList}</ul>` : ""}
+      ${factList ? `<ul class="${factsClass}">${factList}</ul>` : ""}
       ${locationContent}
       ${plans}
       ${quiz}
@@ -346,6 +347,22 @@ body[data-composition="architectural"] .hero.text-only .hero-meta-item{min-width
 .module[data-variant="architectural"] .module-copy.editorial-pair>.facts li{padding:14px 16px;border:1px solid var(--line);background:var(--panel);font-size:14px}
 @media(max-width:760px){.module-copy.editorial-pair{grid-template-columns:minmax(0,1fr)}.module-copy.editorial-pair>.eyebrow,.module-copy.editorial-pair>h2,.module-copy.editorial-pair>.intro,.module-copy.editorial-pair>.benefits,.module-copy.editorial-pair>.facts{grid-column:1}.module[data-variant="feature-led"] .module-copy.editorial-pair>.facts,.module[data-variant="architectural"] .module-copy.editorial-pair>.facts{grid-column:1}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Evidence-led hero: use verified project facts as a deliberate second column when approved media is absent. */
+.module.hero.text-only .module-copy.hero-editorial{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.72fr);column-gap:clamp(32px,7vw,104px);row-gap:18px;align-items:start;max-width:1160px}
+.module.hero.text-only .hero-editorial>.eyebrow,.module.hero.text-only .hero-editorial>h1{grid-column:1/-1}
+.module.hero.text-only .hero-editorial>h1{max-width:9ch;margin:12px 0 4px}
+.module.hero.text-only .hero-editorial>.hero-meta{grid-column:1;grid-row:3;align-self:start;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 28px;max-width:440px;margin:10px 0 0;padding-top:16px}
+.module.hero.text-only .hero-editorial>.hero-proof{grid-column:2;grid-row:3;align-self:stretch;list-style:none;display:grid;gap:0;margin:10px 0 0;padding:0;border-top:1px solid var(--accent);border-bottom:1px solid var(--line);color:var(--text)}
+.module.hero.text-only .hero-editorial>.hero-proof li{padding:15px 0;border-bottom:1px solid var(--line);font-size:clamp(14px,1.2vw,17px);line-height:1.5}
+.module.hero.text-only .hero-editorial>.hero-proof li:last-child{border-bottom:0}
+.module.hero.text-only .hero-editorial>.cta{grid-column:1;justify-self:start;margin-top:8px}
+@media(max-width:760px){
+ .module.hero.text-only .module-copy.hero-editorial{grid-template-columns:minmax(0,1fr);row-gap:14px}
+ .module.hero.text-only .hero-editorial>.eyebrow,.module.hero.text-only .hero-editorial>h1,.module.hero.text-only .hero-editorial>.hero-meta,.module.hero.text-only .hero-editorial>.hero-proof,.module.hero.text-only .hero-editorial>.cta{grid-column:1;grid-row:auto}
+ .module.hero.text-only .hero-editorial>.hero-meta{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none;margin-top:8px}
+ .module.hero.text-only .hero-editorial>.hero-proof{margin-top:4px}
+}
 </style>
 </head>
 <body data-theme="${esc(designTheme)}" data-composition="${esc(["editorial", "cinematic", "architectural"].includes(profile.design?.composition) ? profile.design.composition : "editorial")}">
