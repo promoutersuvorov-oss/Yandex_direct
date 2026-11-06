@@ -76,11 +76,13 @@ test("keeps unsupported assets and unverified modules out of the profile",()=>{
   assert.equal(profile.composition.includes("apartments"),false);
 });
 
-test("production mode requires public integration settings and never exposes passport internals",()=>{
-  assert.throws(()=>buildLandingProfile(passport(),marketing(),{}, {mode:"production"}),/requires HTTPS webhook/);
+test("production mode requires an approved positioning brief and public integration settings",()=>{
+  assert.throws(()=>buildLandingProfile(passport(),marketing(),{}, {mode:"production"}),/approved LANDING BRIEF/);
+  const brief = landingBrief();
+  assert.throws(()=>buildLandingProfile(passport(),marketing(),{}, {mode:"production",brief}),/requires HTTPS webhook/);
   const profile=buildLandingProfile(passport(),marketing(),{
     leadEndpoint:"https://hooks.example/lead",privacyPolicyUrl:"https://key.example/privacy",privacyPolicyVersion:"2026-11"
-  },{mode:"production"});
+  },{mode:"production",brief});
   assert.equal(profile.mode,"production");
   assert.deepEqual(profile.integration,{leadEndpoint:"https://hooks.example/lead",privacyPolicyUrl:"https://key.example/privacy",privacyPolicyVersion:"2026-11"});
   assert.equal(JSON.stringify(profile).includes("brokerNotes"),false);
@@ -125,9 +127,26 @@ const landingBrief = () => ({
     primaryHookId: "walkable_daily_needs",
     primaryCtaId: "hero_presentation",
     positioning: {
+      audienceSegmentId: "young_professionals",
+      primaryNeed: "Удобная повседневная жизнь",
+      productFocus: "Квартира в проекте с подтверждённой закрытой территорией",
+      primaryTrafficSource: "Поиск Яндекс Директ",
+      primaryConverter: "Запросить презентацию проекта",
+      rationale: "Проверяемый сценарий для тестового сегмента и подтверждённого оффера",
       statement: "Проект с подтверждённой закрытой территорией",
       supportingFactIds: ["f-ok"],
-      status: "approved"
+      gateStatus: "approved",
+      status: "approved",
+      confidence: "medium",
+      evidenceBasis: {
+        audience: { type: "research_finding", finding: "Тестовый исследовательский вывод о сегменте" },
+        need: { type: "research_finding", finding: "Тестовый исследовательский вывод о потребности" },
+        product: { type: "fact", finding: "Закрытая территория подтверждена паспортом" },
+        traffic: { type: "research_finding", finding: "Поисковый канал выбран для тестового сценария" },
+        converter: { type: "fact", finding: "В паспорте доступен активный сценарий презентации" }
+      },
+      approvedBy: "product-review",
+      approvedAt: "2026-11-06T00:00:00Z"
     }
   },
   segments: [{
@@ -186,6 +205,21 @@ test("approved LANDING BRIEF drives public strategy and a contextual CTA map", (
     hookId: "walkable_daily_needs",
     segmentId: "young_professionals"
   });
+});
+
+test("blocks public runtime when the five-part Positioning Gate is not approved", () => {
+  const blocked = landingBrief();
+  blocked.strategy.positioning.gateStatus = "blocked";
+  assert.throws(
+    () => buildLandingProfile(passport(), marketing(), {}, { brief: blocked }),
+    /Positioning Gate is not approved/
+  );
+  const incomplete = landingBrief();
+  delete incomplete.strategy.positioning.evidenceBasis.traffic;
+  assert.throws(
+    () => buildLandingProfile(passport(), marketing(), {}, { brief: incomplete }),
+    /validated evidence for traffic/
+  );
 });
 
 test("does not allow draft briefs or unready offers to control the public runtime", () => {
