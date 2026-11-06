@@ -65,7 +65,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
   text("#footer-project", data.mode === "demo" ? "Демонстрационная версия. Не использовать как предложение о продаже." : "Актуальные условия уточняйте у специалиста KEY.");
   if (project.city || project.district) {
     const meta = $("#hero-meta"); meta.hidden = false;
-    meta.innerHTML = [project.city, project.district].filter(Boolean).map(v => '<span>' + esc(v) + '</span>').join("");
+    meta.innerHTML = [project.city, project.district, data.marketingStrategy?.primaryHook?.message].filter(Boolean).map(v => '<span>' + esc(v) + '</span>').join("");
   }
 
   const advantageGrid = $("#advantage-grid");
