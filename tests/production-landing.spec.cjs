@@ -199,3 +199,50 @@ test("lead payload keeps the passport offer ID instead of the runtime CTA alias"
     moduleId: "hero"
   });
 });
+
+test("approved marketing strategy controls the hero CTA and persists IDs to the lead", async ({ page }) => {
+  let received;
+  const profile = structuredClone(productionProfile);
+  profile.ctaMap = {
+    hero: {
+      ctaId: "hero_presentation",
+      label: "Получить презентацию",
+      intent: "get_information",
+      offerKey: "presentation",
+      offerId: "presentation",
+      scenarioId: "presentation_request",
+      funnelId: "location_to_presentation",
+      hookId: "walkable_daily_needs",
+      segmentId: "young_professionals"
+    }
+  };
+  await page.route("**/project.config.js", route => route.fulfill({
+    contentType: "application/javascript",
+    body: "window.KEY_PROJECT = " + JSON.stringify(profile) + ";"
+  }));
+  await page.route("https://hooks.example/**", async route => {
+    if (route.request().method() === "OPTIONS") {
+      await route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" } });
+      return;
+    }
+    received = route.request().postDataJSON();
+    await route.fulfill({ status: 202, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" }, body: JSON.stringify({ accepted: true }) });
+  });
+  await page.goto(url);
+  await expect(page.locator(".hero [data-open-offer='presentation']")).toHaveText("Получить презентацию ↗");
+  await page.locator(".hero [data-open-offer='presentation']").click();
+  await page.locator('#lead-form input[name="name"]').fill("Тест стратегии");
+  await page.locator('#lead-form input[name="phone"]').fill("+7 999 123-45-67");
+  await page.locator('#lead-form input[name="consent"]').check();
+  await page.locator("#lead-submit").click();
+  await expect(page.locator("#form-status")).toContainText("Запрос принят");
+  expect(received.conversion).toMatchObject({
+    scenarioId: "presentation_request",
+    offerId: "presentation",
+    moduleId: "hero",
+    ctaId: "hero_presentation",
+    hookId: "walkable_daily_needs",
+    funnelId: "location_to_presentation",
+    segmentId: "young_professionals"
+  });
+});
