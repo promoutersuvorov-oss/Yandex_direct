@@ -50,7 +50,7 @@ function mapOffer(offer) {
  * Builds the legacy browser runtime profile from normalized knowledge and independent landing inputs.
  * legacyReferences is migration metadata returned by normalizePassportV1, never public data.
  */
-export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legacyReferences, marketing, integration = {}, options = {}) {
+export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landingInputs, legacyReferences, marketing, integration = {}, options = {}) {
   const now = options.now ? Date.parse(options.now) : Date.now();
   if (!isObject(knowledge) || knowledge.contractVersion !== "0.1") throw new Error("Unsupported or missing normalized knowledge contractVersion");
   if (!nonEmpty(knowledge.project?.id) || !nonEmpty(knowledge.project?.name) || !nonEmpty(knowledge.project?.city)) throw new Error("Normalized project identity is incomplete");
@@ -201,7 +201,7 @@ export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legac
   if (privacyPolicyUrl && !/^https:\/\//i.test(privacyPolicyUrl)) throw new Error("privacyPolicyUrl must use HTTPS");
   const productionReady = Boolean(endpoint && privacyPolicyUrl && nonEmpty(privacyPolicyVersion));
   if (options.mode === "production" && !productionReady) throw new Error("Production mode requires HTTPS webhook, HTTPS privacy URL and policy version");
-  return {
+  const profile = {
     mode: productionReady && options.mode === "production" ? "production" : "demo",
     project, composition,
     design: { palette, heroLayout, galleryLayout }, marketing: clone(marketing.copy), advantages, media, heroMedia,
@@ -212,4 +212,9 @@ export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legac
     analytics: { enabled:false }, selectionQuiz: quiz,
     ...(options.approvedMarketingStrategy ? { marketingStrategy: clone(options.approvedMarketingStrategy), ctaMap: clone(options.approvedMarketingStrategy.ctaMap || {}) } : {})
   };
+  return { profile, warnings: moduleResolution.warnings };
+}
+
+export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legacyReferences, marketing, integration = {}, options = {}) {
+  return buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landingInputs, legacyReferences, marketing, integration, options).profile;
 }
