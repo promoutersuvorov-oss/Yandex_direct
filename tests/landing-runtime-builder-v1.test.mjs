@@ -3,7 +3,7 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import { normalizePassportV1 } from "../src/passport-normalizer-v1.mjs";
 import { normalizeLandingInputsV1 } from "../src/landing-inputs-normalizer-v1.mjs";
-import { buildLandingProfileFromKnowledge } from "../src/landing-runtime-builder-v1.mjs";
+import { buildLandingProfileFromKnowledge, buildLandingProfileFromKnowledgeWithDiagnostics } from "../src/landing-runtime-builder-v1.mjs";
 
 const copy = Object.fromEntries([
   "heroKicker","headline","lead","conceptTitle","conceptCopy","advantagesTitle","advantagesIntro",
@@ -92,10 +92,11 @@ test("conditional gallery and floor plans are omitted when their capabilities ar
     {moduleId:"gallery",decision:"conditional",variant:"immersive",order:1},
     {moduleId:"floor-plans",decision:"conditional",variant:"plan-selector",order:2}
   ];
-  const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{});
-  assert.deepEqual(profile.composition,[]);
-  assert.equal(profile.media.length,0);
-  assert.equal(profile.plans.length,0);
+  const result=buildLandingProfileFromKnowledgeWithDiagnostics(x.knowledge,x.landingInputs,x.refs,marketing,{},{});
+  assert.deepEqual(result.profile.composition,[]);
+  assert.equal(result.profile.media.length,0);
+  assert.equal(result.profile.plans.length,0);
+  assert.deepEqual(result.warnings.map(item=>item.moduleId),["gallery","floor-plans"]);
 });
 test("required included module fails when its exact runtime variant or capability is unavailable",()=>{
   const x=input();
