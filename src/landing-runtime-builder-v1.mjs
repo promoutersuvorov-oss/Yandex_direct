@@ -77,18 +77,24 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
   const claims = new Map((knowledge.claims || []).map(item => [item.id, item]));
   const claimFactIds = marketing.claimFactIds || {};
   const claimQualifications = marketing.claimQualifications || {};
-  const qualifiedClaimIds = new Set();
+  const qualifiedClaimIdsByCopyKey = new Map();
   const marketingQualifications = {};
   for (const [key, qualifications] of Object.entries(claimQualifications)) {
     const mappedFacts = claimFactIds[key];
     if (!COPY_KEYS.includes(key) || !Array.isArray(qualifications) || !qualifications.length || !Array.isArray(mappedFacts)) {
       throw new Error(`Invalid approved claim qualification mapping for ${key}`);
     }
+    const qualifiedClaimIds = new Set();
+    const seenFactIds = new Set();
     const rendered = [];
     for (const item of qualifications) {
       if (!isObject(item) || !nonEmpty(item.factId) || !nonEmpty(item.text) || !mappedFacts.includes(item.factId)) {
         throw new Error(`Qualification for ${key} must identify a mapped fact and contain approved text`);
       }
+      if (seenFactIds.has(item.factId)) {
+        throw new Error(`Qualification for ${key} must be unique per fact: ${item.factId}`);
+      }
+      seenFactIds.add(item.factId);
       const claimId = legacyReferences.factIdToClaimId[item.factId];
       const claim = claims.get(claimId);
       if (!claim || claim.publicUse !== "allowed_with_qualification" || claim.epistemicStatus !== "verified" ||
@@ -98,16 +104,22 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
       qualifiedClaimIds.add(claimId);
       rendered.push(item.text.trim());
     }
-    marketingQualifications[key] = [...new Set(rendered)];
+    qualifiedClaimIdsByCopyKey.set(key, qualifiedClaimIds);
+    marketingQualifications[key] = rendered;
   }
-  const publishableClaimIds = new Set([...claims.values()].filter(item => claimIsPublic(item, knowledge, now, qualifiedClaimIds)).map(item => item.id));
+  // A qualification is scoped to one exact copy field. It must never grant global publication rights.
+  const publishableClaimIds = new Set([...claims.values()].filter(item => claimIsPublic(item, knowledge, now)).map(item => item.id));
   const legacyFactIsPublic = id => {
     const claimId = legacyReferences.factIdToClaimId[id];
     return Boolean(claimId && publishableClaimIds.has(claimId));
   };
+  const marketingFactIsPublic = (key, id) => {
+    const claimId = legacyReferences.factIdToClaimId[id];
+    return Boolean(claimId && claimIsPublic(claims.get(claimId), knowledge, now, qualifiedClaimIdsByCopyKey.get(key)));
+  };
   for (const [key, ids] of Object.entries(claimFactIds)) {
     if (!COPY_KEYS.includes(key) || !Array.isArray(ids) || !ids.length) throw new Error(`Invalid marketing claim mapping for ${key}`);
-    for (const id of ids) if (!legacyFactIsPublic(id)) throw new Error(`Marketing claim ${key} references non-publishable fact: ${id}`);
+    for (const id of ids) if (!marketingFactIsPublic(key, id)) throw new Error(`Marketing claim ${key} references non-publishable fact: ${id}`);
   }
   if (options.mode === "production") {
     if (!options.approvedMarketingStrategy || options.approvedMarketingStrategy.approvalStatus !== "approved") {
