@@ -24,7 +24,7 @@ Registry обязан фиксировать:
 | key | feature-led | fixed hero slot | Смысловой фокус hero; факты должны пройти claim gate |
 | about | feature-led | concept | Одна редакционная секция |
 | gallery | immersive | visual-story | Conditional: нужны одобренные фото/render assets |
-| lifestyle | image-led | visual-story | Нужны одобренные assets; без них обязательный include блокирует сборку |
+| lifestyle | image-led | lifestyle | Нужны отдельные утверждённые сценарии, подтверждённые claims и визуалы с правами для контекста lifestyle |
 | security | proof-led | advantages | Только доказательные карточки с claim/source evidence |
 | location | location-led | location | Не разрешает выводить неподтверждённые маршруты |
 | floor-plans | plan-selector | apartments | Conditional: актуальный inventory и rights-cleared plan assets |
@@ -32,10 +32,14 @@ Registry обязан фиксировать:
 | faq | faq-accordion | unsupported | В текущем runtime нет структурированного FAQ |
 | contacts | conversion-led | fixed closing slot | Conditional: утверждённый реальный lead workflow |
 
+## Lifestyle component
+
+Lifestyle — самостоятельная редакционная секция, не галерея. Она состоит из карточек сценариев повседневной жизни. Каждая карточка задаётся в `contentStrategy.lifestyleStories` и содержит title, description, sceneLabel, assetId, supportingFactIds и publicationStatus. В runtime попадает только approved-сценарий, если каждый supportingFactId разрешается в publishable Claim, а изображение — в approved asset текущего проекта с подтверждёнными правами и `allowedContexts` содержащим `lifestyle`. Фактическое основание показывается в карточке. Builder не генерирует сценарии из голых характеристик.
+
 ## Merge rules
 
 - Hero и Key могут сосуществовать в фиксированном hero slot; оба набора requiredFactIds проходят проверку.
-- Gallery и Lifestyle могут использовать visual-story совместно только при наличии одобренных материалов.
+- Gallery остаётся visual-story. Lifestyle рендерится отдельной секцией и не объединяется с галереей.
 - Security использует evidence-card renderer секции Advantages.
 - Другие коллизии одной runtime section запрещены, если Registry явно не разрешает append.
 - Closing — фиксированный элемент runtime; он не входит в переставляемую composition.
