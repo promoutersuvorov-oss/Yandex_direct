@@ -253,6 +253,15 @@ import { createAttributionState } from "../../src/attribution.mjs";
     activeOffer = { ...offer, offerId };
     pendingLeadIds = null;
     form.reset();
+    const requiredFields = new Set(Array.isArray(offer.requiredFields) ? offer.requiredFields : ["name", "phone"]);
+    const channelField = $("#preferred-channel-field");
+    const timeField = $("#preferred-time-field");
+    const channelInput = form.elements.namedItem("preferredChannel");
+    const timeInput = form.elements.namedItem("preferredTime");
+    channelField.hidden = !requiredFields.has("preferredChannel");
+    timeField.hidden = !requiredFields.has("preferredTime");
+    channelInput.required = requiredFields.has("preferredChannel");
+    timeInput.required = requiredFields.has("preferredTime");
     $("#lead-submit").hidden = false;
     $("#lead-submit").disabled = false;
     activeContext = {
@@ -388,7 +397,12 @@ import { createAttributionState } from "../../src/attribution.mjs";
         createdAt: now,
         pageUrl: location.href,
         deviceClass: width <= 767 ? "mobile" : width <= 1024 ? "tablet" : "desktop",
-        contact: { name: String(values.name).trim(), phone: String(values.phone).trim(), preferredChannel: "phone" },
+        contact: {
+          name: String(values.name).trim(),
+          phone: String(values.phone).trim(),
+          preferredChannel: values.preferredChannel || "phone",
+          ...(values.preferredTime ? { preferredTime: String(values.preferredTime).trim() } : {})
+        },
         consent: { accepted: true, acceptedAt: now, policyUrl, policyVersion },
         conversion: {
           scenarioId: activeContext.scenarioId,
