@@ -185,6 +185,8 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
     type: asset.type, status: "approved", rightsStatus: "approved"
   }));
   const heroMedia = media[0] || null;
+  const mapAsset = usableAssets.find(asset => asset.type === "map");
+  const locationMap = mapAsset ? { url: mapAsset.url, alt: mapAsset.alt || (passport.project.name + " — карта расположения"), status: "approved", rightsStatus: "approved" } : null;
   const plansByAsset = new Map(usableAssets.filter(a => a.type === "plan").map(a => [a.id, a]));
   const plans = (passport.apartmentPlans || []).filter(plan =>
     plan.status === "verified" && plan.publicUse === "allowed" && plan.sources?.length &&
@@ -260,7 +262,7 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
   return {
     mode: productionReady && options.mode === "production" ? "production" : "demo",
     project, composition: ["concept", ...composition.filter(id => id !== "concept")],
-    design: { palette, heroLayout, galleryLayout }, marketing: clone(marketing.copy), advantages, media, heroMedia, plans, infrastructure,
+    design: { palette, heroLayout, galleryLayout }, marketing: clone(marketing.copy), advantages, media, heroMedia, locationMap, plans, infrastructure,
     offers, integration: productionReady && options.mode === "production" ? { leadEndpoint:endpoint, privacyPolicyUrl, privacyPolicyVersion } : { leadEndpoint:"", privacyPolicyUrl:"", privacyPolicyVersion:"" },
     analytics: { enabled:false }, selectionQuiz: quiz,
     ...(marketingStrategy ? { marketingStrategy, ctaMap: marketingStrategy.ctaMap } : {})
