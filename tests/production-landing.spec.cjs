@@ -24,6 +24,28 @@ test("universal landing renders the demo profile and responsive editorial layout
   await page.screenshot({ path: "test-results/universal-landing-mobile.png", fullPage: true });
 });
 
+
+test("approved claim qualifications render adjacent to their exact copy field as safe text", async ({ page }) => {
+  const profile = structuredClone(productionProfile);
+  profile.marketingQualifications = {
+    headline: ["По данным застройщика; характеристики могут измениться."],
+    locationCopy: ["<img src=x onerror=alert(1)>"]
+  };
+  await page.route("**/project.config.js", route => route.fulfill({
+    contentType: "application/javascript",
+    body: "window.KEY_PROJECT = " + JSON.stringify(profile) + ";"
+  }));
+  await page.goto(url);
+  const headline = page.locator("#hero-title");
+  const headlineNote = headline.locator("xpath=following-sibling::*[1]");
+  await expect(headlineNote).toHaveClass(/claim-qualification/);
+  await expect(headlineNote).toHaveText("По данным застройщика; характеристики могут измениться.");
+  await expect(page.locator("#location-copy").locator("xpath=following-sibling::*[1]")).toHaveText("<img src=x onerror=alert(1)>");
+  await expect(page.locator("#location-copy").locator("xpath=following-sibling::*[1] img")).toHaveCount(0);
+  await expect(page.locator(".claim-qualification")).toHaveCount(2);
+  await expect(page.locator("#concept-copy").locator("xpath=following-sibling::*[1]")).toHaveCount(0);
+});
+
 test("apartment plans open a readable full-size preview and retain plan context", async ({ page }) => {
   const profile = structuredClone(productionProfile);
   profile.plans = [{
