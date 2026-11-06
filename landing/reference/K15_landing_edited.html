@@ -1936,7 +1936,7 @@ $('#lifeTrack').innerHTML = LIFE.map(l=>`<article class="card ${l.wide?'wide':''
     box.innerHTML=`<div class="slot fade" data-kind="interior" data-img="${V[n].img}" data-seed="50" data-mood="warm" data-ar="1.925" style="aspect-ratio:1.925"></div>`;
     hydrate(box);
   };
-  $('button[data-p]',tabs).forEach(button=>button.addEventListener('click',()=>show(Number(button.dataset.p))));
+  Array.from(tabs.querySelectorAll('button[data-p]')).forEach(button=>button.addEventListener('click',()=>show(Number(button.dataset.p))));
 })();
 
 /* =====================================================================
