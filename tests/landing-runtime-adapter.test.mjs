@@ -52,6 +52,17 @@ test("builds a public runtime profile from a passport and approved copy",()=>{
   assert.equal("facts" in profile,false);
 });
 
+test("exposes the three supported hero compositions and defaults safely",()=>{
+  for (const layout of ["split", "fullscreen", "editorial"]) {
+    const p = passport();
+    p.contentStrategy.visualDirection.heroLayout = layout;
+    assert.equal(buildLandingProfile(p,marketing()).design.heroLayout, layout);
+  }
+  const invalid = passport();
+  invalid.contentStrategy.visualDirection.heroLayout = "unimplemented-layout";
+  assert.equal(buildLandingProfile(invalid,marketing()).design.heroLayout, "split");
+});
+
 test("rejects draft, cross-project or incomplete marketing copy",()=>{
   const copy=marketing(); copy.approvalStatus="draft";
   assert.throws(()=>buildLandingProfile(passport(),copy),/approved/);
