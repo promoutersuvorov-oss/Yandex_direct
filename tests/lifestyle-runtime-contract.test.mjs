@@ -26,3 +26,8 @@ test("FAQ is a dedicated accessible accordion with source-backed content",()=>{
   assert.match(app,/esc\(part\.sourceTitle\)/);
   assert.match(css,/\.faq-item summary:focus-visible/);
 });
+
+test("optional editorial sections stay hidden unless selected by the module composition",()=>{
+  assert.match(app,/lifestyleModuleSelected && Array\.isArray\(data\.lifestyleStories\)/);
+  assert.match(app,/faqModuleSelected && Array\.isArray\(data\.faqItems\)/);
+});
