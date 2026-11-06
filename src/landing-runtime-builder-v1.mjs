@@ -108,6 +108,23 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     caption: asset.assetKind === "render" ? "Визуализация" : "Фотография",
     type: asset.assetKind, status: "approved", rightsStatus: "approved"
   }));
+  const lifestyleStories = (landingInputs.lifestyleStories || []).filter(story =>
+    story.publicationStatus === "approved" && nonEmpty(story.title) && nonEmpty(story.description) &&
+    story.supportingFactIds?.length && story.supportingFactIds.every(legacyFactIsPublic) &&
+    nonEmpty(story.assetId)
+  ).map(story => {
+    const asset = (knowledge.assets || []).find(item => item.id === story.assetId &&
+      ["render","photo"].includes(item.assetKind) && assetIsPublic(item, now, "lifestyle", knowledge.project.id, knowledge));
+    if (!asset) return null;
+    const evidence = story.supportingFactIds.map(id => {
+      const claim = claims.get(legacyReferences.factIdToClaimId[id]);
+      const source = (knowledge.sources || []).find(src => claim?.sourceIds?.includes(src.id) && nonEmpty(src.title));
+      return source && claimText(claim) ? { claim:claimText(claim), sourceTitle:source.title } : null;
+    }).filter(Boolean);
+    if (evidence.length !== story.supportingFactIds.length) return null;
+    return { id:story.id, title:story.title, description:story.description, sceneLabel:story.sceneLabel || "СЦЕНАРИЙ ЖИЗНИ",
+      assetUrl:asset.url, alt:asset.alt || story.title, evidence, status:"approved" };
+  }).filter(Boolean);
   const heroMedia = media[0] || null;
   const mapAsset = usableAssets.find(asset => asset.assetKind === "map" && assetIsPublic(asset, now, "location", knowledge.project.id, knowledge));
   const locationMap = mapAsset ? { url: mapAsset.url, alt: mapAsset.alt || (knowledge.project.name + " — карта расположения"),
@@ -169,6 +186,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
       .filter(([,claimId]) => publishableClaimIds.has(claimId)).map(([factId]) => factId),
     capabilities: [
       ...(media.length ? ["approved-project-media"] : []),
+      ...(lifestyleStories.length ? ["approved-lifestyle-stories"] : []),
       ...(plans.length ? ["current-inventory","rights-cleared-plan-assets"] : []),
       ...(integration.leadWorkflow?.approvalStatus === "approved" && integration.leadWorkflow?.apiContractVersion &&
         integration.leadWorkflow?.deliveryVerification?.status === "passed" && integration.leadWorkflow?.deliveryVerification?.verifiedAt &&
@@ -232,7 +250,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
   const profile = {
     mode: productionReady && options.mode === "production" ? "production" : "demo",
     project, composition,
-    design: { palette, heroLayout, galleryLayout }, marketing: clone(marketing.copy), advantages, media, heroMedia,
+    design: { palette, heroLayout, galleryLayout }, marketing: clone(marketing.copy), advantages, media, heroMedia, lifestyleStories,
     locationMap, plans, infrastructure, offers,
     integration: productionReady && options.mode === "production" ?
       { leadEndpoint:endpoint, privacyPolicyUrl, privacyPolicyVersion } :
