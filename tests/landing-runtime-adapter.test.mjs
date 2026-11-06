@@ -3,7 +3,12 @@ import test from "node:test";
 import { buildLandingProfile } from "../scripts/build-landing-runtime.mjs";
 import { normalizePassportV1 } from "../src/passport-normalizer-v1.mjs";
 
-const source = { url:"https://developer.example/project", title:"Официальные сведения", accessedAt:"2026-11-01T10:00:00Z" };
+const source = {
+  url:"https://developer.example/project",
+  title:"Официальные сведения",
+  accessedAt:"2026-11-01T10:00:00Z",
+  quoteOrEvidence:"Подтверждающий фрагмент из официального источника."
+};
 const passport = () => ({
   schemaVersion:"1.0.0",
   project:{ id:"sample-residence", name:"Sample Residence", location:{ city:"Воронеж", district:{value:"Центр",status:"verified"}, address:{value:"Улица Примерная, 1",status:"verified"} } },
