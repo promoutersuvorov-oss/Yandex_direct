@@ -35,6 +35,8 @@ jobs:
         run: python scripts/validate-passport-schema.py examples/kd-905.project-passport.draft.json
       - name: Validate CTA context contract schema and negative cases
         run: python scripts/validate-cta-context-schema.py
+      - name: Validate LANDING BRIEF schema and example
+        run: python scripts/validate-landing-brief-schema.py
       - name: Generate synthetic passport fixture for location evidence schema validation
         run: node scripts/create-browser-preview-fixture.mjs --out artifacts/browser-fixture/passport.json
       - name: Validate synthetic passport and location evidence against JSON Schema
@@ -47,6 +49,8 @@ jobs:
         run: node --test tests/lead-payload.test.mjs
       - name: Test passport to runtime adapter and publication gates
         run: node --test tests/landing-runtime-adapter.test.mjs
+      - name: Test LANDING BRIEF reference integrity
+        run: node --test tests/landing-brief.test.mjs
       - name: Build review-only bundle from the canonical passport example
         run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out artifacts/review-bundle
       - name: Render dynamic HTML review preview
