@@ -6,6 +6,7 @@ import { validateLandingBriefReferences } from "../src/landing-brief.mjs";
 const brief = JSON.parse(await readFile(new URL("../examples/landing-brief.example.json", import.meta.url), "utf8"));
 const passport = {
   project: { id: "sample-residence" },
+  offers: [{ id: "presentation", type: "presentation", status: "active", scenarioId: "presentation_request" }],
   facts: [{
     id: "fact_infrastructure_01",
     status: "verified",
