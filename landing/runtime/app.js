@@ -127,7 +127,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
 
   $$("[data-open-offer]").forEach(button => button.addEventListener("click", () => {
     const offerId = button.dataset.openOffer;
-    const context = { moduleId: button.closest("section")?.id || "unknown" };
+    const context = { moduleId: button.closest("section")?.id || (button.closest("header") ? "header" : "unknown") };
     if (button.dataset.planId) {
       const plan = approvedPlans.find(item => item.id === button.dataset.planId);
       if (plan) {
