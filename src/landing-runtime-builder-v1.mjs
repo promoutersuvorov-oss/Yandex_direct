@@ -17,6 +17,16 @@ const OFFER_MAP = Object.freeze({
 });
 const isObject = value => value !== null && typeof value === "object" && !Array.isArray(value);
 const nonEmpty = value => typeof value === "string" && value.trim().length > 0;
+function claimValueText(claim) {
+  const value = claim?.value;
+  if (!isObject(value)) return "";
+  if (value.kind === "text" && nonEmpty(value.value)) return value.value.trim();
+  if (value.kind === "number" && Number.isFinite(value.value)) return String(value.value);
+  if (value.kind === "boolean" && typeof value.value === "boolean") return value.value ? "Да" : "Нет";
+  if (value.kind === "text_list" && Array.isArray(value.value) &&
+      value.value.length > 0 && value.value.every(nonEmpty)) return value.value.join(", ");
+  return "";
+}
 const clone = value => JSON.parse(JSON.stringify(value));
 const isFuture = (value, now) => !value || (Number.isFinite(Date.parse(value)) && Date.parse(value) > now);
 
@@ -95,7 +105,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     const evidence = item.supportingFactIds.map(id => {
       const claim = claims.get(legacyReferences.factIdToClaimId[id]);
       const source = (knowledge.sources || []).find(src => claim?.sourceIds?.includes(src.id) && nonEmpty(src.title));
-      return source && claimText(claim) ? { claim: claimText(claim), sourceTitle: source.title } : null;
+      return source && claimValueText(claim) ? { claim: claimValueText(claim), sourceTitle: source.title } : null;
     }).filter(Boolean).slice(0, 3);
     return { id: item.id, title: item.title, benefit: item.benefit, strength: item.strength,
       audienceFit: item.audienceFit || [], hook: item.hook || "", evidence, status: "verified" };
@@ -119,7 +129,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     const evidence = story.supportingFactIds.map(id => {
       const claim = claims.get(legacyReferences.factIdToClaimId[id]);
       const source = (knowledge.sources || []).find(src => claim?.sourceIds?.includes(src.id) && nonEmpty(src.title));
-      return source && claimText(claim) ? { claim:claimText(claim), sourceTitle:source.title } : null;
+      return source && claimValueText(claim) ? { claim:claimValueText(claim), sourceTitle:source.title } : null;
     }).filter(Boolean);
     if (evidence.length !== story.supportingFactIds.length) return null;
     return { id:story.id, title:story.title, description:story.description, sceneLabel:story.sceneLabel || "СЦЕНАРИЙ ЖИЗНИ",
@@ -131,7 +141,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     const answer = item.requiredFactIds.map(factId => {
       const claim = claims.get(legacyReferences.factIdToClaimId[factId]);
       const source = (knowledge.sources || []).find(src => claim?.sourceIds?.includes(src.id) && nonEmpty(src.title));
-      const statement = claimText(claim);
+      const statement = claimValueText(claim);
       return source && nonEmpty(statement) ? { factId, claim:statement, sourceTitle:source.title } : null;
     });
     return answer.every(Boolean) ? { id:item.id, question:item.question, answer } : null;
