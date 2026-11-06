@@ -116,9 +116,13 @@ test("three-step quiz preserves answers and submits with quiz context", async ({
   for (let step = 1; step <= 3; step++) {
     const option = quiz.locator(".opt").first();
     await option.click();
-    await expect(option).toHaveClass(/sel/);
+    // K15 advances and re-renders the quiz after a short selection animation.
+    // Checking the next step is stable across engines; the transient `.sel`
+    // class can disappear before WebKit completes a polling assertion.
     if (step < 3) {
       await expect(quiz.locator(".qprog span")).toContainText(`${step + 1} / 3`);
+    } else {
+      await expect(quiz.locator("form.lead-form")).toBeVisible();
     }
   }
 
