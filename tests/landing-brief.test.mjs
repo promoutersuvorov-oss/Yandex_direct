@@ -116,9 +116,21 @@ test("blocks positioning that references a missing audience segment or unverifie
   const invalid = approvedPositioningBrief();
   invalid.strategy.positioning.audienceSegmentId = "missing_segment";
   invalid.strategy.positioning.evidenceBasis.product.type = "expert_hypothesis";
-  invalid.positioning.evidenceBasis.converter.type = "unknown";
+  invalid.strategy.positioning.evidenceBasis.converter.type = "unknown";
   const errors = validatePositioningGate(invalid);
   assert.ok(errors.some(error => error.includes("unknown segment")));
   assert.ok(errors.some(error => error.includes("verified operational/product evidence for product")));
   assert.ok(errors.some(error => error.includes("verified operational/product evidence for converter")));
+});
+
+test("requires both legacy and gate approval statuses to agree", () => {
+  const invalid = approvedPositioningBrief();
+  invalid.strategy.positioning.status = "draft";
+  assert.ok(validatePositioningGate(invalid).some(error => error.includes("Legacy positioning status")));
+});
+
+test("does not approve expert hypotheses as validated campaign evidence", () => {
+  const invalid = approvedPositioningBrief();
+  invalid.strategy.positioning.evidenceBasis.audience.type = "expert_hypothesis";
+  assert.ok(validatePositioningGate(invalid).some(error => error.includes("validated evidence for audience")));
 });
