@@ -11,6 +11,7 @@ const html = readFileSync(join(dir, "preview.html"), "utf8");
 assert.equal(profile.project?.id, "galiley-voronezh");
 assert.equal(profile.project?.name, "ЖК «Галилей»");
 assert.equal(profile.design?.theme, "garden-modern");
+assert.equal(profile.design?.composition, "architectural", "Galiley must retain its project-specific architectural composition.");
 assert.ok(Array.isArray(profile.facts) && profile.facts.length >= 10, "Expected sourced project facts.");
 assert.equal((profile.assets || []).length, 0, "No media without confirmed rights may enter the preview.");
 assert.ok(manifest.modules.some(item => item.moduleId === "hero"));

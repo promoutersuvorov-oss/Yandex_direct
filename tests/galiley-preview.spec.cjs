@@ -8,6 +8,7 @@ test("Galiley preview renders its own project identity and garden-modern composi
   await page.goto(url, { waitUntil: "networkidle" });
 
   await expect(page.locator("body")).toHaveAttribute("data-theme", "garden-modern");
+  await expect(page.locator("body")).toHaveAttribute("data-composition", "architectural");
   await expect(page.getByRole("heading", { level: 1, name: "ЖК «Галилей»" })).toBeVisible();
   await expect(page.locator("#module-hero .hero-meta")).toContainText("Воронеж");
   await expect(page.locator("#module-hero .hero-meta-item:nth-child(2) dd")).toHaveText("Ленинский район");

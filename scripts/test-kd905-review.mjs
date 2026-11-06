@@ -14,6 +14,7 @@ assert.equal(profile.project.id, "kd-905-voronezh");
 assert.equal(profile.project.name, "Клубный дом «905»");
 assert.equal(profile.project.city, "Воронеж");
 assert.equal(profile.design.theme, "warm-editorial");
+assert.equal(profile.design.composition, "editorial", "KD 905 must retain its distinct editorial composition.");
 assert.equal(report.status, "review_required");
 assert.equal(report.publicationReadiness.productionReady, false);
 assert.equal(report.publicationReadiness.status, "review_required");
