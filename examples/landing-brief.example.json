@@ -35,7 +35,41 @@
         "Need to understand actual travel routes"
       ],
       "insightStatus": "hypothesis",
-      "priority": "primary"
+      "priority": "primary",
+      "lifeContext": "May be considering a first independent home or a change in daily routine; this is an illustrative hypothesis, not observed customer data.",
+      "desiredOutcomes": [
+        "A home that fits the person's everyday routine",
+        "A clearer understanding of the project's fit before speaking with a specialist"
+      ],
+      "motivations": [
+        "Convenience in daily life",
+        "Confidence that the layout and location fit personal priorities"
+      ],
+      "fears": [
+        "Uncertainty about actual walking routes",
+        "Uncertainty about current apartment availability"
+      ],
+      "expectations": [
+        "Clear evidence about nearby infrastructure",
+        "A useful next step without pressure"
+      ],
+      "proofNeeds": [
+        "Verified routes and walking times",
+        "Current apartment options linked to real layouts"
+      ],
+      "decisionTriggers": [
+        "A relevant verified location fact",
+        "A concrete answer about suitable apartment options"
+      ],
+      "evidenceBasis": [
+        {
+          "type": "expert_hypothesis",
+          "finding": "Illustrative segment assumptions for schema demonstration only; no interviews, CRM records or behavioral data are represented.",
+          "checkedAt": "2026-11-06"
+        }
+      ],
+      "confidence": "low",
+      "confidenceRationale": "Example-only hypothesis with no direct customer research or behavioral evidence."
     }
   ],
   "hooks": [
