@@ -46,8 +46,10 @@ test("mortgage calculator computes a visitor-entered estimate and has its own ne
 
 test("selection quiz preserves answers in its own CTA context", async ({ page }) => {
   await page.goto(url);
-  await page.locator('input[name="goal"][value="Для себя или семьи"]').check();
-  await page.locator('input[name="rooms"][value="2"]').check();
+  await page.locator('label.choice').filter({ hasText: "Для себя или семьи" }).click();
+  await page.locator('label.choice').filter({ hasText: /^2$/ }).click();
+  await expect(page.locator('input[name="goal"][value="Для себя или семьи"]')).toBeChecked();
+  await expect(page.locator('input[name="rooms"][value="2"]')).toBeChecked();
   await page.locator('#selection-form button[type="submit"]').click();
   await expect(page.locator("#lead-dialog")).toBeVisible();
   await expect(page.locator("#dialog-title")).toHaveText("Получить персональную подборку");
