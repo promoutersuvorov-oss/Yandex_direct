@@ -86,6 +86,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     }
     const qualifiedClaimIds = new Set();
     const seenFactIds = new Set();
+    const seenClaimIds = new Set();
     const rendered = [];
     for (const item of qualifications) {
       if (!isObject(item) || !nonEmpty(item.factId) || !nonEmpty(item.text) || !mappedFacts.includes(item.factId)) {
@@ -98,9 +99,13 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
       const claimId = legacyReferences.factIdToClaimId[item.factId];
       const claim = claims.get(claimId);
       if (!claim || claim.publicUse !== "allowed_with_qualification" || claim.epistemicStatus !== "verified" ||
-          !Array.isArray(claim.limitations) || !claim.limitations.length) {
-        throw new Error(`Qualification for ${key} does not match a verified claim requiring qualification: ${item.factId}`);
+          !Array.isArray(claim.limitations) || !claim.limitations.length || !claim.limitations.every(nonEmpty)) {
+        throw new Error(`Qualification for ${key} does not match a verified claim requiring non-empty qualification limitations: ${item.factId}`);
       }
+      if (seenClaimIds.has(claimId)) {
+        throw new Error(`Qualification for ${key} must be unique per claim: ${claimId}`);
+      }
+      seenClaimIds.add(claimId);
       qualifiedClaimIds.add(claimId);
       rendered.push(item.text.trim());
     }
