@@ -68,7 +68,7 @@ KLanding включает отдельный интеллектуальный м
 
 - `docs/product/` — философия KEY, продуктовая стратегия, стандарты качества, маркетинговая разведка, сегментация, офферы, воронки и обучение.
 - `docs/architecture/` — архитектура движка, данные ЖК, рекламная и лидовая воронки, иерархия нормативных документов; включая [Customer Experience Architecture](docs/architecture/CUSTOMER_EXPERIENCE_ARCHITECTURE.md) и [Positioning Gate](docs/architecture/POSITIONING_GATE.md).
-- `docs/audits/` — фактические аудиты и gap-отчёты по эталонной реализации.
+- `docs/audits/` — фактические аудиты и gap-отчёты по эталонной реализации. Актуальный разрыв между стандартом и кодом: [KEY Landing Product Implementation Audit](docs/audits/KEY_LANDING_PRODUCT_IMPLEMENTATION_AUDIT_2026-11-07.md).
 - `prompts/` — мастер-промпты исследования ЖК и генерации лендинга.
 - `skills/` — специализированные навыки и рабочие инструкции агентов.
 - `projects/` — паспорта конкретных жилых комплексов и материалы объектов.
