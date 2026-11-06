@@ -210,7 +210,11 @@ test("K15 navigation, gallery, apartment and location controls remain interactiv
   const secondPlaceTab = page.locator('#iPills button[data-i="1"]');
   // The infrastructure tabs form a horizontally scrollable strip; reveal the
   // second tab inside that strip before clicking it (especially in WebKit).
-  await secondPlaceTab.evaluate(el => el.scrollIntoView({ block: "nearest", inline: "center", behavior: "instant" }));
+  await page.locator("#iPills").scrollIntoViewIfNeeded();
+  await secondPlaceTab.evaluate(el => {
+    const strip = el.parentElement;
+    strip.scrollLeft = el.offsetLeft - strip.offsetLeft - Math.max(0, (strip.clientWidth - el.clientWidth) / 2);
+  });
   await expect(secondPlaceTab).toBeInViewport();
   await secondPlaceTab.click();
   await expect(page.locator('#iPills button[data-i="1"]')).toHaveAttribute("aria-selected", "true");
