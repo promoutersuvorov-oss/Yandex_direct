@@ -2,7 +2,7 @@
 
 **Версия:** 0.1  
 **Дата:** 2026-11-06  
-**Статус:** design proposal; не production schema, не публичный API и не изменение runtime.  
+**Статус:** design proposal; не production schema, не публичный API и не изменение runtime. Конкретная форма legacy adapter v1 определяется более поздним mapping [PASSPORT_V1_TO_NORMALIZED_MAPPING.md](PASSPORT_V1_TO_NORMALIZED_MAPPING.md), который имеет приоритет при детализации миграционных полей.  
 **Назначение:** единая внутренняя форма данных между Passport Reader и генератором публичного runtime.
 
 ## 1. Зачем нужен отдельный normalized contract
@@ -95,27 +95,23 @@ Claim, Document, Construction Event, Asset и Commercial Term могут отн�
 
 ### 4.1 ProjectKnowledge
 
-    ProjectKnowledge {
+    NormalizedProjectKnowledge {
       contractVersion: "0.1",
-      project: Project,
+      source: { schemaVersion: "1.0.0", projectId: string },
+      project: ProjectIdentity,
       organizations: Organization[],
-      phases: Phase[],
-      buildings: Building[],
-      sections: Section[],
-      site?: Site,
-      siteFeatures: SiteFeature[],
-      propertyUnits: PropertyUnit[],
-      plans: Plan[],
-      pointsOfInterest: PointOfInterest[],
-      routes: Route[],
-      documents: ProjectDocument[],
-      constructionEvents: ConstructionEvent[],
-      commercialTerms: CommercialTerm[],
-      assets: Asset[],
       claims: Claim[],
       sources: Source[],
       evidence: Evidence[],
-      marketContext?: InternalMarketContext
+      assets: Asset[],
+      plans: Plan[],
+      pointsOfInterest: PointOfInterest[],
+      routes: Route[],
+      structures?: { phases: Phase[], buildings: Building[], sections: Section[] },
+      propertyUnits?: PropertyUnit[],
+      siteFeatures?: SiteFeature[],
+      commercialTerms?: CommercialTerm[],
+      internalMarketContext?: InternalMarketContext
     }
 
 Коллекции могут быть пустыми. Это означает «сведения не внесены», а не «объектов не существует».
@@ -133,20 +129,13 @@ Claim, Document, Construction Event, Asset и Commercial Term могут отн�
 
 ### 4.2 Project
 
-    Project {
+    ProjectIdentity {
       id: string,
       name: string,
-      aliases: string[],
-      propertyType: "urban_residential_new_build",
-      classClaimIds: string[],
-      location: {
-        city: string,
-        addressClaimId?: string,
-        districtClaimId?: string,
-        coordinates?: Coordinates
-      },
-      organizationRefs: EntityRef[],
-      externalIds: ExternalId[]
+      city: string,
+      addressClaimId?: string,
+      districtClaimId?: string,
+      organizationIds: string[]
     }
 
 Сегмент KEY не означает, что каждому проекту автоматически присваивается класс premium. Класс и особенности сегмента должны иметь основание в claims/evidence.
@@ -198,12 +187,18 @@ Claim, Document, Construction Event, Asset и Commercial Term могут отн�
     Plan {
       id: string,
       planKind: "apartment_floor_plan" | "building_floor_plan" | "section_plan" | "floor_plan" | "site_masterplan" | "parking_plan" | "other",
-      subject: EntityRef,
-      assetId?: string,
-      version?: string,
-      area?: Measurement,
+      subjectRef?: EntityRef,
+      assetId: string,
+      title?: string,
       rooms?: number,
-      claimIds: string[]
+      area?: Measurement,
+      floor?: number,
+      finishingClaimId?: string,
+      sourceIds: string[],
+      evidenceIds: string[],
+      epistemicStatus: string,
+      publicUse: string,
+      validUntil?: string
     }
 
 Plan — тип/схема пространственного решения. PropertyUnit — конкретная единица. Их нельзя создавать друг из друга автоматически.
@@ -237,23 +232,22 @@ SiteFeature описывает внутреннюю среду проекта. �
       id: string,
       name: string,
       category: string,
-      coordinates?: Coordinates,
-      address?: string,
-      status: "operating" | "under_construction" | "planned" | "closed" | "unknown",
+      status: string,
+      sourceIds: string[],
       claimIds: string[]
     }
 
     Route {
       id: string,
-      origin: EntityRef,
-      destination: EntityRef,
+      originRef: EntityRef,
+      destinationPoiId: string,
       mode: "walking" | "driving" | "public_transport" | "cycling",
       distance?: Measurement,
       durationSeconds?: number,
-      provider?: string,
+      method: "route" | "straight_line",
+      sourceIds: string[],
       observedAt: string,
-      validUntil?: string,
-      evidenceIds: string[]
+      validUntil?: string
     }
 
 Наличие POI не доказывает маршрут, а расстояние по прямой не является длительностью пути.
@@ -264,18 +258,23 @@ SiteFeature описывает внутреннюю среду проекта. �
       id: string,
       subject: EntityRef,
       predicate: string,
-      value: string | number | boolean | string[] | Measurement,
-      unit?: string,
-      modality: "designed" | "declared" | "observed" | "measured" | "legally_registered" | "independently_verified",
+      value: ClaimValue,
+      modality: "declared",
       epistemicStatus: "verified" | "provisional" | "hypothesis" | "unknown" | "conflicting" | "outdated",
+      sourceIds: string[],
       evidenceIds: string[],
-      validFrom?: string,
+      publicUse: "allowed" | "allowed_with_qualification" | "internal_only" | "blocked",
+      observedAt?: string,
       validUntil?: string,
-      lastCheckedAt?: string,
-      publicationPolicy: "allowed" | "allowed_with_qualification" | "internal_only" | "blocked",
-      limitations: string[],
-      conflictGroupId?: string
+      limitations: string[]
     }
+
+    ClaimValue =
+      | { kind: "text", value: string }
+      | { kind: "number", value: number }
+      | { kind: "boolean", value: boolean }
+      | { kind: "text_list", value: string[] }
+      | { kind: "measurement", value: number, unit: "m" | "m2" | "km" | "minutes" | "floors" | "units" }
 
 Для публикации claim должен пройти отдельную проверку актуальности, evidence, modality и publicationPolicy. Сам по себе статус verified недостаточен, если claim устарел или относится не к тому subject.
 
@@ -296,7 +295,7 @@ SiteFeature описывает внутреннюю среду проекта. �
       id: string,
       sourceId: string,
       locator?: string,
-      quoteOrExtract?: string,
+      extract?: string,
       extractionMethod?: string,
       observedAt: string,
       limitations: string[]
@@ -308,16 +307,15 @@ SiteFeature описывает внутреннюю среду проекта. �
 
     Asset {
       id: string,
-      assetType: "photo" | "render" | "video" | "plan" | "document" | "map" | "logo" | "other",
-      role?: string,
+      assetKind: "photo" | "render" | "video" | "plan" | "document" | "map" | "logo" | "other",
       url?: string,
-      storageRef?: string,
-      depictedSubjects: EntityRef[],
-      capturedAt?: string,
-      version?: string,
-      rightsHolder?: string,
+      alt?: string,
+      subjectRefs: EntityRef[],
+      projectMatch: "confirmed" | "unconfirmed",
+      publicationStatus: "approved" | "pending" | "blocked" | "missing",
       rightsStatus: "confirmed" | "pending" | "blocked" | "unknown",
       rightsEvidenceIds: string[],
+      rightsLimitations: string[],
       allowedContexts: string[],
       validUntil?: string
     }
