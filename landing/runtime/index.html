@@ -65,8 +65,8 @@
     <section class="calculator-section section-shell" id="calculator">
       <div class="calculator-copy"><p class="eyebrow">ФИНАНСОВЫЙ СЦЕНАРИЙ</p><h2>Оцените примерный ежемесячный платёж</h2><p>Введите собственные параметры. Расчёт ориентировочный и не является предложением банка или подтверждением одобрения.</p></div>
       <form class="calculator" id="mortgage-calculator">
-        <label>Стоимость квартиры, ₽<input name="price" type="number" min="1" step="10000" placeholder="Например, 8 000 000" required></label>
-        <label>Первоначальный взнос, ₽<input name="downPayment" type="number" min="0" step="10000" placeholder="Например, 2 000 000" required></label>
+        <label>Стоимость квартиры, ₽<input name="price" type="number" min="1" step="any" placeholder="Например, 8 000 000" required></label>
+        <label>Первоначальный взнос, ₽<input name="downPayment" type="number" min="0" step="any" placeholder="Например, 2 000 000" required></label>
         <div class="calculator-row"><label>Ставка, % годовых<input name="rate" type="number" min="0" max="100" step="0.1" placeholder="Введите ставку" required></label><label>Срок, лет<input name="years" type="number" min="1" max="40" step="1" value="20" required></label></div>
         <button class="button button-dark" type="submit">Рассчитать платёж <span>↗</span></button>
         <output id="payment-result" class="payment-result" aria-live="polite"></output>
