@@ -41,6 +41,23 @@ import { createAttributionState } from "../../src/attribution.mjs";
   text("#apartments-title", marketing.apartmentsTitle); text("#apartments-intro", marketing.apartmentsIntro);
   text("#location-title", marketing.locationTitle); text("#location-copy", marketing.locationCopy);
   text("#closing-title", marketing.closingTitle); text("#closing-copy", marketing.closingCopy);
+  const qualificationTargets = {
+    heroKicker:"#hero-kicker", headline:"#hero-title", lead:"#hero-lead",
+    conceptTitle:"#concept-title", conceptCopy:"#concept-copy",
+    advantagesTitle:"#advantages-title", advantagesIntro:"#advantages-intro",
+    visualTitle:"#visual-title", visualCopy:"#visual-copy",
+    apartmentsTitle:"#apartments-title", apartmentsIntro:"#apartments-intro",
+    locationTitle:"#location-title", locationCopy:"#location-copy",
+    closingTitle:"#closing-title", closingCopy:"#closing-copy"
+  };
+  for (const [key, notes] of Object.entries(data.marketingQualifications || {})) {
+    const target = qualificationTargets[key] ? $(qualificationTargets[key]) : null;
+    if (!target || !Array.isArray(notes) || !notes.length) continue;
+    const note = document.createElement("small");
+    note.className = "claim-qualification";
+    note.textContent = notes.filter(value => typeof value === "string" && value.trim()).join(" ");
+    if (note.textContent) target.insertAdjacentElement("afterend", note);
+  }
   if (data.selectionQuiz && Array.isArray(data.selectionQuiz.questions) && data.selectionQuiz.questions.length && data.offers?.quiz) {
     text("#selection-title", data.selectionQuiz.title);
     text("#selection-copy", data.selectionQuiz.description || marketing.selectionCopy || "Ответьте на несколько вопросов — специалист KEY поможет определить следующий шаг.");
