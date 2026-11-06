@@ -507,6 +507,7 @@ export function normalizePassportV1(passport) {
       mode: "walking",
       method: "route",
       sourceIds: [routeSource.sourceId],
+      evidenceIds: [routeSource.evidenceId],
       ...(distanceEvidence.checkedAt ? { observedAt: distanceEvidence.checkedAt } : {}),
       ...(distanceEvidence.validUntil ? { validUntil: distanceEvidence.validUntil } : {})
     };
