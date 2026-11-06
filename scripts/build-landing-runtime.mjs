@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { validateLandingBriefReferences } from "../src/landing-brief.mjs";
 
 const COPY_KEYS = [
   "heroKicker", "headline", "lead", "conceptTitle", "conceptCopy",
@@ -60,6 +61,69 @@ function mapOffer(offer) {
   if (!id) return null;
   return { id, offerId: offer.id, type: offer.type, title: offer.title, scenarioId: offer.scenarioId || offer.id,
     description: offer.description || "Специалист KEY поможет разобраться в проекте и ответит на ваши вопросы." };
+}
+
+function buildMarketingStrategy(brief, passport, facts, now) {
+  if (brief == null) return null;
+  if (!isObject(brief) || brief.approvalStatus !== "approved") {
+    throw new Error("LANDING BRIEF must be approved before it can control the public runtime");
+  }
+  const errors = validateLandingBriefReferences(brief, passport, { now });
+  if (errors.length) throw new Error("LANDING BRIEF is invalid: " + errors.join("; "));
+
+  const primaryHook = (brief.hooks || []).find(item => item.id === brief.strategy.primaryHookId);
+  if (!primaryHook || !["approved", "tested"].includes(primaryHook.status)) {
+    throw new Error("LANDING BRIEF primary hook must be approved or tested");
+  }
+  const offersById = new Map((brief.offers || []).map(offer => [offer.id, offer]));
+  const passportOffersById = new Map((passport.offers || []).map(offer => [offer.id, offer]));
+  const ctaMap = {};
+  for (const cta of brief.ctas || []) {
+    const strategyOffer = offersById.get(cta.offerId);
+    const passportOffer = strategyOffer && passportOffersById.get(strategyOffer.passportOfferId);
+    if (!strategyOffer || strategyOffer.readiness !== "ready") {
+      throw new Error(`LANDING BRIEF CTA ${cta.id} uses an offer that is not operationally ready`);
+    }
+    const mappedOffer = mapOffer(passportOffer);
+    if (!mappedOffer) throw new Error(`LANDING BRIEF CTA ${cta.id} maps to an inactive or unsupported passport offer`);
+    if (mappedOffer.scenarioId !== strategyOffer.scenarioId) {
+      throw new Error(`LANDING BRIEF CTA ${cta.id} scenario does not match the operational offer`);
+    }
+    const segmentId = cta.segmentIds?.[0] || brief.strategy.primarySegmentId;
+    ctaMap[cta.moduleId] = {
+      ctaId: cta.id,
+      label: cta.label,
+      intent: cta.intent,
+      offerKey: mappedOffer.id,
+      offerId: mappedOffer.offerId,
+      scenarioId: mappedOffer.scenarioId,
+      funnelId: cta.funnelId,
+      hookId: cta.hookId || brief.strategy.primaryHookId,
+      segmentId
+    };
+  }
+
+  const approvedHooks = (brief.hooks || []).filter(item =>
+    ["approved", "tested"].includes(item.status) &&
+    (item.supportingFactIds || []).every(id => facts.has(id))
+  ).map(item => ({
+    id: item.id, category: item.category, message: item.message,
+    segmentIds: item.segmentIds, supportingFactIds: item.supportingFactIds,
+    hypothesis: item.hypothesis
+  }));
+  const positioning = brief.strategy.positioning?.status === "approved" &&
+    brief.strategy.positioning.supportingFactIds.every(id => facts.has(id))
+    ? brief.strategy.positioning.statement : "";
+  const primarySegment = (brief.segments || []).find(item => item.id === brief.strategy.primarySegmentId);
+  return {
+    coreIdea: brief.strategy.coreIdea,
+    primarySegmentId: brief.strategy.primarySegmentId,
+    primarySegment: primarySegment ? { id: primarySegment.id, name: primarySegment.name, need: primarySegment.need, jtbd: primarySegment.jtbd } : null,
+    positioning,
+    primaryHook: approvedHooks.find(item => item.id === primaryHook.id) || null,
+    hooks: approvedHooks,
+    ctaMap
+  };
 }
 
 export function buildLandingProfile(passport, marketing, integration = {}, options = {}) {
@@ -162,17 +226,17 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
     project, composition: ["concept", ...composition.filter(id => id !== "concept")],
     design: { palette }, marketing: clone(marketing.copy), advantages, media, heroMedia, plans, infrastructure,
     offers, integration: productionReady && options.mode === "production" ? { leadEndpoint:endpoint, privacyPolicyUrl, privacyPolicyVersion } : { leadEndpoint:"", privacyPolicyUrl:"", privacyPolicyVersion:"" },
-    analytics: { enabled:false }, selectionQuiz: quiz
+    analytics: { enabled:false }, selectionQuiz: quiz,\n    ...(marketingStrategy ? { marketingStrategy, ctaMap: marketingStrategy.ctaMap } : {})
   };
 }
 
 async function main() {
   const args = process.argv.slice(2);
   const get = key => { const i=args.indexOf(key); return i >= 0 ? args[i+1] : null; };
-  const passportPath=get("--passport"), marketingPath=get("--marketing"), integrationPath=get("--integration"), out=get("--out");
-  if (!passportPath || !marketingPath || !out) throw new Error("Usage: node scripts/build-landing-runtime.mjs --passport passport.json --marketing marketing.json [--integration integration.json] --out project.config.js [--production]");
+  const passportPath=get("--passport"), marketingPath=get("--marketing"), integrationPath=get("--integration"), briefPath=get("--brief"), out=get("--out");
+  if (!passportPath || !marketingPath || !out) throw new Error("Usage: node scripts/build-landing-runtime.mjs --passport passport.json --marketing marketing.json [--brief landing-brief.json] [--integration integration.json] --out project.config.js [--production]");
   const read = file => JSON.parse(fs.readFileSync(file,"utf8"));
-  const profile = buildLandingProfile(read(passportPath), read(marketingPath), integrationPath ? read(integrationPath) : {}, { mode:args.includes("--production") ? "production" : "demo" });
+  const profile = buildLandingProfile(read(passportPath), read(marketingPath), integrationPath ? read(integrationPath) : {}, { mode:args.includes("--production") ? "production" : "demo", brief: briefPath ? read(briefPath) : null });
   fs.mkdirSync(path.dirname(path.resolve(out)), { recursive:true });
   fs.writeFileSync(out, "/* Generated by scripts/build-landing-runtime.mjs. Do not edit by hand. */\nwindow.KEY_PROJECT = " + JSON.stringify(profile, null, 2) + ";\n");
   process.stdout.write(`Built ${profile.project.id} in ${profile.mode} mode: ${profile.composition.length} content modules.\n`);
