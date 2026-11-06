@@ -117,7 +117,7 @@ test("production webhook receives the canonical KEY payload with consent and ad 
   }));
   await page.route("https://hooks.example/**", async route => {
     if (route.request().method() === "OPTIONS") {
-      await route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" } });
+      await route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Idempotency-Key" } });
       return;
     }
     received = route.request().postDataJSON();
@@ -157,7 +157,7 @@ test("a webhook rejection never becomes a false success state", async ({ page })
   }));
   await page.route("https://hooks.example/**", async route => {
     if (route.request().method() === "OPTIONS") {
-      await route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" } });
+      await route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Idempotency-Key" } });
       return;
     }
     await route.fulfill({ status: 202, contentType: "application/json", headers: { "Access-Control-Allow-Origin": "*" }, body: JSON.stringify({ accepted: false }) });
@@ -183,7 +183,7 @@ test("lead payload keeps the passport offer ID instead of the runtime CTA alias"
   }));
   await page.route("https://hooks.example/**", async route => {
     if (route.request().method() === "OPTIONS") {
-      await route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" } });
+      await route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Idempotency-Key" } });
       return;
     }
     received = route.request().postDataJSON();
@@ -228,7 +228,7 @@ test("approved marketing strategy controls the hero CTA and persists IDs to the 
   }));
   await page.route("https://hooks.example/**", async route => {
     if (route.request().method() === "OPTIONS") {
-      await route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" } });
+      await route.fulfill({ status: 204, headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Idempotency-Key" } });
       return;
     }
     received = route.request().postDataJSON();
