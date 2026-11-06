@@ -1996,7 +1996,7 @@ document.addEventListener('input',e=>{ if(e.target.name==='uphone'){ e.target.va
 document.addEventListener('focusin',e=>{ if(e.target.name==='uphone' && !e.target.value) e.target.value='+7 ('; });
 document.addEventListener('change',e=>{ if(e.target.name==='uconsent'){ e.target.closest('.consent').classList.remove('err'); const er = e.target.form && $('.ferr',e.target.form); if(er) er.textContent=''; } });
 // Явное переключение визуального тумблера: надёжно в WebKit, без прозрачного overlay над формой.
-document.addEventListener('click',e=>{ const swt=e.target.closest('.consent .swt'); if(!swt) return; e.preventDefault(); const input=swt.previousElementSibling; if(input && input.name==='uconsent') input.click(); });
+document.addEventListener('click',e=>{ const swt=e.target.closest('.consent .swt'); if(!swt) return; e.preventDefault(); const input=swt.previousElementSibling; if(input && input.name==='uconsent'){ input.checked=!input.checked; input.dispatchEvent(new Event('change',{bubbles:true})); } });
 
 /* ---- Режим разработки: file://, localhost или ?demo=1 ---- */
 const DEV = location.protocol==='file:' || /^(localhost|127\.0\.0\.1)$/.test(location.hostname) || /[?&]demo=1/.test(location.search);
