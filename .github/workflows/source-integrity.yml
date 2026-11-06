@@ -101,6 +101,10 @@ jobs:
   browser-smoke:
     needs: source-integrity
     runs-on: ubuntu-24.04
+    container:
+      # Keep the image version aligned with @playwright/test below.
+      # Browser binaries and OS dependencies are preinstalled; avoid slow apt setup.
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -129,8 +133,7 @@ jobs:
         run: node scripts/render-reference-landing.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/reference.html
       - name: Install Playwright test runner
         run: npm install --no-save --no-audit --no-fund @playwright/test@1.56.1
-      - name: Install Playwright browser engine
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+      # The pinned Playwright container already includes all three browser engines.
       - name: Start local static server
         run: python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/klanding-http.log 2>&1 &
       - name: Run K15 and reference concept browser smoke tests
