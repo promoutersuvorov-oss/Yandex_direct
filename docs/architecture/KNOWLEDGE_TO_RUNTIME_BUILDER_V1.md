@@ -38,7 +38,10 @@ buildLandingProfileFromKnowledge(knowledge, landingInputs, marketing, integratio
 ### Claim publication gate
 Claim допускается в public projection, только если:
 - `epistemicStatus === verified`;
-- `publicUse` — `allowed` или `allowed_with_qualification`;
+- `publicUse === "allowed"`; либо `allowed_with_qualification` только при наличии отдельной утверждённой оговорки в `marketing.claimQualifications` для того же legacy fact ID, который указан в `marketing.claimFactIds` для соответствующего COPY_KEY.
+- Оговорка должна быть непустой строкой и проходить общий approval gate `marketing.approvalStatus === "approved"`.
+- Ограничения claim (`limitations`) должны быть заполнены; qualifier не заменяет source/evidence/актуальность.
+- Builder передаёт оговорки в `profile.marketingQualifications`, а браузерный runtime отображает их отдельным текстом непосредственно рядом с соответствующим маркетинговым полем. Не допускается скрытая оговорка в футере или только в источниках.
 - есть sourceIds и evidenceIds;
 - ссылки на существующие Source/Evidence валидны;
 - срок validUntil не истёк относительно переданного `options.now`.
@@ -150,12 +153,13 @@ Fixtures:
 2. Проверить и дополнить Landing Inputs mapping так, чтобы он хранил только IDs, которые можно разрешить через bridge.
 3. Реализовать pure builder с fail-closed publication gates.
 4. Добавить synthetic fixtures и semantic parity tests.
-5. Прогнать 905 и зафиксировать ожидаемые отличия: непроверенные расстояния, отсутствие подтверждённых прав на визуалы, неполная готовность коммерческих сценариев.
-6. Только после parity — рассматривать переключение build script/runtime consumer.
+5. Реализовать adjacent qualification rendering в браузерном runtime и регрессионные тесты на точное соответствие claim ↔ approved qualifier.
+6. Прогнать 905 и зафиксировать ожидаемые отличия: непроверенные расстояния, отсутствие подтверждённых прав на визуалы, неполная готовность коммерческих сценариев.
+7. Только после parity — рассматривать переключение build script/runtime consumer.
 
 ## 7. Что не делаем сейчас
 
-- Не меняем `landing/runtime/app.js`.
+- Изменения `landing/runtime/app.js` допускаются только для отображения проверяемых данных и утверждённых оговорок; не обходить publication gates.
 - Не меняем legacy `buildLandingProfile`.
 - Не включаем production CRM/API.
 - Не объявляем 905 production-ready.
