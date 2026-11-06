@@ -51,6 +51,16 @@ test("fails closed on claims requiring publication qualification until qualified
   assert.deepEqual(qualifiedProfile.marketingQualifications.headline,["Сведения указаны по данным застройщика; характеристики могут измениться."]);
   assert.equal(qualifiedProfile.marketing.headline,marketing.copy.headline);
   assert.equal(qualifiedProfile.advantages.length,0,"A headline qualification must not publish the same claim as an unqualified advantage.");
+  const faqLeak=input();
+  faqLeak.knowledge.claims[0].publicUse="allowed_with_qualification";
+  faqLeak.knowledge.claims[0].limitations=["Характеристики могут измениться."];
+  faqLeak.landingInputs.strategy.modules=[{moduleId:"faq",decision:"include",variant:"faq-accordion",order:8,requiredFactIds:["f1"]}];
+  faqLeak.landingInputs.faqDrafts=[{id:"faq-qualified",question:"Что известно?",requiredFactIds:["f1"],publicationStatus:"approved"}];
+  assert.throws(
+    ()=>buildLandingProfileFromKnowledge(faqLeak.knowledge,faqLeak.landingInputs,faqLeak.refs,qualifiedMarketing,{},{now:"2026-11-06T00:00:00Z"}),
+    /approved-faq-answers/,
+    "A marketing-copy qualification must not authorize the same claim in an FAQ."
+  );
   assert.throws(
     ()=>buildLandingProfileFromKnowledge(approved.knowledge,approved.landingInputs,approved.refs,{
       ...qualifiedMarketing,claimFactIds:{headline:["f1"],conceptCopy:["f1"]}
