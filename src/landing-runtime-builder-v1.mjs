@@ -175,7 +175,8 @@ export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legac
   const palette = PALETTES[designInput.theme] || PALETTES["warm-editorial"];
   const heroLayout = ["split", "fullscreen", "editorial"].includes(designInput.heroLayout) ? designInput.heroLayout : "split";
   const galleryLayout = ["mosaic", "editorial", "strip"].includes(designInput.galleryLayout) ? designInput.galleryLayout : "mosaic";
-  const quiz = landingInputs.selectionFlow?.publicEligible && offers.quiz &&\n    landingInputs.selectionFlow.resultOfferId === offers.quiz.offerId ? {
+  const quiz = landingInputs.selectionFlow?.publicEligible && offers.quiz &&
+    landingInputs.selectionFlow.resultOfferId === offers.quiz.offerId ? {
     title: landingInputs.selectionFlow.title, description: landingInputs.selectionFlow.description || "",
     resultOfferId: landingInputs.selectionFlow.resultOfferId,
     questions: (landingInputs.selectionFlow.questions || []).map(q => ({
