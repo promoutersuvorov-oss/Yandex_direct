@@ -153,14 +153,14 @@ test("publishes lifestyle stories only with approved copy, publishable claims an
 test("FAQ answers are composed only from publishable required claims and their source titles",()=>{
   const x=input();
   x.landingInputs.strategy.modules=[{moduleId:"faq",decision:"include",variant:"faq-accordion",order:8,requiredFactIds:["f1"]}];
-  x.landingInputs.faqDrafts=[{id:"faq-1",question:"Что известно о проекте?",requiredFactIds:["f1"]}];
+  x.landingInputs.faqDrafts=[{id:"faq-1",question:"Что известно о проекте?",requiredFactIds:["f1"],publicationStatus:"approved"}];
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.deepEqual(profile.composition,["faq"]);
   assert.deepEqual(profile.faqItems,[{id:"faq-1",question:"Что известно о проекте?",
     answer:[{factId:"f1",claim:"Факт",sourceTitle:"Официальный источник"}]}]);
   const blocked=input();
   blocked.landingInputs.strategy.modules=[{moduleId:"faq",decision:"include",variant:"faq-accordion",order:8}];
-  blocked.landingInputs.faqDrafts=[{id:"faq-2",question:"Можно ли подтвердить это?",requiredFactIds:["missing"]}];
+  blocked.landingInputs.faqDrafts=[{id:"faq-2",question:"Можно ли подтвердить это?",requiredFactIds:["missing"],publicationStatus:"approved"}];
   assert.throws(()=>buildLandingProfileFromKnowledge(blocked.knowledge,blocked.landingInputs,blocked.refs,marketing,{},{}),/approved-faq-answers/);
 });
 
@@ -176,9 +176,16 @@ test("FAQ safely formats every supported ClaimValue kind without inventing units
   x.knowledge.sources=[{id:"s1",title:"Официальный источник"}];
   x.knowledge.evidence=[{id:"e1",sourceId:"s1",extract:"Подтверждение"}];
   x.landingInputs.strategy.modules=[{moduleId:"faq",decision:"include",variant:"faq-accordion",order:8,requiredFactIds:["f1","f2","f3","f4"]}];
-  x.landingInputs.faqDrafts=[{id:"faq-values",question:"Какие значения подтверждены?",requiredFactIds:["f1","f2","f3","f4"]}];
+  x.landingInputs.faqDrafts=[{id:"faq-values",question:"Какие значения подтверждены?",requiredFactIds:["f1","f2","f3","f4"],publicationStatus:"approved"}];
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.deepEqual(profile.faqItems[0].answer.map(item=>item.claim),[
     "Центральный район","45","Да","Терраса, Панорамное остекление"
   ]);
+});
+
+test("FAQ draft questions are never published even when their supporting claim is public",()=>{
+  const x=input();
+  x.landingInputs.strategy.modules=[{moduleId:"faq",decision:"include",variant:"faq-accordion",order:8,requiredFactIds:["f1"]}];
+  x.landingInputs.faqDrafts=[{id:"faq-draft",question:"Черновой вопрос",requiredFactIds:["f1"],publicationStatus:"draft"}];
+  assert.throws(()=>buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{}),/approved-faq-answers/);
 });
