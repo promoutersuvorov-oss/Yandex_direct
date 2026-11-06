@@ -246,23 +246,6 @@ export function normalizePassportV1(passport) {
     return claimId;
   }
 
-  function addRawProjectClaim(value, predicate, path, limitation) {
-    const claimValue = asClaimValue(value);
-    if (!claimValue) return null;
-    const claimId = stableId("claim", `project:${project.id}:${predicate}`);
-    claims.push(makeClaim({
-      id: claimId,
-      subject: projectRef,
-      predicate,
-      value: claimValue,
-      status: "unknown",
-      publicUse: "internal_only",
-      limitations: [limitation]
-    }));
-    warnings.push({ code: "PROJECT_VALUE_WITHOUT_PROVENANCE", path, message: "Значение перенесено только для внутреннего сохранения; нет отдельного источника и статуса подтверждения." });
-    return claimId;
-  }
-
   function addEvidencedProjectClaim(field, predicate, path) {
     const claimId = addProjectClaim(project.location?.[field], predicate, path);
     if (claimId) normalizedProject[field === "address" ? "addressClaimId" : "districtClaimId"] = claimId;
@@ -294,8 +277,11 @@ export function normalizePassportV1(passport) {
   addProjectClaim(inventory.areaRange, "project.inventory.area_range", "$.project.inventory.areaRange");
   addProjectClaim(inventory.finishing, "project.inventory.finishing", "$.project.inventory.finishing");
   if (typeof inventory.layoutsAvailable === "boolean") {
-    addRawProjectClaim(inventory.layoutsAvailable, "project.inventory.layouts_available", "$.project.inventory.layoutsAvailable",
-      "Legacy boolean has no independent source/status; it is internal-only and must not be interpreted as a specific inventory list.");
+    warnings.push({
+      code: "LAYOUT_READINESS_NOT_MIGRATED",
+      path: "$.project.inventory.layoutsAvailable",
+      message: "layoutsAvailable — признак готовности данных для Landing Inputs/QA, а не факт об объекте; в Project Knowledge не переносится."
+    });
   }
 
 
