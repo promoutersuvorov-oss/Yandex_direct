@@ -56,7 +56,7 @@ test("Galiley preview renders its own project identity and garden-modern composi
     paddingTop: Number.parseFloat(getComputedStyle(node).paddingTop)
   }));
   expect(heroLayout.columns.trim().split(/\s+/)).toHaveLength(1);
-  expect(heroLayout.copyWidth).toBe("1040px");
+  expect(heroLayout.copyWidth).toBe("1160px");
   expect(heroLayout.headingFont).toContain("Inter");
   expect(heroLayout.backgroundImage).toContain("repeating-linear-gradient");
   expect(heroLayout.paddingTop).toBeLessThan(120);
