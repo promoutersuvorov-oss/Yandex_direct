@@ -18,6 +18,10 @@ test("universal landing renders the demo profile and responsive editorial layout
     expect(Math.max(sizes.doc,sizes.body)).toBeLessThanOrEqual(sizes.view + 1);
   }
   expect(errors).toEqual([]);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.screenshot({ path: "test-results/universal-landing-desktop.png", fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: "test-results/universal-landing-mobile.png", fullPage: true });
 });
 
 test("hero CTA opens a context-specific presentation form without false delivery success", async ({ page }) => {
