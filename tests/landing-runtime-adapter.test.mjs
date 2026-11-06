@@ -205,7 +205,15 @@ test("does not publish an approved hook whose evidence is no longer publishable"
 
 test("does not let a CTA use a draft marketing hook", () => {
   const brief = landingBrief();
-  brief.hooks[0].status = "hypothesis";
+  brief.hooks.push({ ...brief.hooks[0], id: "draft_hook", status: "hypothesis" });
+  brief.funnels.push({ ...brief.funnels[0], id: "draft_funnel", hookIds: ["draft_hook"] });
+  brief.ctas.push({
+    ...brief.ctas[0],
+    id: "closing_presentation",
+    moduleId: "closing",
+    funnelId: "draft_funnel",
+    hookId: "draft_hook"
+  });
   assert.throws(
     () => buildLandingProfile(passport(), marketing(), {}, { brief }),
     /hook that is not approved or tested/
