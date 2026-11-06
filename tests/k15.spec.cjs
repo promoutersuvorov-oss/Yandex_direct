@@ -122,6 +122,14 @@ test("three-step quiz preserves answers and submits with quiz context", async ({
     })).toBe(step);
     if (step < 3) {
       await expect(quiz.locator(".qprog span")).toContainText(`${step + 1} / 3`);
+      const nextQuestion = step === 1 ? "Какая площадь вам нужна?" : "Как планируете покупать?";
+      await expect(quiz.locator(".qbody h3")).toHaveText(nextQuestion);
+      // WebKit can expose the new step before its entrance animation finishes.
+      // Wait for the rendered step to become stable before clicking its option.
+      await page.waitForFunction(() => {
+        const body = document.querySelector("#qcard .qbody");
+        return !!body && body.getAnimations().every(animation => animation.playState === "finished");
+      });
     }
   }
 
