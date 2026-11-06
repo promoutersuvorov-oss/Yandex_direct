@@ -108,18 +108,17 @@ test("fails closed on claims requiring publication qualification until qualified
 test("a marketing-only qualification never publishes infrastructure claims",()=>{
   const x=input();
   x.landingInputs.strategy.modules=[];
-  x.landingInputs.strategy.modules=[];
-  x.knowledge.claims[0].publicUse="allowed_with_qualification";
-  x.knowledge.claims[0].limitations=["Сведения могут измениться."];
-  x.landingInputs.strategy.modules=[];
   x.knowledge.claims[0].publicUse="allowed_with_qualification";
   x.knowledge.claims[0].limitations=["Указано в источнике; сведения могут измениться."];
-  x.knowledge.claims.push({...x.knowledge.claims[0],id:"c-poi",subject:{type:"poi",id:"poi-1"},predicate:"poi.listed_by_source",publicUse:"allowed_with_qualification",limitations:["Указано в источнике; сведения могут измениться."]});
-  x.knowledge.pointsOfInterest=[{id:"poi-1",name:"Городской парк",claimIds:["c-poi"]}];
+  // Reuse the exact same qualified claim as a POI existence claim: a copy-field
+  // exception must not leak into the infrastructure renderer.
+  x.knowledge.claims[0].subject={type:"poi",id:"poi-1"};
+  x.knowledge.claims[0].predicate="poi.listed_by_source";
+  x.knowledge.pointsOfInterest=[{id:"poi-1",name:"Городской парк",claimIds:["c1"]}];
   x.knowledge.routes=[{id:"route-1",destinationPoiId:"poi-1",method:"route",mode:"walking",observedAt:"2026-11-05T12:00:00Z",validUntil:"2027-11-05T12:00:00Z",sourceIds:["s1"],durationSeconds:300}];
   const qualifiedMarketing={...marketing,claimQualifications:{headline:[{factId:"f1",text:"По данным источника; сведения могут измениться."}]}};
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,qualifiedMarketing,{},{now:"2026-11-06T00:00:00Z"});
-  assert.deepEqual(profile.infrastructure,[], "A qualifier attached to marketing copy must not authorize a location/infrastructure claim.");
+  assert.deepEqual(profile.infrastructure[],[], "A qualifier attached to marketing copy must not authorize the same claim in location/infrastructure.");
 });
 
 test("blocks claims without linked source/evidence and candidates with missing facts",()=>{
