@@ -100,8 +100,9 @@ function createCollector(warnings) {
   function addEvidenceForSource(source, path) {
     const sourceId = addSource(source, path);
     if (!sourceId) return { sourceId: null, evidenceId: null };
-    const evidenceItem = evidence.find(item => item.sourceId === sourceId);
-    return { sourceId, evidenceId: evidenceItem?.id || null };
+    if (!nonEmpty(source.quoteOrEvidence)) return { sourceId, evidenceId: null };
+    const evidenceKey = JSON.stringify([sourceId, source.quoteOrEvidence]);
+    return { sourceId, evidenceId: evidenceIds.get(evidenceKey) || null };
   }
 
   function addSources(list, path) {
