@@ -166,7 +166,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
   $("#selection-form").addEventListener("submit", event => {
     event.preventDefault();
     const answers = Object.fromEntries(new FormData(event.currentTarget));
-    if (!answers.goal || !answers.rooms) return;
+    if (!answers.goal || !answers.rooms || !answers.timing) return;
     openOffer("quiz", { moduleId: "selection", qualificationAnswers: answers, displayContext: answers });
   });
 
