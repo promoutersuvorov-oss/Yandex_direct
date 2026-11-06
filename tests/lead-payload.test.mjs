@@ -60,3 +60,23 @@ test("limits quiz answers and validates answer shape", () => {
   input.qualification.answers.rooms = { arbitrary: "object" };
   assert.throws(() => createLeadPayload(input), /Quiz answers/);
 });
+
+test("preserves typed apartment-plan context and validates its evidence identifiers", () => {
+  const input = valid();
+  input.conversion.entityContext = {
+    plan: { id: "plan-a", rooms: 2, areaSqm: 64.5, floor: 8, finishing: "white-box", assetId: "asset-plan-a" }
+  };
+  assert.deepEqual(createLeadPayload(input).conversion.entityContext, input.conversion.entityContext);
+  input.conversion.entityContext.plan.areaSqm = 0;
+  assert.throws(() => createLeadPayload(input), /plan.areaSqm must be a positive number/);
+});
+
+test("preserves a validated mortgage estimate in the lead context", () => {
+  const input = valid();
+  input.conversion.entityContext = {
+    mortgage: { price: 8000000, downPayment: 2000000, ratePercent: 12, termYears: 20, estimatedMonthlyPayment: 66072 }
+  };
+  assert.deepEqual(createLeadPayload(input).conversion.entityContext, input.conversion.entityContext);
+  input.conversion.entityContext.mortgage.downPayment = 8000000;
+  assert.throws(() => createLeadPayload(input), /Mortgage price and downPayment are invalid/);
+});
