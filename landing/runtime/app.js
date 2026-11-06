@@ -125,7 +125,10 @@ import { createAttributionState } from "../../src/attribution.mjs";
   }
   if ($(".desktop-nav a:not([hidden])").length === 0) $(".desktop-nav").hidden = true;
   function applyStrategyCta(button, cta) {
-    if (!button || !cta || button.dataset.openOffer !== cta.offerKey) return;
+    if (!button || !cta) return;
+    const planAction = button.dataset.openOffer === "plan" && cta.moduleId === "apartments";
+    if (button.dataset.openOffer !== cta.offerKey && !planAction) return;
+    button.dataset.openOffer = cta.offerKey;
     button.dataset.ctaId = cta.ctaId;
     button.dataset.hookId = cta.hookId || "";
     button.dataset.funnelId = cta.funnelId || "";
@@ -218,7 +221,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
     const payment = monthlyRate === 0 ? principal / months : principal * monthlyRate / (1 - Math.pow(1 + monthlyRate, -months));
     const calculatorCta = data.ctaMap?.calculator;
     const calculatorLabel = calculatorCta?.label || "Обсудить расчёт";
-    output.innerHTML = '<span>Ориентировочный платёж</span><strong>' + fmt(Math.round(payment)) + ' ₽ / мес.</strong><button class="text-action" type="button" data-open-offer="calculator">' + esc(calculatorLabel) + ' ↗</button>';
+    output.innerHTML = '<span>Ориентировочный платёж</span><strong>' + fmt(Math.round(payment)) + ' ₽ / мес.</strong><button class="text-action" type="button" data-open-offer="' + esc(calculatorCta?.offerKey || "calculator") + '">' + esc(calculatorLabel) + ' ↗</button>';
     const calculatorButton = output.querySelector("[data-open-offer]");
     if (calculatorCta) {
       calculatorButton.dataset.ctaId = calculatorCta.ctaId;
@@ -226,7 +229,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
       calculatorButton.dataset.funnelId = calculatorCta.funnelId || "";
       calculatorButton.dataset.segmentId = calculatorCta.segmentId || "";
     }
-    calculatorButton.addEventListener("click", () => openOffer("calculator", {
+    calculatorButton.addEventListener("click", () => openOffer(calculatorCta?.offerKey || "calculator", {
       moduleId: "calculator",
       ctaId: calculatorCta?.ctaId || "",
       hookId: calculatorCta?.hookId || "",
@@ -242,7 +245,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
     const answers = Object.fromEntries(new FormData(event.currentTarget));
     if (!Object.keys(answers).length) return;
     const cta = data.ctaMap?.selection;
-    openOffer("quiz", {
+    openOffer(cta?.offerKey || "quiz", {
       moduleId: "selection",
       ctaId: cta?.ctaId || "",
       hookId: cta?.hookId || "",
