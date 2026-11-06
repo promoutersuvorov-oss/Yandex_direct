@@ -331,16 +331,16 @@ import { createAttributionState } from "../../src/attribution.mjs";
           credentials: "omit",
           signal: controller.signal
         });
+        if (!response.ok) throw new Error("delivery_failed");
+        if (!(response.headers.get("content-type") || "").includes("application/json")) {
+          throw new Error("delivery_acknowledgement_missing");
+        }
+        const acknowledgement = await response.json();
+        if (!(acknowledgement?.accepted === true || acknowledgement?.success === true || acknowledgement?.status === "accepted")) {
+          throw new Error("delivery_not_accepted");
+        }
       } finally {
         window.clearTimeout(timeoutId);
-      }
-      if (!response.ok) throw new Error("delivery_failed");
-      if (!(response.headers.get("content-type") || "").includes("application/json")) {
-        throw new Error("delivery_acknowledgement_missing");
-      }
-      const acknowledgement = await response.json();
-      if (!(acknowledgement?.accepted === true || acknowledgement?.success === true || acknowledgement?.status === "accepted")) {
-        throw new Error("delivery_not_accepted");
       }
       $("#form-status").textContent = "Запрос принят. Специалист KEY свяжется с вами.";
       form.reset();
