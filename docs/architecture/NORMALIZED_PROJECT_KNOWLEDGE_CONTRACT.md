@@ -17,6 +17,26 @@ Builder должен читать только normalized model. Это позв
 
 Это не означает, что нужно вводить новый сервис, базу данных или API. На первом этапе это обычный типизированный объект в коде и чистые функции преобразования.
 
+Legacy Adapter возвращает разделённый результат, а не только ProjectKnowledge:
+
+    LegacyAdapterResult {
+      projectKnowledge: ProjectKnowledge,
+      landingInputs: {
+        landingSpecification?: LandingSpecification,
+        conversionCatalog: ConversionCatalogEntry[],
+        selectionFlow?: SelectionFlow,
+        faqDrafts: FaqDraft[]
+      },
+      internal: {
+        verificationReport?: VerificationReport,
+        marketContext?: InternalMarketContext,
+        protectedConfig?: ProtectedConfig
+      },
+      warnings: MigrationWarning[]
+    }
+
+Landing inputs и internal metadata не являются частью ProjectKnowledge и не должны сериализоваться в public project knowledge. Подробная таблица переноса legacy-полей находится в PASSPORT_VNEXT_LEGACY_FIELD_MAPPING.md.
+
 ## 2. Границы модели
 
 Normalized Project Knowledge включает:
@@ -100,6 +120,17 @@ Claim, Document, Construction Event, Asset и Commercial Term могут отн�
 
 Коллекции могут быть пустыми. Это означает «сведения не внесены», а не «объектов не существует».
 
+### 4.1.1 Минимальный обязательный core
+
+Для первого совместимого перехода минимально необходимы только:
+- project.id;
+- project.name;
+- project.location.city;
+- contractVersion;
+- metadata о версии исходного паспорта и предупреждениях — на уровне AdapterResult.
+
+Остальные домены опциональны. Buildings, Sections, Site, PropertyUnits, Plans, POI, Routes, Documents, ConstructionEvents и CommercialTerms не создаются по умолчанию. Legacy aggregate inventory не создаёт PropertyUnits; legacy apartmentPlans создаёт Plans, но не лоты.
+
 ### 4.2 Project
 
     Project {
@@ -110,8 +141,8 @@ Claim, Document, Construction Event, Asset и Commercial Term могут отн�
       classClaimIds: string[],
       location: {
         city: string,
-        address?: Evidenced<string>,
-        district?: Evidenced<string>,
+        addressClaimId?: string,
+        districtClaimId?: string,
         coordinates?: Coordinates
       },
       organizationRefs: EntityRef[],
@@ -369,3 +400,10 @@ Legacy adapter должен возвращать warnings для значени�
 ## 12. Уточнение минимального контракта и legacy mapping
 
 Более точный минимальный NPK и полное сопоставление полей паспорта 1.0.0 с целевыми доменами зафиксированы в [PASSPORT_V1_TO_NORMALIZED_MAPPING.md](PASSPORT_V1_TO_NORMALIZED_MAPPING.md). При расхождениях использовать этот mapping как более позднюю спецификацию: `Claim.value` должен быть типизированным, `apartment_with_terrace` не является отдельным `unitKind`, а текущие runtime consumers определяют минимальный обязательный набор первой реализации.
+
+
+## 12. Legacy mapping и граница bundle
+
+Точная таблица source-to-normalized для каждого используемого поля schema 1.0.0 находится в [PASSPORT_VNEXT_LEGACY_FIELD_MAPPING.md](PASSPORT_VNEXT_LEGACY_FIELD_MAPPING.md). В ней отдельно описаны Project Knowledge, Landing Inputs и internal metadata, а также parity obligations и warning cases.
+
+Ключевое правило: паспорт объекта не должен поглощать настройки кампании и конверсии. Legacy offers → Conversion Catalog; contentStrategy → Landing Specification; selectionQuiz → Conversion Flow; advantages → marketing interpretation; commercial integration fields → protected config.
