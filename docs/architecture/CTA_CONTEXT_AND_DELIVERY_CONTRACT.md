@@ -25,6 +25,10 @@ This document defines the versioned conversion context shared by rendered CTA en
 6. The preview does not collect names, phones, consent, attribution, or other personal data and does not issue network requests.
 7. Production delivery requires a server-side adapter, endpoint ownership, schema validation, anti-spam controls, consent policy/version/timestamp, retention rules, retry semantics and CRM acceptance evidence.
 
+## Current runtime handoff
+
+The production runtime now builds a versioned lead payload through `src/lead-payload.mjs`. The CRM backend exists, but its API is not available yet; no CRM integration is active. The proposed future HTTP boundary, request fields, acknowledgement, idempotency, security and launch gates are specified in [KEY CRM API Handoff Contract](KEY_CRM_API_HANDOFF_CONTRACT.md). Browser webhook tests are not evidence of real CRM delivery.
+
 ## Future production lead envelope
 
 The eventual server payload should add server-issued `eventId`/`leadId`, `createdAt`, validated contact fields, consent evidence, first/last-touch attribution and analytics metadata. These are deliberately absent from the preview payload. See `K15_RUNTIME_MIGRATION_CONTRACT.md` for the observed legacy K15 field mapping and migration constraints.
