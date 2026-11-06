@@ -96,7 +96,7 @@ test("does not publish POI names as proximity labels without current distance ev
   ];
   const profile = buildLandingProfile(p, marketing(), {}, { now:"2026-11-06T00:00:00Z" });
   assert.deepEqual(profile.infrastructure, [
-    { name:"Парк по прямой", distanceLabel:"350 м по прямой", status:"verified" }
+    { name:"Парк по прямой", category:"park", distanceMeters:350, distanceLabel:"350 м по прямой", status:"verified" }
   ]);
 });
 
