@@ -424,3 +424,25 @@ test("canonical CLI builder rejects unknown included modules instead of silently
     /Модуль "invented-section" отсутствует в Module Registry/
   );
 });
+
+
+test("canonical CLI validates the real Galiley passport against the shared module registry", () => {
+  const passport = JSON.parse(readFileSync(new URL("./fixtures/galiley.project-passport.draft.json", import.meta.url), "utf8"));
+  assert.equal(passport.project.id, "galiley-voronezh");
+  assert.equal(passport.project.delivery.status, "conflicting");
+  assert.equal(passport.project.positioningStatus, "draft");
+
+  assert.throws(
+    () => buildCanonicalLandingProfile(passport, canonicalMarketing(passport.project.id), {}, {
+      now:"2026-11-06T00:00:00Z"
+    }),
+    error => {
+      assert.match(error.message, /Landing module registry rejected the selected strategy/);
+      assert.match(error.message, /Вариант "image-led" не поддерживается для модуля "hero"/);
+      assert.match(error.message, /Вариант "feature-led" не поддерживается для модуля "lifestyle"/);
+      assert.match(error.message, /Вариант "architectural" не поддерживается для модуля "about"/);
+      assert.match(error.message, /Вариант "proof-led" не поддерживается для модуля "faq"/);
+      return true;
+    }
+  );
+});
