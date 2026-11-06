@@ -161,7 +161,7 @@
     const current = {}; const params = new URLSearchParams(location.search);
     for (const key of keys) {
       const value = params.get(key);
-      if (value && value.length <= 256 && !/[\\u0000-\\u001f\\u007f]/.test(value)) current[key] = value;
+      if (value && value.length <= 256 && !/[\u0000-\u001f\u007f]/.test(value)) current[key] = value;
     }
     let previous = {};
     try { previous = JSON.parse(sessionStorage.getItem("key:attribution") || "{}"); } catch { previous = {}; }
