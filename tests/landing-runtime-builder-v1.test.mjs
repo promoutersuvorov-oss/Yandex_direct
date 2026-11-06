@@ -18,7 +18,7 @@ function input() {
   return {
     knowledge:{contractVersion:"0.1",project:{id:"p1",name:"Дом",city:"Воронеж",organizationIds:[]},
       sources:[source],evidence:[evidence],claims:[claim],assets:[],plans:[],pointsOfInterest:[],routes:[]},
-    landingInputs:{projectId:"p1",strategy:{modules:[{moduleId:"concept",decision:"include",requiredFactIds:["f1"],order:0}]},
+    landingInputs:{projectId:"p1",strategy:{modules:[{moduleId:"about",decision:"include",variant:"feature-led",requiredFactIds:["f1"],order:0}]},
       design:{theme:"urban-noir",heroLayout:"split",galleryLayout:"mosaic"},
       marketingCandidates:[{id:"a1",title:"Преимущество",benefit:"Польза",strength:"strong",supportingFactIds:["f1"],classification:"marketing_candidate"}],
       conversionCatalog:[{id:"o1",title:"Презентация",type:"presentation",status:"active",scenarioId:"presentation",consentRequired:true}],
@@ -44,7 +44,7 @@ test("rejects missing ID bridge, project mismatch, unsupported module and incomp
   assert.throws(()=>buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,null,marketing,{},{}),/bridge/);
   assert.throws(()=>buildLandingProfileFromKnowledge(x.knowledge,{...x.landingInputs,projectId:"p2"},x.refs,marketing,{},{}),/match/);
   const y=input();y.landingInputs.strategy.modules=[{moduleId:"unknown",decision:"include"}];
-  assert.throws(()=>buildLandingProfileFromKnowledge(y.knowledge,y.landingInputs,y.refs,marketing,{},{}),/no runtime implementation/);
+  assert.throws(()=>buildLandingProfileFromKnowledge(y.knowledge,y.landingInputs,y.refs,marketing,{},{}),/Module Registry/);
   const z=input();assert.throws(()=>buildLandingProfileFromKnowledge(z.knowledge,z.landingInputs,z.refs,marketing,{}, {mode:"production"}),/approved marketing strategy/);
 });
 test("does not publish unapproved assets, expired claims, or invalid integration URLs",()=>{
