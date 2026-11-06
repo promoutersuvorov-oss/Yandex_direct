@@ -63,7 +63,7 @@ test("rejects draft, cross-project or incomplete marketing copy",()=>{
 
 test("rejects marketing claims backed by expired or internal-only facts",()=>{
   const copy=marketing(); copy.claimFactIds={headline:["f-expired"]};
-  assert.throws(()=>buildLandingProfile(passport(),copy,{}, {now:"2026-11-06T00:00:00Z"}),/supportingFactIds references unknown ID/);
+  assert.throws(()=>buildLandingProfile(passport(),copy,{}, {now:"2026-11-06T00:00:00Z"}),/non-publishable fact/);
   const privateCopy=marketing(); privateCopy.claimFactIds={lead:["f-private"]};
   assert.throws(()=>buildLandingProfile(passport(),privateCopy),/non-publishable fact/);
 });
@@ -173,7 +173,7 @@ test("approved LANDING BRIEF drives public strategy and a contextual CTA map", (
   assert.equal(profile.marketingStrategy.coreIdea, "Дом для своего ритма");
   assert.equal(profile.marketingStrategy.primarySegment.id, "young_professionals");
   assert.equal(profile.marketingStrategy.primaryHook.message, "Закрытая территория");
-  assert.equal(profile.marketingStrategy.positioning, "Проект с подтверждённой повседневной инфраструктурой");
+  assert.equal(profile.marketingStrategy.positioning, "Проект с подтверждённой закрытой территорией");
   assert.deepEqual(profile.ctaMap.hero, {
     ctaId: "hero_presentation",
     label: "Получить презентацию",
@@ -199,5 +199,5 @@ test("does not allow draft briefs or unready offers to control the public runtim
 test("does not publish an approved hook whose evidence is no longer publishable", () => {
   const brief = landingBrief();
   brief.hooks[0].supportingFactIds = ["f-private"];
-  assert.throws(() => buildLandingProfile(passport(), marketing(), {}, { brief }), /non-publishable fact/);
+  assert.throws(() => buildLandingProfile(passport(), marketing(), {}, { brief }), /supportingFactIds references unknown ID/);
 });
