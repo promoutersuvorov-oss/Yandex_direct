@@ -268,6 +268,9 @@ export function normalizePassportV1(passport) {
     if (claimId) normalizedProject[field === "address" ? "addressClaimId" : "districtClaimId"] = claimId;
   }
 
+  addEvidencedProjectClaim("address", "project.address", "$.project.location.address");
+  addEvidencedProjectClaim("district", "project.district", "$.project.location.district");
+
   const developer = project.developer;
   if (isObject(developer) && nonEmpty(developer.value)) {
     const provenance = collector.addSources(developer.sources || [], "$.project.developer.sources");
