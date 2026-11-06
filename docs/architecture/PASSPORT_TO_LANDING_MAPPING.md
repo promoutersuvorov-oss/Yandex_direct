@@ -1,14 +1,14 @@
 # Mapping паспорта ЖК → runtime-конфигурация KEY
 
 Версия: 2.0.0  
-Статус: реализован первый проверяемый адаптер для runtime v2.
+Статус: CLI использует нормализованный Passport → Knowledge + Landing Inputs → Runtime Builder; legacy builder сохранён временно для совместимости.
 
 ## Источники и границы
 
-Адаптер `scripts/build-landing-runtime.mjs` преобразует три независимых входа:
+CLI `scripts/build-landing-runtime.mjs` — точка входа в канонический путь сборки. Он преобразует три независимых входа через следующие этапы:
 1. Паспорт ЖК по `schemas/project-passport.schema.json`.
 2. Маркетинговый JSON: `{ projectId, approvalStatus: "approved", copy, claimFactIds? }`.
-3. Публичную конфигурацию интеграции: `{ leadEndpoint, privacyPolicyUrl, privacyPolicyVersion }`.
+3. Публичную конфигурацию интеграции: `{ leadEndpoint, privacyPolicyUrl, privacyPolicyVersion, leadWorkflow }` (production требует проверенный контракт доставки и согласие).\n\nПаспорт проходит через `normalizePassportV1` и `normalizeLandingInputsV1`; результат передаётся в `buildLandingProfileFromKnowledgeWithDiagnostics`. Модули разрешаются единым `LANDING_MODULE_REGISTRY_V1`. Старый экспорт `buildLandingProfile` в CLI-файле оставлен только как временный compatibility API и не используется CLI-командой.
 
 Паспорт не является клиентской конфигурацией. `commercial`, `marketContext`, исходные факты, внутренние заметки, источники и служебные поля не копируются в публичный профиль. Рыночный контекст хранится для аналитических задач генератора и не становится публичным содержимым лендинга автоматически.
 
@@ -26,8 +26,8 @@
 - Медиа требуют approved, projectMatch=confirmed, rightsStatus=confirmed, HTTPS URL и неистёкший validUntil. В runtime статусы нормализуются в его контракт `approved`.
 - Планировки требуют verified + publicUse=allowed + источники + действующий срок + связанный одобренный asset типа plan. Сам asset должен быть отдельно разрешён для контекста `floor-plans`; разрешение на использование в галерее или другом блоке не переносится автоматически.
 - Инфраструктура требует verified и источник; дистанция/время — отдельное доказательство маршрута с действующим validUntil. Прямая дистанция не превращается во время пешком.
-- Модули включаются по решениям include/conditional и requiredFactIds; порядок задаётся order. Неизвестные модульные ID игнорируются, дубликаты удаляются.
-- Палитра выбирается из проверенного набора по visualDirection.theme; произвольный CSS из паспорта не исполняется.
+- Модули разрешаются только через `LANDING_MODULE_REGISTRY_V1`: ID, вариант, requiredFactIds и capability проверяются явно. Неизвестный ID, неподдерживаемый вариант, конфликт секций или неготовый обязательный модуль блокируют сборку. Условный модуль без зависимостей пропускается с диагностическим warning. Модули не удаляются молча.
+- Палитра и layout-токены нормализуются по allowlist; неизвестные значения не исполняются и возвращаются как diagnostics. Палитра выбирается из проверенного набора по `visualDirection.theme`; произвольный CSS из паспорта не исполняется.
 - Коммерческие поля паспорта никогда не попадают в публичный JS.
 - Production режим требует HTTPS webhook, HTTPS privacy URL и версию политики. Секреты и ключи CRM не принимаются и не генерируются этим адаптером.
 
@@ -44,7 +44,7 @@ node scripts/build-landing-runtime.mjs --passport passport.json --marketing mark
 
 `node --test tests/landing-runtime-adapter.test.mjs` проверяет утверждения, статусы и сроки фактов, привязку маркетингового слоя к проекту, права и принадлежность ассетов, состав модулей, квиз, изоляцию внутренних полей и production gates.
 
-Это первый адаптерный срез. Он не заменяет JSON Schema validation и не объявляет весь генератор production-ready.
+CLI больше не использует legacy `MODULE_MAP`: все новые сборки идут через нормализованный builder и Module Registry. Экспорт legacy `buildLandingProfile` пока сохранён для downstream-тестов/совместимости; его удаление — отдельная миграция после проверки потребителей. Это не заменяет JSON Schema validation и не объявляет весь генератор production-ready.
 
 
 ## Статус legacy-контракта и Passport vNext
