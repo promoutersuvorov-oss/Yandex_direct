@@ -393,7 +393,6 @@
         "order": 2,
         "variant": "feature-led",
         "requiredFactIds": [
-          "total-apartments",
           "architecture-7-9"
         ],
         "userQuestion": "Что отличает дом?",
