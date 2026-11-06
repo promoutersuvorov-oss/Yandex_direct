@@ -206,10 +206,16 @@ test("K15 navigation, gallery, apartment and location controls remain interactiv
   await page.locator('#aptThumbs button[data-i="0"]').click();
   await expect(page.locator("#aptCnt")).toHaveText(/^1 \/ \d+$/);
 
+  // Infrastructure controls live inside a reveal-on-scroll section. Bring the
+  // section into view first so its IntersectionObserver can activate it.
+  const infraSection = page.locator("#infra");
+  await infraSection.evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
+  await expect(infraSection).toHaveClass(/in/);
+
   const firstPlace = await page.locator("#iName").textContent();
   const secondPlaceTab = page.locator('#iPills button[data-i="1"]');
   // The infrastructure tabs form a horizontally scrollable strip; reveal the
-  // second tab inside that strip before clicking it (especially in WebKit).
+  // second tab inside that strip before clicking it.
   await page.locator("#iPills").scrollIntoViewIfNeeded();
   await secondPlaceTab.evaluate(el => {
     const strip = el.parentElement;
