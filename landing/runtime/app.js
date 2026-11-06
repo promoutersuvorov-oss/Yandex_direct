@@ -77,7 +77,10 @@ import { createAttributionState } from "../../src/attribution.mjs";
   const advantageGrid = $("#advantage-grid");
   const publishableAdvantages = Array.isArray(data.advantages) ? data.advantages.filter(item =>
     item && item.title && item.benefit && item.status === "verified" &&
-    Array.isArray(item.evidence) && item.evidence.some(source => typeof source === "string" && source.trim())
+    Array.isArray(item.evidence) && item.evidence.some(source =>
+      source && typeof source.claim === "string" && source.claim.trim() &&
+      typeof source.sourceTitle === "string" && source.sourceTitle.trim()
+    )
   ) : [];
   if (publishableAdvantages.length) {
     advantageGrid.innerHTML = publishableAdvantages.map((item, index) => {
