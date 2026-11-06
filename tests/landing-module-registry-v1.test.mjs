@@ -70,3 +70,31 @@ test("lifestyle resolves to its own runtime section and requires approved story 
   assert.deepEqual(result.composition,["lifestyle"]);
   assert.equal(result.placements[0].sectionId,"lifestyle");
 });
+
+
+test("canonical apartments and quiz IDs resolve to real runtime sections",()=>{
+  const result=resolveRuntimeModulesV1([
+    {moduleId:"apartments",decision:"include",variant:"plan-selector",order:4},
+    {moduleId:"quiz",decision:"include",variant:"step-form",order:8}
+  ],{capabilities:["current-inventory","rights-cleared-plan-assets","approved-selection-flow"]});
+  assert.deepEqual(result.errors,[]);
+  assert.deepEqual(result.composition,["apartments","selection"]);
+  assert.equal(result.placements.find(item=>item.moduleId==="apartments").sectionId,"apartments");
+  assert.equal(result.placements.find(item=>item.moduleId==="quiz").sectionId,"selection");
+});
+
+test("quiz fails closed until an approved selection flow capability is available",()=>{
+  const result=resolveRuntimeModulesV1([
+    {moduleId:"quiz",decision:"include",variant:"step-form",order:8}
+  ]);
+  assert.equal(result.errors[0].code,"INCLUDED_MODULE_NOT_READY");
+  assert.deepEqual(result.errors[0].missingCapabilities,["approved-selection-flow"]);
+});
+
+test("legacy floor-plans alias and canonical apartments cannot both claim the same section",()=>{
+  const result=resolveRuntimeModulesV1([
+    {moduleId:"floor-plans",decision:"include",variant:"plan-selector",order:4},
+    {moduleId:"apartments",decision:"include",variant:"plan-selector",order:5}
+  ],{capabilities:["current-inventory","rights-cleared-plan-assets"]});
+  assert.equal(result.errors[0].code,"MODULE_SECTION_COLLISION");
+});
