@@ -316,13 +316,31 @@ import { createAttributionState } from "../../src/attribution.mjs";
     }
     submit.disabled = true; submit.textContent = "Отправляем…"; $("#form-status").textContent = "Передаём запрос…";
     try {
-      const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), credentials: "omit" });
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 12000);
+      let response;
+      try {
+        response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Idempotency-Key": pendingLeadIds.eventId
+          },
+          body: JSON.stringify(payload),
+          credentials: "omit",
+          signal: controller.signal
+        });
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
       if (!response.ok) throw new Error("delivery_failed");
-      if ((response.headers.get("content-type") || "").includes("application/json")) {
-        const acknowledgement = await response.json();
-        if (acknowledgement?.accepted === false || acknowledgement?.success === false || acknowledgement?.status === "rejected") {
-          throw new Error("delivery_not_accepted");
-        }
+      if (!(response.headers.get("content-type") || "").includes("application/json")) {
+        throw new Error("delivery_acknowledgement_missing");
+      }
+      const acknowledgement = await response.json();
+      if (!(acknowledgement?.accepted === true || acknowledgement?.success === true || acknowledgement?.status === "accepted")) {
+        throw new Error("delivery_not_accepted");
       }
       $("#form-status").textContent = "Запрос принят. Специалист KEY свяжется с вами.";
       form.reset();
