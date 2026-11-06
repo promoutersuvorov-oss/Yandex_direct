@@ -55,6 +55,19 @@
     <section class="apartments-section section-shell" id="apartments">
       <div class="section-heading"><p class="eyebrow">04 / ВАШ ВАРИАНТ</p><h2 id="apartments-title">Планировка должна подходить вашему сценарию жизни</h2><p id="apartments-intro">Посмотрите доступные варианты, а если нужные параметры пока не определены — мы поможем сузить выбор.</p></div>
       <div class="plan-grid" id="plan-grid"><div class="empty-state">Подтверждённые планировки появятся здесь после загрузки данных проекта.</div></div>
+      <dialog class="plan-preview-dialog" id="plan-preview-dialog" aria-labelledby="plan-preview-title">
+        <form method="dialog" class="plan-preview-close-form"><button class="icon-close" aria-label="Закрыть просмотр планировки">×</button></form>
+        <div class="plan-preview-layout">
+          <div class="plan-preview-visual"><img id="plan-preview-image" alt=""></div>
+          <div class="plan-preview-copy">
+            <p class="eyebrow">ПЛАНИРОВКА / ПОДРОБНЫЙ ПРОСМОТР</p>
+            <h2 id="plan-preview-title">Планировка</h2>
+            <p id="plan-preview-meta"></p>
+            <p id="plan-preview-finishing" hidden></p>
+            <button class="button button-dark" id="plan-preview-cta" type="button" data-open-offer="plan">Обсудить этот вариант <span>↗</span></button>
+          </div>
+        </div>
+      </dialog>
     </section>
 
     <section class="location-section section-shell" id="location">
