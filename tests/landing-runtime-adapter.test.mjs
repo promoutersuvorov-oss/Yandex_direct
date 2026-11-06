@@ -65,6 +65,41 @@ test("builds a public runtime profile from a passport and approved copy",()=>{
   assert.equal("marketContext" in profile,false);
 });
 
+test("does not publish POI names as proximity labels without current distance evidence", () => {
+  const p = passport();
+  p.infrastructure = [
+    { name:"Школа № 9", category:"school", status:"verified", source, publicLabel:"Школа № 9" },
+    {
+      name:"Парк по прямой", category:"park", status:"verified", source,
+      publicLabel:"Парк «Орлёнок»", distanceMeters:350,
+      distanceEvidence:{
+        method:"straight_line", checkedAt:"2026-11-01T10:00:00Z",
+        validUntil:"2027-01-01T00:00:00Z", source
+      }
+    },
+    {
+      name:"Маршрут с неверной методикой", category:"park", status:"verified", source,
+      distanceMeters:350, walkingMinutes:5,
+      distanceEvidence:{
+        method:"straight_line", checkedAt:"2026-11-01T10:00:00Z",
+        validUntil:"2027-01-01T00:00:00Z", source
+      }
+    },
+    {
+      name:"Устаревший маршрут", category:"park", status:"verified", source,
+      distanceMeters:500,
+      distanceEvidence:{
+        method:"walking_route", checkedAt:"2026-01-01T10:00:00Z",
+        validUntil:"2026-02-01T00:00:00Z", source
+      }
+    }
+  ];
+  const profile = buildLandingProfile(p, marketing(), {}, { now:"2026-11-06T00:00:00Z" });
+  assert.deepEqual(profile.infrastructure, [
+    { name:"Парк по прямой", distanceLabel:"350 м по прямой", status:"verified" }
+  ]);
+});
+
 test("records a legacy runtime parity baseline alongside normalized project knowledge", () => {
   const input = passport();
   const profile = buildLandingProfile(input, marketing(), {}, { now: "2026-11-06T00:00:00Z" });
