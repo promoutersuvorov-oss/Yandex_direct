@@ -107,6 +107,7 @@ test("fails closed on claims requiring publication qualification until qualified
 });
 test("a marketing-only qualification never publishes infrastructure claims",()=>{
   const x=input();
+  x.landingInputs.strategy.modules=[];
   x.knowledge.claims[0].publicUse="allowed_with_qualification";
   x.knowledge.claims[0].limitations=["Сведения могут измениться."];
   x.landingInputs.strategy.modules=[];
