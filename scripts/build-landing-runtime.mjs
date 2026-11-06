@@ -105,6 +105,11 @@ function buildMarketingStrategy(brief, passport, facts, now) {
     if (cta.moduleId === "selection" && passport.selectionQuiz?.status !== "approved") {
       throw new Error(`LANDING BRIEF CTA ${cta.id} requires an approved passport selectionQuiz`);
     }
+    const effectiveHookId = cta.hookId || brief.strategy.primaryHookId;
+    const effectiveHook = (brief.hooks || []).find(item => item.id === effectiveHookId);
+    if (!effectiveHook || !["approved", "tested"].includes(effectiveHook.status)) {
+      throw new Error(`LANDING BRIEF CTA ${cta.id} uses a hook that is not approved or tested`);
+    }
     const segmentId = cta.segmentIds?.[0] || brief.strategy.primarySegmentId;
     ctaMap[cta.moduleId] = {
       moduleId: cta.moduleId,
@@ -115,7 +120,7 @@ function buildMarketingStrategy(brief, passport, facts, now) {
       offerId: mappedOffer.offerId,
       scenarioId: mappedOffer.scenarioId,
       funnelId: cta.funnelId,
-      hookId: cta.hookId || brief.strategy.primaryHookId,
+      hookId: effectiveHookId,
       segmentId
     };
   }
