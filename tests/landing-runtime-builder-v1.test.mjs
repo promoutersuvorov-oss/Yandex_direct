@@ -83,7 +83,7 @@ test("builds the real KD 905 draft without inventing plans, distances, assets or
   assert.deepEqual(landing.errors,[]);
   const copy=Object.fromEntries(Object.keys(marketing.copy).map(key=>[key,key]));
   const approvedCopy={projectId:passport.project.id,approvalStatus:"approved",copy,claimFactIds:{}};
-  assert.throws(()=>buildLandingProfileFromKnowledge(normalized.knowledge,landing.landingInputs,normalized.legacyReferences,approvedCopy,{},{now:"2026-11-06T00:00:00Z"}),/approved-project-media/);
+  assert.throws(()=>buildLandingProfileFromKnowledge(normalized.knowledge,landing.landingInputs,normalized.legacyReferences,approvedCopy,{},{now:"2026-11-06T00:00:00Z"}),/approved-lifestyle-stories/);
 });
 
 test("conditional gallery and floor plans are omitted when their capabilities are unavailable",()=>{
@@ -126,4 +126,26 @@ test("offers without explicit consent are not eligible for runtime",()=>{
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{});
   assert.equal(profile.offers.presentation.scenarioId,"presentation_request");
   assert.equal(profile.offers.presentation.offerId,undefined);
+});
+
+test("publishes lifestyle stories only with approved copy, publishable claims and lifestyle-cleared project assets",()=>{
+  const x=input();
+  x.knowledge.assets=[{id:"courtyard-render",assetKind:"render",url:"https://example.test/courtyard.jpg",
+    publicationStatus:"approved",projectMatch:"confirmed",rightsStatus:"confirmed",rightsEvidenceIds:["e1"],
+    subjectRefs:[{type:"project",id:"p1"}],allowedContexts:["lifestyle"]}];
+  x.landingInputs.strategy.modules=[{moduleId:"lifestyle",decision:"include",variant:"image-led",order:1,requiredFactIds:["f1"]}];
+  x.landingInputs.lifestyleStories=[{id:"courtyard-morning",title:"Утро во дворе",
+    description:"Сценарий на основе подтверждённой особенности проекта.",sceneLabel:"ДВОР",
+    assetId:"courtyard-render",supportingFactIds:["f1"],publicationStatus:"approved"}];
+  const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{});
+  assert.deepEqual(profile.composition,["lifestyle"]);
+  assert.equal(profile.lifestyleStories.length,1);
+  assert.equal(profile.lifestyleStories[0].assetUrl,"https://example.test/courtyard.jpg");
+  const noRights=input();
+  noRights.knowledge.assets=[{id:"courtyard-render",assetKind:"render",url:"https://example.test/courtyard.jpg",
+    publicationStatus:"approved",projectMatch:"confirmed",rightsStatus:"confirmed",rightsEvidenceIds:[],
+    subjectRefs:[{type:"project",id:"p1"}],allowedContexts:["lifestyle"]}];
+  noRights.landingInputs.strategy.modules=[{moduleId:"lifestyle",decision:"include",variant:"image-led",order:1}];
+  noRights.landingInputs.lifestyleStories=x.landingInputs.lifestyleStories;
+  assert.throws(()=>buildLandingProfileFromKnowledge(noRights.knowledge,noRights.landingInputs,noRights.refs,marketing,{},{}),/approved-lifestyle-stories/);
 });
