@@ -140,6 +140,7 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
 
   const facts = publishableFactIds(passport, now);
   assertClaims(marketing, facts);
+  const marketingStrategy = buildMarketingStrategy(options.brief, passport, facts, now);
   const project = {
     id: passport.project.id,
     name: passport.project.name,
