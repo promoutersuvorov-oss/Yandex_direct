@@ -76,7 +76,8 @@
         "name",
         "phone"
       ],
-      "qualificationQuestionIds": []
+      "qualificationQuestionIds": [],
+      "passportOfferId": "presentation"
     }
   ],
   "funnels": [
