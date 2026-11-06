@@ -1,7 +1,7 @@
 # KEY — матрица каталога модулей и фактической реализации
 
 **Дата:** 2026-11-07  
-**База сверки:** PR #20, branch `feature/universal-landing-runtime-v2`, HEAD на момент аудита `89906018912e05f57441325acbe9eaec1fb752b3`.  
+**База сверки:** PR #20, branch `feature/universal-landing-runtime-v2`, HEAD после исправлений `47b4ca203193fc92e770ca7be3fd94d15e06ff92`.  
 **Источники:** `docs/architecture/MODULE_CATALOG_AND_COMPOSITION_RULES.md`, `src/landing-module-registry-v1.mjs`, `landing/runtime/app.js`, `landing/runtime/index.html`, `scripts/render-review-preview.mjs`, browser tests.
 
 Матрица отвечает на конкретный вопрос: может ли система не только назвать модуль в каталоге, но и выбрать его, разрешить его зависимости и отобразить ожидаемое поведение. Простое упоминание слова или наличие HTML-секции не считается реализацией.
@@ -35,9 +35,9 @@
 | `security` | Registered | Registry направляет в общий `advantages` с evidence cards; самостоятельная security-секция не доказана | Partial / shared |
 | `location` | Registered | Секция location и тест запрета декоративной карты как реальной | Implemented first slice; map limitations |
 | `lifestyle` | Registered | Отдельная секция с approved stories/media capability gate | Implemented first slice; strict data gate |
-| `quiz` | Registered (добавлено в ходе аудита) | Registry направляет canonical ID в секцию `selection`; builder требует `approved-selection-flow` и выбранный модуль | Implemented first slice; browser verification pending |
+| `quiz` | Registered (добавлено в ходе аудита) | Registry направляет canonical ID в секцию `selection`; builder требует `approved-selection-flow` и выбранный модуль | Implemented first slice; run #653: 33/33 passed in Chromium, Firefox and WebKit |
 | `gift` | Not registered | Самостоятельная выдача реального материала не подтверждена | Not implemented |
-| `apartments` | Registered (добавлено в ходе аудита) | Canonical ID направляется в секцию `apartments`; старый `floor-plans` сохранён как совместимый alias | Implemented first slice; browser verification pending |
+| `apartments` | Registered (добавлено в ходе аудита) | Canonical ID направляется в секцию `apartments`; старый `floor-plans` сохранён как совместимый alias | Implemented first slice; registry contract tests passed in run #653 |
 | `price` | Not registered | Есть ипотечный калькулятор, но отдельный актуальный price/price-list module не доказан | Partial; do not equate with calculator |
 | `mortgage` | Registered | Visitor-input estimate calculator и свой следующий CTA; тест сценария | Implemented first slice; calculation assumptions must be explicit |
 | `developer` | Not registered | Самостоятельный verified developer profile/documents module не найден | Not implemented |
@@ -78,11 +78,11 @@
 
 ### P0 — синхронизировать контракты до расширения каталога
 
-1. Утвердить canonical IDs для `apartments` и `quiz`; добавить совместимые aliases.
+1. **Выполнено:** утверждены canonical IDs `apartments` и `quiz`; `floor-plans` оставлен совместимым alias. Тесты проверяют alias collision и required capability.
 2. Добавить machine-readable registry manifest и проверку покрытия: каждый catalog ID классифицирован как section/component/navigation/conversion и имеет явный статус.
 3. Registry должен возвращать не только section IDs, но и полный composition plan: module ID, variant, slot/section, order, data requirements, capabilities, renderer component, CTA anchors.
 4. Запретить молчаливый fallback на shared editorial renderer для модуля, чья семантика не реализована.
-5. Добавить integration tests: manifest → registry → builder → DOM. Проверять видимое содержимое и ожидаемые действия, а не только массив composition.
+5. **Частично выполнено:** добавлены registry/builder tests и browser regression test на composition → DOM (скрытие исключённых секций и ссылок навигации). Полный manifest → registry → builder → DOM contract для всего каталога ещё нужен.
 
 ### P1 — реализовать продуктовые пробелы в порядке бизнес-ценности
 
@@ -116,13 +116,21 @@
 Нормативные документы остаются: [KEY Landing Product Standard](../product/KEY_LANDING_PRODUCT_STANDARD.md) и [Module Catalog](../architecture/MODULE_CATALOG_AND_COMPOSITION_RULES.md).
 
 
-## 7. Исправления после первичной матрицы
+## 7. Исправления и проверка после первичной матрицы
 
-На commit `480a6681a26fc1daef41289f650870aad57157ea` внесены:
+На последовательности commits `480a6681a26fc1daef41289f650870aad57157ea` и `17a42d6d9ac2a3b445db7211cad879a99505623c` внесены:
 - canonical registry entries `apartments` и `quiz`, при сохранении legacy alias `floor-plans`;
 - gate selection quiz по module placement и approved selection flow;
 - скрытие статических секций, отсутствующих в composition, и скрытие production quiz при отсутствии approved selection quiz;
 - unit tests для registry aliases и builder gating;
-- browser regression test на исключённые секции и навигационные ссылки.
+- browser regression test на исключённые секции и навигационные ссылки;
+- исправление K15 plan-tab handler: вместо попытки вызвать `.forEach` у результата `querySelector` теперь все кнопки выбираются через `querySelectorAll`.
 
-Source-integrity на этом commit прошёл успешно. Три браузерных job были запущены; на момент обновления отчёта они ещё не завершили инициализацию контейнеров. Поэтому исправления пока не помечаются как полностью browser-verified.
+**GitHub Actions run #653** на HEAD `47b4ca203193fc92e770ca7be3fd94d15e06ff92` завершился success:
+- source-integrity — success;
+- Chromium — 33/33;
+- Firefox — 33/33;
+- WebKit — 33/33;
+- всего 99/99 browser test executions.
+
+Это подтверждает прохождение автоматизированных сценариев для новых registry/builder contracts, composition gating и K15 plan controls. Это не является визуальной приёмкой всех 24 каталоговых модулей и не доказывает production readiness.
