@@ -1,16 +1,16 @@
 const MODULES = {
-  hero: { slot:"hero", variants:{ "editorial-split":"split" }, capabilities:[], merge:"slot" },
+  hero: { slot:"hero", variants:{ "editorial-split":"split", "image-led":"fullscreen" }, capabilities:[], merge:"slot" },
   key: { slot:"hero", variants:{ "feature-led":"feature-led" }, capabilities:[], merge:"slot" },
-  about: { sectionId:"concept", variants:{ "feature-led":"feature-led" }, capabilities:[], merge:"single" },
+  about: { sectionId:"concept", variants:{ "feature-led":"feature-led", "architectural":"feature-led" }, capabilities:[], merge:"single" },
   gallery: { sectionId:"visual-story", variants:{ immersive:"editorial" }, capabilities:["approved-project-media"], merge:"append" },
-  lifestyle: { sectionId:"lifestyle", variants:{ "image-led":"image-led" }, capabilities:["approved-lifestyle-stories"], merge:"single" },
+  lifestyle: { sectionId:"lifestyle", variants:{ "image-led":"image-led", "feature-led":"image-led" }, capabilities:["approved-lifestyle-stories"], merge:"single" },
   security: { sectionId:"advantages", variants:{ "proof-led":"evidence-cards" }, capabilities:[], merge:"append" },
   location: { sectionId:"location", variants:{ "location-led":"location-led" }, capabilities:[], merge:"single" },
   "floor-plans": { sectionId:"apartments", variants:{ "plan-selector":"plan-selector" }, capabilities:["current-inventory","rights-cleared-plan-assets"], merge:"single" },
   apartments: { sectionId:"apartments", variants:{ "plan-selector":"plan-selector" }, capabilities:["current-inventory","rights-cleared-plan-assets"], merge:"single" },
   quiz: { sectionId:"selection", variants:{ "step-form":"step-form" }, capabilities:["approved-selection-flow"], merge:"single" },
   mortgage: { sectionId:"calculator", variants:{ "conversion-led":"user-input-estimate" }, capabilities:["verified-mortgage-terms"], merge:"single" },
-  faq: { sectionId:"faq", variants:{ "faq-accordion":"evidence-accordion" }, capabilities:["approved-faq-answers"], merge:"single" },
+  faq: { sectionId:"faq", variants:{ "faq-accordion":"evidence-accordion", "proof-led":"evidence-accordion" }, capabilities:["approved-faq-answers"], merge:"single" },
   contacts: { slot:"closing", variants:{ "conversion-led":"closing-cta" }, capabilities:["approved-key-lead-workflow"], merge:"slot" }
 };
 
