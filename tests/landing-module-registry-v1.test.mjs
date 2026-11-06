@@ -29,7 +29,7 @@ test("included modules with missing runtime dependencies fail closed",()=>{
     {moduleId:"lifestyle",decision:"include",variant:"image-led",order:4}
   ]);
   assert.equal(result.errors[0].code,"INCLUDED_MODULE_NOT_READY");
-  assert.match(result.errors[0].message,/approved-project-media/);
+  assert.match(result.errors[0].message,/approved-lifestyle-stories/);
 });
 test("unknown modules and unsupported variants are errors, never silently omitted",()=>{
   const result=resolveRuntimeModulesV1([
