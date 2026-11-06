@@ -62,7 +62,7 @@ function passport() {
     ],
     offers: [{ id: "presentation", title: "Презентация", type: "presentation", status: "active" }],
     assets: {
-      images: [{ id: "hero", type: "render", url: "https://cdn.example/hero.webp", status: "approved", projectMatch: "confirmed", rightsStatus: "confirmed" }],
+      images: [{ id: "hero", type: "render", url: "https://cdn.example/hero.webp", status: "approved", projectMatch: "confirmed", rightsStatus: "confirmed", rightsNote: "Использовать только в согласованных рекламных материалах." }],
       plans: [{ id: "plan-asset", type: "plan", url: "https://cdn.example/plan.webp", status: "approved", projectMatch: "confirmed", rightsStatus: "confirmed" }]
     },
     apartmentPlans: [{
@@ -111,6 +111,16 @@ test("keeps distinct evidence extracts linked to the correct claims under one so
   assert.equal(secondEvidence.extract, "Другой фрагмент источника.");
 });
 
+test("does not mark a claim publishable when source evidence is missing", () => {
+  const input = passport();
+  input.facts[0].sources = [{ url: source.url, title: source.title, accessedAt: source.accessedAt }];
+  const result = normalizePassportV1(input);
+  const claim = result.knowledge.claims.find(item => item.id.includes("f-1"));
+  assert.equal(claim.sourceIds.length, 1);
+  assert.equal(claim.evidenceIds.length, 0);
+  assert.equal(claim.publicUse, "internal_only");
+});
+
 test("uses deterministic IDs and does not mutate the source passport", () => {
   const input = passport();
   const before = structuredClone(input);
@@ -141,6 +151,8 @@ test("normalizes assets and plans without inventing unit records", () => {
   const result = normalizePassportV1(passport());
   assert.equal(result.knowledge.assets.length, 2);
   assert.equal(result.knowledge.assets.find(item => item.id === "hero").assetKind, "render");
+  assert.equal(result.knowledge.assets.find(item => item.id === "hero").publicationStatus, "approved");
+  assert.equal(result.knowledge.assets.find(item => item.id === "hero").rightsLimitations[0], "Использовать только в согласованных рекламных материалах.");
   assert.equal(result.knowledge.plans.length, 1);
   assert.equal(result.knowledge.plans[0].assetId, "plan-asset");
   assert.equal(result.knowledge.plans[0].area.unit, "m2");
