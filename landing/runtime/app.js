@@ -135,7 +135,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
     $("#lead-submit").disabled = false;
     activeContext = {
       scenarioId: offer.scenarioId,
-      offerId,
+      offerId: offer.offerId || offerId,
       moduleId: context.moduleId || "unknown",
       entityContext: context.entityContext || {},
       qualificationAnswers: context.qualificationAnswers || null
