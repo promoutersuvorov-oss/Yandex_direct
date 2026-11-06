@@ -37,10 +37,15 @@ test("KD 905 uses its own editorial composition and only verified project facts"
     parkingCardText: getComputedStyle(document.querySelector('[data-module="security"] .benefit p')).color,
     heroColumns: getComputedStyle(document.querySelector('[data-module="hero"]')).gridTemplateColumns,
     textOnlyMinHeight: getComputedStyle(document.querySelector('[data-module="about"]')).minHeight,
-    heroMinHeight: getComputedStyle(document.querySelector('[data-module="hero"]')).minHeight
+    heroMinHeight: getComputedStyle(document.querySelector('[data-module="hero"]')).minHeight,
+    heroBackgroundImage: getComputedStyle(document.querySelector('[data-module="hero"]')).backgroundImage,
+    heroPaddingTop: Number.parseFloat(getComputedStyle(document.querySelector('[data-module="hero"]')).paddingTop)
   }));
   expect(visualTokens.background).toBe("rgb(243, 238, 229)");
   expect(visualTokens.headingFont).toContain("Georgia");
+  expect(visualTokens.heroBackgroundImage).toContain("linear-gradient");
+  expect(visualTokens.heroBackgroundImage).not.toContain("repeating-linear-gradient");
+  expect(visualTokens.heroPaddingTop).toBeGreaterThan(140);
   expect(visualTokens.parkingCardBackground).toBe("rgb(217, 205, 189)");
   expect(visualTokens.parkingCardText).toBe("rgb(81, 74, 66)");
   expect(visualTokens.heroColumns.trim().split(/\s+/)).toHaveLength(1);

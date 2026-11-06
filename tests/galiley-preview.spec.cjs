@@ -31,10 +31,16 @@ test("Galiley preview renders its own project identity and garden-modern composi
   await expect(page.locator("body")).toContainText("не принимает заявки");
   const heroLayout = await page.locator(".module.hero.text-only").evaluate(node => ({
     columns: getComputedStyle(node).gridTemplateColumns,
-    copyWidth: getComputedStyle(node.querySelector(".module-copy")).maxWidth
+    copyWidth: getComputedStyle(node.querySelector(".module-copy")).maxWidth,
+    headingFont: getComputedStyle(node.querySelector("h1")).fontFamily,
+    backgroundImage: getComputedStyle(node).backgroundImage,
+    paddingTop: Number.parseFloat(getComputedStyle(node).paddingTop)
   }));
   expect(heroLayout.columns.trim().split(/\s+/)).toHaveLength(1);
   expect(heroLayout.copyWidth).toBe("1040px");
+  expect(heroLayout.headingFont).toContain("Inter");
+  expect(heroLayout.backgroundImage).toContain("repeating-linear-gradient");
+  expect(heroLayout.paddingTop).toBeLessThan(120);
 
   const cta = page.locator("button[data-preview-cta]").first();
   await expect(cta).toBeVisible();
