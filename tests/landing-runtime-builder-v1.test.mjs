@@ -83,5 +83,22 @@ test("builds the real KD 905 draft without inventing plans, distances, assets or
   assert.deepEqual(landing.errors,[]);
   const copy=Object.fromEntries(Object.keys(marketing.copy).map(key=>[key,key]));
   const approvedCopy={projectId:passport.project.id,approvalStatus:"approved",copy,claimFactIds:{}};
-  assert.throws(()=>buildLandingProfileFromKnowledge(normalized.knowledge,landing.landingInputs,normalized.legacyReferences,approvedCopy,{},{now:"2026-11-06T00:00:00Z"}),/has no runtime implementation/);
+  assert.throws(()=>buildLandingProfileFromKnowledge(normalized.knowledge,landing.landingInputs,normalized.legacyReferences,approvedCopy,{},{now:"2026-11-06T00:00:00Z"}),/approved-project-media/);
+});
+
+test("conditional gallery and floor plans are omitted when their capabilities are unavailable",()=>{
+  const x=input();
+  x.landingInputs.strategy.modules=[
+    {moduleId:"gallery",decision:"conditional",variant:"immersive",order:1},
+    {moduleId:"floor-plans",decision:"conditional",variant:"plan-selector",order:2}
+  ];
+  const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{});
+  assert.deepEqual(profile.composition,[]);
+  assert.equal(profile.media.length,0);
+  assert.equal(profile.plans.length,0);
+});
+test("required included module fails when its exact runtime variant or capability is unavailable",()=>{
+  const x=input();
+  x.landingInputs.strategy.modules=[{moduleId:"lifestyle",decision:"include",variant:"image-led",order:1}];
+  assert.throws(()=>buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{}),/approved-project-media/);
 });
