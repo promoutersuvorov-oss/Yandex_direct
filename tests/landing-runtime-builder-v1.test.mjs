@@ -115,10 +115,35 @@ test("a marketing-only qualification never publishes infrastructure claims",()=>
   x.knowledge.claims[0].subject={type:"poi",id:"poi-1"};
   x.knowledge.claims[0].predicate="poi.listed_by_source";
   x.knowledge.pointsOfInterest=[{id:"poi-1",name:"Городской парк",claimIds:["c1"]}];
-  x.knowledge.routes=[{id:"route-1",destinationPoiId:"poi-1",method:"route",mode:"walking",observedAt:"2026-11-05T12:00:00Z",validUntil:"2027-11-05T12:00:00Z",sourceIds:["s1"],durationSeconds:300}];
+  x.knowledge.sources.push({id:"s2",title:"Источник маршрута"});
+  x.knowledge.evidence.push({id:"e2",sourceId:"s2",extract:"Проверенный пешеходный маршрут"});
+  x.knowledge.routes=[{id:"route-1",originRef:{type:"project",id:"p1"},destinationPoiId:"poi-1",method:"route",mode:"walking",observedAt:"2026-11-05T12:00:00Z",validUntil:"2027-11-05T12:00:00Z",sourceIds:["s2"],evidenceIds:["e2"],durationSeconds:300}];
   const qualifiedMarketing={...marketing,claimQualifications:{headline:[{factId:"f1",text:"По данным источника; сведения могут измениться."}]}};
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,qualifiedMarketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.deepEqual(profile.infrastructure,[], "A qualifier attached to marketing copy must not authorize the same claim in location/infrastructure.");
+});
+
+test("infrastructure requires a project-scoped route with linked evidence",()=>{
+  const x=input();
+  x.landingInputs.strategy.modules=[];
+  x.knowledge.claims[0].subject={type:"poi",id:"poi-1"};
+  x.knowledge.claims[0].predicate="poi.listed_by_source";
+  x.knowledge.pointsOfInterest=[{id:"poi-1",name:"Городской парк",claimIds:["c1"]}];
+  x.knowledge.sources.push({id:"s2",title:"Источник маршрута"});
+  x.knowledge.evidence.push({id:"e2",sourceId:"s2",extract:"Проверенный пешеходный маршрут"});
+  x.knowledge.routes=[{id:"route-1",originRef:{type:"project",id:"p1"},destinationPoiId:"poi-1",method:"route",mode:"walking",
+    observedAt:"2026-11-05T12:00:00Z",validUntil:"2027-11-05T12:00:00Z",sourceIds:["s2"],evidenceIds:["e2"],durationSeconds:300}];
+  const valid=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
+  assert.equal(valid.infrastructure.length,1);
+  assert.equal(valid.infrastructure[0].distanceLabel,"5 мин. пешком");
+  const missingEvidence=structuredClone(x);
+  missingEvidence.knowledge.routes[0].evidenceIds=[];
+  const blocked=buildLandingProfileFromKnowledge(missingEvidence.knowledge,missingEvidence.landingInputs,missingEvidence.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
+  assert.deepEqual(blocked.infrastructure,[]);
+  const wrongProject=structuredClone(x);
+  wrongProject.knowledge.routes[0].originRef.id="another-project";
+  const wrongOrigin=buildLandingProfileFromKnowledge(wrongProject.knowledge,wrongProject.landingInputs,wrongProject.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
+  assert.deepEqual(wrongOrigin.infrastructure,[]);
 });
 
 test("blocks claims without linked source/evidence and candidates with missing facts",()=>{
