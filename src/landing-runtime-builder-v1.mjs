@@ -52,7 +52,10 @@ function mapOffer(offer) {
   if (!offer || offer.status !== "active" || offer.consentRequired !== true) return null;
   const id = OFFER_MAP[offer.type];
   if (!id) return null;
+  const additionalRequiredFields = Array.isArray(offer.requiredFields)
+    ? offer.requiredFields.filter(field => field === "preferredChannel" || field === "preferredTime") : [];
   return { id, offerId: offer.id, type: offer.type, title: offer.title, scenarioId: offer.scenarioId || offer.id,
+    requiredFields: [...new Set(["name", "phone", ...additionalRequiredFields])],
     description: offer.description || "Специалист KEY поможет разобраться в проекте и ответит на ваши вопросы." };
 }
 
