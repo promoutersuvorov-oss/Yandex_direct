@@ -438,10 +438,10 @@ test("canonical CLI validates the real Galiley passport against the shared modul
     }),
     error => {
       assert.match(error.message, /Landing module registry rejected the selected strategy/);
-      assert.match(error.message, /Вариант "image-led" не поддерживается для модуля "hero"/);
-      assert.match(error.message, /Вариант "feature-led" не поддерживается для модуля "lifestyle"/);
-      assert.match(error.message, /Вариант "architectural" не поддерживается для модуля "about"/);
-      assert.match(error.message, /Вариант "proof-led" не поддерживается для модуля "faq"/);
+      assert.doesNotMatch(error.message, /Вариант .* не поддерживается/);
+      assert.match(error.message, /не выполнены зависимости: approved-lifestyle-stories/);
+      assert.match(error.message, /не выполнены зависимости: approved-faq-answers/);
+      assert.match(error.message, /неподтверждённые обязательные факты:/);
       return true;
     }
   );
