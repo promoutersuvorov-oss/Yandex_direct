@@ -131,7 +131,7 @@ test("mortgage calculator uses visitor-entered assumptions and calculates annuit
   const result = calculator.locator("[data-mortgage-result]");
   await expect(result).toBeVisible();
   const expected = 8000000 * (0.06 / 12) / (1 - Math.pow(1 + 0.06 / 12, -240));
-  const shown = Number((await result.textContent()).match(/платёж — ([\d\\s]+) ₽/)[1].replace(/\\s/g, ""));
+  const shown = Number((await result.textContent()).match(/платёж — ([\d\s]+) ₽/)[1].replace(/\s/g, ""));
   expect(shown).toBe(Math.round(expected));
   await expect(calculator.locator('[name="rate"]')).toHaveAttribute("placeholder", "По условиям банка");
   await expect(page.locator("#module-mortgage button[data-preview-cta]")).toHaveCount(0);
