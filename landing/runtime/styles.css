@@ -55,3 +55,7 @@
   .advantage-card h3{margin:22px 0 12px}
   .advantage-evidence{padding-top:16px}
 }
+
+@media(max-width:720px){
+  .advantage-grid{grid-template-columns:1fr}
+}
