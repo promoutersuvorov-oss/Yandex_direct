@@ -98,3 +98,14 @@ test("rejects unsupported passport versions and incomplete identity", () => {
   const p = basePassport(); delete p.project.id;
   assert.equal(normalizeLandingInputsV1(p).landingInputs, null);
 });
+
+test("normalizes lifestyle story drafts without promoting them to approved content",()=>{
+  const source=validPassport();
+  source.contentStrategy.lifestyleStories=[{id:"courtyard-morning",title:"Утро во дворе",description:"Черновой текст сценария",
+    sceneLabel:"ДВОР",assetId:"courtyard-render",supportingFactIds:["courtyard"],publicationStatus:"draft"}];
+  const result=normalizeLandingInputsV1(source);
+  assert.deepEqual(result.errors,[]);
+  assert.deepEqual(result.landingInputs.lifestyleStories,[{id:"courtyard-morning",title:"Утро во дворе",
+    description:"Черновой текст сценария",sceneLabel:"ДВОР",assetId:"courtyard-render",
+    supportingFactIds:["courtyard"],publicationStatus:"draft"}]);
+});
