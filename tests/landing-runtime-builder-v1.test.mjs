@@ -14,7 +14,7 @@ function input() {
   const source={id:"s1",title:"Официальный источник"};
   const evidence={id:"e1",sourceId:"s1",extract:"Подтверждение"};
   const claim={id:"c1",subject:{type:"project",id:"p1"},predicate:"project.fact",value:{kind:"text",value:"Факт"},
-    epistemicStatus:"verified",publicUse:"allowed_with_qualification",sourceIds:["s1"],evidenceIds:["e1"],limitations:[]};
+    epistemicStatus:"verified",publicUse:"allowed",sourceIds:["s1"],evidenceIds:["e1"],limitations:[]};
   return {
     knowledge:{contractVersion:"0.1",project:{id:"p1",name:"Дом",city:"Воронеж",organizationIds:[]},
       sources:[source],evidence:[evidence],claims:[claim],assets:[],plans:[],pointsOfInterest:[],routes:[]},
@@ -32,6 +32,19 @@ test("builds a demo profile from normalized inputs and keeps marketing candidate
   assert.deepEqual(profile.composition,["concept"]);
   assert.equal(profile.advantages.length,1);assert.equal(profile.offers.presentation.offerId,"o1");
   assert.deepEqual(profile.offers.presentation.requiredFields,["name","phone","preferredChannel","preferredTime"]);
+});
+test("fails closed on claims requiring publication qualification until qualified copy is rendered",()=>{
+  const x=input();
+  x.knowledge.claims[0].publicUse="allowed_with_qualification";
+  x.knowledge.claims[0].limitations=["Указано застройщиком; характеристики могут измениться."];
+  assert.throws(
+    ()=>buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"}),
+    /non-publishable fact/,
+    "A claim requiring qualification must not be inserted into visitor-facing copy without a rendered qualifier."
+  );
+  const y=input();
+  y.knowledge.claims[0].publicUse="internal_only";
+  assert.throws(()=>buildLandingProfileFromKnowledge(y.knowledge,y.landingInputs,y.refs,marketing,{},{}),/non-publishable fact/);
 });
 test("blocks claims without linked source/evidence and candidates with missing facts",()=>{
   const x=input();x.knowledge.evidence=[];
