@@ -156,12 +156,15 @@ export function validatePositioningGate(brief) {
   if (positioning.gateStatus !== "approved") {
     errors.push(`Positioning Gate is not approved (current status: ${positioning.gateStatus ?? "missing"})`);
   }
+  if (positioning.status !== "approved") {
+    errors.push(`Legacy positioning status must also be approved (current status: ${positioning.status ?? "missing"})`);
+  }
   const evidenceKeys = ["audience", "need", "product", "traffic", "converter"];
   for (const key of evidenceKeys) {
     const evidence = positioning.evidenceBasis?.[key];
-    if (!isObject(evidence) || !["fact", "research_finding", "expert_hypothesis"].includes(evidence.type) ||
+    if (!isObject(evidence) || !["fact", "research_finding"].includes(evidence.type) ||
         typeof evidence.finding !== "string" || !evidence.finding.trim()) {
-      errors.push(`Positioning Gate requires an explicit evidence basis for ${key}`);
+      errors.push(`Approved Positioning Gate requires validated evidence for ${key}`);
     }
   }
   for (const key of ["product", "converter"]) {
