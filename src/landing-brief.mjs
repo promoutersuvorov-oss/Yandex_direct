@@ -124,6 +124,7 @@ export function validateLandingBriefReferences(brief, passport, options = {}) {
     if (item?.segmentId && !segmentIds.has(item.segmentId)) errors.push(`secondary positioning ${item.id} references an unknown segment`);
     requireRefs(errors, `secondary positioning ${item?.id} supportingFactIds`, item?.supportingFactIds, factIds);
   }
+  if (options.requirePositioningGate) errors.push(...validatePositioningGate(brief));
   return errors;
 }
 
@@ -135,7 +136,7 @@ export function validateLandingBriefReferences(brief, passport, options = {}) {
 export function validatePositioningGate(brief) {
   const errors = [];
   if (!isObject(brief)) return ["LANDING BRIEF must be an object"];
-  const positioning = brief.positioning;
+  const positioning = brief.strategy?.positioning;
   if (!isObject(positioning)) return ["Positioning Gate is missing: production brief requires positioning"];
   const requiredValues = [
     ["audienceSegmentId", positioning.audienceSegmentId],
