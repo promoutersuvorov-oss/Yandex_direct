@@ -21,7 +21,7 @@ function input() {
     landingInputs:{projectId:"p1",strategy:{modules:[{moduleId:"about",decision:"include",variant:"feature-led",requiredFactIds:["f1"],order:0}]},
       design:{theme:"urban-noir",heroLayout:"split",galleryLayout:"mosaic"},
       marketingCandidates:[{id:"a1",title:"Преимущество",benefit:"Польза",strength:"strong",supportingFactIds:["f1"],classification:"marketing_candidate"}],
-      conversionCatalog:[{id:"o1",title:"Презентация",type:"presentation",status:"active",scenarioId:"presentation",consentRequired:true}],
+      conversionCatalog:[{id:"o1",title:"Презентация",type:"presentation",status:"active",scenarioId:"presentation",consentRequired:true,requiredFields:["preferredChannel","preferredTime"]}],
       selectionFlow:null},
     refs:{factIdToClaimId:{f1:"c1"}}
   };
@@ -31,6 +31,7 @@ test("builds a demo profile from normalized inputs and keeps marketing candidate
   assert.equal(profile.project.id,"p1");assert.equal(profile.mode,"demo");
   assert.deepEqual(profile.composition,["concept"]);
   assert.equal(profile.advantages.length,1);assert.equal(profile.offers.presentation.offerId,"o1");
+  assert.deepEqual(profile.offers.presentation.requiredFields,["name","phone","preferredChannel","preferredTime"]);
 });
 test("blocks claims without linked source/evidence and candidates with missing facts",()=>{
   const x=input();x.knowledge.evidence=[];
