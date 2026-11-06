@@ -25,10 +25,10 @@ test("synthetic landing renders distinct interactive modules responsively", asyn
 
   await expect(page.getByRole("heading", { level: 1, name: "Синтетический ЖК — тест интерфейса" })).toBeVisible();
   await expect(page.locator('[data-module="gallery"] .media-card')).toHaveCount(2);
-  await expect(page.locator('[data-module="location"] .place-card')).toHaveCount(4);
+  await expect(page.locator('[data-module="location"] .place-card')).toHaveCount(2);
   await expect(page.locator('[data-module="location"]')).toContainText("Тестовый городской парк");
   await expect(page.locator('[data-module="location"]')).toContainText("по маршруту — 450 м · 6 мин пешком");
-  await expect(page.locator('[data-module="location"]')).toContainText("Школа без подтверждённого расстояния");
+  await expect(page.locator('[data-module="location"]')).not.toContainText("Школа без подтверждённого расстояния");
   const straightLineCard = page.locator('[data-module="location"] .place-card').filter({ hasText: "Городской сквер" });
   await expect(straightLineCard).toContainText("по прямой — 1,5 км");
   await expect(straightLineCard).not.toContainText("мин пешком");
