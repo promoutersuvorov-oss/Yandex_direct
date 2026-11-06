@@ -18,7 +18,7 @@ function input() {
   return {
     knowledge:{contractVersion:"0.1",project:{id:"p1",name:"Дом",city:"Воронеж",organizationIds:[]},
       sources:[source],evidence:[evidence],claims:[claim],assets:[],plans:[],pointsOfInterest:[],routes:[]},
-    landingInputs:{projectId:"p1",strategy:{modules:[{moduleId:"hero",decision:"include",requiredFactIds:["f1"],order:0}]},
+    landingInputs:{projectId:"p1",strategy:{modules:[{moduleId:"concept",decision:"include",requiredFactIds:["f1"],order:0}]},
       design:{theme:"urban-noir",heroLayout:"split",galleryLayout:"mosaic"},
       marketingCandidates:[{id:"a1",title:"Преимущество",benefit:"Польза",strength:"strong",supportingFactIds:["f1"],classification:"marketing_candidate"}],
       conversionCatalog:[{id:"o1",title:"Презентация",type:"presentation",status:"active",scenarioId:"presentation",consentRequired:true}],
@@ -29,7 +29,7 @@ function input() {
 test("builds a demo profile from normalized inputs and keeps marketing candidates evidence-gated",()=>{
   const x=input();const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.equal(profile.project.id,"p1");assert.equal(profile.mode,"demo");
-  assert.deepEqual(profile.composition,["concept","hero"]);
+  assert.deepEqual(profile.composition,["concept"]);
   assert.equal(profile.advantages.length,1);assert.equal(profile.offers.presentation.offerId,"o1");
 });
 test("blocks claims without linked source/evidence and candidates with missing facts",()=>{
@@ -83,11 +83,5 @@ test("builds the real KD 905 draft without inventing plans, distances, assets or
   assert.deepEqual(landing.errors,[]);
   const copy=Object.fromEntries(Object.keys(marketing.copy).map(key=>[key,key]));
   const approvedCopy={projectId:passport.project.id,approvalStatus:"approved",copy,claimFactIds:{}};
-  const profile=buildLandingProfileFromKnowledge(normalized.knowledge,landing.landingInputs,normalized.legacyReferences,approvedCopy,{},{now:"2026-11-06T00:00:00Z"});
-  assert.equal(profile.project.id,"kd-905-voronezh");
-  assert.equal(profile.plans.length,0);
-  assert.equal(profile.media.length,0);
-  assert.equal(profile.infrastructure.length,0);
-  assert.equal(profile.mode,"demo");
-  assert.equal(profile.integration.leadEndpoint,"");
+  assert.throws(()=>buildLandingProfileFromKnowledge(normalized.knowledge,landing.landingInputs,normalized.legacyReferences,approvedCopy,{},{now:"2026-11-06T00:00:00Z"}),/has no runtime implementation/);
 });
