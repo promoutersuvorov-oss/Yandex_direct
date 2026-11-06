@@ -173,10 +173,26 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
     district: passport.project.location.district?.status === "verified" ? passport.project.location.district.value : "",
     address: passport.project.location.address?.status === "verified" ? String(passport.project.location.address.value) : ""
   };
+  const factsById = new Map((passport.facts || []).map(fact => [fact.id, fact]));
   const advantages = (passport.advantages || []).filter(item =>
     item.title && item.benefit && item.supportingFactIds?.length &&
     item.supportingFactIds.every(id => facts.has(id))
-  ).map(item => ({ id: item.id, title: item.title, benefit: item.benefit, proof: item.hook || "" , status: "verified" }));
+  ).map(item => {
+    const supportingFacts = item.supportingFactIds.map(id => factsById.get(id));
+    const evidence = [...new Set(supportingFacts.flatMap(fact =>
+      (fact.sources || []).map(source => source.title).filter(nonEmpty)
+    ))].slice(0, 3);
+    return {
+      id: item.id,
+      title: item.title,
+      benefit: item.benefit,
+      strength: item.strength,
+      audienceFit: item.audienceFit || [],
+      hook: item.hook || "",
+      evidence,
+      status: "verified"
+    };
+  });
 
   const assets = Object.values(passport.assets || {}).flat().filter(Boolean);
   const usableAssets = assets.filter(asset => approvedAsset(asset, now));
