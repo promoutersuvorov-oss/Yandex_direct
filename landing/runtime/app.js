@@ -69,7 +69,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
   }
 
   const planGrid = $("#plan-grid");
-  const approvedPlans = Array.isArray(data.plans) ? data.plans.filter(p => p && p.status === "verified" && p.rightsStatus === "approved" && p.id && p.title && Number.isFinite(p.areaSqm) && p.assetUrl && safeUrl(p.assetUrl)) : [];
+  const approvedPlans = Array.isArray(data.plans) ? data.plans.filter(p => p && p.status === "verified" && p.publicUse === "allowed" && p.rightsStatus === "approved" && p.id && p.assetId && p.title && Number.isInteger(p.rooms) && Number.isFinite(p.areaSqm) && Array.isArray(p.sources) && p.sources.length > 0 && p.assetUrl && safeUrl(p.assetUrl)) : [];
   if (approvedPlans.length) {
     planGrid.innerHTML = approvedPlans.map(plan =>
       '<article class="plan-card"><img src="' + esc(safeUrl(plan.assetUrl)) + '" alt="' + esc(plan.title) + '" loading="lazy"><div class="plan-card-copy"><span class="eyebrow">ПЛАНИРОВКА</span><h3>' + esc(plan.title) + '</h3><p>' + esc([plan.rooms === 0 ? "Студия" : plan.rooms ? plan.rooms + " комнаты" : "", plan.areaSqm + " м²", plan.floor ? plan.floor + " этаж" : ""].filter(Boolean).join(" · ")) + '</p><button class="button button-outline" type="button" data-open-offer="plan" data-plan-id="' + esc(plan.id) + '">Обсудить планировку <span>↗</span></button></div></article>').join("");
@@ -103,6 +103,10 @@ import { createAttributionState } from "../../src/attribution.mjs";
     const offer = data.offers && data.offers[offerId];
     if (!offer) return;
     activeOffer = { ...offer, offerId };
+    pendingLeadIds = null;
+    form.reset();
+    $("#lead-submit").hidden = false;
+    $("#lead-submit").disabled = false;
     activeContext = {
       scenarioId: offer.scenarioId,
       offerId,
@@ -139,7 +143,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
   }));
   $(".dialog-close-form").addEventListener("submit", () => { activeOffer = null; activeContext = {}; });
   dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
-  dialog.addEventListener("close", () => { activeOffer = null; activeContext = {}; });
+  dialog.addEventListener("close", () => { activeOffer = null; activeContext = {}; pendingLeadIds = null; });
 
   $("#mortgage-calculator").addEventListener("submit", event => {
     event.preventDefault();
@@ -181,7 +185,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
     if (endpointUrl.protocol !== "https:" && !["localhost","127.0.0.1"].includes(endpointUrl.hostname)) {
       $("#form-status").textContent = "Отправка заблокирована: production endpoint должен использовать HTTPS."; return;
     }
-    if (!policyUrl || !policyVersion) {
+    if (!policyUrl || new URL(policyUrl).protocol !== "https:" || !policyVersion) {
       $("#form-status").textContent = "Отправка заблокирована: не настроены политика обработки данных и её версия."; return;
     }
     if (!activeOffer) {
