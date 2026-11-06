@@ -172,3 +172,50 @@ test("failed lead transport never displays a success state", async ({ page }) =>
   await expect(form.locator(".thanks")).toHaveCount(0);
   await expect(form.locator('button[type="submit"]')).toBeEnabled();
 });
+
+
+test("K15 navigation, gallery, apartment and location controls remain interactive", async ({ page }) => {
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+
+  const burger = page.locator("#burger");
+  await burger.click();
+  await expect(burger).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator("#mnav")).toHaveAttribute("aria-hidden", "false");
+  await page.locator('#mnav a[href="#about"]').click();
+  await expect(burger).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator("#mnav")).toHaveAttribute("aria-hidden", "true");
+
+  await page.locator('#planTabs button[data-p="1"]').click();
+  await expect(page.locator("#planTabs button[data-p=\"1\"]")).toHaveClass(/on/);
+  await expect(page.locator("#planImg")).toHaveAttribute("data-zoom", /чертёж с площадями/);
+  await page.locator('#planTabs button[data-p="0"]').click();
+  await expect(page.locator("#planImg")).toHaveAttribute("data-zoom", /3D-вид/);
+
+  await page.locator("#aptNext").click();
+  await expect(page.locator("#aptCnt")).toHaveText(/^2 \/ \d+$/);
+  await page.locator('#aptThumbs button[data-i="0"]').click();
+  await expect(page.locator("#aptCnt")).toHaveText(/^1 \/ \d+$/);
+
+  const firstPlace = await page.locator("#iName").textContent();
+  await page.locator('#iPills button[data-i="1"]').click();
+  await expect(page.locator('#iPills button[data-i="1"]')).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator("#iName")).not.toHaveText(firstPlace);
+  await page.locator("#iNext").click();
+  await expect(page.locator("#iCnt")).toHaveText(/^3 \/ \d+$/);
+
+  const firstFaq = page.locator(".faq-list details").first();
+  await firstFaq.locator("summary").click();
+  await expect(firstFaq).toHaveAttribute("open", "");
+
+  await page.locator("#galTrack .card[data-zoom]").first().click();
+  const lightbox = page.locator("#lb");
+  await expect(lightbox).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(lightbox).not.toBeVisible();
+
+  await page.locator("[data-about]").first().click();
+  const aboutDialog = page.locator("#aboutDlg");
+  await expect(aboutDialog).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(aboutDialog).not.toBeVisible();
+});
