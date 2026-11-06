@@ -2204,7 +2204,7 @@ $$('.rv').forEach(el=>io.observe(el));
 
 const burger = $('#burger');
 burger.onclick = ()=>{ const o = document.body.classList.toggle('menu-open'); burger.setAttribute('aria-expanded',o); $('#mnav').setAttribute('aria-hidden',!o); };
-$$('#mnav a.l').forEach(a=>a.addEventListener('click',()=>{ document.body.classList.remove('menu-open'); burger.setAttribute('aria-expanded',false); }));
+$('#mnav a.l').forEach(a=>a.addEventListener('click',()=>{ document.body.classList.remove('menu-open'); burger.setAttribute('aria-expanded',false); $('#mnav').setAttribute('aria-hidden',true); }));
 
 /* =====================================================================
    v9: заглушки, факты в hero, листы-sheets, счётчики
