@@ -97,6 +97,20 @@ test("normalizes project identity, organizations, claims, sources and evidence",
   assert.equal(fact.evidenceIds.length, 1);
 });
 
+test("keeps distinct evidence extracts linked to the correct claims under one source", () => {
+  const input = passport();
+  input.facts[1].sources = [{ ...source, quoteOrEvidence: "Другой фрагмент источника." }];
+  const result = normalizePassportV1(input);
+  const first = result.knowledge.claims.find(item => item.id.includes("f-1"));
+  const second = result.knowledge.claims.find(item => item.id.includes("f-2"));
+  assert.equal(result.knowledge.sources.length, 1);
+  assert.equal(result.knowledge.evidence.length, 2);
+  const firstEvidence = result.knowledge.evidence.find(item => item.id === first.evidenceIds[0]);
+  const secondEvidence = result.knowledge.evidence.find(item => item.id === second.evidenceIds[0]);
+  assert.equal(firstEvidence.extract, "Фрагмент, подтверждающий утверждение.");
+  assert.equal(secondEvidence.extract, "Другой фрагмент источника.");
+});
+
 test("uses deterministic IDs and does not mutate the source passport", () => {
   const input = passport();
   const before = structuredClone(input);
