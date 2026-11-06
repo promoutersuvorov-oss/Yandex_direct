@@ -63,7 +63,7 @@ test("rejects draft, cross-project or incomplete marketing copy",()=>{
 
 test("rejects marketing claims backed by expired or internal-only facts",()=>{
   const copy=marketing(); copy.claimFactIds={headline:["f-expired"]};
-  assert.throws(()=>buildLandingProfile(passport(),copy,{}, {now:"2026-11-06T00:00:00Z"}),/non-publishable fact/);
+  assert.throws(()=>buildLandingProfile(passport(),copy,{}, {now:"2026-11-06T00:00:00Z"}),/supportingFactIds references unknown ID/);
   const privateCopy=marketing(); privateCopy.claimFactIds={lead:["f-private"]};
   assert.throws(()=>buildLandingProfile(passport(),privateCopy),/non-publishable fact/);
 });
