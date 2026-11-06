@@ -5,7 +5,7 @@ test("universal landing renders the demo profile and responsive editorial layout
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto(url, { waitUntil: "networkidle" });
-  await expect(page.locator("#hero-title")).toContainText("Место, которое постепенно становится вашим");
+  await expect(page.locator("#hero-title")).toContainText("Выбирайте дом, который подходит вашему ритму");
   await expect(page.locator("#footer-project")).toContainText("Демонстрационная версия");
   const order = await page.locator("main > section").evaluateAll(nodes => nodes.map(node => node.id));
   expect(order.indexOf("location")).toBeLessThan(order.indexOf("apartments"));
