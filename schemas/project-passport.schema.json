@@ -235,6 +235,7 @@
             },
             "composition": { "type": "string", "enum": ["editorial", "cinematic", "architectural"] },
             "heroLayout": { "type": "string", "enum": ["split", "fullscreen", "editorial"] },
+            "galleryLayout": { "type": "string", "enum": ["mosaic", "editorial", "strip"] },
             "mood": {
               "type": "string"
             },
