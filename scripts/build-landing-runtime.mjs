@@ -179,9 +179,10 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
     item.supportingFactIds.every(id => facts.has(id))
   ).map(item => {
     const supportingFacts = item.supportingFactIds.map(id => factsById.get(id));
-    const evidence = [...new Set(supportingFacts.flatMap(fact =>
-      (fact.sources || []).map(source => source.title).filter(nonEmpty)
-    ))].slice(0, 3);
+    const evidence = supportingFacts.map(fact => {
+      const source = (fact.sources || []).find(item => nonEmpty(item.title));
+      return source && nonEmpty(fact.claim) ? { claim: fact.claim, sourceTitle: source.title } : null;
+    }).filter(Boolean).slice(0, 3);
     return {
       id: item.id,
       title: item.title,
@@ -192,7 +193,7 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
       evidence,
       status: "verified"
     };
-  });
+  }).filter(item => item.evidence.length > 0);
 
   const assets = Object.values(passport.assets || {}).flat().filter(Boolean);
   const usableAssets = assets.filter(asset => approvedAsset(asset, now));
