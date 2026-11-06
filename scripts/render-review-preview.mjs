@@ -159,7 +159,7 @@ const offerFor = module => {
   return linkedOffers[0];
 };
 const renderConversionChoices = () => {
-  const activeOffers = offers.filter(offer => offer.status === "active" && offer.id && offer.title);
+  const activeOffers = offers.filter(offer => offer.status === "active" && offer.id && offer.title && offer.type !== "mortgage_estimate");
   if (activeOffers.length < 2) return "";
   return '<section class="conversion-options" data-module="conversion-options" aria-labelledby="conversion-options-title">' +
     '<p class="eyebrow">Следующий шаг</p><h2 id="conversion-options-title">Выберите, что хотите узнать</h2>' +
