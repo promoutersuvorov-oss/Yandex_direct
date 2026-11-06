@@ -1138,6 +1138,14 @@
           "items": {
             "type": "string"
           }
+        },
+        "publicationStatus": {
+          "enum": [
+            "draft",
+            "approved"
+          ],
+          "default": "draft",
+          "description": "Статус редакционного согласования вопроса; в публичный FAQ попадают только approved."
         }
       },
       "additionalProperties": false
