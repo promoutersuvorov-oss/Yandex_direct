@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
+import { normalizePassportV1 } from "../src/passport-normalizer-v1.mjs";
+import { normalizeLandingInputsV1 } from "../src/landing-inputs-normalizer-v1.mjs";
 import { buildLandingProfileFromKnowledge } from "../src/landing-runtime-builder-v1.mjs";
 
 const copy = Object.fromEntries([
@@ -70,4 +73,21 @@ test("quiz result must resolve to the actual quiz offer",()=>{
   x.landingInputs.selectionFlow={publicEligible:true,title:"Подбор",resultOfferId:"o1",questions:[]};
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{});
   assert.equal(profile.selectionQuiz,null);
+});
+
+test("builds the real KD 905 draft without inventing plans, distances, assets or offers",()=>{
+  const passport=JSON.parse(readFileSync(new URL("../examples/kd-905.project-passport.draft.json",import.meta.url),"utf8"));
+  const normalized=normalizePassportV1(passport);
+  const landing=normalizeLandingInputsV1(passport);
+  assert.deepEqual(normalized.errors,[]);
+  assert.deepEqual(landing.errors,[]);
+  const copy=Object.fromEntries(Object.keys(marketing.copy).map(key=>[key,key]));
+  const approvedCopy={projectId:passport.project.id,approvalStatus:"approved",copy,claimFactIds:{}};
+  const profile=buildLandingProfileFromKnowledge(normalized.knowledge,landing.landingInputs,normalized.legacyReferences,approvedCopy,{},{now:"2026-11-06T00:00:00Z"});
+  assert.equal(profile.project.id,"kd-905-voronezh");
+  assert.equal(profile.plans.length,0);
+  assert.equal(profile.media.length,0);
+  assert.equal(profile.infrastructure.length,0);
+  assert.equal(profile.mode,"demo");
+  assert.equal(profile.integration.leadEndpoint,"");
 });
