@@ -184,8 +184,12 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
 
   const designInput = landingInputs.design || {};
   const palette = PALETTES[designInput.theme] || PALETTES["warm-editorial"];
-  const heroLayout = ["split", "fullscreen", "editorial"].includes(designInput.heroLayout) ? designInput.heroLayout : "split";
-  const galleryLayout = ["mosaic", "editorial", "strip"].includes(designInput.galleryLayout) ? designInput.galleryLayout : "mosaic";
+  const heroPlacement = moduleResolution.placements.find(item => item.moduleId === "hero");
+  const visualPlacement = moduleResolution.placements.find(item => item.sectionId === "visual-story");
+  const requestedHeroLayout = heroPlacement?.runtimeVariant || designInput.heroLayout;
+  const requestedGalleryLayout = visualPlacement?.runtimeVariant || designInput.galleryLayout;
+  const heroLayout = ["split", "fullscreen", "editorial"].includes(requestedHeroLayout) ? requestedHeroLayout : "split";
+  const galleryLayout = ["mosaic", "editorial", "strip"].includes(requestedGalleryLayout) ? requestedGalleryLayout : "mosaic";
   const quiz = landingInputs.selectionFlow?.publicEligible && offers.quiz &&
     landingInputs.selectionFlow.resultOfferId === offers.quiz.offerId ? {
     title: landingInputs.selectionFlow.title, description: landingInputs.selectionFlow.description || "",
