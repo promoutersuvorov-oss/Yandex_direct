@@ -162,7 +162,10 @@ import { createAttributionState } from "../../src/attribution.mjs";
   const composition = requested.filter((sectionId, index) => sectionIds.includes(sectionId) && requested.indexOf(sectionId) === index);
   if (data.mode !== "demo" && !data.advantages?.some(item =>
     item?.status === "verified" && item.title && item.benefit &&
-    Array.isArray(item.evidence) && item.evidence.some(source => typeof source === "string" && source.trim())
+    Array.isArray(item.evidence) && item.evidence.some(source =>
+      source && typeof source.claim === "string" && source.claim.trim() &&
+      typeof source.sourceTitle === "string" && source.sourceTitle.trim()
+    )
   )) $("#advantages").hidden = true;
   if (data.mode !== "demo" && !approvedMedia.length) $("#visual-story").hidden = true;
   if (data.mode !== "demo" && !approvedPlans.length) $("#apartments").hidden = true;
