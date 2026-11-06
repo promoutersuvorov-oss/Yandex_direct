@@ -225,7 +225,7 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
     if (!["walking_route", "straight_line"].includes(evidence.method)) return false;
     if (hasWalkingTime && evidence.method !== "walking_route") return false;
     return true;
-  }).map(item => {
+  }).sort((a, b) => a.distanceMeters - b.distanceMeters).map(item => {
     const evidence = item.distanceEvidence;
     const distance = item.distanceMeters >= 1000
       ? `${(item.distanceMeters / 1000).toLocaleString("ru-RU")} км`
@@ -235,7 +235,7 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
       : evidence.method === "straight_line"
         ? `${distance} по прямой`
         : `${distance} по маршруту`;
-    return { name: item.name, distanceLabel, status: "verified" };
+    return { name: item.name, category: item.category, distanceMeters: item.distanceMeters, distanceLabel, status: "verified" };
   });
 
   const offers = {};
