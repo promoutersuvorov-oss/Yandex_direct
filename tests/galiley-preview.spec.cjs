@@ -25,7 +25,7 @@ test("Galiley preview renders its own project identity and garden-modern composi
   expect(await page.locator("main [data-module]").count()).toBeGreaterThanOrEqual(3);
   await expect(page.locator("body")).toContainText("Сад внутри городского комплекса");
   const lifestyleHook = page.locator("#module-lifestyle .benefit-hook");
-  await expect(lifestyleHook).toHaveText("Городской адрес — и собственный сад внутри.");
+  await expect(lifestyleHook).toHaveText("Городской адрес — и собственный сад внутри территории.");
   const lifestyleHookStyle = await lifestyleHook.evaluate(node => ({ fontSize: getComputedStyle(node).fontSize, borderTopStyle: getComputedStyle(node).borderTopStyle }));
   expect(Number.parseFloat(lifestyleHookStyle.fontSize)).toBeGreaterThanOrEqual(25);
   expect(lifestyleHookStyle.borderTopStyle).toBe("solid");
