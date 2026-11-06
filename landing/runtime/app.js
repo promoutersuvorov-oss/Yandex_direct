@@ -108,9 +108,18 @@
   form.addEventListener("submit", async event => {
     event.preventDefault();
     const endpoint = safeUrl(data.integration?.leadEndpoint);
+    const policyUrl = safeUrl(data.integration?.privacyPolicyUrl);
+    const policyVersion = typeof data.integration?.privacyPolicyVersion === "string" ? data.integration.privacyPolicyVersion.trim() : "";
     if (!endpoint) {
       $("#form-status").textContent = "Заявка не отправлена: интеграция ещё не настроена. Демонстрационный режим не передаёт персональные данные.";
       return;
+    }
+    const endpointUrl = new URL(endpoint);
+    if (endpointUrl.protocol !== "https:" && !["localhost","127.0.0.1"].includes(endpointUrl.hostname)) {
+      $("#form-status").textContent = "Отправка заблокирована: production endpoint должен использовать HTTPS."; return;
+    }
+    if (!policyUrl || !policyVersion) {
+      $("#form-status").textContent = "Отправка заблокирована: не настроены политика обработки данных и её версия."; return;
     }
     if (!activeOffer) {
       $("#form-status").textContent = "Не удалось определить сценарий обращения. Закройте окно и повторите действие.";
@@ -150,8 +159,18 @@
   function readAttribution() {
     const keys = ["utm_source","utm_medium","utm_campaign","utm_term","utm_content","yclid","ysclid","gclid","gbraid","wbraid","fbclid","vk_click_id","rb_clickid","erid"];
     const current = {}; const params = new URLSearchParams(location.search);
-    for (const key of keys) { const value = params.get(key); if (value && value.length <= 256) current[key] = value; }
-    return Object.keys(current).length ? current : null;
+    for (const key of keys) {
+      const value = params.get(key);
+      if (value && value.length <= 256 && !/[\\u0000-\\u001f\\u007f]/.test(value)) current[key] = value;
+    }
+    let previous = {};
+    try { previous = JSON.parse(sessionStorage.getItem("key:attribution") || "{}"); } catch { previous = {}; }
+    const state = {
+      firstTouch: previous.firstTouch || (Object.keys(current).length ? current : null),
+      lastTouch: Object.keys(current).length ? current : (previous.lastTouch || null)
+    };
+    try { sessionStorage.setItem("key:attribution", JSON.stringify(state)); } catch {}
+    return state.firstTouch || state.lastTouch ? { first_touch: state.firstTouch, last_touch: state.lastTouch } : null;
   }
   if (data.analytics?.enabled) {
     document.addEventListener("click", event => {
