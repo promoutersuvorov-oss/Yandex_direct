@@ -46,9 +46,26 @@ test("fails closed on claims requiring publication qualification until qualified
   approved.knowledge.claims[0].publicUse="allowed_with_qualification";
   approved.knowledge.claims[0].limitations=["Характеристики могут измениться."];
   const qualifiedMarketing={...marketing,claimQualifications:{headline:[{factId:"f1",text:"Сведения указаны по данным застройщика; характеристики могут измениться."}]}};
+  approved.landingInputs.strategy.modules=[];
   const qualifiedProfile=buildLandingProfileFromKnowledge(approved.knowledge,approved.landingInputs,approved.refs,qualifiedMarketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.deepEqual(qualifiedProfile.marketingQualifications.headline,["Сведения указаны по данным застройщика; характеристики могут измениться."]);
   assert.equal(qualifiedProfile.marketing.headline,marketing.copy.headline);
+  assert.equal(qualifiedProfile.advantages.length,0,"A headline qualification must not publish the same claim as an unqualified advantage.");
+  assert.throws(
+    ()=>buildLandingProfileFromKnowledge(approved.knowledge,approved.landingInputs,approved.refs,{
+      ...qualifiedMarketing,claimFactIds:{headline:["f1"],conceptCopy:["f1"]}
+    },{},{now:"2026-11-06T00:00:00Z"}),
+    /Marketing claim conceptCopy references non-publishable fact/,
+    "A qualification on headline must not authorize the same fact in conceptCopy."
+  );
+  assert.throws(
+    ()=>buildLandingProfileFromKnowledge(approved.knowledge,approved.landingInputs,approved.refs,{
+      ...qualifiedMarketing,claimQualifications:{headline:[
+        {factId:"f1",text:"Первая оговорка."},{factId:"f1",text:"Другая оговорка."}
+      ]}
+    },{},{now:"2026-11-06T00:00:00Z"}),
+    /must be unique per fact/
+  );
   assert.throws(
     ()=>buildLandingProfileFromKnowledge(approved.knowledge,approved.landingInputs,approved.refs,{...qualifiedMarketing,claimQualifications:{headline:[{factId:"missing",text:"Оговорка"}]}},{},{now:"2026-11-06T00:00:00Z"}),
     /must identify a mapped fact/
