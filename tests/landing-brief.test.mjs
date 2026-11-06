@@ -68,3 +68,57 @@ test("rejects CTA intent mismatches and competing primary actions in one module"
   assert.ok(errors.some(error => error.includes("does not match offer type")));
   assert.ok(errors.some(error => error.includes("Multiple CTAs target module hero")));
 });
+
+
+import { validatePositioningGate } from "../src/landing-brief.mjs";
+
+function approvedPositioningBrief() {
+  const valid = structuredClone(brief);
+  valid.positioning = {
+    audienceSegmentId: "young_professionals",
+    primaryNeed: "A more convenient everyday routine",
+    productFocus: "Selected apartments in the sample residence",
+    primaryTrafficSource: "Yandex Direct search campaign",
+    primaryConverter: "Request a project presentation",
+    gateStatus: "approved",
+    confidence: "medium",
+    rationale: "The selected product and campaign intent address the segment's stated need.",
+    evidenceBasis: {
+      audience: { type: "research_finding", finding: "Interview notes from the target segment", sampleSize: 8 },
+      need: { type: "research_finding", finding: "Repeated need observed in the same interviews", sampleSize: 8 },
+      product: { type: "fact", finding: "The selected apartment product is documented in the passport" },
+      traffic: { type: "research_finding", finding: "Search query analysis for the campaign" },
+      converter: { type: "fact", finding: "KEY has an assigned owner and a defined presentation delivery process" }
+    },
+    approvedBy: "product_owner",
+    approvedAt: "2026-11-06"
+  };
+  return valid;
+}
+
+test("blocks production generation when positioning is missing", () => {
+  assert.ok(validatePositioningGate(brief).some(error => error.includes("is missing")));
+  assert.ok(validateLandingBriefReferences(brief, passport, { requirePositioningGate: true })
+    .some(error => error.includes("Positioning Gate is missing")));
+});
+
+test("blocks hypothesis and review statuses from production generation", () => {
+  const invalid = approvedPositioningBrief();
+  invalid.positioning.gateStatus = "hypothesis";
+  assert.ok(validatePositioningGate(invalid).some(error => error.includes("not approved")));
+});
+
+test("approves a complete five-part positioning contract with evidence and sign-off", () => {
+  assert.deepEqual(validatePositioningGate(approvedPositioningBrief()), []);
+});
+
+test("blocks positioning that references a missing audience segment or unverified product/converter", () => {
+  const invalid = approvedPositioningBrief();
+  invalid.positioning.audienceSegmentId = "missing_segment";
+  invalid.positioning.evidenceBasis.product.type = "expert_hypothesis";
+  invalid.positioning.evidenceBasis.converter.type = "unknown";
+  const errors = validatePositioningGate(invalid);
+  assert.ok(errors.some(error => error.includes("unknown segment")));
+  assert.ok(errors.some(error => error.includes("verified operational/product evidence for product")));
+  assert.ok(errors.some(error => error.includes("verified operational/product evidence for converter")));
+});
