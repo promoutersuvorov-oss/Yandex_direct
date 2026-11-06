@@ -23,6 +23,7 @@ export function validateLandingBriefReferences(brief, passport, options = {}) {
   if (!isObject(brief)) return ["LANDING BRIEF must be an object"];
   if (!isObject(passport)) return ["Project passport must be an object"];
   if (brief.projectId !== passport.project?.id) errors.push("LANDING BRIEF projectId must match passport.project.id");
+  if (options.requirePositioningGate) errors.push(...validatePositioningGate(brief));
 
   const segmentIds = ids(brief.segments);
   const hookIds = ids(brief.hooks);
@@ -122,6 +123,57 @@ export function validateLandingBriefReferences(brief, passport, options = {}) {
   for (const item of list(strategy.secondaryPositioning)) {
     if (item?.segmentId && !segmentIds.has(item.segmentId)) errors.push(`secondary positioning ${item.id} references an unknown segment`);
     requireRefs(errors, `secondary positioning ${item?.id} supportingFactIds`, item?.supportingFactIds, factIds);
+  }
+  return errors;
+}
+
+
+/**
+ * Enforce the campaign-level five-part positioning contract before production generation.
+ * Legacy/review briefs may omit positioning only when the caller does not require this gate.
+ */
+export function validatePositioningGate(brief) {
+  const errors = [];
+  if (!isObject(brief)) return ["LANDING BRIEF must be an object"];
+  const positioning = brief.positioning;
+  if (!isObject(positioning)) return ["Positioning Gate is missing: production brief requires positioning"];
+  const requiredValues = [
+    ["audienceSegmentId", positioning.audienceSegmentId],
+    ["primaryNeed", positioning.primaryNeed],
+    ["productFocus", positioning.productFocus],
+    ["primaryTrafficSource", positioning.primaryTrafficSource],
+    ["primaryConverter", positioning.primaryConverter],
+    ["rationale", positioning.rationale]
+  ];
+  for (const [field, value] of requiredValues) {
+    if (typeof value !== "string" || !value.trim()) errors.push(`Positioning Gate requires a non-empty ${field}`);
+  }
+  const segmentIds = ids(brief.segments);
+  if (positioning.audienceSegmentId && !segmentIds.has(positioning.audienceSegmentId)) {
+    errors.push(`Positioning Gate audienceSegmentId references unknown segment: ${positioning.audienceSegmentId}`);
+  }
+  if (positioning.gateStatus !== "approved") {
+    errors.push(`Positioning Gate is not approved (current status: ${positioning.gateStatus ?? "missing"})`);
+  }
+  const evidenceKeys = ["audience", "need", "product", "traffic", "converter"];
+  for (const key of evidenceKeys) {
+    const evidence = positioning.evidenceBasis?.[key];
+    if (!isObject(evidence) || !["fact", "research_finding", "expert_hypothesis"].includes(evidence.type) ||
+        typeof evidence.finding !== "string" || !evidence.finding.trim()) {
+      errors.push(`Positioning Gate requires an explicit evidence basis for ${key}`);
+    }
+  }
+  for (const key of ["product", "converter"]) {
+    const type = positioning.evidenceBasis?.[key]?.type;
+    if (type !== "fact" && type !== "research_finding") {
+      errors.push(`Positioning Gate requires verified operational/product evidence for ${key}`);
+    }
+  }
+  if (typeof positioning.approvedBy !== "string" || !positioning.approvedBy.trim()) {
+    errors.push("Approved Positioning Gate requires approvedBy");
+  }
+  if (typeof positioning.approvedAt !== "string" || !positioning.approvedAt.trim()) {
+    errors.push("Approved Positioning Gate requires approvedAt");
   }
   return errors;
 }
