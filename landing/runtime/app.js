@@ -463,6 +463,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
           funnelId: activeContext.funnelId,
           segmentId: activeContext.segmentId,
           intent: activeContext.intent,
+          qualificationQuestionIds: activeContext.qualificationQuestionIds,
           entityContext: activeContext.entityContext
         },
         ...(activeContext.qualificationAnswers ? { qualification: { answers: activeContext.qualificationAnswers } } : {}),
