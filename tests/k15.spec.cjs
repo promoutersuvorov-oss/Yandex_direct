@@ -116,11 +116,19 @@ test("three-step quiz preserves answers and submits with quiz context", async ({
   for (let step = 1; step <= 3; step++) {
     const option = quiz.locator(".opt").first();
     await option.click();
-    await expect(option).toHaveClass(/sel/);
+    // Assert the stable outcome, not the 260ms selected-state animation.
+    // WebKit may finish the click after the quiz has already advanced.
     if (step < 3) {
       await expect(quiz.locator(".qprog span")).toContainText(`${step + 1} / 3`);
+    } else {
+      await expect(quiz.locator("form.lead-form")).toBeVisible();
     }
   }
+
+  const summary = quiz.locator(".chips");
+  await expect(summary).toContainText("1");
+  await expect(summary).toContainText("До 60 м²");
+  await expect(summary).toContainText("Собственные средства");
 
   const form = quiz.locator("form.lead-form");
   await expect(form).toBeVisible();
