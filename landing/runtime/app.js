@@ -200,10 +200,22 @@ import { createAttributionState } from "../../src/attribution.mjs";
   planPreviewCta.addEventListener("click", () => planPreviewDialog.close());
 
   const locationList = $("#location-list");
-  const places = Array.isArray(data.infrastructure) ? data.infrastructure
+  const sortedPlaces = Array.isArray(data.infrastructure) ? data.infrastructure
     .filter(p => p && p.status === "verified" && typeof p.name === "string" && p.name.trim())
-    .slice().sort((a, b) => (Number.isFinite(a.distanceMeters) ? a.distanceMeters : Number.MAX_SAFE_INTEGER) - (Number.isFinite(b.distanceMeters) ? b.distanceMeters : Number.MAX_SAFE_INTEGER))
-    .slice(0, 4) : [];
+    .slice().sort((a, b) => (Number.isFinite(a.distanceMeters) ? a.distanceMeters : Number.MAX_SAFE_INTEGER) - (Number.isFinite(b.distanceMeters) ? b.distanceMeters : Number.MAX_SAFE_INTEGER)) : [];
+  const places = [];
+  const seenPlaceKinds = new Set();
+  for (const place of sortedPlaces) {
+    if (places.length >= 4) break;
+    if (!seenPlaceKinds.has(place.category)) {
+      places.push(place);
+      seenPlaceKinds.add(place.category);
+    }
+  }
+  for (const place of sortedPlaces) {
+    if (places.length >= 4) break;
+    if (!places.includes(place)) places.push(place);
+  }
   const placeKinds = { school:"Школа", kindergarten:"Детский сад", park:"Парк", shopping:"Покупки", transport:"Транспорт", healthcare:"Здоровье", leisure:"Досуг", other:"Рядом" };
   if (places.length) locationList.innerHTML = places.map(place =>
     '<li><div><span class="place-kind">' + esc(placeKinds[place.category] || "Рядом") + '</span><strong>' + esc(place.name) + '</strong>' +
