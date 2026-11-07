@@ -48,6 +48,10 @@ KLanding включает отдельный интеллектуальный м
 
 Из репозитория `nikitanecilli-bit/Agency` изучены и адаптированы полезные материалы: [каталог модулей](docs/architecture/MODULE_CATALOG_AND_COMPOSITION_RULES.md), [Production UI Foundation](docs/product/PRODUCTION_UI_FOUNDATION.md), [mapping паспорта на runtime](docs/architecture/PASSPORT_TO_LANDING_MAPPING.md). Решения о переносе и список того, что нельзя копировать напрямую, зафиксированы в [отчёте повторного использования Agency](docs/audits/AGENCY_REPOSITORY_REUSE_REVIEW_2026-11-05.md). Отдельно проверены feature-ветки Agency и зависимость PR #5 → #6 → #7: [аудит реализации и безопасного переноса кода](docs/audits/AGENCY_BRANCH_IMPLEMENTATION_REVIEW_2026-11-05.md). Для эталона K15 создана [карта соответствия смысловых модулей реальным секциям HTML](docs/audits/K15_RUNTIME_MODULE_MAPPING_2026-11-05.md). Углублённо проверены дополнительные ветки Agency: section renderer, readiness diagnostics, expiry/media safety, project isolation, no-false-lead-success и cross-browser matrix; выводы и фактически перенесённые решения — в [расширенном аудите веток Agency](docs/audits/AGENCY_BRANCH_DEEP_REVIEW_2026-11-05.md).
 
+## Продуктовый фокус и приоритеты
+
+Актуальная сверка стратегии, фактического состояния артефактов, ограничений и следующего этапа: [KLanding Product Focus Audit 2026-11-07](docs/audits/KLANDING_PRODUCT_FOCUS_AUDIT_2026-11-07.md). Ключевое решение — временно не расширять архитектуру, а доказать сквозной сценарий от паспорта ЖК до визуально принятой страницы и тестовой доставки лида.
+
 ## Текущий аудит K15
 
 Контракт и ограничения динамического HTML review renderer: [Review Renderer Specification](docs/architecture/REVIEW_RENDERER_SPEC.md). Публичное позиционирование теперь проходит отдельный evidence gate; выбранные стратегией варианты композиции влияют на реальную раскладку.

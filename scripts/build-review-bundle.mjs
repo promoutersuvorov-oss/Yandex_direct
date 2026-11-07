@@ -1,5 +1,8 @@
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { buildLandingReadinessReport } from "../src/landing-readiness-report-v1.mjs";
+import { buildLandingLayoutAudit } from "../src/landing-layout-audit-v1.mjs";
+import { selectLandingLayoutVariants } from "../src/landing-layout-selector-v1.mjs";
 
 function arg(name, fallback) {
   const index = process.argv.indexOf(name);
@@ -116,7 +119,8 @@ for (const module of modules) {
   }
   for (const id of asArray(module.ctaIds)) {
     if (!offerById.has(id)) errors.push(`Module "${module.moduleId}" references unknown offer "${id}".`);
-    else if (offerById.get(id).status !== "active") errors.push(`Module "${module.moduleId}" references inactive offer "${id}".`);
+    else if (offerById.get(id).status === "inactive") errors.push(`Module "${module.moduleId}" references inactive offer "${id}".`);
+    else if (offerById.get(id).status === "provisional") warnings.push(`Module "${module.moduleId}" references provisional offer "${id}"; it is shown only in the internal review preview and is not approved for publication.`);
   }
 }
 for (const asset of assets) {
@@ -210,11 +214,22 @@ for (const module of modules) {
     errors.push('The "quiz" module must reference its selectionQuiz resultOfferId in ctaIds.');
   }
 }
+const reviewOffers = offers.filter(offer => ["active", "provisional"].includes(offer.status)).map(offer => ({
+  id: offer.id,
+  scenarioId: offer.scenarioId || offer.id,
+  title: offer.title,
+  type: offer.type,
+  status: offer.status,
+  description: offer.description ?? null,
+  requiredFields: asArray(offer.requiredFields),
+  consentRequired: offer.consentRequired !== false
+}));
 const activeOffers = offers.filter(offer => offer.status === "active").map(offer => ({
   id: offer.id,
   scenarioId: offer.scenarioId || offer.id,
   title: offer.title,
   type: offer.type,
+  status: offer.status,
   description: offer.description ?? null,
   requiredFields: asArray(offer.requiredFields),
   consentRequired: offer.consentRequired !== false
@@ -270,6 +285,35 @@ const positioningApproved = passport.project?.positioningStatus === "approved" &
 if (passport.project?.positioningStatus === "approved" && !positioningApproved) {
   errors.push("Project positioning is marked approved but lacks publishable supporting fact IDs.");
 }
+const rawHeroCopy = passport.contentStrategy?.heroCopy;
+let approvedHeroCopy = null;
+if (rawHeroCopy) {
+  const supportIds = asArray(rawHeroCopy.supportingFactIds);
+  const proofPoints = asArray(rawHeroCopy.proofPoints);
+  if (typeof rawHeroCopy.headline !== "string" || rawHeroCopy.headline.trim().length < 8 ||
+      typeof rawHeroCopy.lead !== "string" || rawHeroCopy.lead.trim().length < 20) {
+    errors.push("Hero copy requires a meaningful headline and lead.");
+  }
+  if (!supportIds.length || !supportIds.every(id => publicFact(factById.get(id)))) {
+    errors.push("Hero copy references missing or non-publishable supporting facts.");
+  }
+  if (proofPoints.length < 2 || proofPoints.length > 4 ||
+      proofPoints.some(point => !point.label?.trim() || !supportIds.includes(point.factId) || !publicFact(factById.get(point.factId)))) {
+    errors.push("Hero proof points must each reference a publishable fact included in supportingFactIds.");
+  }
+  if (supportIds.length && supportIds.every(id => publicFact(factById.get(id))) &&
+      proofPoints.length >= 2 && proofPoints.length <= 4 &&
+      proofPoints.every(point => point.label?.trim() && supportIds.includes(point.factId) && publicFact(factById.get(point.factId))) &&
+      typeof rawHeroCopy.headline === "string" && rawHeroCopy.headline.trim().length >= 8 &&
+      typeof rawHeroCopy.lead === "string" && rawHeroCopy.lead.trim().length >= 20) {
+    approvedHeroCopy = {
+      headline: rawHeroCopy.headline.trim(),
+      lead: rawHeroCopy.lead.trim(),
+      supportingFactIds: supportIds,
+      proofPoints: proofPoints.map(point => ({ label: point.label.trim(), factId: point.factId }))
+    };
+  }
+}
 const designTheme = ["urban-noir", "warm-editorial", "garden-modern"].includes(passport.contentStrategy?.visualDirection?.theme)
   ? passport.contentStrategy.visualDirection.theme : "urban-noir";
 const profile = {
@@ -286,6 +330,12 @@ const profile = {
     delivery: publicValue(passport.project?.delivery),
     constructionStatus: publicValue(passport.project?.constructionStatus)
   },
+  marketing: approvedHeroCopy ? {
+    headline: approvedHeroCopy.headline,
+    lead: approvedHeroCopy.lead,
+    supportingFactIds: approvedHeroCopy.supportingFactIds,
+    proofPoints: approvedHeroCopy.proofPoints
+  } : null,
   facts: allowedFacts.map(({ id, claim, publicUse }) => ({ id, claim, publicUse })),
   advantages: allowedAdvantages,
   infrastructure: infrastructureRecords
@@ -313,7 +363,7 @@ const profile = {
         publicLabel: item.publicLabel
       };
     }),
-  offers: activeOffers,
+  offers: reviewOffers,
   apartmentPlans: publicApartmentPlans,
   selectionQuiz: publicSelectionQuiz,
   faq: asArray(passport.faq).map(item => ({ id: item.id, question: item.question, answers: asArray(item.requiredFactIds).map(id => facts.find(fact => fact.id === id)).filter(fact => fact && publishableFactIds.has(fact.id)).map(fact => fact.claim) })).filter(item => item.question && item.answers.length > 0 && asArray(passport.faq).find(source => source.id === item.id)?.requiredFactIds?.every(id => publishableFactIds.has(id))),
@@ -366,6 +416,8 @@ const manifest = {
     };
   })
 };
+const layoutSelection = selectLandingLayoutVariants({ profile, manifest });
+manifest.modules = layoutSelection.manifest.modules;
 const missingRendererSections = manifest.modules
   .filter(item => !item.rendererSectionId || !renderedSections.has(item.rendererSectionId))
   .map(item => ({ moduleId: item.moduleId, rendererSectionId: item.rendererSectionId }));
@@ -394,6 +446,7 @@ const rendererAudit = {
   missingRendererSections,
   unsupportedCapabilities
 };
+const layoutAudit = buildLandingLayoutAudit({ profile, manifest });
 const report = {
   reportVersion: "1.0.0",
   generatedAt: new Date().toISOString(),
@@ -423,12 +476,15 @@ const report = {
     apartmentPlansPublishable: publicApartmentPlans.length,
     selectionQuizAvailable: Boolean(publicSelectionQuiz),
     offersActive: activeOffers.length,
+    offersProvisional: reviewOffers.filter(offer => offer.status === "provisional").length,
     assetsTotal: assets.length,
     assetsApproved: approvedAssets.length
   },
   blockers: errors,
   warnings,
   rendererAudit,
+  layoutSelection: layoutSelection.report,
+  layoutAudit,
   publicationReadiness: {
     status: errors.length ? "blocked" : "review_required",
     productionReady: false,
@@ -450,11 +506,27 @@ const report = {
   ]
 };
 
+const readinessReport = buildLandingReadinessReport({
+  profile: {
+    ...profile,
+    mode: "review",
+    modules: manifest.modules
+  },
+  requestedMode: "review",
+  warnings: warnings.map((message, index) => ({
+    code: `BUILDER_WARNING_${index + 1}`,
+    message
+  }))
+});
+report.readiness = readinessReport;
+
 mkdirSync(outDir, { recursive: true });
 for (const [name, value] of Object.entries({
   "project-profile.json": profile,
   "module-manifest.json": manifest,
-  "generation-report.json": report
+  "generation-report.json": report,
+  "readiness-report.json": readinessReport,
+  "layout-audit.json": layoutAudit
 })) {
   const target = resolve(outDir, name);
   mkdirSync(dirname(target), { recursive: true });

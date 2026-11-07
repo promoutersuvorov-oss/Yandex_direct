@@ -73,9 +73,27 @@ test("synthetic landing renders distinct interactive modules responsively", asyn
   expect(pageErrors).toEqual([]);
 });
 
+test("offers are contextual, inactive CTAs stay hidden and provisional promises are flagged", async ({ page }) => {
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+  const heroButtons = page.locator('[data-module="hero"] [data-preview-cta]');
+  await expect(heroButtons).toHaveCount(2);
+  await expect(page.locator('[data-module="gallery"] [data-preview-cta]')).toHaveCount(0);
+
+  const mortgage = heroButtons.filter({ hasText: "Получить ипотечный расчёт" });
+  await mortgage.click();
+  const dialog = page.locator("#previewNotice");
+  await expect(dialog.locator("#noticeOffer")).toContainText("Получите индивидуальный расчёт по выбранным параметрам.");
+  await expect(dialog.locator("#noticeOffer")).toContainText("ещё не подключён");
+  await expect(dialog.locator(".preview-status")).toContainText("требует подтверждения KEY");
+  await expect(dialog.locator('input[name="name"]')).toHaveAttribute("required", "");
+  await expect(dialog.locator('input[name="phone"]')).toHaveAttribute("required", "");
+  await expect(dialog.locator('input[name="consent"]')).toHaveAttribute("required", "");
+  await expect(dialog.locator("form[data-preview-contact-form]")).toBeVisible();
+});
+
 test("general CTA exposes a stable scenario contract and never claims delivery", async ({ page }) => {
   await page.goto(url, { waitUntil: "domcontentloaded" });
-  await page.locator('[data-module="hero"] [data-preview-cta]').click();
+  await page.locator('[data-module="hero"] [data-preview-cta="presentation"]').click();
   const dialog = page.locator("#previewNotice");
   const payload = JSON.parse(await dialog.locator("#noticePayload").textContent());
   expect(payload).toMatchObject({
@@ -87,12 +105,22 @@ test("general CTA exposes a stable scenario contract and never claims delivery",
     delivery: { status: "disabled_in_preview", accepted: false }
   });
   await expect(dialog).toContainText("Ничего не отправляется");
+  await expect(dialog.locator("#noticeOffer")).toContainText("презентацию");
+  await expect(dialog.locator("[data-preview-contact-form] input[name=phone]")).toBeVisible();
+  await expect(dialog.locator(".preview-disclaimer")).toContainText("никуда не отправляются");
+  await dialog.locator("[data-preview-contact-form] input[name=name]").fill("Тестовый посетитель");
+  await dialog.locator("[data-preview-contact-form] input[name=phone]").fill("+7 900 000-00-00");
+  await dialog.locator("[data-preview-contact-form] [name=consent]").check();
+  await dialog.locator("[data-preview-contact-form] button[type=submit]").click();
+  await expect(dialog).toContainText("данные не сохраняются и не отправляются");
+  await expect(dialog.locator("#noticePayload")).toContainText("disabled_in_preview");
 });
 
 test("preview CTA preserves selected apartment context and never claims delivery", async ({ page }) => {
   await page.goto(url, { waitUntil: "domcontentloaded" });
   const planCta = page.locator('[data-preview-plan-id="fixture-plan-45"]');
   await expect(planCta).toBeVisible();
+  await expect(planCta).toHaveText("Тестовый подбор");
   await planCta.click();
 
   const dialog = page.locator("#previewNotice");

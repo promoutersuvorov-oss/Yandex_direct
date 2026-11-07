@@ -431,7 +431,7 @@
         "decision": "include",
         "reason": "Показывает повседневные сценарии на основе заявленных особенностей двора и террас.",
         "order": 4,
-        "variant": "image-led",
+        "variant": "feature-led",
         "requiredFactIds": [
           "car-free-courtyard",
           "terraces"

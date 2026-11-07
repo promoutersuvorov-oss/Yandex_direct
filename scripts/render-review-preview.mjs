@@ -48,7 +48,7 @@ const renderGallery = list => '<div class="media-grid">' + list.map((asset, inde
   '"><figcaption>' + esc(asset.type === "plan" ? "Планировка" : asset.type === "render" ? "Визуализация" : "Фотография") +
   '</figcaption></figure>'
 ).join("") + '</div>';
-const ctaAttributes = offer => `data-preview-cta="${esc(offer.id)}" data-preview-scenario="${esc(offer.scenarioId || offer.id)}" data-preview-title="${esc(offer.title)}" data-preview-required-fields="${esc(JSON.stringify(offer.requiredFields || []))}" data-preview-consent-required="${offer.consentRequired !== false}"`;
+const ctaAttributes = offer => `data-preview-cta="${esc(offer.id)}" data-preview-scenario="${esc(offer.scenarioId || offer.id)}" data-preview-title="${esc(offer.title)}" data-preview-description="${esc(offer.description || "")}" data-preview-type="${esc(offer.type || "other")}" data-preview-status="${esc(offer.status || "provisional")}" data-preview-required-fields="${esc(JSON.stringify(offer.requiredFields || []))}" data-preview-consent-required="${offer.consentRequired !== false}"`;
 const renderPlans = offer => (profile.apartmentPlans || []).map(plan => {
   const asset = byId(assets, plan.assetId);
   if (!asset || !safeImageUrl(asset.url)) return "";
@@ -58,7 +58,7 @@ const renderPlans = offer => (profile.apartmentPlans || []).map(plan => {
     ' data-preview-plan-id="' + esc(plan.id) + '" data-preview-plan-rooms="' + esc(plan.rooms) +
     '" data-preview-plan-area="' + esc(plan.areaSqm) + '" data-preview-plan-floor="' + esc(plan.floor ?? "") +
     '" data-preview-plan-finishing="' + esc(plan.finishing ?? "") +
-    '" data-preview-plan-asset-id="' + esc(plan.assetId) + '">Обсудить эту планировку</button>' : "";
+    '" data-preview-plan-asset-id="' + esc(plan.assetId) + '">' + esc(offer.title) + '</button>' : "";
   return '<article class="plan-card"><img src="' + esc(safeImageUrl(asset.url)) + '" alt="' +
     esc(asset.alt || "Планировка квартиры") + '" loading="lazy"><div class="plan-copy"><p class="eyebrow">Планировка</p><h3>' +
     esc(plan.title || rooms) + '</h3><p>' + esc(meta) + '</p>' + (plan.finishing ? '<p>' + esc(plan.finishing) + '</p>' : "") +
@@ -128,10 +128,14 @@ const labelFor = module => ({
   developer: "О застройщике", mortgage: "Финансовый сценарий", steps: "Следующий шаг",
   faq: "Вопросы и ответы", contacts: "Связаться с KEY"
 }[module.moduleId] || module.moduleId.replace(/[-_]/g, " "));
-const offerFor = module => (module.ctaIds || []).map(id => byId(offers, id)).find(Boolean);
-const button = (offer, fallback) => offer
-  ? `<button class="cta" type="button" ${ctaAttributes(offer)}>${esc(offer.title)}</button>`
-  : fallback ? `<button class="cta" type="button" data-preview-cta="generic" data-preview-scenario="generic" data-preview-title="${esc(fallback)}" data-preview-required-fields="[]" data-preview-consent-required="true">${esc(fallback)}</button>` : "";
+const offersFor = module => (module.ctaIds || []).map(id => byId(offers, id)).filter(offer => offer && offer.status !== "inactive");
+const offerFor = module => offersFor(module)[0];
+const buttonsFor = module => {
+  const assigned = offersFor(module);
+  return assigned.length ? '<div class="cta-group">' + assigned.map(offer =>
+    `<button class="cta" type="button" ${ctaAttributes(offer)}>${esc(offer.title)}</button>`
+  ).join("") + '</div>' : "";
+};
 
 function renderModule(module, index) {
   const advantagesHere = module.moduleId === "hero" ? [] : advantagesFor(module);
@@ -141,12 +145,15 @@ function renderModule(module, index) {
   const moduleAssets = assetsFor(module);
   const offer = offerFor(module);
   const heading = module.moduleId === "hero"
-    ? (profile.project.name || labelFor(module))
+    ? (profile.marketing?.headline || profile.project.name || labelFor(module))
     : labelFor(module);
-  // Never expose the strategist's internal rationale or an unapproved positioning hypothesis.
+  // Hero marketing copy is exported only after its explicit fact references pass the evidence gate.
   const intro = module.moduleId === "hero"
-    ? (profile.project.positioning || "")
+    ? (profile.marketing?.lead || profile.project.positioning || "")
     : (module.userQuestion || "");
+  const heroProof = module.moduleId === "hero" && Array.isArray(profile.marketing?.proofPoints) && profile.marketing.proofPoints.length
+    ? '<aside class="hero-aside" aria-label="Ключевые особенности дома"><p class="hero-aside-kicker">Главное о доме</p><ol class="hero-aside-list">' + profile.marketing.proofPoints.map((point, proofIndex) => '<li><span class="hero-aside-index">' + String(proofIndex + 1).padStart(2, "0") + '</span><strong>' + esc(point.label) + '</strong></li>').join("") + '</ol><span class="hero-aside-mark" aria-hidden="true">К–15</span></aside>'
+    : "";
   const factList = factsHere.map(fact => `<li>${esc(fact.claim)}</li>`).join("");
   const benefitList = advantagesHere.map(item => `<article class="benefit"><h3>${esc(item.title)}</h3><p>${esc(item.benefit)}</p></article>`).join("");
   const image = module.moduleId === "gallery" && moduleAssets.length
@@ -156,11 +163,11 @@ function renderModule(module, index) {
   const plans = (module.moduleId === "floor-plans" || module.moduleId === "apartments") ? renderPlans(offer) : "";
   const quiz = module.moduleId === "quiz" ? renderQuiz(profile.selectionQuiz, byId(offers, profile.selectionQuiz?.resultOfferId)) : "";
   const faq = module.moduleId === "faq" ? renderFaq(faqItems) : "";
-  const cta = ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? "" : button(offer, "");
+  const cta = ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? "" : buttonsFor(module);
   const locationContent = module.moduleId === "location" || module.moduleId === "places" ? renderLocation() : "";
   const headingTag = module.moduleId === "hero" ? "h1" : "h2";
   const renderVariant = module.variant === "image-led" && !image ? "feature-led" : (module.variant || "default");
-  const moduleClasses = ["module", module.moduleId === "hero" ? "hero" : "", image || plans ? "" : "text-only"].filter(Boolean).join(" ");
+  const moduleClasses = ["module", module.moduleId === "hero" ? "hero" : "", image || plans ? "" : "text-only", module.moduleId === "hero" && heroProof ? "hero-with-proof" : ""].filter(Boolean).join(" ");
   return `<section class="${moduleClasses}" data-module="${esc(module.moduleId)}" data-variant="${esc(renderVariant)}" id="module-${esc(module.moduleId)}" aria-labelledby="heading-${index}">
     <div class="module-copy"><p class="eyebrow">${String(index + 1).padStart(2, "0")}</p>
       <${headingTag} id="heading-${index}">${esc(heading)}</${headingTag}>
@@ -172,7 +179,7 @@ function renderModule(module, index) {
       ${quiz}
       ${faq}
       ${cta}
-    </div>${image}
+    </div>${heroProof}${image}
   </section>`;
 }
 
@@ -203,7 +210,7 @@ body[data-theme="garden-modern"] h1,body[data-theme="garden-modern"] h2{font-fam
 body[data-theme="garden-modern"] .module:nth-child(odd){background:#15231e}
 body[data-theme="garden-modern"] .module[data-variant="proof-led"]{background:#1b3027}
 body[data-theme="garden-modern"] .module[data-variant="conversion-led"]{background:#233329}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);line-height:1.55}a,button{font:inherit}.top{padding:20px var(--pad);display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);color:var(--muted);font-size:13px}.brand{color:var(--text);letter-spacing:.16em;font-weight:700}.module{min-height:52vh;padding:clamp(64px,10vw,140px) var(--pad);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(260px,.95fr);align-items:center;gap:clamp(28px,6vw,90px);border-bottom:1px solid var(--line);max-width:1440px;margin:auto}.module:nth-child(odd){background:#1b1e23}.module.hero{min-height:78vh}.module-copy{max-width:720px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--accent)}h1,h2{font-family:Georgia,serif;font-weight:500;line-height:1.05;letter-spacing:-.035em}h1{font-size:clamp(42px,7vw,88px);margin:18px 0}h2{font-size:clamp(34px,5vw,64px);margin:16px 0 24px}.intro{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:58ch}.facts{padding-left:20px;color:var(--muted);display:grid;gap:12px}.location-content{display:grid;gap:18px;margin:28px 0}.location-address{margin:0;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:18px}.location-address span{display:block;margin-bottom:4px;color:var(--accent);font-size:10px;text-transform:uppercase;letter-spacing:.14em}.place-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.place-card{padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:8px;min-width:0}.place-category{margin:0 0 10px;color:var(--accent);font-size:10px;text-transform:uppercase;letter-spacing:.12em}.place-card h3{margin:0;font-size:19px;line-height:1.2}.place-label{margin:8px 0 0;color:var(--muted)}.place-distance{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}.benefits{display:grid;gap:14px;margin:28px 0}.benefit{padding:18px 0;border-top:1px solid var(--line)}.benefit h3{margin:0 0 5px;font-size:18px}.benefit p{margin:0;color:var(--muted)}figure{margin:0;overflow:hidden;border-radius:8px;background:var(--panel);min-height:240px}figure img{width:100%;height:100%;min-height:240px;max-height:580px;object-fit:cover}.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.media-card:first-child{grid-row:span 2}.media-card figcaption{padding:8px 12px;color:var(--muted);font-size:12px}.plan-card{display:grid;grid-template-columns:minmax(120px,.8fr) minmax(0,1fr);gap:18px;padding:18px;margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px}.plan-card img{width:100%;height:auto;align-self:center;object-fit:contain}.plan-copy h3{margin:4px 0;font-size:22px}.plan-copy p{color:var(--muted)}.plan-copy .cta{margin-top:8px}.preview-quiz{margin:24px 0;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:10px}.quiz-question[hidden],.quiz-actions [hidden]{display:none!important}.faq-list{display:grid;gap:0;margin:28px 0;border-top:1px solid var(--line)}.faq-item{border-bottom:1px solid var(--line);padding:0}.faq-item summary{cursor:pointer;list-style:none;padding:20px 36px 20px 0;position:relative;font-size:clamp(17px,2vw,21px);font-weight:600}.faq-item summary::-webkit-details-marker{display:none}.faq-item summary:after{content:"+";position:absolute;right:4px;top:16px;color:var(--accent);font-size:26px;font-weight:400}.faq-item[open] summary:after{content:"−"}.faq-answer{max-width:68ch;padding:0 24px 18px 0;color:var(--muted)}.faq-answer p{margin:0 0 10px}.quiz-progress{margin:18px 0}.quiz-progress progress{width:100%;height:8px;accent-color:var(--accent)}.quiz-progress p{margin:6px 0;color:var(--muted);font-size:13px}.quiz-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.quiz-actions .cta{margin-top:0}.quiz-secondary{padding:12px 18px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--text);cursor:pointer}.notice pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:38vh;overflow:auto;padding:12px;background:#e9e3d9;border-radius:8px;font-size:12px}.preview-quiz h3{font-size:24px;margin:0 0 8px}.quiz-question{border:0;border-top:1px solid var(--line);padding:18px 0;margin:0}.quiz-question legend{font-weight:600;padding:0 0 12px}.quiz-option{display:flex;gap:10px;align-items:center;padding:9px 0;cursor:pointer;color:var(--muted)}.quiz-option input{appearance:auto;accent-color:var(--accent);width:18px;height:18px;min-width:18px;flex:0 0 18px;position:relative;z-index:1;pointer-events:auto}.cta{display:inline-flex;margin-top:24px;padding:14px 22px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);color:var(--cta-text);cursor:pointer;font-weight:600}.cta:focus-visible,.close:focus-visible{outline:3px solid white;outline-offset:4px}.footer{padding:50px var(--pad);color:var(--muted);font-size:13px}.notice{position:fixed;inset:auto 18px 18px;z-index:5;max-width:520px;margin:auto;padding:16px 18px;background:#f5f1ea;color:#17191d;border-radius:10px;box-shadow:0 12px 50px #0008;display:none}.notice[open]{display:block}.notice p{margin:0 32px 0 0}.close{position:absolute;right:10px;top:8px;border:0;background:none;font-size:24px;cursor:pointer;color:inherit}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);line-height:1.55}a,button{font:inherit}.top{padding:20px var(--pad);display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);color:var(--muted);font-size:13px}.brand{color:var(--text);letter-spacing:.16em;font-weight:700}.module{min-height:52vh;padding:clamp(64px,10vw,140px) var(--pad);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(260px,.95fr);align-items:center;gap:clamp(28px,6vw,90px);border-bottom:1px solid var(--line);max-width:1440px;margin:auto}.module:nth-child(odd){background:#1b1e23}.module.hero{min-height:78vh}.module-copy{max-width:720px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--accent)}h1,h2{font-family:Georgia,serif;font-weight:500;line-height:1.05;letter-spacing:-.035em}h1{font-size:clamp(42px,7vw,88px);margin:18px 0}h2{font-size:clamp(34px,5vw,64px);margin:16px 0 24px}.intro{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:58ch}.facts{padding-left:20px;color:var(--muted);display:grid;gap:12px}.location-content{display:grid;gap:18px;margin:28px 0}.location-address{margin:0;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:18px}.location-address span{display:block;margin-bottom:4px;color:var(--accent);font-size:10px;text-transform:uppercase;letter-spacing:.14em}.place-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.place-card{padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:8px;min-width:0}.place-category{margin:0 0 10px;color:var(--accent);font-size:10px;text-transform:uppercase;letter-spacing:.12em}.place-card h3{margin:0;font-size:19px;line-height:1.2}.place-label{margin:8px 0 0;color:var(--muted)}.place-distance{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}.benefits{display:grid;gap:14px;margin:28px 0}.benefit{padding:18px 0;border-top:1px solid var(--line)}.benefit h3{margin:0 0 5px;font-size:18px}.benefit p{margin:0;color:var(--muted)}figure{margin:0;overflow:hidden;border-radius:8px;background:var(--panel);min-height:240px}figure img{width:100%;height:100%;min-height:240px;max-height:580px;object-fit:cover}.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.media-card:first-child{grid-row:span 2}.media-card figcaption{padding:8px 12px;color:var(--muted);font-size:12px}.plan-card{display:grid;grid-template-columns:minmax(120px,.8fr) minmax(0,1fr);gap:18px;padding:18px;margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px}.plan-card img{width:100%;height:auto;align-self:center;object-fit:contain}.plan-copy h3{margin:4px 0;font-size:22px}.plan-copy p{color:var(--muted)}.plan-copy .cta{margin-top:8px}.preview-quiz{margin:24px 0;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:10px}.quiz-question[hidden],.quiz-actions [hidden]{display:none!important}.faq-list{display:grid;gap:0;margin:28px 0;border-top:1px solid var(--line)}.faq-item{border-bottom:1px solid var(--line);padding:0}.faq-item summary{cursor:pointer;list-style:none;padding:20px 36px 20px 0;position:relative;font-size:clamp(17px,2vw,21px);font-weight:600}.faq-item summary::-webkit-details-marker{display:none}.faq-item summary:after{content:"+";position:absolute;right:4px;top:16px;color:var(--accent);font-size:26px;font-weight:400}.faq-item[open] summary:after{content:"−"}.faq-answer{max-width:68ch;padding:0 24px 18px 0;color:var(--muted)}.faq-answer p{margin:0 0 10px}.quiz-progress{margin:18px 0}.quiz-progress progress{width:100%;height:8px;accent-color:var(--accent)}.quiz-progress p{margin:6px 0;color:var(--muted);font-size:13px}.quiz-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.quiz-actions .cta{margin-top:0}.quiz-secondary{padding:12px 18px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--text);cursor:pointer}.notice pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:38vh;overflow:auto;padding:12px;background:#e9e3d9;border-radius:8px;font-size:12px}.preview-quiz h3{font-size:24px;margin:0 0 8px}.quiz-question{border:0;border-top:1px solid var(--line);padding:18px 0;margin:0}.quiz-question legend{font-weight:600;padding:0 0 12px}.quiz-option{display:flex;gap:10px;align-items:center;padding:9px 0;cursor:pointer;color:var(--muted)}.quiz-option input{appearance:auto;accent-color:var(--accent);width:18px;height:18px;min-width:18px;flex:0 0 18px;position:relative;z-index:1;pointer-events:auto}.cta{display:inline-flex;margin-top:24px;padding:14px 22px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);color:var(--cta-text);cursor:pointer;font-weight:600}.cta:focus-visible,.close:focus-visible{outline:3px solid white;outline-offset:4px}.footer{padding:50px var(--pad);color:var(--muted);font-size:13px}.notice{position:fixed;inset:auto 18px 18px;z-index:5;max-width:520px;margin:auto;padding:16px 18px;background:#f5f1ea;color:#17191d;border-radius:10px;box-shadow:0 12px 50px #0008;display:none}.notice[open]{display:block}.notice p{margin:0 32px 0 0}.notice #noticeOffer{margin:16px 0;padding:16px;background:#e9e3d9;border-radius:8px}.notice #noticeOffer h3{margin:0 0 8px;font-size:20px}.notice #noticeOffer p{margin:0;color:#4d4a45}.preview-form{display:grid;gap:12px;margin:16px 0}.preview-form label{display:grid;gap:5px;font-size:13px;font-weight:600}.preview-form input,.preview-form select{width:100%;padding:12px;border:1px solid #c9c1b5;border-radius:7px;background:white;color:#17191d;font:inherit}.preview-form .preview-consent{display:flex;align-items:flex-start;gap:9px;font-weight:400}.preview-form .preview-consent input{width:18px;margin-top:3px}.preview-form button{padding:13px 18px;border:0;border-radius:999px;background:#25231f;color:white;font:inherit;font-weight:600}.preview-form button:disabled{opacity:.5}.preview-disclaimer{font-size:12px;color:#625d55}.preview-status{margin-top:10px!important;color:#8a4b31!important;font-size:12px;font-weight:600}.payload-details{margin-top:12px;font-size:12px}.payload-details summary{cursor:pointer;color:#625d55}.notice pre{margin-top:10px}.close{position:absolute;right:10px;top:8px;border:0;background:none;font-size:24px;cursor:pointer;color:inherit}
 /* Composition archetypes change the page rhythm and geometry independently of its palette. */
 body[data-composition="editorial"] .module{max-width:1320px;grid-template-columns:minmax(0,1.12fr) minmax(280px,.88fr);padding-block:clamp(88px,12vw,168px)}
 body[data-composition="editorial"] .module-copy{max-width:650px}
@@ -261,6 +268,7 @@ body[data-composition="architectural"] figure{border-radius:0;outline:1px solid 
 .module.text-only,.module.text-only[data-variant="location-led"]{grid-template-columns:minmax(0,1fr);min-height:auto;padding-block:clamp(52px,7vw,88px)}.module.hero.text-only{min-height:clamp(440px,58vh,620px)}.module.text-only .module-copy{max-width:1000px}
 @media(max-width:760px){.place-grid{grid-template-columns:1fr}.module.text-only,.module.hero.text-only{min-height:unset;padding-block:52px}.module,.module.hero,.module[data-variant="editorial-split"],.module[data-variant="gallery-mosaic"],.module[data-variant="plan-selector"],.module[data-variant="step-form"],.module[data-variant="feature-led"],.module[data-variant="image-led"],.module[data-variant="location-led"]{grid-template-columns:1fr;min-height:unset;padding-block:68px}.module figure,.module .media-grid{grid-row:1}.module-copy{grid-row:2}.module[data-variant="full-bleed"]{display:flex;min-height:64svh;padding-block:68px}.module[data-variant="full-bleed"] figure{position:absolute;inset:0;grid-row:auto}.module[data-variant="full-bleed"] .module-copy{grid-row:auto}figure img{max-height:360px}.plan-card{grid-template-columns:1fr}.plan-card img{max-height:260px}.top{font-size:11px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.hero-aside{position:relative;align-self:stretch;min-height:340px;max-width:430px;width:100%;justify-self:end;display:flex;flex-direction:column;justify-content:center;padding:clamp(22px,3vw,38px);overflow:hidden;border:1px solid var(--line);background:linear-gradient(145deg,#e7ddcf 0%,#ded1c0 100%);color:#25231f}.hero-aside-kicker{position:relative;z-index:1;margin:0 0 22px;color:#8e513d;font:600 10px/1.2 Inter,Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase}.hero-aside-list{position:relative;z-index:1;display:grid;gap:0;list-style:none;margin:0;padding:0}.hero-aside-list li{display:grid;grid-template-columns:38px minmax(0,1fr);align-items:center;gap:12px;padding:18px 0;border-top:1px solid #25231f2b}.hero-aside-list li:last-child{border-bottom:1px solid #25231f2b}.hero-aside-index{color:#9a5b43;font:12px/1 Inter,Arial,sans-serif;font-variant-numeric:tabular-nums}.hero-aside-list strong{font:400 clamp(17px,1.8vw,22px)/1.2 Georgia,"Times New Roman",serif}.hero-aside-mark{position:absolute;right:-18px;bottom:-72px;color:#25231f0b;font:400 clamp(150px,22vw,260px)/.8 Georgia,serif;letter-spacing:-.09em;pointer-events:none}.module.hero.text-only.hero-with-proof{grid-template-columns:minmax(0,1.08fr) minmax(280px,.72fr);gap:clamp(32px,6vw,90px);min-height:clamp(560px,78vh,820px);padding-block:clamp(64px,9vw,120px)}.module.hero.text-only.hero-with-proof .module-copy{max-width:700px}.module.hero.text-only.hero-with-proof .hero-aside{grid-column:2;grid-row:1}.cta-group{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.cta-group .cta{margin-top:24px}.module.hero .cta-group{margin-top:6px}body[data-theme="warm-editorial"] .hero-aside{background:linear-gradient(145deg,#e7ddcf 0%,#ded1c0 100%)}@media(max-width:760px){.module.hero.text-only.hero-with-proof{grid-template-columns:1fr;min-height:unset;gap:28px}.module.hero.text-only.hero-with-proof .module-copy{grid-column:1;grid-row:1}.module.hero.text-only.hero-with-proof .hero-aside{grid-column:1;grid-row:2;justify-self:stretch;max-width:none;min-height:260px}.hero-aside-mark{font-size:180px}}body[data-theme="warm-editorial"] .module[data-variant="proof-led"] .benefits{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}body[data-theme="warm-editorial"] .module[data-variant="proof-led"] .benefit{height:100%;padding:22px 24px;background:#d9cdbd;border:1px solid #c9bca9;border-radius:8px}body[data-theme="warm-editorial"] .module[data-variant="proof-led"] .benefit p{color:#514a42}@media(max-width:760px){body[data-theme="warm-editorial"] .module[data-variant="proof-led"] .benefits{grid-template-columns:1fr}}
 </style>
 </head>
 <body data-theme="${esc(designTheme)}" data-composition="${esc(["editorial", "cinematic", "architectural"].includes(profile.design?.composition) ? profile.design.composition : "editorial")}">
@@ -269,34 +277,81 @@ body[data-composition="architectural"] figure{border-radius:0;outline:1px solid 
 ${sections || '<section class="module"><div class="module-copy"><h1>Материалы проекта готовятся</h1><p class="intro">Для этой версии ещё не выбраны разделы презентации.</p></div></section>'}
 </main>
 <footer class="footer">Предварительная сборка для внутренней проверки. Не является опубликованной страницей и не принимает заявки.</footer>
-<dialog class="notice" id="previewNotice" aria-labelledby="noticeTitle"><button class="close" type="button" aria-label="Закрыть">×</button><strong id="noticeTitle">Сценарий обращения</strong><p id="noticeText">В этой предварительной версии отправка заявок отключена. Перед публикацией необходимо подключить и проверить доставку обращений KEY.</p><pre id="noticePayload" hidden></pre></dialog>
+<dialog class="notice" id="previewNotice" aria-labelledby="noticeTitle"><button class="close" type="button" aria-label="Закрыть">×</button><strong id="noticeTitle">Сценарий обращения</strong><p id="noticeText">Предварительный просмотр сценария. Отправка отключена.</p><div id="noticeOffer"></div><div id="noticeFormMount"></div><p class="preview-disclaimer">Демонстрационный режим: данные формы остаются только в этом окне и никуда не отправляются. отправка заявок отключена. Тексты согласий и юридические документы должны быть утверждены KEY.</p><details class="payload-details"><summary>Технический контекст сценария</summary><pre id="noticePayload" hidden></pre></details></dialog>
 <script>
 const dialog=document.getElementById("previewNotice");
 const noticeTitle=document.getElementById("noticeTitle");
 const noticeText=document.getElementById("noticeText");
+const noticeOffer=document.getElementById("noticeOffer");
+const noticeFormMount=document.getElementById("noticeFormMount");
 const noticePayload=document.getElementById("noticePayload");
-const showPreview=(title,message,payload)=>{
+const fieldLabels={name:"Как к вам обращаться",phone:"Номер телефона",email:"Электронная почта",preferredChannel:"Как удобнее ответить",preferredTime:"Когда удобно связаться"};
+const valueCopy={
+ presentation:"Оставьте контакты, чтобы получить презентацию этого жилого комплекса.",
+ apartment_selection:"Оставьте контакты, чтобы специалист KEY подготовил подборку квартир с учётом ваших пожеланий.",
+ mortgage_estimate:"Оставьте контакты, чтобы получить индивидуальный кредитный расчёт по выбранным параметрам.",
+ consultation:"Оставьте контакты, чтобы получить ответ специалиста KEY на ваш вопрос.",
+ callback:"Оставьте контакты и выберите удобное время для обратного звонка."
+};
+const renderPreviewForm=(fields,consentRequired)=>{
+ if(!fields.length)return "";
+ const inputs=fields.map(field=>{
+  if(field==="preferredChannel")return '<label>'+fieldLabels[field]+'<select name="'+field+'" required><option value="phone">Телефон</option><option value="messenger">Мессенджер</option></select></label>';
+  if(field==="preferredTime")return '<label>'+fieldLabels[field]+'<input name="'+field+'" required placeholder="Например, сегодня после 18:00"></label>';
+  const type=field==="phone"?"tel":field==="email"?"email":"text";
+  const autocomplete=field==="phone"?"tel":field==="email"?"email":field==="name"?"name":"off";
+  const placeholder=field==="phone"?"+7 (___) ___-__-__":field==="name"?"Ваше имя":field==="email"?"Ваш email":"";
+  return '<label>'+fieldLabels[field]+'<input name="'+field+'" type="'+type+'" autocomplete="'+autocomplete+'" placeholder="'+placeholder+'" required></label>';
+ }).join("");
+ return '<form class="preview-form" data-preview-contact-form>'+inputs+(consentRequired?'<label class="preview-consent"><input type="checkbox" name="consent" required><span>Согласен(на) на обработку персональных данных. Демонстрационный текст, требует юридического утверждения.</span></label>':"")+'<button type="submit">Продолжить — получить результат</button></form>';
+};
+const showPreview=(title,message,payload,offer={})=>{
  noticeTitle.textContent=title;
  noticeText.textContent=message;
+ noticeOffer.replaceChildren();
+ if(offer.title){
+  const titleNode=document.createElement("h3");
+  titleNode.textContent=offer.title;
+  const descriptionNode=document.createElement("p");
+  descriptionNode.textContent=offer.description||valueCopy[offer.type]||"Оставьте контакты, чтобы получить выбранную информацию от KEY.";
+  noticeOffer.append(titleNode,descriptionNode);
+  if(offer.status==="provisional"){
+   const statusNode=document.createElement("p");
+   statusNode.className="preview-status";
+   statusNode.textContent="Предложение требует подтверждения KEY и не готово к публикации.";
+   noticeOffer.append(statusNode);
+  }
+ }
+ const fields=offer.fields||[];
+ noticeFormMount.innerHTML=renderPreviewForm(fields,offer.consentRequired!==false);
  noticePayload.hidden=!payload;
  noticePayload.textContent=payload?JSON.stringify(payload,null,2):"";
+ const form=noticeFormMount.querySelector("[data-preview-contact-form]");
+ form?.addEventListener("submit",event=>{
+  event.preventDefault();
+  const consent=form.querySelector('[name="consent"]');
+  if(consent&&!consent.checked){consent.focus();return;}
+  noticeText.textContent="Сценарий заполнения проверен. В демонстрационном режиме данные не сохраняются и не отправляются.";
+ });
  dialog.showModal();
 };
 document.querySelectorAll("[data-preview-cta]").forEach(button=>button.addEventListener("click",()=>{
  const section=button.closest("[data-module]");
  const plan=button.dataset.previewPlanId?{
-  id:button.dataset.previewPlanId,
-  rooms:Number(button.dataset.previewPlanRooms),
+  id:button.dataset.previewPlanId,rooms:Number(button.dataset.previewPlanRooms),
   areaSqm:Number(button.dataset.previewPlanArea),
   floor:button.dataset.previewPlanFloor?Number(button.dataset.previewPlanFloor):null,
-  finishing:button.dataset.previewPlanFinishing||null,
-  assetId:button.dataset.previewPlanAssetId
+  finishing:button.dataset.previewPlanFinishing||null,assetId:button.dataset.previewPlanAssetId
  }:null;
  const payload={schemaVersion:"key-cta-context/2.0",state:"preview_only",projectId:${JSON.stringify(projectId)},
   conversion:{scenarioId:button.dataset.previewScenario||button.dataset.previewCta,offerId:button.dataset.previewCta==="generic"?null:button.dataset.previewCta,moduleId:section?.dataset.module||null,entityContext:plan?{plan}:{}},
   requirements:{requiredFields:JSON.parse(button.dataset.previewRequiredFields||"[]"),consentRequired:button.dataset.previewConsentRequired!=="false"},
   delivery:{status:"disabled_in_preview",accepted:false}};
- showPreview(button.dataset.previewTitle||"Сценарий обращения","Предпросмотр контекста обращения. Ничего не отправляется.",payload);
+ showPreview(button.dataset.previewTitle||"Сценарий обращения","Предпросмотр контекста обращения. Ничего не отправляется.",payload,{
+  title:button.dataset.previewTitle||"Получить результат",description:button.dataset.previewDescription||"",
+  type:button.dataset.previewType||"other",status:button.dataset.previewStatus||"provisional",fields:JSON.parse(button.dataset.previewRequiredFields||"[]"),
+  consentRequired:button.dataset.previewConsentRequired!=="false"
+ });
 }));
 document.querySelectorAll("form[data-preview-quiz]").forEach(form=>{
  const steps=Array.from(form.querySelectorAll("[data-quiz-step]"));
@@ -308,10 +363,8 @@ document.querySelectorAll("form[data-preview-quiz]").forEach(form=>{
  let current=0;
  const updateStep=()=>{
   steps.forEach((step,index)=>{step.hidden=index!==current});
-  previous.disabled=current===0;
-  next.hidden=current===steps.length-1;
-  submit.hidden=current!==steps.length-1;
-  progress.value=current+1;
+  previous.disabled=current===0;next.hidden=current===steps.length-1;
+  submit.hidden=current!==steps.length-1;progress.value=current+1;
   status.textContent="Вопрос "+(current+1)+" из "+steps.length;
  };
  next?.addEventListener("click",()=>{
@@ -322,17 +375,19 @@ document.querySelectorAll("form[data-preview-quiz]").forEach(form=>{
  previous?.addEventListener("click",()=>{current=Math.max(0,current-1);updateStep()});
  form.addEventListener("submit",event=>{
   event.preventDefault();
-  const answers=steps.map(step=>{
-   const selected=step.querySelector("input:checked");
-   return selected?{questionId:selected.name,optionId:selected.value}:null;
-  });
+  const answers=steps.map(step=>{const selected=step.querySelector("input:checked");return selected?{questionId:selected.name,optionId:selected.value}:null});
   const missing=answers.findIndex(answer=>!answer);
   if(missing!==-1){current=missing;updateStep();steps[current].querySelector("input")?.reportValidity();return;}
   const payload={schemaVersion:"key-cta-context/2.0",state:"preview_only",projectId:${JSON.stringify(projectId)},
    conversion:{scenarioId:form.dataset.resultScenario||form.dataset.resultOffer,offerId:form.dataset.resultOffer,moduleId:form.dataset.moduleId||"quiz",entityContext:{quizAnswers:answers}},
    requirements:{requiredFields:JSON.parse(form.dataset.previewRequiredFields||"[]"),consentRequired:form.dataset.previewConsentRequired!=="false"},
    delivery:{status:"disabled_in_preview",accepted:false}};
-  showPreview("Подбор завершён","Ответы подготовлены локально для проверки сценария. Данные не отправляются.",payload);
+  showPreview("Подбор завершён","Ответы подготовлены локально. Данные не отправляются. Выберите следующий полезный шаг.",payload,{
+   title:"Получить персональную подборку",type:"apartment_selection",status:"provisional",
+   description:valueCopy.apartment_selection,
+   fields:JSON.parse(form.dataset.previewRequiredFields||"[]"),
+   consentRequired:form.dataset.previewConsentRequired!=="false"
+  });
  });
  updateStep();
 });

@@ -1225,7 +1225,7 @@ p{text-wrap:pretty}
         <div class="pk-top">
           <h2>Машина — под домом.</h2>
           <div class="pk-txt">
-            <p class="lead">76 машиномест в подземном паркинге закрывают вопрос парковки рядом с домом.</p>
+            <p class="lead">Подземный паркинг помогает оставить автомобиль рядом с домом.</p>
             <p class="lead gain"><b>Для вас:</b> можно приехать домой, оставить машину в подземном паркинге и подняться на лифте непосредственно на ваш этаж.</p>
           </div>
         </div>
@@ -1995,8 +1995,7 @@ const fmtPhone = v => { let d=v.replace(/\D/g,''); if(d[0]==='8'||d[0]==='7') d=
 document.addEventListener('input',e=>{ if(e.target.name==='uphone'){ e.target.value = fmtPhone(e.target.value); e.target.classList.remove('err'); } if(e.target.name==='uname') e.target.classList.remove('err'); });
 document.addEventListener('focusin',e=>{ if(e.target.name==='uphone' && !e.target.value) e.target.value='+7 ('; });
 document.addEventListener('change',e=>{ if(e.target.name==='uconsent'){ e.target.closest('.consent').classList.remove('err'); const er = e.target.form && $('.ferr',e.target.form); if(er) er.textContent=''; } });
-// Явное переключение визуального тумблера: надёжно в WebKit, без прозрачного overlay над формой.
-document.addEventListener('click',e=>{ const swt=e.target.closest('.consent .swt'); if(!swt) return; e.preventDefault(); const input=swt.previousElementSibling; if(input && input.name==='uconsent') input.click(); });
+// Переключение согласия выполняет нативная активация label: без вложенного программного input.click().
 
 /* ---- Режим разработки: file://, localhost или ?demo=1 ---- */
 const DEV = location.protocol==='file:' || /^(localhost|127\.0\.0\.1)$/.test(location.hostname) || /[?&]demo=1/.test(location.search);
@@ -2176,7 +2175,16 @@ $$('[data-about]').forEach(b=>b.addEventListener('click',()=>$('#aboutDlg').show
   }
   box.addEventListener('click',e=>{
     const o = e.target.closest('.opt'); const bk = e.target.closest('[data-back]');
-    if(o){ goal('quiz_step_'+(st.step+1)); if(st.step===QUIZ.length-1) goal('quiz_done'); st.a[QUIZ[st.step].k] = o.dataset.o; $$('.opt',box).forEach(x=>x.classList.toggle('sel',x===o)); save(); setTimeout(()=>{ st.step++; save(); render(); },260); }
+    if(o){
+      const current = st.step;
+      if(current >= QUIZ.length) return;
+      st.a[QUIZ[current].k] = o.dataset.o;
+      goal('quiz_step_'+(current+1));
+      if(current===QUIZ.length-1) goal('quiz_done');
+      st.step = current + 1;
+      save();
+      render();
+    }
     if(bk){ st.step = Math.max(0, st.step-1); save(); render(); }
   });
   if(st.step>=QUIZ.length && QUIZ.some(q=>!st.a[q.k])) st.step=0;

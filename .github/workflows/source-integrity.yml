@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   source-integrity:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,6 +33,8 @@ jobs:
         run: python scripts/validate-passport-schema.py
       - name: Validate KD 905 draft passport against JSON Schema
         run: python scripts/validate-passport-schema.py examples/kd-905.project-passport.draft.json
+      - name: Validate K15 canonical draft passport against JSON Schema
+        run: python scripts/validate-passport-schema.py examples/k15.project-passport.draft.json
       - name: Validate CTA context contract schema and negative cases
         run: python scripts/validate-cta-context-schema.py
       - name: Generate synthetic passport fixture for location evidence schema validation
@@ -45,12 +47,24 @@ jobs:
         run: node --test tests/attribution.test.mjs
       - name: Test canonical lead payload validation
         run: node --test tests/lead-payload.test.mjs
+      - name: Test KEY lead intake contract (synthetic data only)
+        run: node --test tests/lead-intake-contract-v1.test.mjs
+      - name: Test KEY contextual value conversion contract (synthetic data only)
+        run: node --test tests/value-conversion-contract-v1.test.mjs
+      - name: Test unified landing readiness report
+        run: node --test tests/landing-readiness-report-v1.test.mjs
+      - name: Test deterministic landing composition audit
+        run: node --test tests/landing-layout-audit-v1.test.mjs
       - name: Build review-only bundle from the canonical passport example
         run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out artifacts/review-bundle
       - name: Render dynamic HTML review preview
         run: node scripts/render-review-preview.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/preview.html
       - name: Build the second real-project review bundle (KD 905)
         run: node scripts/build-review-bundle.mjs --passport examples/kd-905.project-passport.draft.json --out artifacts/kd905-review
+      - name: Build the third real-project review bundle (K15)
+        run: node scripts/build-review-bundle.mjs --passport examples/k15.project-passport.draft.json --out artifacts/k15-review
+      - name: Render the K15 internal review preview
+        run: node scripts/render-review-preview.mjs --bundle artifacts/k15-review --out artifacts/k15-review/preview.html
       - name: Render the KD 905 internal review preview
         run: node scripts/render-review-preview.mjs --bundle artifacts/kd905-review --out artifacts/kd905-review/preview.html
       - name: Verify KD 905 project isolation and publication safeguards
@@ -65,6 +79,8 @@ jobs:
         run: node scripts/test-review-bundle.mjs
       - name: Run K15 static product and interaction audit
         run: node scripts/audit-k15.mjs
+      - name: Generate structured K15 legacy readiness report
+        run: node scripts/report-k15-static-readiness.mjs --out artifacts/k15-readiness
       - name: Upload review-only bundle
         if: success()
         uses: actions/upload-artifact@v4
@@ -81,10 +97,26 @@ jobs:
           path: artifacts/kd905-review/
           if-no-files-found: error
           retention-days: 14
+      - name: Upload K15 static readiness report
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k15-static-readiness-report
+          path: artifacts/k15-readiness/k15-static-readiness-report.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload K15 canonical internal review preview
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k15-canonical-internal-review-preview
+          path: artifacts/k15-review/
+          if-no-files-found: error
+          retention-days: 14
 
   browser-smoke:
     needs: source-integrity
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -105,6 +137,10 @@ jobs:
         run: node scripts/build-review-bundle.mjs --passport artifacts/browser-fixture/passport.json --out artifacts/review-bundle
       - name: Render review preview for browser validation
         run: node scripts/render-review-preview.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/preview.html
+      - name: Build canonical K15 preview for cross-browser validation
+        run: node scripts/build-review-bundle.mjs --passport examples/k15.project-passport.draft.json --out artifacts/k15-review
+      - name: Render canonical K15 preview for cross-browser validation
+        run: node scripts/render-review-preview.mjs --bundle artifacts/k15-review --out artifacts/k15-review/preview.html
       - name: Build KD 905 preview for cross-browser validation
         run: node scripts/build-review-bundle.mjs --passport examples/kd-905.project-passport.draft.json --out artifacts/kd905-review
       - name: Render KD 905 preview for cross-browser validation
@@ -113,7 +149,12 @@ jobs:
         run: node scripts/render-reference-landing.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/reference.html
       - name: Install Playwright test runner
         run: npm install --no-save --no-audit --no-fund @playwright/test@1.56.1
-      - name: Install Playwright browser engine
+      - name: Cache Playwright browser binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-1.56.1-${{ matrix.browser }}
+      - name: Install Playwright browser engine and system dependencies
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Start local static server
         run: python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/klanding-http.log 2>&1 &
