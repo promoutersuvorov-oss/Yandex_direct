@@ -72,6 +72,10 @@ for (const scenario of cases) {
         await expect(page.locator("#advantage-grid .empty-state")).toContainText("Непроверенные или неподкреплённые утверждения не публикуются");
         await expect(page.locator("#visual-story")).toBeHidden();
       }
+      if (scenario.heroLayout === "fullscreen") {
+        await expect(page.locator("#hero .hero-fallback-title")).toBeHidden();
+        await expect(page.locator("#hero .hero-fallback-index")).toBeHidden();
+      }
 
       const overflow = await page.evaluate(() => ({
         scrollWidth: document.documentElement.scrollWidth,
