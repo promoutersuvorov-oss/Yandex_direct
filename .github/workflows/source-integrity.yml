@@ -139,8 +139,10 @@ jobs:
       - name: Install Playwright test runner
         run: npm install --no-save --no-audit --no-fund @playwright/test@1.56.1
       # The pinned Playwright container already includes all three browser engines.
+      - name: Create evidence-safe canonical passport fixture for the primary runtime
+        run: node scripts/create-canonical-runtime-fixture.mjs --out artifacts/canonical-runtime/passport.json
       - name: Build canonical project profile for the primary browser runtime
-        run: node scripts/build-landing-runtime.mjs --passport tests/fixtures/galiley.project-passport.draft.json --marketing tests/fixtures/canonical-runtime-marketing.json --out artifacts/canonical-runtime/project.config.js
+        run: node scripts/build-landing-runtime.mjs --passport artifacts/canonical-runtime/passport.json --marketing tests/fixtures/canonical-runtime-marketing.json --out artifacts/canonical-runtime/project.config.js
       - name: Start local static server
         run: python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/klanding-http.log 2>&1 &
       - name: Run K15 and reference concept browser smoke tests
