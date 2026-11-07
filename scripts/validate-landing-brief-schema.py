@@ -8,9 +8,10 @@ from jsonschema import Draft202012Validator
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "schemas" / "landing-brief.schema.json"
 EXAMPLE_PATH = ROOT / "examples" / "landing-brief.example.json"
+CANDIDATE_PATH = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else EXAMPLE_PATH
 
 schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
-example = json.loads(EXAMPLE_PATH.read_text(encoding="utf-8"))
+example = json.loads(CANDIDATE_PATH.read_text(encoding="utf-8"))
 
 Draft202012Validator.check_schema(schema)
 validator = Draft202012Validator(schema)
@@ -31,4 +32,4 @@ invalid["offers"][0]["readiness"] = "imaginary"
 if not list(validator.iter_errors(invalid)):
     raise SystemExit("Invalid offer readiness unexpectedly accepted")
 
-print("PASS: LANDING BRIEF example validates against JSON Schema Draft 2020-12; negative CTA and offer cases are rejected.")
+print(f"PASS: {CANDIDATE_PATH.relative_to(ROOT) if CANDIDATE_PATH.is_relative_to(ROOT) else CANDIDATE_PATH.name} validates against JSON Schema Draft 2020-12; negative CTA and offer cases are rejected.")
