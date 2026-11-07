@@ -1,6 +1,7 @@
 import { attributionToPayload } from "./attribution.mjs";
 
 const ID = /^[a-z0-9][a-z0-9_-]{1,79}$/;
+const REFERENCE_ID = /^[a-z0-9][a-z0-9._-]{0,79}$/i;
 const CHANNELS = new Set(["phone", "telegram", "max", "whatsapp", "email"]);
 const DEVICE_CLASSES = new Set(["mobile", "tablet", "desktop", "unknown"]);
 const CONVERSION_INTENTS = new Set(["get_information", "select_apartment", "calculate_payment", "book_viewing", "request_consultation", "request_callback", "other"]);
@@ -116,7 +117,7 @@ export function createLeadPayload(input) {
   const consentPolicyUrl = safeUrl(consent.policyUrl, "consent.policyUrl");
   const conversion = input.conversion ?? {};
   const scenarioId = requiredString(conversion.scenarioId, "conversion.scenarioId", 80);
-  if (!ID.test(scenarioId)) throw new TypeError("conversion.scenarioId must be a stable ID.");
+  if (!REFERENCE_ID.test(scenarioId)) throw new TypeError("conversion.scenarioId must be a stable ID.");
   const createdAt = requiredString(input.createdAt, "createdAt", 40);
   if (!Number.isFinite(Date.parse(createdAt))) throw new TypeError("createdAt must be a valid date-time.");
   const deviceClass = input.deviceClass ?? "unknown";
@@ -153,7 +154,7 @@ export function createLeadPayload(input) {
       ...(["ctaId", "hookId", "funnelId", "segmentId"].reduce((result, key) => {
         const value = optionalString(conversion[key], "conversion." + key, 80);
         if (value) {
-          if (!ID.test(value)) throw new TypeError("conversion." + key + " must be a stable ID.");
+          if (!REFERENCE_ID.test(value)) throw new TypeError("conversion." + key + " must be a stable ID.");
           result[key] = value;
         }
         return result;
