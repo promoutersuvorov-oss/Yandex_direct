@@ -73,6 +73,11 @@ export function resolveRuntimeModulesV1(modules, options = {}) {
       errors.push({code:"MODULE_UNSUPPORTED",moduleId:module.moduleId,message:definition.reason});
       continue;
     }
+    if (definition.status === "placeholder") {
+      errors.push({code:"MODULE_PLACEHOLDER_NOT_READY",moduleId:module.moduleId,
+        message:definition.reason || "Модуль является заглушкой и не может быть опубликован."});
+      continue;
+    }
     const variant = module.variant || "";
     const runtimeVariant = definition.variants[variant];
     if (!runtimeVariant) {
@@ -94,6 +99,14 @@ export function resolveRuntimeModulesV1(modules, options = {}) {
       if (module.decision === "conditional") warnings.push({code:"CONDITIONAL_MODULE_NOT_READY",...issue});
       else errors.push({code:"INCLUDED_MODULE_NOT_READY",...issue});
       continue;
+    }
+    if (definition.status === "partial") {
+      warnings.push({
+        code:"MODULE_PARTIAL_IMPLEMENTATION",
+        moduleId:module.moduleId,
+        runtimeComponent:definition.runtimeComponent,
+        message:definition.reason || "Модуль реализован частично; перед публикацией требуется ручная проверка границ реализации."
+      });
     }
     const placement = {
       moduleId:module.moduleId,
