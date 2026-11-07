@@ -1,0 +1,609 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://key.example/schemas/marketing-copy.schema.json",
+  "title": "KEY Approved Marketing Copy",
+  "description": "Машинно-проверяемый контракт текстового слоя runtime. Не заменяет паспорт ЖК, LANDING BRIEF и проверку фактов.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "projectId",
+    "approvalStatus",
+    "copy"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "sourcePassportVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "approvalStatus": {
+      "enum": [
+        "draft",
+        "approved",
+        "blocked"
+      ]
+    },
+    "copy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "heroKicker",
+        "headline",
+        "lead",
+        "conceptTitle",
+        "conceptCopy",
+        "advantagesTitle",
+        "advantagesIntro",
+        "visualTitle",
+        "visualCopy",
+        "apartmentsTitle",
+        "apartmentsIntro",
+        "locationTitle",
+        "locationCopy",
+        "closingTitle",
+        "closingCopy"
+      ],
+      "properties": {
+        "heroKicker": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "headline": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "lead": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "conceptTitle": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "conceptCopy": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "advantagesTitle": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "advantagesIntro": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "visualTitle": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "visualCopy": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "apartmentsTitle": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "apartmentsIntro": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "locationTitle": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "locationCopy": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "closingTitle": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        },
+        "closingCopy": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Текст runtime; не оставлять пустым и не включать неподтверждённые утверждения."
+        }
+      }
+    },
+    "claimFactIds": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "heroKicker": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "headline": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "lead": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "conceptTitle": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "conceptCopy": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "advantagesTitle": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "advantagesIntro": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "visualTitle": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "visualCopy": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "apartmentsTitle": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "apartmentsIntro": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "locationTitle": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "locationCopy": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "closingTitle": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "closingCopy": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "claimQualifications": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "heroKicker": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "headline": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "lead": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "conceptTitle": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "conceptCopy": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "advantagesTitle": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "advantagesIntro": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "visualTitle": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "visualCopy": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "apartmentsTitle": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "apartmentsIntro": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "locationTitle": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "locationCopy": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "closingTitle": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "closingCopy": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

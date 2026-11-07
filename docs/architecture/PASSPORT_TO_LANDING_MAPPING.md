@@ -1,52 +1,62 @@
-# Mapping паспорта ЖК → runtime-конфигурация KEY
+# Mapping паспорта ЖК, стратегии и маркетингового текста → runtime KEY
 
-Версия: 2.0.0  
-Статус: CLI использует нормализованный Passport → Knowledge + Landing Inputs → Runtime Builder; legacy builder сохранён временно для совместимости.
+Версия: 3.0.0  
+Статус: соответствует canonical CLI и normalized runtime builder на ветке `feat/kd905-runtime-evidence-flow`.
 
-## Источники и границы
+## Канонические входы
 
-CLI `scripts/build-landing-runtime.mjs` — точка входа в канонический путь сборки. Он преобразует три независимых входа через следующие этапы:
-1. Паспорт ЖК по `schemas/project-passport.schema.json`.
-2. Маркетинговый JSON: `{ projectId, approvalStatus: "approved", copy, claimFactIds? }`.
-3. Публичную конфигурацию интеграции: `{ leadEndpoint, privacyPolicyUrl, privacyPolicyVersion, leadWorkflow }` (production требует проверенный контракт доставки и согласие).\n\nПаспорт проходит через `normalizePassportV1` и `normalizeLandingInputsV1`; результат передаётся в `buildLandingProfileFromKnowledgeWithDiagnostics`. Модули разрешаются единым `LANDING_MODULE_REGISTRY_V1`. Старый экспорт `buildLandingProfile` в CLI-файле оставлен только как временный compatibility API и не используется CLI-командой.
+CLI `scripts/build-landing-runtime.mjs` собирает runtime из четырёх независимых входов:
 
-Паспорт не является клиентской конфигурацией. `commercial`, `marketContext`, исходные факты, внутренние заметки, источники и служебные поля не копируются в публичный профиль. Рыночный контекст хранится для аналитических задач генератора и не становится публичным содержимым лендинга автоматически.
+1. **Project Passport** — `schemas/project-passport.schema.json`: идентичность ЖК, факты, источники, доказательства, ассеты, планировки, инфраструктура, предложения и исходные сведения для нормализации.
+2. **Marketing Copy** — `schemas/marketing-copy.schema.json`: `projectId`, человеческий `approvalStatus`, 15 обязательных текстовых полей, `claimFactIds` и при необходимости точечные `claimQualifications`.
+3. **LANDING BRIEF** — `schemas/landing-brief.schema.json`: стратегия, позиционирование, сегмент, hooks, offers, funnels, CTA и квалификация. Для demo/review CLI допускает отсутствие Brief; для production он обязателен и проходит `validateLandingBriefReferences(..., { requirePositioningGate: true })`.
+4. **Public Integration Config** — отдельный конфиг endpoint, privacy policy и проверенного lead workflow. Передаётся через `--integration`; production требует утверждённый workflow, подтверждённый API-контракт и тест доставки, версию текста согласия, HTTPS endpoint и HTTPS privacy URL. Секреты не передаются и не публикуются.
 
-## Контракт маркетингового слоя
+Passport нормализуется через `normalizePassportV1` в Normalized Project Knowledge и через `normalizeLandingInputsV1` в Landing Inputs. Это внутренние производные модели, отдельные JSON-файлы для них не требуются. Явный `legacyReferences.factIdToClaimId` bridge сохраняет связь исходных fact IDs с нормализованными claims. Runtime builder получает Knowledge + Landing Inputs + bridge + Marketing Copy + Integration Config; публичный профиль содержит только разрешённую проекцию.
 
-`copy` содержит все текстовые ключи runtime: `heroKicker`, `headline`, `lead`, `conceptTitle`, `conceptCopy`, `advantagesTitle`, `advantagesIntro`, `visualTitle`, `visualCopy`, `apartmentsTitle`, `apartmentsIntro`, `locationTitle`, `locationCopy`, `closingTitle`, `closingCopy`.
+## Контракт Marketing Copy
 
-Маркетинговый документ допускается только при `approvalStatus="approved"` и совпадении `projectId` с паспортом. Для фактических формулировок `claimFactIds` связывает ключ копирайта с ID фактов. Все ID должны указывать на факты со статусом `verified`, публичным использованием `allowed` или `allowed_with_qualification`, источниками и неистёкшим сроком актуальности. Неподтверждённая формулировка блокирует сборку.
+Файл должен соответствовать `schemas/marketing-copy.schema.json`. Обязательные поля copy:
 
-## Правила данных
+`heroKicker`, `headline`, `lead`, `conceptTitle`, `conceptCopy`, `advantagesTitle`, `advantagesIntro`, `visualTitle`, `visualCopy`, `apartmentsTitle`, `apartmentsIntro`, `locationTitle`, `locationCopy`, `closingTitle`, `closingCopy`.
 
-- Идентичность ЖК берётся из паспорта; район и адрес публикуются только при статусе `verified`.
-- Преимущества выводятся только при наличии непустого списка supportingFactIds, каждый из которых publishable. Runtime сохраняет связку «особенность → польза» и передаёт в карточку названия источников подтверждающих фактов (evidence); если хотя бы один supporting fact не publishable, преимущество целиком исключается.
-- hook — маркетинговая формулировка, а не доказательство. Его нельзя подписывать как proof или показывать вместо источника. В публичной карточке источник обозначается отдельно как «Фактическое основание»; URL источника не раскрывается автоматически.
-- Медиа требуют approved, projectMatch=confirmed, rightsStatus=confirmed, HTTPS URL и неистёкший validUntil. В runtime статусы нормализуются в его контракт `approved`.
-- Планировки требуют verified + publicUse=allowed + источники + действующий срок + связанный одобренный asset типа plan. Сам asset должен быть отдельно разрешён для контекста `floor-plans`; разрешение на использование в галерее или другом блоке не переносится автоматически.
-- Инфраструктура требует verified и источник; дистанция/время — отдельное доказательство маршрута с действующим validUntil. Прямая дистанция не превращается во время пешком.
-- Модули разрешаются только через `LANDING_MODULE_REGISTRY_V1`: ID, вариант, requiredFactIds и capability проверяются явно. Неизвестный ID, неподдерживаемый вариант, конфликт секций или неготовый обязательный модуль блокируют сборку. Условный модуль без зависимостей пропускается с диагностическим warning. Модули не удаляются молча.
-- Палитра и layout-токены нормализуются по allowlist; неизвестные значения не исполняются и возвращаются как diagnostics. Палитра выбирается из проверенного набора по `visualDirection.theme`; произвольный CSS из паспорта не исполняется.
-- Коммерческие поля паспорта никогда не попадают в публичный JS.
-- Production режим требует HTTPS webhook, HTTPS privacy URL и версию политики. Секреты и ключи CRM не принимаются и не генерируются этим адаптером.
+AI/Builder формирует документ со статусом `draft`; статус `approved` выставляет только ответственный человек после проверки. Каждое конкретное утверждение в тексте должно иметь точные legacy fact IDs в `claimFactIds[copyKey]`. Для `allowed_with_qualification` используется `claimQualifications[copyKey]` с тем же fact ID и утверждённой оговоркой. Qualification действует только в одном поле copy.
 
-## Запуск
+Проверка формата:
 
 ```bash
-node scripts/build-landing-runtime.mjs --passport passport.json --marketing marketing.json --out landing/runtime/project.config.js
-node scripts/build-landing-runtime.mjs --passport passport.json --marketing marketing.json --integration public-integration.json --out landing/runtime/project.config.js --production
+python scripts/validate-marketing-copy-schema.py marketing-copy.json
 ```
 
-По умолчанию сборка создаёт demo-профиль без отправки персональных данных. Production-флаг разрешён только при полном наборе публичных настроек интеграции.
+JSON Schema проверяет структуру и обязательные поля; она не заменяет runtime-проверку статусов фактов, источников, актуальности, соответствия projectId и фактического human approval.
 
-## Проверки
+## Запуск canonical CLI
 
-`node --test tests/landing-runtime-adapter.test.mjs` проверяет утверждения, статусы и сроки фактов, привязку маркетингового слоя к проекту, права и принадлежность ассетов, состав модулей, квиз, изоляцию внутренних полей и production gates.
+Demo/review:
 
-CLI больше не использует legacy `MODULE_MAP`: все новые сборки идут через нормализованный builder и Module Registry. Экспорт legacy `buildLandingProfile` пока сохранён для downstream-тестов/совместимости; его удаление — отдельная миграция после проверки потребителей. Это не заменяет JSON Schema validation и не объявляет весь генератор production-ready.
+```bash
+node scripts/build-landing-runtime.mjs --passport passport.json --marketing marketing-copy.approved.json --brief landing-brief.approved.json --out landing/runtime/project.config.js
+```
 
+Production:
 
-## Статус legacy-контракта и Passport vNext
+```bash
+node scripts/build-landing-runtime.mjs --passport passport.json --marketing marketing-copy.approved.json --brief landing-brief.approved.json --integration public-integration.json --out landing/runtime/project.config.js --production
+```
 
-Текущий adapter принимает Project Passport schema 1.0.0. Passport vNext пока является архитектурным proposal и не является прямым входом builder. До переключения требуется normalized Project Knowledge contract, legacy adapter и parity tests. Нельзя менять или переименовывать поля паспорта, считая, что runtime уже поддерживает vNext. См. [PASSPORT_VNEXT_RUNTIME_CONSUMER_AUDIT.md](PASSPORT_VNEXT_RUNTIME_CONSUMER_AUDIT.md).
+Для production обязательны approved Marketing Copy, approved Brief с Positioning Gate и проверенная интеграция. Если проект пока не имеет утверждённой стратегии или интеграции, остаёмся в demo/review и не выдаём это за готовность к публикации.
+
+## Границы публикации
+
+- В публичный профиль не переносятся коммерческие и внутренние поля, research notes, исходные источники и служебные данные.
+- Факты и преимущества публикуются только при прохождении publication gate; qualification не становится глобальным разрешением.
+- Медиа требуют подтверждённых принадлежности проекту, прав, HTTPS URL и актуальности.
+- Планировки требуют отдельного проверенного факта и связанного одобренного plan asset.
+- Инфраструктура требует подтверждения самого POI; расстояние и время — отдельного актуального evidence маршрута. Прямая дистанция не превращается во время пешком.
+- Модули разрешаются через `LANDING_MODULE_REGISTRY_V1`; неизвестный или неготовый обязательный модуль не должен молча исчезать.
+- Integration secrets никогда не включаются в паспорт, Marketing Copy или публичный runtime.
+
+## Ограничения и миграция
+
+Passport 1.0.0 остаётся входным контрактом. Normalized Project Knowledge и Landing Inputs — внутренние модели builder-а, не новые пользовательские артефакты. Не создавай вручную дополнительные промежуточные файлы, если CLI их не требует.
+
