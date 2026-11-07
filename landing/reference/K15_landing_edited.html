@@ -2175,7 +2175,16 @@ $$('[data-about]').forEach(b=>b.addEventListener('click',()=>$('#aboutDlg').show
   }
   box.addEventListener('click',e=>{
     const o = e.target.closest('.opt'); const bk = e.target.closest('[data-back]');
-    if(o){ goal('quiz_step_'+(st.step+1)); if(st.step===QUIZ.length-1) goal('quiz_done'); st.a[QUIZ[st.step].k] = o.dataset.o; $$('.opt',box).forEach(x=>x.classList.toggle('sel',x===o)); save(); setTimeout(()=>{ st.step++; save(); render(); },260); }
+    if(o){
+      const current = st.step;
+      if(current >= QUIZ.length) return;
+      st.a[QUIZ[current].k] = o.dataset.o;
+      goal('quiz_step_'+(current+1));
+      if(current===QUIZ.length-1) goal('quiz_done');
+      st.step = current + 1;
+      save();
+      render();
+    }
     if(bk){ st.step = Math.max(0, st.step-1); save(); render(); }
   });
   if(st.step>=QUIZ.length && QUIZ.some(q=>!st.a[q.k])) st.step=0;
