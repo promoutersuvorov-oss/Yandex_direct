@@ -422,7 +422,16 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
   const visualPlacement = moduleResolution.placements.find(item => item.sectionId === "visual-story");
   const requestedHeroLayout = heroPlacement?.runtimeVariant || designInput.heroLayout;
   const requestedGalleryLayout = visualPlacement?.runtimeVariant || designInput.galleryLayout;
-  const heroLayout = ["split", "fullscreen", "editorial"].includes(requestedHeroLayout) ? requestedHeroLayout : "split";
+  const supportedHeroLayout = ["split", "fullscreen", "editorial"].includes(requestedHeroLayout) ? requestedHeroLayout : "split";
+  // Fullscreen is an image-led treatment. Without approved project media it creates a large empty hero,
+  // so fall back to the editorial composition with the verified typographic artwork instead.
+  const heroLayout = !heroMedia && supportedHeroLayout === "fullscreen" ? "editorial" : supportedHeroLayout;
+  if (heroLayout !== supportedHeroLayout) {
+    evidenceWarnings.push({
+      code: "HERO_LAYOUT_DOWNGRADED_NO_APPROVED_MEDIA",
+      message: "Полноэкранная композиция заменена на editorial: для неё нет одобренного изображения проекта."
+    });
+  }
   const galleryLayout = ["mosaic", "editorial", "strip"].includes(requestedGalleryLayout) ? requestedGalleryLayout : "mosaic";
   const quizModuleSelected = moduleResolution.placements.some(item => item.moduleId === "quiz");
   const quiz = quizModuleSelected && landingInputs.selectionFlow?.publicEligible && offers.quiz &&
