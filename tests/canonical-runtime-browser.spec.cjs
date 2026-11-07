@@ -40,6 +40,20 @@ test("production lead handoff sends consented contact and CTA context and accept
     privacyPolicyUrl: "https://key.test/privacy",
     privacyPolicyVersion: "2026-11-07"
   };
+  profile.ctaMap = {
+    hero: {
+      moduleId: "hero",
+      offerKey: "presentation",
+      label: "Получить персональную презентацию",
+      ctaId: "hero_presentation_cta",
+      hookId: "hero_emotional_hook",
+      funnelId: "first_contact_funnel",
+      segmentId: "family_buyers",
+      intent: "presentation",
+      scenarioId: "hero_personal_presentation",
+      qualificationQuestionIds: ["purchase_timing"]
+    }
+  };
   const source = "window.KEY_PROJECT = " + JSON.stringify(profile) + ";";
   let receivedPayload = null;
   let receivedIdempotencyKey = "";
@@ -76,8 +90,14 @@ test("production lead handoff sends consented contact and CTA context and accept
   expect(Date.parse(receivedPayload.consent.acceptedAt)).not.toBeNaN();
   expect(receivedPayload.conversion).toMatchObject({
     offerId: "presentation",
-    scenarioId: "presentation_request",
-    moduleId: "hero"
+    scenarioId: "hero_personal_presentation",
+    moduleId: "hero",
+    ctaId: "hero_presentation_cta",
+    hookId: "hero_emotional_hook",
+    funnelId: "first_contact_funnel",
+    segmentId: "family_buyers",
+    intent: "presentation",
+    qualificationQuestionIds: ["purchase_timing"]
   });
   expect(receivedPayload.eventId).toBe(receivedIdempotencyKey);
   expect(receivedPayload.leadId).toMatch(/^lead_/);
