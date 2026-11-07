@@ -26,6 +26,22 @@ The report is attached to the Playwright test result as `k15-performance-baselin
 - Do not inline large media into HTML. Prefer optimized, cacheable image assets with responsive variants.
 - Performance budgets must be introduced only after a reproducible baseline exists and must be based on measured production-like builds, not synthetic fixtures alone.
 
+## Initial diagnostic findings (2026-11-07)
+
+The first CI capture recorded a K15 HTML document transfer of approximately 190 KB. The lab browser readings differed materially: Firefox reported LCP around 210 ms, while Chromium and WebKit did not expose an LCP entry in this capture. CLS was low in this run (0–0.013).
+
+**Important limitation:** the repository currently contains only `K15_landing_edited.html` under `landing/reference/`; the referenced local `images/` directory is not present in this branch. The page therefore falls back to generated SVG placeholder artwork. These measurements are useful for document and browser diagnostics, but they are not a valid image-heavy production baseline. The report now records visual-slot counts, attempted media loads, real images and generated placeholders so this limitation remains visible.
+
+A previous successful CI run measured these job durations:
+
+| Job | Total | Browser installation | Browser tests |
+|---|---:|---:|---:|
+| Chromium | 58 s | 25 s | 22 s |
+| Firefox | 42 s | 12 s | 22 s |
+| WebKit | 133 s | 64 s | 50 s |
+
+The clearest CI bottleneck is browser installation, especially WebKit, followed by its longer test execution. Source integrity itself took about 20 seconds. The workflow now caches Playwright browser binaries per engine and runs independent spec files with two workers. The next successful run will show whether those changes help; no improvement is claimed until measured.
+
 ## Optimization sequence
 
 1. Capture and compare the baseline across browser engines.
