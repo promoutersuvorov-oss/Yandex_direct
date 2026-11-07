@@ -36,7 +36,7 @@ export function buildValueConversion(input = {}) {
       serviceId: input.fulfillment?.serviceId ?? null
     },
     contactRequest: {
-      required: input.contactRequest?.required === true,
+      required: input.contactRequest?.required,
       purpose: input.contactRequest?.purpose ?? null,
       fields: input.contactRequest?.fields ?? []
     },
