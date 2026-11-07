@@ -153,7 +153,7 @@ test("canonical CLI builds a second, evidence-qualified project passport through
     assert.equal(profile.mode, "demo");
     assert.equal(profile.analytics.enabled, false);
     assert.equal(profile.integration.leadEndpoint, "");
-    assert.deepEqual(Array.from(profile.composition), ["concept", "advantages", "location"]);
+    assert.deepEqual(Array.from(profile.composition), ["advantages", "location"]);
     assert.equal(profile.design.palette.paper, "#f4f2ed");
     assert.equal(profile.media.length, 0);
     assert.equal(profile.plans.length, 0);
