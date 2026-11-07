@@ -1,4 +1,4 @@
-# Иерархия продуктовой документации KLanding
+# Иерархия продуктовой документации KLanding / KEY
 
 Этот документ устраняет конкуренцию между несколькими важными спецификациями. Он не заменяет их содержание, а определяет область ответственности каждой.
 
@@ -6,6 +6,9 @@
 
 | Уровень | Документ | За что отвечает |
 |---|---|---|
+| Конституция KEY | [KEY_CONSTITUTION.md](../product/KEY_CONSTITUTION.md) | Обязательные правила правдивости, оценки динамики «было → стало», здоровой эффективности, проверки направления, остановки и удаления бесполезной работы |
+| Философия и стратегия KEY | [KEY_PHILOSOPHY_AND_FUTURE_STRATEGY.md](../product/KEY_PHILOSOPHY_AND_FUTURE_STRATEGY.md) | Долгосрочная философия агентства будущего, наблюдение за рынком, пять контуров интеллекта, горизонты развития, стратегические принципы и правила проверки гипотез |
+| Правила ведения проекта | [KEY_PROJECT_WORKING_RULES.md](../product/KEY_PROJECT_WORKING_RULES.md) | Как вести работу, сохранять универсальную цель, не терять контекст и проверять каждое существенное решение на отклонение от продукта |
 | Продуктовый стандарт | [KEY_LANDING_PRODUCT_STANDARD.md](../product/KEY_LANDING_PRODUCT_STANDARD.md) | Какой продукт строим; качество, UX/UI, достоверность, пользовательский путь и критерии эталона |
 | Маркетинговый интеллект | [MARKETING_INTELLIGENCE_AND_LEARNING_LOOP.md](../product/MARKETING_INTELLIGENCE_AND_LEARNING_LOOP.md) | Как исследуем спрос, выбираем сегменты, позиционирование, hooks, офферы, лид-магниты, tripwire, воронки, CTA и учимся на результатах |
 | Бизнес-система | [BUSINESS_SYSTEM.md](../product/BUSINESS_SYSTEM.md) | Как реклама, лендинг, лид, квалификация, консультация, показ и сделка связаны в коммерческий процесс |
@@ -14,12 +17,27 @@
 | Production UI | [PRODUCTION_UI_FOUNDATION.md](../product/PRODUCTION_UI_FOUNDATION.md) | Кроссплатформенные инженерные требования и release gates |
 | Passport mapping | [PASSPORT_TO_LANDING_MAPPING.md](PASSPORT_TO_LANDING_MAPPING.md) | Связь паспорта, стратегии, манифеста и runtime; не готовый конвертер |
 | Контракт паспорта ЖК | [project-passport.schema.json](../../schemas/project-passport.schema.json) | Машинно-проверяемая структура фактов и проекта |
+| Аудит и целевая модель паспорта | [PROJECT_PASSPORT_AUDIT_AND_TARGET_MODEL.md](PROJECT_PASSPORT_AUDIT_AND_TARGET_MODEL.md) | Границы Project Passport, Customer Experience, Landing Brief и Runtime; аудит текущих пробелов и план эволюции без дублирования схем |
+| Полевой аудит паспорта 905 | [PROJECT_PASSPORT_FIELD_AUDIT_KD_905_2026-11-06.md](../audits/PROJECT_PASSPORT_FIELD_AUDIT_KD_905_2026-11-06.md) | Проверка каждого поля текущей схемы на реальном fixture, фактические runtime-зависимости, пробелы данных и приоритет миграции |
+| Предложение Passport vNext | [PASSPORT_VNEXT_CONTRACT_PROPOSAL.md](PASSPORT_VNEXT_CONTRACT_PROPOSAL.md) | Целевая модель данных для городских новостроек бизнес- и премиум-сегмента; до утверждения не является production schema |
+| Проверка Passport vNext в целевом сегменте | [PASSPORT_VNEXT_CROSS_TYPE_VALIDATION.md](PASSPORT_VNEXT_CROSS_TYPE_VALIDATION.md) | Проверка клубного дома, многокорпусного премиального ЖК и городского проекта с разными форматами жилья; фиксирует scope первой версии и исключённые сегменты |
+| Аудит runtime consumers Passport | [PASSPORT_VNEXT_RUNTIME_CONSUMER_AUDIT.md](PASSPORT_VNEXT_RUNTIME_CONSUMER_AUDIT.md) | Фактические зависимости builder от schema 1.0.0, границы legacy adapter, normalized model и обязательные parity tests |
+| Normalized Project Knowledge | [NORMALIZED_PROJECT_KNOWLEDGE_CONTRACT.md](NORMALIZED_PROJECT_KNOWLEDGE_CONTRACT.md) | Предложение внутреннего контракта между Passport Reader и Runtime Builder; не production schema и не публичный API |
+| Mapping legacy-полей паспорта | [PASSPORT_VNEXT_LEGACY_FIELD_MAPPING.md](PASSPORT_VNEXT_LEGACY_FIELD_MAPPING.md) | Полевой mapping schema 1.0.0 в Project Knowledge, Landing Inputs и internal metadata; содержит parity и migration warnings |
+| Mapping Passport 1.0.0 → NPK | [PASSPORT_V1_TO_NORMALIZED_MAPPING.md](PASSPORT_V1_TO_NORMALIZED_MAPPING.md) | Минимальный NPK для первой реализации, полное сопоставление legacy-полей, migration warnings и parity tests |
+| Positioning Gate | [POSITIONING_GATE.md](POSITIONING_GATE.md) | Обязательный шлюз между исследованием и финальной сборкой: пять элементов фокуса кампании, доказательная дисциплина, статусы и условия допуска Builder-а |\n| Контракт маркетинговой стратегии | [landing-brief.schema.json](../../schemas/landing-brief.schema.json) | Машинно-проверяемый LANDING BRIEF между Strategist и Builder: buyer insights, пять элементов позиционирования, hooks, offers, funnels, CTA, qualification и experiments |
+| Customer Experience Architecture | [CUSTOMER_EXPERIENCE_ARCHITECTURE.md](CUSTOMER_EXPERIENCE_ARCHITECTURE.md) | Обязательный слой buyer research, behavioral model, CJM, value proposition, progressive conversion и измерения качества лидов |
+| Контракт Customer Experience | [customer-experience.schema.json](../../schemas/customer-experience.schema.json) | Машинно-проверяемые evidence, сегменты, journey steps, ценностные предложения и метрики |
 | Исполнительные инструкции | [prompts/](../../prompts/) | Как AI-этапы выполняют свои задачи и передают результат следующему |
 | Эталонная реализация | [K15_landing_edited.html](../../landing/reference/K15_landing_edited.html) | Исходный объект аудита и источник UX-паттернов; не нормативный источник фактов или архитектуры |
 | Индекс | [README.md](../../README.md) | Навигация по проекту и текущий статус |
 
 ## 2. Как разрешать конфликты
 
+Конституция KEY задаёт обязательные правила честности, эффективности и принятия решений; приоритет этих правил распространяется на все виды работы. Стратегия KEY задаёт долгосрочное направление и принципы выбора будущих возможностей. Правила ведения проекта регулируют процесс и приоритеты, но не подменяют предметные требования. Для содержания лендинга действует Product Standard; для маркетинговых решений — Marketing Intelligence; для коммерческого процесса — Business System; для технических контрактов — соответствующие схемы и архитектурные документы.
+
+- В вопросах честности, оценки ценности, эффективности, приоритизации и остановки инициатив применяется KEY Constitution.
+- В вопросах стратегического направления применяется KEY Philosophy & Future Strategy.
 - В вопросах пользовательского опыта, визуального качества, достоверности и готовности страницы применяется Product Standard.
 - В вопросах выбора аудитории, позиционирования, рекламных hooks, офферов, лид-магнитов, tripwire, CTA и экспериментов применяется Marketing Intelligence.
 - В вопросах определения квалифицированного лида, этапов продаж и бизнес-метрик применяется Business System.
@@ -49,6 +67,6 @@
 
 Каждое звено получает стабильный идентификатор и версию. Решение должно иметь объяснение: почему оно выбрано, на каких фактах/гипотезах основано и какой результат ожидался.
 
-## 5. Правило изменений
+## 5. Positioning Gate как архитектурное ограничение\n\nPositioning Gate — обязательная часть потока генерации, а не факультативный чек-лист. Strategist формирует и обосновывает один фокус кампании; LANDING BRIEF передаёт его в машинно-проверяемом виде; Builder проверяет статус и не выполняет финальную сборку без `approved`. Подробная процедура, уровни применения, статусы и критерии повторного открытия описаны в [POSITIONING_GATE.md](POSITIONING_GATE.md).\n\n## 6. Правило изменений
 
 Не создавать новый главный стандарт, если требование уже принадлежит существующему каноническому документу. Изменять документ-владелец. При существенном изменении схемы или поведения фиксировать версию, миграцию и совместимость.

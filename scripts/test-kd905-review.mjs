@@ -17,6 +17,20 @@ assert.equal(profile.design.theme, "warm-editorial");
 assert.equal(report.status, "review_required");
 assert.equal(report.publicationReadiness.productionReady, false);
 assert.equal(report.publicationReadiness.status, "review_required");
+assert.equal(report.rendererAudit.status, "passed");
+assert.deepEqual(report.rendererAudit.capabilitySummary, { implemented: 2, partial: 4, unsupported: 0 });
+assert.ok(report.warnings.includes("Passport contains unresolved verification conflicts."));
+assert.ok(report.warnings.includes("Passport explicitly requires manual review."));
+assert.ok(report.warnings.includes("No approved media assets are available."));
+const gates = Object.fromEntries(report.publicationReadiness.gates.map(gate => [gate.id, gate.status]));
+assert.deepEqual(gates, {
+  passport_evidence: "passed",
+  section_renderer_contract: "passed",
+  privacy_notice: "pending_manual_configuration",
+  lead_delivery: "pending_integration_test",
+  claims_and_project_copy: "pending_manual_review",
+  responsive_visual_qa: "pending_browser_review"
+});
 
 assert.ok(profile.facts.length >= 5, "The real-project preview should contain verified facts from its own passport.");
 assert.ok(profile.facts.some(fact => fact.id === "total-apartments" && fact.claim.includes("45 квартир")));

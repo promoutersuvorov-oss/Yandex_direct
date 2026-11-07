@@ -3,7 +3,7 @@ import { attributionToPayload } from "./attribution.mjs";
 const ID = /^[a-z0-9][a-z0-9_-]{1,79}$/;
 const CHANNELS = new Set(["phone", "telegram", "max", "whatsapp", "email"]);
 const DEVICE_CLASSES = new Set(["mobile", "tablet", "desktop", "unknown"]);
-const CONTEXT_KEYS = new Set(["rooms", "planId", "quizAnswers", "requestedInfo", "preferredViewing"]);
+const CONTEXT_KEYS = new Set(["rooms", "planId", "plan", "mortgage", "quizAnswers", "requestedInfo", "preferredViewing"]);
 const ANSWER_ID = /^[a-z0-9][a-z0-9_-]{0,79}$/i;
 
 function requiredString(value, field, max = 160) {
@@ -60,6 +60,33 @@ function cleanContext(value) {
       result.rooms = item;
     } else if (key === "quizAnswers") {
       result.quizAnswers = cleanAnswers(item) ?? {};
+    } else if (key === "plan") {
+      if (!item || typeof item !== "object" || Array.isArray(item)) throw new TypeError("plan context must be an object.");
+      const rooms = item.rooms;
+      const areaSqm = item.areaSqm;
+      const floor = item.floor;
+      if (!Number.isInteger(rooms) || rooms < 0 || rooms > 10) throw new TypeError("plan.rooms must be an integer from 0 to 10.");
+      if (!Number.isFinite(areaSqm) || areaSqm <= 0) throw new TypeError("plan.areaSqm must be a positive number.");
+      if (floor != null && (!Number.isInteger(floor) || floor < 1)) throw new TypeError("plan.floor must be a positive integer.");
+      result.plan = {
+        id: requiredString(item.id, "plan.id", 80),
+        rooms,
+        areaSqm,
+        assetId: requiredString(item.assetId, "plan.assetId", 80),
+        ...(floor == null ? {} : { floor }),
+        ...(optionalString(item.finishing, "plan.finishing", 120) ? { finishing: item.finishing.trim() } : {})
+      };
+    } else if (key === "mortgage") {
+      if (!item || typeof item !== "object" || Array.isArray(item)) throw new TypeError("mortgage context must be an object.");
+      const { price, downPayment, ratePercent, termYears, estimatedMonthlyPayment } = item;
+      if (![price, downPayment, ratePercent, termYears, estimatedMonthlyPayment].every(Number.isFinite)) {
+        throw new TypeError("Mortgage context values must be finite numbers.");
+      }
+      if (price <= 0 || downPayment < 0 || downPayment >= price) throw new TypeError("Mortgage price and downPayment are invalid.");
+      if (ratePercent < 0 || ratePercent > 100 || !Number.isInteger(termYears) || termYears < 1 || termYears > 40 || estimatedMonthlyPayment <= 0) {
+        throw new TypeError("Mortgage rate, term or estimated payment is invalid.");
+      }
+      result.mortgage = { price, downPayment, ratePercent, termYears, estimatedMonthlyPayment };
     } else {
       result[key] = requiredString(item, "conversion.entityContext." + key, 160);
     }
@@ -117,6 +144,14 @@ export function createLeadPayload(input) {
       scenarioId,
       ...(optionalString(conversion.offerId, "conversion.offerId", 80) ? { offerId: conversion.offerId.trim() } : {}),
       ...(optionalString(conversion.moduleId, "conversion.moduleId", 80) ? { moduleId: conversion.moduleId.trim() } : {}),
+      ...(["ctaId", "hookId", "funnelId", "segmentId"].reduce((result, key) => {
+        const value = optionalString(conversion[key], "conversion." + key, 80);
+        if (value) {
+          if (!ID.test(value)) throw new TypeError("conversion." + key + " must be a stable ID.");
+          result[key] = value;
+        }
+        return result;
+      }, {})),
       ...(cleanContext(conversion.entityContext) ? { entityContext: cleanContext(conversion.entityContext) } : {})
     },
     ...(input.referrer ? { referrer: safeUrl(input.referrer, "referrer") } : {}),

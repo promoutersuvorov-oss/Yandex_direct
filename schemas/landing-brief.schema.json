@@ -1,0 +1,950 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://key.example/schemas/landing-brief.schema.json",
+  "title": "KEY Landing Brief",
+  "description": "Машинно-проверяемый маркетинговый контракт между этапом Strategist и Landing Builder. Не заменяет паспорт ЖК и не является источником фактов.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "approvalStatus",
+    "strategy",
+    "segments",
+    "hooks",
+    "offers",
+    "funnels",
+    "ctas",
+    "qualification",
+    "experiments"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "approvalStatus": {
+      "enum": [
+        "draft",
+        "approved",
+        "blocked"
+      ]
+    },
+    "sourcePassportVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "strategy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coreIdea",
+        "primarySegmentId",
+        "primaryHookId",
+        "primaryCtaId",
+        "positioning"
+      ],
+      "properties": {
+        "coreIdea": {
+          "type": "string",
+          "minLength": 1
+        },
+        "primarySegmentId": {
+          "$ref": "#/$defs/id"
+        },
+        "primaryHookId": {
+          "$ref": "#/$defs/id"
+        },
+        "primaryCtaId": {
+          "$ref": "#/$defs/id"
+        },
+        "positioning": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "statement",
+            "supportingFactIds",
+            "status",
+            "audienceSegmentId",
+            "primaryNeed",
+            "productFocus",
+            "primaryTrafficSource",
+            "primaryConverter",
+            "gateStatus",
+            "confidence",
+            "rationale",
+            "evidenceBasis",
+            "validationPlan",
+            "blockingIssues"
+          ],
+          "properties": {
+            "statement": {
+              "type": "string",
+              "minLength": 1
+            },
+            "supportingFactIds": {
+              "$ref": "#/$defs/idList"
+            },
+            "status": {
+              "enum": [
+                "draft",
+                "approved",
+                "blocked"
+              ]
+            },
+            "audienceSegmentId": {
+              "$ref": "#/$defs/id"
+            },
+            "primaryNeed": {
+              "type": "string",
+              "minLength": 1
+            },
+            "productFocus": {
+              "type": "string",
+              "minLength": 1
+            },
+            "primaryTrafficSource": {
+              "type": "string",
+              "minLength": 1
+            },
+            "primaryConverter": {
+              "type": "string",
+              "minLength": 1
+            },
+            "gateStatus": {
+              "enum": [
+                "hypothesis",
+                "ready_for_review",
+                "approved",
+                "blocked"
+              ]
+            },
+            "confidence": {
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            },
+            "evidenceBasis": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "audience",
+                "need",
+                "product",
+                "traffic",
+                "converter"
+              ],
+              "properties": {
+                "audience": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "finding"
+                  ],
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "fact",
+                        "research_finding",
+                        "expert_hypothesis",
+                        "unknown"
+                      ]
+                    },
+                    "finding": {
+                      "type": "string"
+                    },
+                    "sourceUrl": {
+                      "type": "string"
+                    },
+                    "checkedAt": {
+                      "type": "string"
+                    },
+                    "sampleSize": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "need": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "finding"
+                  ],
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "fact",
+                        "research_finding",
+                        "expert_hypothesis",
+                        "unknown"
+                      ]
+                    },
+                    "finding": {
+                      "type": "string"
+                    },
+                    "sourceUrl": {
+                      "type": "string"
+                    },
+                    "checkedAt": {
+                      "type": "string"
+                    },
+                    "sampleSize": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "product": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "finding"
+                  ],
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "fact",
+                        "research_finding",
+                        "expert_hypothesis",
+                        "unknown"
+                      ]
+                    },
+                    "finding": {
+                      "type": "string"
+                    },
+                    "sourceUrl": {
+                      "type": "string"
+                    },
+                    "checkedAt": {
+                      "type": "string"
+                    },
+                    "sampleSize": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "traffic": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "finding"
+                  ],
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "fact",
+                        "research_finding",
+                        "expert_hypothesis",
+                        "unknown"
+                      ]
+                    },
+                    "finding": {
+                      "type": "string"
+                    },
+                    "sourceUrl": {
+                      "type": "string"
+                    },
+                    "checkedAt": {
+                      "type": "string"
+                    },
+                    "sampleSize": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "converter": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "finding"
+                  ],
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "fact",
+                        "research_finding",
+                        "expert_hypothesis",
+                        "unknown"
+                      ]
+                    },
+                    "finding": {
+                      "type": "string"
+                    },
+                    "sourceUrl": {
+                      "type": "string"
+                    },
+                    "checkedAt": {
+                      "type": "string"
+                    },
+                    "sampleSize": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            },
+            "rationaleByElement": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "audience": {
+                  "type": "string"
+                },
+                "need": {
+                  "type": "string"
+                },
+                "product": {
+                  "type": "string"
+                },
+                "traffic": {
+                  "type": "string"
+                },
+                "converter": {
+                  "type": "string"
+                }
+              }
+            },
+            "validationPlan": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "blockingIssues": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "approvedBy": {
+              "type": "string"
+            },
+            "approvedAt": {
+              "type": "string"
+            }
+          }
+        },
+        "secondaryPositioning": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "segmentId",
+              "statement",
+              "supportingFactIds",
+              "status"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "segmentId": {
+                "$ref": "#/$defs/id"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "supportingFactIds": {
+                "$ref": "#/$defs/idList"
+              },
+              "status": {
+                "enum": [
+                  "draft",
+                  "approved",
+                  "blocked"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "need",
+          "jtbd",
+          "barriers",
+          "insightStatus",
+          "priority"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "need": {
+            "type": "string",
+            "minLength": 1
+          },
+          "jtbd": {
+            "type": "string",
+            "minLength": 1
+          },
+          "barriers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "criteria": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "objections": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "insightStatus": {
+            "enum": [
+              "hypothesis",
+              "validated",
+              "unknown"
+            ]
+          },
+          "priority": {
+            "enum": [
+              "primary",
+              "secondary",
+              "experimental",
+              "excluded"
+            ]
+          },
+          "lifeContext": {
+            "type": "string",
+            "description": "Контекст жизненной ситуации сегмента; гипотеза, если не подтверждена исследованием."
+          },
+          "desiredOutcomes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Желаемые изменения в жизни/результаты, которые человек ищет через покупку."
+          },
+          "motivations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Рациональные и эмоциональные мотивы выбора."
+          },
+          "fears": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Страхи и риски, мешающие двигаться к обращению или покупке."
+          },
+          "expectations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Ожидания от объекта, района, процесса покупки и сопровождения."
+          },
+          "proofNeeds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Какие факты, документы, визуальные подтверждения или объяснения нужны для снятия сомнений."
+          },
+          "decisionTriggers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "События/условия, при которых сегмент может быть готов к следующему шагу."
+          },
+          "evidenceBasis": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "finding"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "customer_interview",
+                    "crm_data",
+                    "behavioral_data",
+                    "survey",
+                    "market_research",
+                    "public_research",
+                    "expert_hypothesis",
+                    "other"
+                  ]
+                },
+                "finding": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sourceUrl": {
+                  "type": "string"
+                },
+                "checkedAt": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "sampleSize": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "description": "Основание инсайта. Не указывать персональные данные респондентов."
+          },
+          "confidence": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "description": "Уверенность в гипотезах сегмента; не заменяет insightStatus."
+          },
+          "confidenceRationale": {
+            "type": "string",
+            "description": "Почему присвоен такой уровень уверенности и какие ограничения есть."
+          }
+        }
+      }
+    },
+    "hooks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "segmentIds",
+          "category",
+          "message",
+          "supportingFactIds",
+          "hypothesis",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "segmentIds": {
+            "$ref": "#/$defs/idList"
+          },
+          "category": {
+            "enum": [
+              "location",
+              "lifestyle",
+              "visual",
+              "architecture",
+              "product",
+              "status",
+              "convenience",
+              "curiosity",
+              "financial"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "supportingFactIds": {
+            "$ref": "#/$defs/idList"
+          },
+          "hypothesis": {
+            "type": "string",
+            "minLength": 1
+          },
+          "riskOfMisinterpretation": {
+            "type": "string"
+          },
+          "channelFormats": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "approved",
+              "blocked",
+              "tested"
+            ]
+          }
+        }
+      }
+    },
+    "offers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "title",
+          "value",
+          "deliverable",
+          "readiness",
+          "scenarioId",
+          "segmentIds",
+          "passportOfferId"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "type": {
+            "enum": [
+              "presentation",
+              "apartment_selection",
+              "mortgage_estimate",
+              "viewing",
+              "consultation",
+              "callback",
+              "other"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1
+          },
+          "deliverable": {
+            "type": "string",
+            "minLength": 1
+          },
+          "readiness": {
+            "enum": [
+              "ready",
+              "conditional",
+              "not_ready"
+            ]
+          },
+          "deliveryMethod": {
+            "type": "string"
+          },
+          "deliverySla": {
+            "type": "string"
+          },
+          "scenarioId": {
+            "$ref": "#/$defs/id"
+          },
+          "segmentIds": {
+            "$ref": "#/$defs/idList"
+          },
+          "requiredFields": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "name",
+                "phone",
+                "preferredChannel",
+                "preferredTime"
+              ]
+            }
+          },
+          "qualificationQuestionIds": {
+            "$ref": "#/$defs/idList"
+          },
+          "passportOfferId": {
+            "$ref": "#/$defs/id",
+            "description": "ID operational offer in the project passport; keeps strategy offer identity separate from deliverable configuration."
+          }
+        }
+      }
+    },
+    "funnels": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "segmentIds",
+          "hookIds",
+          "offerId",
+          "stages",
+          "successEvent"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "segmentIds": {
+            "$ref": "#/$defs/idList"
+          },
+          "hookIds": {
+            "$ref": "#/$defs/idList"
+          },
+          "offerId": {
+            "$ref": "#/$defs/id"
+          },
+          "stages": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "name",
+                "userAction"
+              ],
+              "properties": {
+                "id": {
+                  "$ref": "#/$defs/id"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "userAction": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "successEvent": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "ctas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "moduleId",
+          "intent",
+          "offerId",
+          "funnelId",
+          "segmentIds"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "moduleId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "intent": {
+            "enum": [
+              "get_information",
+              "select_apartment",
+              "calculate_payment",
+              "book_viewing",
+              "request_consultation",
+              "request_callback",
+              "other"
+            ]
+          },
+          "offerId": {
+            "$ref": "#/$defs/id"
+          },
+          "funnelId": {
+            "$ref": "#/$defs/id"
+          },
+          "hookId": {
+            "$ref": "#/$defs/id"
+          },
+          "segmentIds": {
+            "$ref": "#/$defs/idList"
+          },
+          "scenarioId": {
+            "$ref": "#/$defs/id"
+          },
+          "placement": {
+            "type": "string"
+          },
+          "qualificationQuestionIds": {
+            "$ref": "#/$defs/idList"
+          }
+        }
+      }
+    },
+    "qualification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "questions",
+        "qualitySignals",
+        "disqualificationRules"
+      ],
+      "properties": {
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "question",
+              "purpose",
+              "required"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "question": {
+                "type": "string",
+                "minLength": 1
+              },
+              "purpose": {
+                "type": "string",
+                "minLength": 1
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "answerOptions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "qualitySignals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "disqualificationRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "experiments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "hypothesis",
+          "successMetric",
+          "guardrailMetric",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "hypothesis": {
+            "type": "string",
+            "minLength": 1
+          },
+          "variantA": {
+            "type": "string"
+          },
+          "variantB": {
+            "type": "string"
+          },
+          "successMetric": {
+            "type": "string",
+            "minLength": 1
+          },
+          "guardrailMetric": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "proposed",
+              "running",
+              "completed",
+              "rejected"
+            ]
+          },
+          "result": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9._-]*$"
+    },
+    "idList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/id"
+      }
+    }
+  }
+}

@@ -82,13 +82,19 @@
           "type": "string"
         },
         "positioningStatus": {
-          "enum": ["draft", "approved", "blocked"],
+          "enum": [
+            "draft",
+            "approved",
+            "blocked"
+          ],
           "description": "Public positioning is emitted only when approved and grounded in publishable fact IDs."
         },
         "positioningFactIds": {
           "type": "array",
           "uniqueItems": true,
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         },
         "audiences": {
           "type": "array",
@@ -231,9 +237,36 @@
           "properties": {
             "theme": {
               "type": "string",
-              "enum": ["urban-noir", "warm-editorial", "garden-modern"]
+              "enum": [
+                "urban-noir",
+                "warm-editorial",
+                "garden-modern"
+              ]
             },
-            "composition": { "type": "string", "enum": ["editorial", "cinematic", "architectural"] },
+            "composition": {
+              "type": "string",
+              "enum": [
+                "editorial",
+                "cinematic",
+                "architectural"
+              ]
+            },
+            "heroLayout": {
+              "type": "string",
+              "enum": [
+                "split",
+                "fullscreen",
+                "editorial"
+              ]
+            },
+            "galleryLayout": {
+              "type": "string",
+              "enum": [
+                "mosaic",
+                "editorial",
+                "strip"
+              ]
+            },
             "mood": {
               "type": "string"
             },
@@ -251,6 +284,72 @@
             }
           },
           "additionalProperties": false
+        },
+        "lifestyleStories": {
+          "type": "array",
+          "description": "Редакционные сценарии повседневной жизни. Публикуются только после проверки текста, supportingFactIds и визуального актива с правами для контекста lifestyle.",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "description",
+              "assetId",
+              "supportingFactIds",
+              "publicationStatus"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sceneLabel": {
+                "type": "string"
+              },
+              "assetId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "supportingFactIds": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "publicationStatus": {
+                "type": "string",
+                "enum": [
+                  "draft",
+                  "approved"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "contentQualifications": {
+          "type": "array",
+          "description": "Оговорки к Claims, разрешённые только для одного выбранного модуля, конкретного contentId и supporting fact. Не создают глобальное разрешение на публикацию.",
+          "items": {
+            "type": "object",
+            "required": ["moduleId", "contentId", "factId", "text"],
+            "properties": {
+              "moduleId": { "type": "string", "enum": ["security", "lifestyle"] },
+              "contentId": { "type": "string", "minLength": 1 },
+              "factId": { "type": "string", "minLength": 1 },
+              "text": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
         }
       },
       "additionalProperties": false
@@ -320,7 +419,94 @@
     "faq": {
       "description": "Вопросы FAQ с ответами, формируемыми исключительно из подтверждённых публичных фактов по requiredFactIds.",
       "type": "array",
-      "items": { "$ref": "#/$defs/faqItem" }
+      "items": {
+        "$ref": "#/$defs/faqItem"
+      }
+    },
+    "marketContext": {
+      "type": "object",
+      "description": "Внешний рыночный контекст объекта и конкурентного окружения. Справочные агрегаторные срезы; не являются официальными остатками, прайсом или подтверждением спроса.",
+      "required": [
+        "snapshotAt",
+        "observations"
+      ],
+      "properties": {
+        "snapshotAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "purpose": {
+          "type": "string"
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "entity",
+              "status",
+              "sourceReliability",
+              "metrics",
+              "sources",
+              "limitations"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "entity": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "verified",
+                  "provisional",
+                  "hypothesis",
+                  "conflicting",
+                  "outdated"
+                ]
+              },
+              "sourceReliability": {
+                "enum": [
+                  "official",
+                  "government",
+                  "aggregator",
+                  "research",
+                  "internal"
+                ]
+              },
+              "metrics": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": [
+                    "number",
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/source"
+                }
+              },
+              "limitations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "derivedNote": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
     }
   },
   "$defs": {
@@ -464,6 +650,7 @@
         },
         "supportingFactIds": {
           "type": "array",
+          "minItems": 1,
           "items": {
             "type": "string"
           }
@@ -521,12 +708,30 @@
         "distanceEvidence": {
           "type": "object",
           "description": "Separate evidence for distance/time metrics. Place existence evidence alone does not substantiate a route or distance.",
-          "required": ["method", "checkedAt", "validUntil", "source"],
+          "required": [
+            "method",
+            "checkedAt",
+            "validUntil",
+            "source"
+          ],
           "properties": {
-            "method": { "enum": ["walking_route", "straight_line"] },
-            "checkedAt": { "type": "string", "format": "date-time" },
-            "validUntil": { "type": "string", "format": "date-time" },
-            "source": { "$ref": "#/$defs/source" }
+            "method": {
+              "enum": [
+                "walking_route",
+                "straight_line"
+              ]
+            },
+            "checkedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "validUntil": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "source": {
+              "$ref": "#/$defs/source"
+            }
           },
           "additionalProperties": false
         },
@@ -552,27 +757,61 @@
         {
           "if": {
             "anyOf": [
-              { "required": ["distanceMeters"] },
-              { "required": ["walkingMinutes"] }
+              {
+                "required": [
+                  "distanceMeters"
+                ]
+              },
+              {
+                "required": [
+                  "walkingMinutes"
+                ]
+              }
             ]
           },
-          "then": { "required": ["distanceEvidence"] }
+          "then": {
+            "required": [
+              "distanceEvidence"
+            ]
+          }
         },
         {
-          "if": { "required": ["walkingMinutes"] },
-          "then": { "required": ["distanceMeters"] }
+          "if": {
+            "required": [
+              "walkingMinutes"
+            ]
+          },
+          "then": {
+            "required": [
+              "distanceMeters"
+            ]
+          }
         },
         {
           "if": {
             "properties": {
               "distanceEvidence": {
-                "properties": { "method": { "const": "straight_line" } },
-                "required": ["method"]
+                "properties": {
+                  "method": {
+                    "const": "straight_line"
+                  }
+                },
+                "required": [
+                  "method"
+                ]
               }
             },
-            "required": ["distanceEvidence"]
+            "required": [
+              "distanceEvidence"
+            ]
           },
-          "then": { "not": { "required": ["walkingMinutes"] } }
+          "then": {
+            "not": {
+              "required": [
+                "walkingMinutes"
+              ]
+            }
+          }
         }
       ],
       "additionalProperties": false
@@ -621,7 +860,12 @@
         "requiredFields": {
           "type": "array",
           "items": {
-            "enum": ["name", "phone", "preferredChannel", "preferredTime"]
+            "enum": [
+              "name",
+              "phone",
+              "preferredChannel",
+              "preferredTime"
+            ]
           },
           "uniqueItems": true
         },
@@ -641,10 +885,20 @@
       "allOf": [
         {
           "if": {
-            "properties": { "consentRequired": { "const": false } },
-            "required": ["consentRequired"]
+            "properties": {
+              "consentRequired": {
+                "const": false
+              }
+            },
+            "required": [
+              "consentRequired"
+            ]
           },
-          "then": { "required": ["consentExceptionReason"] }
+          "then": {
+            "required": [
+              "consentExceptionReason"
+            ]
+          }
         }
       ],
       "additionalProperties": false
@@ -878,11 +1132,58 @@
     },
     "faqItem": {
       "type": "object",
-      "required": ["id", "question", "requiredFactIds"],
+      "required": [
+        "id",
+        "question",
+        "requiredFactIds"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "question": { "type": "string", "minLength": 1 },
-        "requiredFactIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } }
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "question": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requiredFactIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "publicationStatus": {
+          "enum": [
+            "draft",
+            "approved"
+          ],
+          "default": "draft",
+          "description": "Статус редакционного согласования вопроса; в публичный FAQ попадают только approved."
+        },
+        "claimQualifications": {
+          "type": "array",
+          "description": "Оговорки, привязанные к конкретному факту внутри конкретного FAQ-ответа. Не дают разрешение на публикацию этого факта в других модулях.",
+          "items": {
+            "type": "object",
+            "required": [
+              "factId",
+              "text"
+            ],
+            "properties": {
+              "factId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        }
       },
       "additionalProperties": false
     },

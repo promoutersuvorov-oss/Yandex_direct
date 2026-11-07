@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   source-integrity:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,6 +35,8 @@ jobs:
         run: python scripts/validate-passport-schema.py examples/kd-905.project-passport.draft.json
       - name: Validate CTA context contract schema and negative cases
         run: python scripts/validate-cta-context-schema.py
+      - name: Validate LANDING BRIEF schema and example
+        run: python scripts/validate-landing-brief-schema.py
       - name: Generate synthetic passport fixture for location evidence schema validation
         run: node scripts/create-browser-preview-fixture.mjs --out artifacts/browser-fixture/passport.json
       - name: Validate synthetic passport and location evidence against JSON Schema
@@ -45,6 +47,20 @@ jobs:
         run: node --test tests/attribution.test.mjs
       - name: Test canonical lead payload validation
         run: node --test tests/lead-payload.test.mjs
+      - name: Test passport to runtime adapter and publication gates
+        run: node --test tests/landing-runtime-adapter.test.mjs
+      - name: Test Passport 1.0.0 normalization and provenance preservation
+        run: node --test tests/passport-normalizer-v1.test.mjs
+      - name: Test LANDING BRIEF reference integrity
+        run: node --test tests/landing-brief.test.mjs
+      - name: Test Landing Inputs normalization
+        run: node --test tests/landing-inputs-normalizer-v1.test.mjs
+      - name: Test normalized runtime builder publication gates
+        run: node --test tests/landing-runtime-builder-v1.test.mjs
+      - name: Test KEY Landing Module Registry
+        run: node --test tests/landing-module-registry-v1.test.mjs
+      - name: Test dedicated lifestyle runtime contract
+        run: node --test tests/lifestyle-runtime-contract.test.mjs
       - name: Build review-only bundle from the canonical passport example
         run: node scripts/build-review-bundle.mjs --passport examples/project-passport.example.json --out artifacts/review-bundle
       - name: Render dynamic HTML review preview
@@ -84,7 +100,11 @@ jobs:
 
   browser-smoke:
     needs: source-integrity
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    container:
+      # Keep the image version aligned with @playwright/test below.
+      # Browser binaries and OS dependencies are preinstalled; avoid slow apt setup.
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -92,6 +112,9 @@ jobs:
         browser: [chromium, firefox, webkit]
     env:
       KEY_BROWSER: ${{ matrix.browser }}
+      # Firefox in the official container runs as root; GitHub's default HOME
+      # points to a pwuser-owned directory and prevents Firefox from launching.
+      HOME: /root
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -113,8 +136,7 @@ jobs:
         run: node scripts/render-reference-landing.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/reference.html
       - name: Install Playwright test runner
         run: npm install --no-save --no-audit --no-fund @playwright/test@1.56.1
-      - name: Install Playwright browser engine
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+      # The pinned Playwright container already includes all three browser engines.
       - name: Start local static server
         run: python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/klanding-http.log 2>&1 &
       - name: Run K15 and reference concept browser smoke tests

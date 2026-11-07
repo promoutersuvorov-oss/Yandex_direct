@@ -60,3 +60,58 @@ test("limits quiz answers and validates answer shape", () => {
   input.qualification.answers.rooms = { arbitrary: "object" };
   assert.throws(() => createLeadPayload(input), /Quiz answers/);
 });
+
+test("preserves typed apartment-plan context and validates its evidence identifiers", () => {
+  const input = valid();
+  input.conversion.entityContext = {
+    plan: { id: "plan-a", rooms: 2, areaSqm: 64.5, floor: 8, finishing: "white-box", assetId: "asset-plan-a" }
+  };
+  assert.deepEqual(createLeadPayload(input).conversion.entityContext, input.conversion.entityContext);
+  input.conversion.entityContext.plan.areaSqm = 0;
+  assert.throws(() => createLeadPayload(input), /plan.areaSqm must be a positive number/);
+});
+
+test("preserves a validated mortgage estimate in the lead context", () => {
+  const input = valid();
+  input.conversion.entityContext = {
+    mortgage: { price: 8000000, downPayment: 2000000, ratePercent: 12, termYears: 20, estimatedMonthlyPayment: 66072 }
+  };
+  assert.deepEqual(createLeadPayload(input).conversion.entityContext, input.conversion.entityContext);
+  input.conversion.entityContext.mortgage.downPayment = 8000000;
+  assert.throws(() => createLeadPayload(input), /Mortgage price and downPayment are invalid/);
+});
+
+
+test("preserves validated marketing strategy IDs in the conversion payload", () => {
+  const input = valid();
+  input.conversion = {
+    scenarioId: "presentation_request",
+    offerId: "presentation",
+    moduleId: "hero",
+    ctaId: "hero_presentation",
+    hookId: "walkable_daily_needs",
+    funnelId: "location_to_presentation",
+    segmentId: "young_professionals"
+  };
+  const conversion = createLeadPayload(input).conversion;
+  assert.deepEqual(
+    { ctaId: conversion.ctaId, hookId: conversion.hookId, funnelId: conversion.funnelId, segmentId: conversion.segmentId },
+    {
+      ctaId: "hero_presentation",
+      hookId: "walkable_daily_needs",
+      funnelId: "location_to_presentation",
+      segmentId: "young_professionals"
+    }
+  );
+  input.conversion.ctaId = "Invalid ID!";
+  assert.throws(() => createLeadPayload(input), /stable ID/);
+});
+
+test("preserves required contact channel and preferred callback time",()=>{
+  const input=valid();
+  input.contact.preferredChannel="telegram";
+  input.contact.preferredTime="После 18:00";
+  const payload=createLeadPayload(input);
+  assert.equal(payload.contact.preferredChannel,"telegram");
+  assert.equal(payload.contact.preferredTime,"После 18:00");
+});
