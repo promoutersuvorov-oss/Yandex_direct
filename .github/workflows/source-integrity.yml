@@ -81,31 +81,6 @@ jobs:
           path: artifacts/kd905-review/
           if-no-files-found: error
           retention-days: 14
-      # Prepare browser fixtures once; all browser engines consume the same immutable build.
-      - name: Create synthetic interactive passport fixture for browser tests
-        run: node scripts/create-browser-preview-fixture.mjs --out artifacts/browser-fixture/passport.json
-      - name: Build shared browser review bundle
-        run: node scripts/build-review-bundle.mjs --passport artifacts/browser-fixture/passport.json --out artifacts/review-bundle
-      - name: Render shared browser review preview
-        run: node scripts/render-review-preview.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/preview.html
-      - name: Build shared KD 905 browser preview
-        run: node scripts/build-review-bundle.mjs --passport examples/kd-905.project-passport.draft.json --out artifacts/kd905-review
-      - name: Render shared KD 905 browser preview
-        run: node scripts/render-review-preview.mjs --bundle artifacts/kd905-review --out artifacts/kd905-review/preview.html
-      - name: Render shared editorial reference concept
-        run: node scripts/render-reference-landing.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/reference.html
-      - name: Upload shared browser fixtures
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: key-browser-smoke-fixtures
-          path: |
-            artifacts/browser-fixture/passport.json
-            artifacts/review-bundle/
-            artifacts/kd905-review/
-          if-no-files-found: error
-          retention-days: 1
-
   browser-smoke:
     needs: source-integrity
     runs-on: ubuntu-24.04
@@ -123,12 +98,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Download shared browser fixtures
-        uses: actions/download-artifact@v4
-        with:
-          name: key-browser-smoke-fixtures
-          # upload-artifact strips the common `artifacts/` prefix; restore it here.
-          path: artifacts
+      - name: Create synthetic interactive passport fixture
+        run: node scripts/create-browser-preview-fixture.mjs --out artifacts/browser-fixture/passport.json
+      - name: Build review bundle for browser validation
+        run: node scripts/build-review-bundle.mjs --passport artifacts/browser-fixture/passport.json --out artifacts/review-bundle
+      - name: Render review preview for browser validation
+        run: node scripts/render-review-preview.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/preview.html
+      - name: Build KD 905 preview for cross-browser validation
+        run: node scripts/build-review-bundle.mjs --passport examples/kd-905.project-passport.draft.json --out artifacts/kd905-review
+      - name: Render KD 905 preview for cross-browser validation
+        run: node scripts/render-review-preview.mjs --bundle artifacts/kd905-review --out artifacts/kd905-review/preview.html
+      - name: Render editorial reference concept for browser validation
+        run: node scripts/render-reference-landing.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/reference.html
       - name: Install Playwright test runner
         run: npm install --no-save --no-audit --no-fund @playwright/test@1.56.1
       - name: Install Playwright browser engine
