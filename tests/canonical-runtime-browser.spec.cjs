@@ -49,7 +49,7 @@ test("production lead handoff sends consented contact and CTA context and accept
       hookId: "hero_emotional_hook",
       funnelId: "first_contact_funnel",
       segmentId: "family_buyers",
-      intent: "presentation",
+      intent: "get_information",
       scenarioId: "hero_personal_presentation",
       qualificationQuestionIds: ["purchase_timing"]
     }
@@ -96,7 +96,7 @@ test("production lead handoff sends consented contact and CTA context and accept
     hookId: "hero_emotional_hook",
     funnelId: "first_contact_funnel",
     segmentId: "family_buyers",
-    intent: "presentation",
+    intent: "get_information",
     qualificationQuestionIds: ["purchase_timing"]
   });
   expect(receivedPayload.eventId).toBe(receivedIdempotencyKey);
