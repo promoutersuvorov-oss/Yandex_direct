@@ -116,7 +116,7 @@ for (const scenario of cases) {
           heroLayout: scenario.heroLayout,
           visualMetrics,
           note: "Automated visual-review evidence only; not a human design approval."
-        }, null, 2) + "\\n");
+        }, null, 2));
       }
 
       const cta = page.locator(".hero [data-open-offer]").first();
