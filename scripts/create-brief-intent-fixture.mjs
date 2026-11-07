@@ -45,6 +45,8 @@ function main() {
     gateStatus: "approved",
     confidence: "medium",
     rationale: "Synthetic sign-off used only to test reference wiring; it is not a real positioning approval.",
+    approvedBy: "test_fixture_only",
+    approvedAt: "2026-11-07",
     approvedBy: "test-fixture-only",
     approvedAt: "2026-11-07",
     evidenceBasis: {
