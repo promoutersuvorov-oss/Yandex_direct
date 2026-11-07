@@ -210,3 +210,17 @@ K15 audit также остаётся ограниченным: автомати
 **Граница доказательства:** теперь подтверждён путь canonical builder → основной browser runtime на одном контролируемом профиле. Это не доказывает разнообразие двух проектов, визуальную премиальность, mobile device QA, CRM delivery, production consent/privacy, live analytics или коммерческую конверсию. PR #24 остаётся Draft и зависит от PR #20; изменения ещё не вошли в основную ветку продукта.
 
 Следующая продуктовая задача вынесена в [issue #25](https://github.com/promoutersuvorov-oss/Yandex_direct/issues/25): доказать, что два разных паспорта формируют заметно разные композиции и art direction именно в primary runtime, а не только в review renderer.
+
+
+## Дополнение: LANDING BRIEF → lead intent (2026-11-07)
+
+[PR #30](https://github.com/promoutersuvorov-oss/Yandex_direct/pull/30), [run #707](https://github.com/promoutersuvorov-oss/Yandex_direct/actions/runs/42359174864): source-integrity passed (40/40 steps), and the primary runtime browser matrix passed 38/38 in Chromium, 38/38 in Firefox, and 38/38 in WebKit.
+
+Proven in the main browser runtime:
+- canonical CLI consumes an approved test-only LANDING BRIEF and maps two separate CTA placements (hero, closing) to the passport's real active presentation offer;
+- CTA IDs, intent, offer/scenario, module, funnel, hook, segment and qualification-question references reach a PII-free conversion-intent event;
+- event contains no contact fields; demo form does not POST or persist contact data;
+- unsupported conversion intent and malformed qualification-question references are rejected by the lead-payload contract;
+- the tests run desktop/mobile viewports in all three browser engines.
+
+Limitations: all brief approval/research is synthetic test-only data. No real positioning approval, CRM delivery, legal/privacy acceptance, production analytics or conversion lift is established. This is functional intent wiring, not production readiness or visual sign-off.
