@@ -396,3 +396,55 @@ test("approved selection flow is rendered only when the quiz module is selected"
   assert.equal(notSelected.selectionQuiz,null);
   assert.deepEqual(notSelected.composition,["concept"]);
 });
+
+
+test("content-scoped qualification is rendered only beside the exact selected security card",()=>{
+  const x=input();
+  x.knowledge.claims[0].publicUse="allowed_with_qualification";
+  x.knowledge.claims[0].limitations=["Указано в материалах застройщика; сведения могут измениться."];
+  x.landingInputs.strategy.modules=[{moduleId:"security",decision:"include",variant:"proof-led",order:1,requiredFactIds:["f1"]}];
+  x.landingInputs.marketingCandidates.push({
+    id:"a2",title:"Другая карточка",benefit:"Другая польза",strength:"supporting",
+    supportingFactIds:["f1"],classification:"marketing_candidate"
+  });
+  x.landingInputs.contentQualifications=[{
+    moduleId:"security",contentId:"a1",factId:"f1",
+    text:"Сведения приведены по данным застройщика; характеристики могут измениться."
+  }];
+  const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
+  assert.deepEqual(profile.composition,["advantages"]);
+  assert.equal(profile.advantages.length,1,"The qualification must not authorize another card using the same fact.");
+  assert.equal(profile.advantages[0].id,"a1");
+  assert.equal(profile.advantages[0].evidence[0].qualification,
+    "Сведения приведены по данным застройщика; характеристики могут измениться.");
+});
+
+test("content-scoped lifestyle qualification requires the selected story, verified claim and cleared media",()=>{
+  const x=input();
+  x.knowledge.claims[0].publicUse="allowed_with_qualification";
+  x.knowledge.claims[0].limitations=["Сведения указаны в материалах застройщика."];
+  x.knowledge.assets=[{id:"courtyard-render",assetKind:"render",url:"https://example.test/courtyard.jpg",
+    publicationStatus:"approved",projectMatch:"confirmed",rightsStatus:"confirmed",rightsEvidenceIds:["e1"],
+    subjectRefs:[{type:"project",id:"p1"}],allowedContexts:["lifestyle"]}];
+  x.landingInputs.strategy.modules=[{moduleId:"lifestyle",decision:"include",variant:"image-led",order:1,requiredFactIds:["f1"]}];
+  x.landingInputs.lifestyleStories=[{id:"courtyard-morning",title:"Утро во дворе",
+    description:"Сценарий на основе подтверждённой особенности проекта.",sceneLabel:"ДВОР",
+    assetId:"courtyard-render",supportingFactIds:["f1"],publicationStatus:"approved"}];
+  x.landingInputs.contentQualifications=[{
+    moduleId:"lifestyle",contentId:"courtyard-morning",factId:"f1",
+    text:"Сведения приведены по данным застройщика."
+  }];
+  const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
+  assert.deepEqual(profile.composition,["lifestyle"]);
+  assert.equal(profile.lifestyleStories[0].evidence[0].qualification,"Сведения приведены по данным застройщика.");
+
+  const wrongContent=structuredClone(x);
+  wrongContent.landingInputs.contentQualifications[0].contentId="another-story";
+  assert.throws(()=>buildLandingProfileFromKnowledge(wrongContent.knowledge,wrongContent.landingInputs,wrongContent.refs,marketing,{},{now:"2026-11-06T00:00:00Z"}),
+    /does not match approved content/);
+
+  const unselected=structuredClone(x);
+  unselected.landingInputs.strategy.modules=[];
+  assert.throws(()=>buildLandingProfileFromKnowledge(unselected.knowledge,unselected.landingInputs,unselected.refs,marketing,{},{now:"2026-11-06T00:00:00Z"}),
+    /requires the exact module to be selected/);
+});
