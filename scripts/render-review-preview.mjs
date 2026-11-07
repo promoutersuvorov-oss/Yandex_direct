@@ -140,11 +140,7 @@ const buttonsFor = module => {
 function renderModule(module, index) {
   const advantagesHere = module.moduleId === "hero" ? [] : advantagesFor(module);
   const benefitFactIds = new Set(advantagesHere.flatMap(item => item.supportingFactIds || []));
-  const heroProofFactIds = module.moduleId === "hero"
-    ? new Set((profile.marketing?.proofPoints || []).map(point => point.factId).filter(Boolean))
-    : new Set();
-  const factsHere = module.moduleId === "faq" ? [] : factsFor(module)
-    .filter(fact => !benefitFactIds.has(fact.id) && !heroProofFactIds.has(fact.id));
+  const factsHere = module.moduleId === "faq" ? [] : factsFor(module).filter(fact => !benefitFactIds.has(fact.id));
   const asset = imageFor(module);
   const moduleAssets = assetsFor(module);
   const offer = offerFor(module);
