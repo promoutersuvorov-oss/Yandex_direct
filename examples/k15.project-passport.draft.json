@@ -602,29 +602,23 @@
         "qaCriteria": [
           "hero-copy-evidence",
           "mobile-hero-crop"
-        ]
+        ],
+        "order": 0
       },
       {
         "moduleId": "security",
+        "order": 1,
         "decision": "include",
-        "reason": "Семь преимуществ выводятся в карточках proof-led и подкрепляются подтверждёнными фактами застройщика.",
+        "reason": "Отдельный блок о приватности и контролируемом доступе: закрытая территория, видеонаблюдение и видеодомофония.",
+        "variant": "proof-led",
         "requiredFactIds": [
           "k15-closed-territory",
-          "k15-lobby-24-7",
-          "k15-underground-parking",
-          "k15-no-finishing",
-          "k15-family-room",
           "k15-video-surveillance",
-          "k15-autonomous-ventilation",
-          "k15-drinking-water",
-          "k15-smart-home-option",
-          "k15-smart-meters",
-          "k15-video-intercom",
-          "k15-individual-heating"
+          "k15-video-intercom"
         ],
-        "userQuestion": "Что отличает проект?",
-        "whyIncluded": "Показывать только после подтверждения преимуществ.",
-        "positionReason": "После первого экрана — раскрыть практические отличия клубного дома.",
+        "userQuestion": "Как устроена приватность дома?",
+        "whyIncluded": "Показать конкретные меры контроля доступа, не смешивая их с инженерией и бытовыми сценариями.",
+        "positionReason": "Сразу после первого экрана — раскрыть обещание приватности проверяемыми решениями.",
         "assetIds": [],
         "ctaIds": [
           "k15-request-presentation"
@@ -632,38 +626,51 @@
         "dependencies": [],
         "qaCriteria": [
           "advantage-evidence"
-        ],
-        "variant": "proof-led"
-      },
-      {
-        "moduleId": "location",
-        "decision": "conditional",
-        "reason": "Адрес и Центральный район подтверждены; конкретные POI, расстояния и маршруты пока не проверены.",
-        "requiredFactIds": [],
-        "userQuestion": "Что находится рядом?",
-        "whyIncluded": "Локальные hooks могут усилить релевантность после проверки.",
-        "positionReason": "После позиционирования.",
-        "assetIds": [],
-        "ctaIds": [],
-        "dependencies": [],
-        "qaCriteria": [
-          "poi-route-evidence"
         ]
       },
       {
-        "moduleId": "floor-plans",
-        "decision": "exclude",
-        "reason": "Нет подтверждённых файлов планировок и соответствия метражей.",
-        "requiredFactIds": [],
-        "userQuestion": "Какие планировки доступны?",
-        "whyIncluded": "Не показывать неподтверждённые планы.",
-        "positionReason": "Вернуть после получения оригиналов.",
+        "moduleId": "lifestyle",
+        "order": 2,
+        "decision": "include",
+        "reason": "Бытовой комфорт раскрывается через лобби с ресепшеном и отдельную комнату матери и ребёнка.",
+        "variant": "editorial",
+        "requiredFactIds": [
+          "k15-lobby-24-7",
+          "k15-family-room"
+        ],
+        "userQuestion": "Каким будет повседневный сценарий дома?",
+        "whyIncluded": "Перевести характеристики общих пространств в понятные жизненные ситуации.",
+        "positionReason": "После блока приватности — показать сервис и повседневные сценарии.",
         "assetIds": [],
         "ctaIds": [],
         "dependencies": [],
         "qaCriteria": [
-          "plan-type-area-match",
-          "plan-image-integrity"
+          "advantage-evidence"
+        ]
+      },
+      {
+        "moduleId": "about",
+        "order": 3,
+        "decision": "include",
+        "reason": "Практичные решения квартиры и здания: подземный паркинг, передача без отделки и инженерные системы.",
+        "variant": "feature-led",
+        "requiredFactIds": [
+          "k15-underground-parking",
+          "k15-no-finishing",
+          "k15-autonomous-ventilation",
+          "k15-drinking-water",
+          "k15-individual-heating"
+        ],
+        "userQuestion": "Какие практичные решения предусмотрены?",
+        "whyIncluded": "Собрать инженерные и квартирные характеристики отдельно от безопасности и сервиса.",
+        "positionReason": "После эмоциональных и бытовых преимуществ — конкретика о здании и квартире.",
+        "assetIds": [],
+        "ctaIds": [
+          "k15-check-layouts"
+        ],
+        "dependencies": [],
+        "qaCriteria": [
+          "advantage-evidence"
         ]
       },
       {
@@ -683,7 +690,8 @@
         "qaCriteria": [
           "cta-scenario-context",
           "preview-only-no-delivery"
-        ]
+        ],
+        "order": 4
       }
     ],
     "informationGaps": [
@@ -749,5 +757,8 @@
       "Сторонние агрегаторы показывают разное число квартир в продаже; это не противоречит общему числу 74 квартиры и не должно использоваться как общее количество квартир."
     ],
     "manualReviewRequired": true
+  },
+  "design": {
+    "theme": "warm-editorial"
   }
 }
