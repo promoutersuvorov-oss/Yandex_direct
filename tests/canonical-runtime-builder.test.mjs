@@ -86,14 +86,14 @@ test("canonical CLI maps approved test-only LANDING BRIEF CTAs into the primary 
     const invalid = JSON.parse(fs.readFileSync(brief, "utf8"));
     invalid.projectId = "different-project";
     fs.writeFileSync(brief, JSON.stringify(invalid));
-    assert.throws(() => command(brief), /LANDING BRIEF is invalid: LANDING BRIEF projectId must match passport.project.id/);
+    assert.throws(() => command(brief), error => /LANDING BRIEF projectId must match passport.project.id/.test(String(error.stderr || error.message)));
 
     const mismatched = JSON.parse(fs.readFileSync(brief, "utf8"));
     mismatched.projectId = profile.project.id;
     mismatched.approvalStatus = "approved";
     mismatched.ctas[0].intent = "select_apartment";
     fs.writeFileSync(brief, JSON.stringify(mismatched));
-    assert.throws(() => command(brief), /does not match offer type/);
+    assert.throws(() => command(brief), error => /does not match offer type/.test(String(error.stderr || error.message)));
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
   }
