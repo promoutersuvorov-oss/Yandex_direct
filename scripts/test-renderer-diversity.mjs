@@ -56,6 +56,9 @@ try {
   assert.equal(second[0]?.module, "hero", "Alternate composition must begin with its hero.");
   assert.notDeepEqual(first, second, "Different project strategies must produce different module/variant compositions.");
   assert.ok(firstHtml.includes('data-theme="warm-editorial" data-composition="editorial"'), "First strategy must select its palette and editorial composition independently.");
+  assert.ok(firstHtml.includes('data-preview-status="provisional"'), "Provisional offers must be available for internal preview with explicit status metadata.");
+  assert.ok(firstReport.warnings.some(message => message.includes('provisional offer "mortgage"') && message.includes("not approved for publication")), "Provisional offer usage must be recorded as a review warning, not silently promoted.");
+  assert.ok(firstReport.publicationReadiness.productionReady === false, "A review bundle with provisional offers must never become production-ready.");
   assert.ok(firstHtml.includes("--bg:#f3eee5") && firstHtml.includes('font-family:Georgia,"Times New Roman",serif'), "Warm editorial must change actual surface, palette and typography tokens.");
   assert.ok(first.some(item => item.module === "gallery") && first.some(item => item.module === "quiz"), "First strategy fixture must exercise gallery and quiz modules.");
   assert.ok(second.some(item => item.module === "location") && second.some(item => item.module === "price") && second.some(item => item.module === "faq"), "Alternate strategy must exercise its own editorial modules.");
