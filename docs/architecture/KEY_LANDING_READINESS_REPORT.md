@@ -1,0 +1,19 @@
+# KEY Landing Readiness Report v1
+
+The readiness report is a commercial/operational summary of the canonical runtime builder output. It does not replace or weaken claim, asset, module-registry, Positioning Gate, or production lead-workflow validation.
+
+## Statuses
+- `ready`: no blockers or warnings remain.
+- `needs_attention`: no blockers, but one or more warnings need review.
+- `blocked`: one or more blockers prevent production publication.
+
+## Report groups
+- `ready`: evidence-backed capabilities already present in the built profile.
+- `warnings`: commercial/content gaps and existing builder diagnostics.
+- `blockers`: missing required hero copy or production lead-intake configuration.
+- `manualReview`: qualitative checks that are intentionally not guessed by heuristics (positioning strength, visual quality, CTA fit).
+
+## Important limits
+The report only summarizes a successfully built profile. If the canonical builder throws (invalid claims, unsupported modules, unapproved Positioning Gate, invalid endpoint/policy, or unready lead workflow), that error remains a hard build failure and must be surfaced by the caller as a blocker. This module does not catch or bypass those errors.
+
+A missing floor plan, image, or route is reported as a warning rather than a fabricated substitute. Route metrics are never inferred from POI names. `publicationAllowed` is true only for an explicitly requested production report with a production-mode profile and zero blockers.
