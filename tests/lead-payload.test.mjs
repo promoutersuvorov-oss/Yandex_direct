@@ -115,3 +115,19 @@ test("preserves required contact channel and preferred callback time",()=>{
   assert.equal(payload.contact.preferredChannel,"telegram");
   assert.equal(payload.contact.preferredTime,"После 18:00");
 });
+
+
+test("preserves validated marketing intent in the conversion payload", () => {
+  const input = valid();
+  input.conversion = {
+    scenarioId: "galiley.presentation",
+    offerId: "presentation",
+    moduleId: "hero",
+    ctaId: "test_hero_presentation",
+    intent: "get_information"
+  };
+  const conversion = createLeadPayload(input).conversion;
+  assert.equal(conversion.intent, "get_information");
+  input.conversion.intent = "send_all_data";
+  assert.throws(() => createLeadPayload(input), /Unsupported conversion intent/);
+});
