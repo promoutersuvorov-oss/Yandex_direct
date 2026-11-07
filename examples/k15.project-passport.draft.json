@@ -403,9 +403,9 @@
         ]
       },
       {
-        "moduleId": "advantages",
+        "moduleId": "security",
         "decision": "include",
-        "reason": "Есть четыре подтверждённых преимущества из официальной страницы застройщика.",
+        "reason": "Преимущества выводятся через поддерживаемую renderer-секцию security; каждый пункт связан с подтверждёнными фактами застройщика.",
         "requiredFactIds": [
           "k15-closed-territory",
           "k15-lobby-24-7",
@@ -414,13 +414,14 @@
         ],
         "userQuestion": "Что отличает проект?",
         "whyIncluded": "Показывать только после подтверждения преимуществ.",
-        "positionReason": "После hero.",
+        "positionReason": "После первого экрана — раскрыть практические отличия клубного дома.",
         "assetIds": [],
         "ctaIds": [],
         "dependencies": [],
         "qaCriteria": [
           "advantage-evidence"
-        ]
+        ],
+        "variant": "evidence-backed-benefits"
       },
       {
         "moduleId": "location",
