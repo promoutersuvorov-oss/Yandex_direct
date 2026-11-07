@@ -128,8 +128,9 @@ try {
   assert.equal(profile.apartmentPlans.length, 1);
   assert.equal(profile.selectionQuiz.questions.length, 1);
   assert.equal(profile.offers[0].successMessage, undefined, "Internal success copy must not leak into the public preview profile.");
-  assert.deepEqual(Object.keys(profile.offers[0]).sort(), ["consentRequired", "description", "id", "requiredFields", "scenarioId", "title", "type"].sort());
+  assert.deepEqual(Object.keys(profile.offers[0]).sort(), ["consentRequired", "description", "id", "requiredFields", "scenarioId", "status", "title", "type"].sort());
   assert.equal(profile.offers[0].scenarioId, profile.offers[0].id, "Legacy offers must receive a stable scenarioId fallback.");
+  assert.equal(profile.offers[0].status, "active", "Offer approval state must be preserved in the review profile.");
   assert.equal(profile.offers[0].consentRequired, true, "Consent must be required by default.");
   const preview = spawnSync(process.execPath, [
     resolve("scripts/render-review-preview.mjs"), "--bundle", output,
