@@ -37,6 +37,12 @@ jobs:
         run: python scripts/validate-cta-context-schema.py
       - name: Validate LANDING BRIEF schema and example
         run: python scripts/validate-landing-brief-schema.py
+      - name: Generate test-only LANDING BRIEF for schema validation
+        run: |
+          node scripts/create-canonical-runtime-fixture.mjs --out artifacts/brief-intent/passport.json
+          node scripts/create-brief-intent-fixture.mjs --passport artifacts/brief-intent/passport.json --out artifacts/brief-intent/landing-brief.test-only.json
+      - name: Validate test-only LANDING BRIEF against JSON Schema
+        run: python scripts/validate-landing-brief-schema.py artifacts/brief-intent/landing-brief.test-only.json
       - name: Generate synthetic passport fixture for location evidence schema validation
         run: node scripts/create-browser-preview-fixture.mjs --out artifacts/browser-fixture/passport.json
       - name: Validate synthetic passport and location evidence against JSON Schema
