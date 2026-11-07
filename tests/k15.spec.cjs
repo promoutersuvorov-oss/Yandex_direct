@@ -4,17 +4,25 @@ const url = "http://127.0.0.1:4173/landing/reference/K15_landing_edited.html";
 
 test.beforeEach(async ({ page }) => {
   // Never send test leads to the live Google Apps Script endpoint.
-  await page.route("https://script.google.com/**", async route => {
-    await route.fulfill({
-      status: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-        "Content-Type": "text/plain"
-      },
-      body: "mock-success"
-    });
+  // Match by parsed host/path to keep the mock reliable in WebKit as well.
+  await page.route("**/*", async route => {
+    const requestUrl = new URL(route.request().url());
+    if (requestUrl.hostname === "script.google.com" &&
+        requestUrl.pathname.startsWith("/macros/s/") &&
+        requestUrl.pathname.endsWith("/exec")) {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Content-Type": "text/plain"
+        },
+        body: "mock-success"
+      });
+      return;
+    }
+    await route.continue();
   });
 });
 
@@ -146,8 +154,14 @@ test("three-step quiz preserves answers and submits with quiz context", async ({
 
 test("failed lead transport never displays a success state", async ({ page }) => {
   // Replace the successful mock from beforeEach with a deliberate network failure.
-  await page.unroute("https://script.google.com/**");
-  await page.route("https://script.google.com/**", route => route.abort("failed"));
+  await page.unroute("**/*");
+  await page.route("**/*", route => {
+    const requestUrl = new URL(route.request().url());
+    if (requestUrl.hostname === "script.google.com" &&
+        requestUrl.pathname.startsWith("/macros/s/") &&
+        requestUrl.pathname.endsWith("/exec")) return route.abort("failed");
+    return route.continue();
+  });
   await page.goto(url, { waitUntil: "domcontentloaded" });
 
   const cta = page.locator('button[data-modal="presentation"]').first();
