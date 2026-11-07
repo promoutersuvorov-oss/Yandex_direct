@@ -105,7 +105,7 @@ test("fails closed on claims requiring publication qualification until qualified
   y.knowledge.claims[0].publicUse="internal_only";
   assert.throws(()=>buildLandingProfileFromKnowledge(y.knowledge,y.landingInputs,y.refs,marketing,{},{}),/non-publishable fact/);
 });
-test("a marketing-only qualification never publishes infrastructure claims",()=>{
+test("a marketing-only qualification does not publish route metrics; a separately evidenced POI name may publish with its own location qualifier",()=>{
   const x=input();
   x.landingInputs.strategy.modules=[];
   x.knowledge.claims[0].publicUse="allowed_with_qualification";
@@ -139,11 +139,13 @@ test("infrastructure requires a project-scoped route with linked evidence",()=>{
   const missingEvidence=structuredClone(x);
   missingEvidence.knowledge.routes[0].evidenceIds=[];
   const blocked=buildLandingProfileFromKnowledge(missingEvidence.knowledge,missingEvidence.landingInputs,missingEvidence.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
-  assert.deepEqual(blocked.infrastructure,[]);
+  assert.equal(blocked.infrastructure.length,1);
+  assert.equal(blocked.infrastructure[0].distanceLabel,undefined);
   const wrongProject=structuredClone(x);
   wrongProject.knowledge.routes[0].originRef.id="another-project";
   const wrongOrigin=buildLandingProfileFromKnowledge(wrongProject.knowledge,wrongProject.landingInputs,wrongProject.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
-  assert.deepEqual(wrongOrigin.infrastructure,[]);
+  assert.equal(wrongOrigin.infrastructure.length,1);
+  assert.equal(wrongOrigin.infrastructure[0].distanceLabel,undefined);
 });
 
 test("blocks claims without linked source/evidence and candidates with missing facts",()=>{
@@ -189,7 +191,7 @@ test("quiz result must resolve to the actual quiz offer",()=>{
   assert.equal(profile.selectionQuiz,null);
 });
 
-test("builds the real KD 905 draft without inventing plans, distances, assets or offers",()=>{
+test("builds the real KD 905 draft with a qualified advantage and named POIs but no invented metrics or assets",()=>{
   const passport=JSON.parse(readFileSync(new URL("../examples/kd-905.project-passport.draft.json",import.meta.url),"utf8"));
   const normalized=normalizePassportV1(passport);
   const landing=normalizeLandingInputsV1(passport);
@@ -197,7 +199,21 @@ test("builds the real KD 905 draft without inventing plans, distances, assets or
   assert.deepEqual(landing.errors,[]);
   const copy=Object.fromEntries(Object.keys(marketing.copy).map(key=>[key,key]));
   const approvedCopy={projectId:passport.project.id,approvalStatus:"approved",copy,claimFactIds:{}};
-  assert.throws(()=>buildLandingProfileFromKnowledge(normalized.knowledge,landing.landingInputs,normalized.legacyReferences,approvedCopy,{},{now:"2026-11-06T00:00:00Z"}),/approved-lifestyle-stories/);
+  const result=buildLandingProfileFromKnowledgeWithDiagnostics(
+    normalized.knowledge,landing.landingInputs,normalized.legacyReferences,approvedCopy,{},{now:"2026-11-07T00:00:00Z"}
+  );
+  assert.ok(result.profile.advantages.some(item=>item.id==="parking-functionality"));
+  const parking=result.profile.advantages.find(item=>item.id==="parking-functionality");
+  assert.equal(parking.evidence[0].claim,"В проекте предусмотрен подземный паркинг.");
+  assert.match(parking.evidence[0].qualification,/наличие свободных мест/);
+  assert.ok(result.profile.infrastructure.some(item=>item.name==="Детский сад № 108"));
+  assert.ok(result.profile.infrastructure.some(item=>item.name==="Парк «Орлёнок»"));
+  assert.ok(result.profile.infrastructure.every(item=>item.distanceLabel===undefined && item.distanceMeters===undefined));
+  assert.deepEqual(result.profile.media,[]);
+  assert.deepEqual(result.profile.plans,[]);
+  assert.ok(result.warnings.some(item=>item.code==="POI_METRIC_NOT_PUBLISHED"));
+  assert.ok(result.warnings.some(item=>item.code==="CONDITIONAL_MODULE_NOT_READY" && item.moduleId==="lifestyle"));
+  assert.equal(result.profile.mode,"demo");
 });
 
 test("apartment plans require an asset explicitly cleared for the floor-plans context",()=>{
