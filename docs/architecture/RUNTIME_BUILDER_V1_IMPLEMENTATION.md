@@ -34,3 +34,12 @@
 ## Tests
 
 `tests/landing-runtime-builder-v1.test.mjs` покрывает claim/source/evidence gate, marketing reference bridge, assets, production fail-closed, module resolution и отсутствие internal leakage.
+
+
+## Primary browser runtime handoff — implementation in progress
+
+The canonical CLI now supports an explicit `--target-runtime` mode. It writes the generated profile directly to `landing/runtime/project.config.js`, the exact file loaded by `landing/runtime/index.html`; this avoids a manual copy step. The flag is mutually exclusive with `--out`. The existing arbitrary `--out` path remains available for isolated builds and CI artifacts.
+
+A focused fixture for ЖК «Галилей» and a Node CLI contract test verify the generated profile identity, visitor-facing copy, demo mode, disabled analytics and empty lead endpoint. The browser integration spec injects the actual generated profile into the primary runtime and checks rendered project data, selected section composition and the fail-closed demo lead path.
+
+**Evidence status:** implementation and CI wiring are on the stacked branch `feat/canonical-runtime-browser-handoff`; acceptance remains pending until the GitHub Actions source-integrity and Chromium/Firefox/WebKit jobs complete successfully. This test proves builder-to-primary-runtime consumption with a controlled fixture. It does not prove production CRM delivery, legal approval, live analytics, commercial performance or visual acceptance on physical devices.
