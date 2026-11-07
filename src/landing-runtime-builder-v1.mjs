@@ -184,7 +184,21 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
   project.district = claimText(districtClaim);
   project.address = claimText(addressClaim);
 
-  const advantages = (landingInputs.marketingCandidates || []).filter(item =>
+  const evidenceWarnings = [];
+  const candidates = landingInputs.marketingCandidates || [];
+  for (const item of candidates) {
+    const blockedFactIds = (item.supportingFactIds || []).filter(id => !contentFactIsPublic("security", item.id, id));
+    if (item.classification === "marketing_candidate" && blockedFactIds.length) {
+      evidenceWarnings.push({
+        code: "MARKETING_CANDIDATE_BLOCKED",
+        contentId: item.id,
+        factIds: blockedFactIds,
+        claimIds: blockedFactIds.map(id => legacyReferences.factIdToClaimId[id]).filter(Boolean),
+        message: `Преимущество "${item.id}" не опубликовано: для указанных фактов отсутствует допуск с квалификацией именно для этой карточки либо факт не прошёл проверку источника/актуальности.`
+      });
+    }
+  }
+  const advantages = candidates.filter(item =>
     item.classification === "marketing_candidate" && item.title && item.benefit &&
     item.supportingFactIds?.length && item.supportingFactIds.every(id => contentFactIsPublic("security", item.id, id))
   ).map(item => {
@@ -308,19 +322,50 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
         return Boolean(entry && item.sourceIds.includes(entry.sourceId));
       }) && (hasValidDistance || hasValidDuration);
   });
-  const infrastructure = (knowledge.pointsOfInterest || []).filter(poi => {
+  const sourceById = new Map((knowledge.sources || []).map(source => [source.id, source]));
+  const evidenceById = new Map((knowledge.evidence || []).map(item => [item.id, item]));
+  const infrastructure = (knowledge.pointsOfInterest || []).flatMap(poi => {
     const existence = (poi.claimIds || []).map(id => claims.get(id)).find(claim =>
       claim?.subject?.type === "poi" && claim.subject.id === poi.id &&
-      claim.predicate === "poi.listed_by_source" && claimIsPublic(claim, knowledge, now));
-    return Boolean(existence && findWalkingRoute(poi.id));
-  }).map(poi => {
+      claim.predicate === "poi.listed_by_source" && claim.epistemicStatus === "verified" &&
+      ["allowed", "allowed_with_qualification"].includes(claim.publicUse) &&
+      isFuture(claim.validUntil, now) && claim.sourceIds?.length && claim.evidenceIds?.length &&
+      claim.sourceIds.every(id => sourceById.has(id)) &&
+      claim.evidenceIds.every(id => evidenceById.has(id) && claim.sourceIds.includes(evidenceById.get(id).sourceId)));
+    if (!existence) {
+      evidenceWarnings.push({
+        code: "POI_NOT_PUBLISHED",
+        contentId: poi.id,
+        claimIds: poi.claimIds || [],
+        message: `Точка "${poi.id}" не опубликована: нет проверенного и связанного с источником подтверждения её наличия в перечне.`
+      });
+      return [];
+    }
+    const source = sourceById.get(existence.sourceIds[0]);
     const route = findWalkingRoute(poi.id);
-    const distance = route?.distance;
-    const distanceLabel = Number.isFinite(route?.durationSeconds) ?
-      `${Math.round(route.durationSeconds / 60)} мин. пешком` :
-      distance.unit === "km" ? `${distance.value.toLocaleString("ru-RU")} км` :
-      distance.value >= 1000 ? `${(distance.value / 1000).toLocaleString("ru-RU")} км` : `${Math.round(distance.value)} м`;
-    return { name: poi.name, distanceLabel, status: "verified" };
+    const result = {
+      id: poi.id, name: poi.name, category: poi.category || "other",
+      sourceTitle: source?.title || "",
+      status: "verified"
+    };
+    if (route) {
+      const distance = route.distance;
+      result.distanceLabel = Number.isFinite(route.durationSeconds) ?
+        `${Math.round(route.durationSeconds / 60)} мин. пешком` :
+        distance.unit === "km" ? `${distance.value.toLocaleString("ru-RU")} км` :
+        distance.value >= 1000 ? `${(distance.value / 1000).toLocaleString("ru-RU")} км` : `${Math.round(distance.value)} м`;
+      if (distance && Number.isFinite(distance.value)) result.distanceMeters = distance.unit === "km" ? distance.value * 1000 : distance.value;
+      const metricSource = route.sourceIds.map(id => sourceById.get(id)).find(Boolean);
+      if (metricSource?.title) result.distanceSourceTitle = metricSource.title;
+    } else {
+      result.qualification = "Расстояние и маршрут не подтверждены.";
+      evidenceWarnings.push({
+        code: "POI_METRIC_NOT_PUBLISHED",
+        contentId: poi.id,
+        message: `Для точки "${poi.id}" опубликовано только название: отдельное актуальное evidence маршрута/расстояния отсутствует.`
+      });
+    }
+    return [result];
   });
 
   const offers = {};
@@ -423,7 +468,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     analytics: { enabled:false }, selectionQuiz: quiz,
     ...(options.approvedMarketingStrategy ? { marketingStrategy: clone(options.approvedMarketingStrategy), ctaMap: clone(options.approvedMarketingStrategy.ctaMap || {}) } : {})
   };
-  return { profile, warnings: moduleResolution.warnings };
+  return { profile, warnings: [...evidenceWarnings, ...moduleResolution.warnings] };
 }
 
 export function buildLandingProfileFromKnowledge(knowledge, landingInputs, legacyReferences, marketing, integration = {}, options = {}) {

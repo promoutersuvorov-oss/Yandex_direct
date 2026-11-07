@@ -9,12 +9,11 @@ function main() {
   const passport = JSON.parse(fs.readFileSync(path.resolve("examples/kd-905.project-passport.draft.json"), "utf8"));
 
   // Retain the real KD 905 passport and evidence statuses. Select a small,
-  // structurally distinct demo composition; omit facts from module requirements
-  // because all current public-use facts need qualification that has not yet been
-  // approved for this demo. The runtime must show its explicit empty-state rather
-  // than promote provisional claims or synthesize advantages.
+  // structurally distinct demo composition and preserve the exact security-card
+  // qualification. No project media, plans, distances or walking times are invented.
   passport.contentStrategy = {
     ...(passport.contentStrategy || {}),
+    contentQualifications: passport.contentStrategy?.contentQualifications || [],
     modules: [
       {
         moduleId: "hero",
@@ -29,10 +28,10 @@ function main() {
       {
         moduleId: "security",
         decision: "include",
-        reason: "Keep the evidence section visible; unsupported candidate claims must remain absent.",
+        reason: "Render only the parking candidate whose exact supporting fact has a content-scoped qualification.",
         order: 1,
         variant: "proof-led",
-        requiredFactIds: [],
+        requiredFactIds: ["underground-parking"],
         assetIds: []
       },
       {

@@ -99,6 +99,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
       typeof source.sourceTitle === "string" && source.sourceTitle.trim()
     )
   ) : [];
+  advantageGrid.classList.toggle("is-single", publishableAdvantages.length === 1);
   if (publishableAdvantages.length) {
     advantageGrid.innerHTML = publishableAdvantages.map((item, index) => {
       const evidence = item.evidence.filter(source =>
@@ -200,12 +201,35 @@ import { createAttributionState } from "../../src/attribution.mjs";
   planPreviewCta.addEventListener("click", () => planPreviewDialog.close());
 
   const locationList = $("#location-list");
-  const places = Array.isArray(data.infrastructure) ? data.infrastructure
-    .filter(p => p && p.status === "verified" && p.name && p.distanceLabel)
-    .slice().sort((a, b) => (Number.isFinite(a.distanceMeters) ? a.distanceMeters : Number.MAX_SAFE_INTEGER) - (Number.isFinite(b.distanceMeters) ? b.distanceMeters : Number.MAX_SAFE_INTEGER))
-    .slice(0, 4) : [];
+  const sortedPlaces = Array.isArray(data.infrastructure) ? data.infrastructure
+    .filter(p => p && p.status === "verified" && typeof p.name === "string" && p.name.trim())
+    .slice().sort((a, b) => (Number.isFinite(a.distanceMeters) ? a.distanceMeters : Number.MAX_SAFE_INTEGER) - (Number.isFinite(b.distanceMeters) ? b.distanceMeters : Number.MAX_SAFE_INTEGER)) : [];
+  const places = [];
+  const seenPlaceKinds = new Set();
+  for (const place of sortedPlaces) {
+    if (places.length >= 4) break;
+    if (!seenPlaceKinds.has(place.category)) {
+      places.push(place);
+      seenPlaceKinds.add(place.category);
+    }
+  }
+  for (const place of sortedPlaces) {
+    if (places.length >= 4) break;
+    if (!places.includes(place)) places.push(place);
+  }
   const placeKinds = { school:"Школа", kindergarten:"Детский сад", park:"Парк", shopping:"Покупки", transport:"Транспорт", healthcare:"Здоровье", leisure:"Досуг", other:"Рядом" };
-  if (places.length) locationList.innerHTML = places.map(place => '<li><div><span class="place-kind">' + esc(placeKinds[place.category] || "Рядом") + '</span><strong>' + esc(place.name) + '</strong></div><span>' + esc(place.distanceLabel) + '</span></li>').join("");
+  const placeSources = [...new Set(places.map(place => place.sourceTitle).filter(Boolean))];
+  if (placeSources.length) {
+    const sourceNote = document.createElement("p");
+    sourceNote.className = "location-evidence-note";
+    sourceNote.textContent = "Названия объектов приведены по источнику: " + placeSources.join("; ");
+    locationList.before(sourceNote);
+  }
+  if (places.length) locationList.innerHTML = places.map(place =>
+    '<li><div><span class="place-kind">' + esc(placeKinds[place.category] || "Рядом") + '</span><strong>' + esc(place.name) + '</strong>' +
+    (place.qualification ? '<small class="place-qualification">' + esc(place.qualification) + '</small>' : '') +
+    '</div>' + (place.distanceLabel ? '<span class="place-distance">' + esc(place.distanceLabel) + '</span>' : '') + '</li>'
+  ).join("");
   const locationArt = $(".location-art");
   const locationMapImage = $("#location-map");
   const locationMap = data.locationMap;

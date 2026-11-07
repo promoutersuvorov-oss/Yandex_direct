@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, feature/universal-landing-runtime-v2, feat/canonical-runtime-browser-handoff, feat/primary-runtime-project-diversity, feat/brief-to-lead-intent-e2e]
+    branches: [main, feature/universal-landing-runtime-v2, feat/canonical-runtime-browser-handoff, feat/primary-runtime-project-diversity, feat/brief-to-lead-intent-e2e, feat/primary-runtime-visual-review]
 
 permissions:
   contents: read
@@ -14,6 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Includes KD 905 evidence separation, source-note rendering, and single-card responsive layout checks.
   source-integrity:
     runs-on: ubuntu-24.04
     steps:

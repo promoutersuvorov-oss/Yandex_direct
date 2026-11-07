@@ -105,7 +105,7 @@ test("fails closed on claims requiring publication qualification until qualified
   y.knowledge.claims[0].publicUse="internal_only";
   assert.throws(()=>buildLandingProfileFromKnowledge(y.knowledge,y.landingInputs,y.refs,marketing,{},{}),/non-publishable fact/);
 });
-test("a marketing-only qualification never publishes infrastructure claims",()=>{
+test("a source-backed POI name renders without route metrics; marketing qualifications do not create proximity claims",()=>{
   const x=input();
   x.landingInputs.strategy.modules=[];
   x.knowledge.claims[0].publicUse="allowed_with_qualification";
@@ -115,12 +115,12 @@ test("a marketing-only qualification never publishes infrastructure claims",()=>
   x.knowledge.claims[0].subject={type:"poi",id:"poi-1"};
   x.knowledge.claims[0].predicate="poi.listed_by_source";
   x.knowledge.pointsOfInterest=[{id:"poi-1",name:"Городской парк",claimIds:["c1"]}];
-  x.knowledge.sources.push({id:"s2",title:"Источник маршрута"});
-  x.knowledge.evidence.push({id:"e2",sourceId:"s2",extract:"Проверенный пешеходный маршрут"});
-  x.knowledge.routes=[{id:"route-1",originRef:{type:"project",id:"p1"},destinationPoiId:"poi-1",method:"route",mode:"walking",observedAt:"2026-11-05T12:00:00Z",validUntil:"2027-11-05T12:00:00Z",sourceIds:["s2"],evidenceIds:["e2"],durationSeconds:300}];
   const qualifiedMarketing={...marketing,claimQualifications:{headline:[{factId:"f1",text:"По данным источника; сведения могут измениться."}]}};
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,qualifiedMarketing,{},{now:"2026-11-06T00:00:00Z"});
-  assert.deepEqual(profile.infrastructure,[], "A qualifier attached to marketing copy must not authorize the same claim in location/infrastructure.");
+  assert.equal(profile.infrastructure.length,1);
+  assert.equal(profile.infrastructure[0].name,"Городской парк");
+  assert.equal(profile.infrastructure[0].distanceLabel,undefined);
+  assert.match(profile.infrastructure[0].qualification,/Расстояние и маршрут не подтверждены/);
 });
 
 test("infrastructure requires a project-scoped route with linked evidence",()=>{
@@ -136,14 +136,20 @@ test("infrastructure requires a project-scoped route with linked evidence",()=>{
   const valid=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.equal(valid.infrastructure.length,1);
   assert.equal(valid.infrastructure[0].distanceLabel,"5 мин. пешком");
+  assert.equal(valid.infrastructure[0].qualification,undefined);
+  assert.equal(valid.infrastructure[0].distanceSourceTitle,"Источник маршрута");
   const missingEvidence=structuredClone(x);
   missingEvidence.knowledge.routes[0].evidenceIds=[];
   const blocked=buildLandingProfileFromKnowledge(missingEvidence.knowledge,missingEvidence.landingInputs,missingEvidence.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
-  assert.deepEqual(blocked.infrastructure,[]);
+  assert.equal(blocked.infrastructure.length,1);
+  assert.equal(blocked.infrastructure[0].distanceLabel,undefined);
+  assert.match(blocked.infrastructure[0].qualification,/Расстояние и маршрут не подтверждены/);
   const wrongProject=structuredClone(x);
   wrongProject.knowledge.routes[0].originRef.id="another-project";
   const wrongOrigin=buildLandingProfileFromKnowledge(wrongProject.knowledge,wrongProject.landingInputs,wrongProject.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
-  assert.deepEqual(wrongOrigin.infrastructure,[]);
+  assert.equal(wrongOrigin.infrastructure.length,1);
+  assert.equal(wrongOrigin.infrastructure[0].distanceLabel,undefined);
+  assert.match(wrongOrigin.infrastructure[0].qualification,/Расстояние и маршрут не подтверждены/);
 });
 
 test("blocks claims without linked source/evidence and candidates with missing facts",()=>{
@@ -189,15 +195,39 @@ test("quiz result must resolve to the actual quiz offer",()=>{
   assert.equal(profile.selectionQuiz,null);
 });
 
-test("builds the real KD 905 draft without inventing plans, distances, assets or offers",()=>{
+test("builds the real KD 905 draft with a qualified advantage and named POIs but no invented metrics or assets",()=>{
   const passport=JSON.parse(readFileSync(new URL("../examples/kd-905.project-passport.draft.json",import.meta.url),"utf8"));
   const normalized=normalizePassportV1(passport);
   const landing=normalizeLandingInputsV1(passport);
   assert.deepEqual(normalized.errors,[]);
   assert.deepEqual(landing.errors,[]);
+  // Keep the real passport facts and scoped qualification, but select only the
+  // modules whose exact runtime content is currently supported by this evidence.
+  landing.landingInputs.strategy.modules=[
+    {moduleId:"hero",decision:"include",reason:"Identity only",order:0,variant:"editorial-split",requiredFactIds:[]},
+    {moduleId:"security",decision:"include",reason:"Qualified parking card",order:1,variant:"proof-led",requiredFactIds:["underground-parking"]},
+    {moduleId:"location",decision:"include",reason:"Source-backed place names",order:2,variant:"location-led",requiredFactIds:[]},
+    {moduleId:"gallery",decision:"conditional",reason:"No approved media",order:3,variant:"immersive",requiredFactIds:[],dependencies:["approved-project-media"]}
+  ];
   const copy=Object.fromEntries(Object.keys(marketing.copy).map(key=>[key,key]));
   const approvedCopy={projectId:passport.project.id,approvalStatus:"approved",copy,claimFactIds:{}};
-  assert.throws(()=>buildLandingProfileFromKnowledge(normalized.knowledge,landing.landingInputs,normalized.legacyReferences,approvedCopy,{},{now:"2026-11-06T00:00:00Z"}),/approved-lifestyle-stories/);
+  const result=buildLandingProfileFromKnowledgeWithDiagnostics(
+    normalized.knowledge,landing.landingInputs,normalized.legacyReferences,approvedCopy,{},{now:"2026-11-07T00:00:00Z"}
+  );
+  assert.ok(result.profile.advantages.some(item=>item.id==="parking-functionality"));
+  const parking=result.profile.advantages.find(item=>item.id==="parking-functionality");
+  assert.equal(parking.evidence[0].claim,"В проекте предусмотрен подземный паркинг.");
+  assert.match(parking.evidence[0].qualification,/наличие свободных мест/);
+  assert.ok(result.profile.infrastructure.some(item=>item.name==="Детский сад № 108"));
+  assert.ok(result.profile.infrastructure.some(item=>item.name==="Парк «Орлёнок»"));
+  assert.ok(result.profile.infrastructure.every(item=>item.distanceLabel===undefined && item.distanceMeters===undefined));
+  assert.deepEqual(result.profile.media,[]);
+  assert.deepEqual(result.profile.plans,[]);
+  assert.ok(result.warnings.some(item=>item.code==="POI_METRIC_NOT_PUBLISHED" && item.contentId));
+  assert.ok(result.warnings.some(item=>item.code==="MARKETING_CANDIDATE_BLOCKED" &&
+    item.contentId && item.factIds?.length && item.claimIds?.length && item.message));
+  assert.ok(result.warnings.some(item=>item.code==="CONDITIONAL_MODULE_NOT_READY" && item.moduleId==="gallery"));
+  assert.equal(result.profile.mode,"demo");
 });
 
 test("apartment plans require an asset explicitly cleared for the floor-plans context",()=>{
