@@ -217,10 +217,16 @@ import { createAttributionState } from "../../src/attribution.mjs";
     if (!places.includes(place)) places.push(place);
   }
   const placeKinds = { school:"Школа", kindergarten:"Детский сад", park:"Парк", shopping:"Покупки", transport:"Транспорт", healthcare:"Здоровье", leisure:"Досуг", other:"Рядом" };
+  const placeSources = [...new Set(places.map(place => place.sourceTitle).filter(Boolean))];
+  if (placeSources.length) {
+    const sourceNote = document.createElement("p");
+    sourceNote.className = "location-evidence-note";
+    sourceNote.textContent = "Названия объектов приведены по источнику: " + placeSources.join("; ");
+    locationList.before(sourceNote);
+  }
   if (places.length) locationList.innerHTML = places.map(place =>
     '<li><div><span class="place-kind">' + esc(placeKinds[place.category] || "Рядом") + '</span><strong>' + esc(place.name) + '</strong>' +
     (place.qualification ? '<small class="place-qualification">' + esc(place.qualification) + '</small>' : '') +
-    (place.sourceTitle ? '<small class="place-source">Источник: ' + esc(place.sourceTitle) + '</small>' : '') +
     '</div>' + (place.distanceLabel ? '<span class="place-distance">' + esc(place.distanceLabel) + '</span>' : '') + '</li>'
   ).join("");
   const locationArt = $(".location-art");
