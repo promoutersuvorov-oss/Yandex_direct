@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://key.example/schemas/restricted-attribution-link.schema.json",
+  "title": "KEY restricted attribution link",
+  "description": "Restricted server-side mapping between opaque KEY references and permitted advertising/analytics identifiers. Never embed this record in browser events, lead payloads, or general logs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "attributionRef",
+    "projectId",
+    "leadRef",
+    "sessionId",
+    "capturedAt",
+    "expiresAt",
+    "policyVersion",
+    "consent",
+    "identifiers"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "attributionRef": {
+      "type": "string",
+      "pattern": "^attr_[a-zA-Z0-9_-]{16,96}$"
+    },
+    "projectId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]{1,79}$"
+    },
+    "leadRef": {
+      "type": "string",
+      "pattern": "^lead_[a-zA-Z0-9_-]{8,96}$"
+    },
+    "sessionId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]{16,128}$"
+    },
+    "capturedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "policyVersion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "analytics",
+        "advertisingMeasurement"
+      ],
+      "properties": {
+        "analytics": {
+          "type": "boolean"
+        },
+        "advertisingMeasurement": {
+          "type": "boolean"
+        }
+      }
+    },
+    "identifiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "metrikaClientId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "yclid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "retentionReason": {
+      "type": "string",
+      "maxLength": 120
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "identifiers": {
+            "required": [
+              "metrikaClientId"
+            ]
+          }
+        },
+        "required": [
+          "identifiers"
+        ]
+      },
+      "then": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "analytics": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "identifiers": {
+            "required": [
+              "yclid"
+            ]
+          }
+        },
+        "required": [
+          "identifiers"
+        ]
+      },
+      "then": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "advertisingMeasurement": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
