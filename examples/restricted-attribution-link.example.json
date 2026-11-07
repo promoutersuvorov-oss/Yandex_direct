@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0.0",
+  "attributionRef": "attr_01JKEYDEMO00000001",
+  "projectId": "kd-905-voronezh",
+  "leadRef": "lead_demo_00000001",
+  "sessionId": "sess_0123456789abcdef",
+  "capturedAt": "2026-11-07T12:00:00.000Z",
+  "expiresAt": "2026-11-28T12:00:00.000Z",
+  "policyVersion": "2026-11-07",
+  "consent": {
+    "analytics": true,
+    "advertisingMeasurement": true
+  },
+  "identifiers": {
+    "metrikaClientId": "1234567890123456789",
+    "yclid": "demo-yclid-value"
+  },
+  "retentionReason": "offline_conversion_matching"
+}
