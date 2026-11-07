@@ -8,6 +8,7 @@ test("KD 905 uses its own editorial composition and only verified project facts"
   await page.goto(url, { waitUntil: "networkidle" });
 
   await expect(page.locator("body")).toHaveAttribute("data-theme", "warm-editorial");
+  await expect(page.locator("body")).toHaveAttribute("data-composition", "editorial");
   await expect(page.locator("body")).not.toContainText("EDITORIAL-SPLIT");
   await expect(page.locator("body")).not.toContainText("IMAGE-LED");
   await expect(page.getByRole("heading", { level: 1, name: "Клубный дом «905»" })).toBeVisible();
@@ -20,6 +21,9 @@ test("KD 905 uses its own editorial composition and only verified project facts"
   await expect(page.locator("body")).toContainText("ул. Революции 1905 года, 14");
   await expect(page.getByRole("heading", { name: "Вопросы и ответы" })).toHaveCount(0);
   await expect(page.locator('main [data-module="hero"]')).toHaveClass(/text-only/);
+  await expect(page.locator("#module-hero .hero-meta")).toContainText("Воронеж");
+  await expect(page.locator("#module-hero .hero-meta-item:nth-child(2) dd")).toHaveText("Центральный");
+  await expect(page.locator("#module-hero .hero-meta")).not.toContainText("Революции 1905 года");
   await expect(page.locator('main [data-module="lifestyle"]')).toHaveAttribute("data-variant", "feature-led");
 
   await expect(page.locator("main img")).toHaveCount(0);
@@ -33,10 +37,15 @@ test("KD 905 uses its own editorial composition and only verified project facts"
     parkingCardText: getComputedStyle(document.querySelector('[data-module="security"] .benefit p')).color,
     heroColumns: getComputedStyle(document.querySelector('[data-module="hero"]')).gridTemplateColumns,
     textOnlyMinHeight: getComputedStyle(document.querySelector('[data-module="about"]')).minHeight,
-    heroMinHeight: getComputedStyle(document.querySelector('[data-module="hero"]')).minHeight
+    heroMinHeight: getComputedStyle(document.querySelector('[data-module="hero"]')).minHeight,
+    heroBackgroundImage: getComputedStyle(document.querySelector('[data-module="hero"]')).backgroundImage,
+    heroPaddingTop: Number.parseFloat(getComputedStyle(document.querySelector('[data-module="hero"]')).paddingTop)
   }));
   expect(visualTokens.background).toBe("rgb(243, 238, 229)");
   expect(visualTokens.headingFont).toContain("Georgia");
+  expect(visualTokens.heroBackgroundImage).toContain("linear-gradient");
+  expect(visualTokens.heroBackgroundImage).not.toContain("repeating-linear-gradient");
+  expect(visualTokens.heroPaddingTop).toBeGreaterThan(140);
   expect(visualTokens.parkingCardBackground).toBe("rgb(217, 205, 189)");
   expect(visualTokens.parkingCardText).toBe("rgb(81, 74, 66)");
   expect(visualTokens.heroColumns.trim().split(/\s+/)).toHaveLength(1);

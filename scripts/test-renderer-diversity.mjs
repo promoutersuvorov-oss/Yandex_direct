@@ -63,6 +63,9 @@ try {
   assert.ok(secondHtml.includes("--bg:#101b18") && secondHtml.includes("font-family:Inter,Arial,sans-serif"), "Garden modern must change actual surface, palette and typography tokens.");
   assert.ok(secondHtml.includes('body[data-composition="architectural"] .module') && secondHtml.includes('body[data-composition="architectural"] figure'), "Architectural composition must change grid geometry and image framing, not only metadata.");
   assert.ok(firstHtml.includes('body[data-composition="editorial"] .module') && firstHtml.includes('body[data-composition="editorial"] h1'), "Editorial composition must define its own page rhythm and typography.");
+  assert.ok(firstHtml.includes('body[data-composition="editorial"] .hero.text-only') && firstHtml.includes(".hero-meta"), "Text-only editorial heroes must have a deliberate composition and evidence-backed location rail.");
+  assert.ok(secondHtml.includes('body[data-composition="architectural"] .hero.text-only') && secondHtml.includes("repeating-linear-gradient"), "Text-only architectural heroes must use a distinct grid-based art direction.");
+  assert.ok(secondHtml.includes('body[data-composition="cinematic"] .hero.text-only') && secondHtml.includes("radial-gradient"), "Cinematic text-only heroes must have their own visual treatment.");
   assert.ok(secondHtml.includes("Синтетическая резиденция у воды"), "Alternate project identity must reach the rendered page.");
   assert.ok(secondHtml.includes('data-variant="full-bleed"') && secondHtml.includes('data-variant="location-led"') && secondHtml.includes('data-variant="conversion-led"'), "Alternate strategy variants must reach the actual HTML renderer.");
   assert.ok(!secondHtml.includes('data-module="gallery"') && !secondHtml.includes('data-module="quiz"'), "Modules excluded by the alternate passport must not leak into its page.");
@@ -74,7 +77,7 @@ try {
   assert.equal(firstCapabilities.get("quiz")?.status, "implemented", "Quiz must declare its actual specialized capability.");
   assert.equal(firstCapabilities.get("lifestyle")?.status, "partial", "Generic editorial sections must not be mislabeled as fully implemented.");
   assert.equal(secondCapabilities.get("location")?.status, "implemented", "Verified nearby-place cards are a specialized renderer capability without implying map or route behavior.");
-  assert.deepEqual(firstReport.rendererAudit.capabilitySummary, { implemented: 6, partial: first.length - 6, unsupported: 0 });
+  assert.deepEqual(firstReport.rendererAudit.capabilitySummary, { implemented: 7, partial: first.length - 7, unsupported: 0 });
   assert.deepEqual(secondReport.rendererAudit.capabilitySummary, { implemented: 3, partial: second.length - 3, unsupported: 0 });
   assert.equal(firstReport.rendererAudit.status, "passed");
   assert.equal(secondReport.rendererAudit.status, "passed");

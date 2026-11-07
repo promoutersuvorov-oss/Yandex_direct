@@ -25,14 +25,14 @@ test("synthetic landing renders distinct interactive modules responsively", asyn
 
   await expect(page.getByRole("heading", { level: 1, name: "Синтетический ЖК — тест интерфейса" })).toBeVisible();
   await expect(page.locator('[data-module="gallery"] .media-card')).toHaveCount(2);
-  await expect(page.locator('[data-module="location"] .place-card')).toHaveCount(4);
+  await expect(page.locator('[data-module="location"] .place-item')).toHaveCount(4);
   await expect(page.locator('[data-module="location"]')).toContainText("Тестовый городской парк");
   await expect(page.locator('[data-module="location"]')).toContainText("по маршруту — 450 м · 6 мин пешком");
   await expect(page.locator('[data-module="location"]')).toContainText("Школа без подтверждённого расстояния");
-  const straightLineCard = page.locator('[data-module="location"] .place-card').filter({ hasText: "Городской сквер" });
+  const straightLineCard = page.locator('[data-module="location"] .place-item').filter({ hasText: "Городской сквер" });
   await expect(straightLineCard).toContainText("по прямой — 1,5 км");
   await expect(straightLineCard).not.toContainText("мин пешком");
-  const expiredRouteCard = page.locator('[data-module="location"] .place-card').filter({ hasText: "Парк с устаревшим маршрутом" });
+  const expiredRouteCard = page.locator('[data-module="location"] .place-item').filter({ hasText: "Парк с устаревшим маршрутом" });
   await expect(expiredRouteCard).not.toContainText("900 м");
   await expect(expiredRouteCard).not.toContainText("мин пешком");
   await expect(page.locator('[data-module="location"]')).not.toContainText("11 мин пешком");
@@ -89,6 +89,38 @@ test("general CTA exposes a stable scenario contract and never claims delivery",
   await expect(dialog).toContainText("Ничего не отправляется");
 });
 
+test("conversion CTAs stay contextual and no page-wide chooser is rendered", async ({ page }) => {
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+
+  await expect(page.locator('[data-module="conversion-options"]')).toHaveCount(0);
+  await expect(page.locator(".conversion-options, .conversion-grid, .conversion-option")).toHaveCount(0);
+
+  const heroCta = page.locator('[data-module="hero"] [data-preview-cta]');
+  await expect(heroCta).toHaveCount(1);
+  await heroCta.click();
+  const heroDialog = page.locator("#previewNotice");
+  const heroPayload = JSON.parse(await heroDialog.locator("#noticePayload").textContent());
+  expect(heroPayload.conversion).toMatchObject({
+    scenarioId: "presentation-request",
+    offerId: "presentation",
+    moduleId: "hero"
+  });
+  await heroDialog.locator(".close").click();
+
+  const planCta = page.locator('[data-module="floor-plans"] [data-preview-cta="selection"]');
+  await expect(planCta).toBeVisible();
+  await planCta.click();
+  const planDialog = page.locator("#previewNotice");
+  const planPayload = JSON.parse(await planDialog.locator("#noticePayload").textContent());
+  expect(planPayload.conversion).toMatchObject({
+    scenarioId: "guided-apartment-selection",
+    offerId: "selection",
+    moduleId: "floor-plans",
+    entityContext: { plan: { id: "fixture-plan-45" } }
+  });
+  expect(planPayload.delivery).toMatchObject({ status: "disabled_in_preview", accepted: false });
+  await expect(planDialog).toContainText("Ничего не отправляется");
+});
 test("preview CTA preserves selected apartment context and never claims delivery", async ({ page }) => {
   await page.goto(url, { waitUntil: "domcontentloaded" });
   const planCta = page.locator('[data-preview-plan-id="fixture-plan-45"]');
@@ -118,6 +150,25 @@ test("preview CTA preserves selected apartment context and never claims delivery
   await expect(dialog).not.toBeVisible();
 });
 
+test("mortgage calculator uses visitor-entered assumptions and calculates annuity payment locally", async ({ page }) => {
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+  const calculator = page.locator('form[data-mortgage-calculator]');
+  await expect(calculator).toBeVisible();
+  await expect(calculator.getByRole("button", { name: "Рассчитать платёж" })).toBeVisible();
+  await calculator.locator('[name="price"]').fill("10000000");
+  await calculator.locator('[name="downPayment"]').fill("2000000");
+  await calculator.locator('[name="rate"]').fill("6");
+  await calculator.locator('[name="years"]').fill("20");
+  await calculator.getByRole("button", { name: "Рассчитать платёж" }).click();
+  const result = calculator.locator("[data-mortgage-result]");
+  await expect(result).toBeVisible();
+  const expected = 8000000 * (0.06 / 12) / (1 - Math.pow(1 + 0.06 / 12, -240));
+  const shown = Number((await result.textContent()).match(/платёж — ([\d\s]+) ₽/)[1].replace(/\s/g, ""));
+  expect(shown).toBe(Math.round(expected));
+  await expect(calculator.locator('[name="rate"]')).toHaveAttribute("placeholder", "По условиям банка");
+  await expect(page.locator("#module-mortgage button[data-preview-cta]")).toHaveCount(0);
+});
+ 
 test("selection quiz validates required answers and keeps answers local in preview", async ({ page }) => {
   await page.goto(url, { waitUntil: "domcontentloaded" });
   const quiz = page.locator('form[data-preview-quiz]');

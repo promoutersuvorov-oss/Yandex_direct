@@ -1,0 +1,752 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": {
+    "id": "galiley-voronezh",
+    "name": "ЖК «Галилей»",
+    "developer": {
+      "value": "ГК КРАЙС",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Страница объекта размещена на официальном сайте krays.ru."
+        }
+      ],
+      "lastChecked": "2026-11-06T00:00:00Z"
+    },
+    "class": {
+      "value": null,
+      "status": "missing",
+      "sources": [],
+      "note": "Класс ЖК не публиковать без проверки актуальной проектной декларации."
+    },
+    "location": {
+      "city": "Воронеж",
+      "address": {
+        "value": "ул. Кривошеина, 13/14",
+        "status": "verified",
+        "sources": [
+          {
+            "url": "https://krays.ru/object/galiley",
+            "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+            "accessedAt": "2026-11-06T00:00:00Z",
+            "sourceType": "official_project",
+            "quoteOrEvidence": "В шапке страницы указан адрес: Воронеж, ул. Кривошеина, 13/14."
+          }
+        ],
+        "lastChecked": "2026-11-06T00:00:00Z"
+      },
+      "district": {
+        "value": "Ленинский район",
+        "status": "verified",
+        "sources": [
+          {
+            "url": "https://krays.ru/object/galiley",
+            "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+            "accessedAt": "2026-11-06T00:00:00Z",
+            "sourceType": "official_project",
+            "quoteOrEvidence": "В блоке расположения официальная страница указывает район — Ленинский."
+          }
+        ],
+        "lastChecked": "2026-11-06T00:00:00Z"
+      }
+    },
+    "positioning": "Городской жилой комплекс с выразительным кирпичным фасадом и внутренним садом.",
+    "positioningStatus": "draft",
+    "positioningFactIds": [
+      "landscape-garden",
+      "bavarian-brick-facade"
+    ],
+    "audiences": [
+      "Покупатели для собственного проживания, которым важны благоустроенная территория и городская локация",
+      "Семьи, которым важны безбарьерный доступ и детские пространства"
+    ],
+    "delivery": {
+      "value": "Сроки ввода требуют сверки по отдельным домам: официальная страница КРАЙС показывает период реализации до III квартала 2026 года; сохранённый вторичный снимок от 28.10.2026 указывает IV квартал 2026 года для трёх домов.",
+      "status": "conflicting",
+      "sources": [
+        {
+          "url": "https://www.krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "В текущей доступной версии страницы в блоке характеристик указан период реализации: II кв. 2023 — III кв. 2026 гг.; сроки по отдельным домам не разделены."
+        },
+        {
+          "url": "https://xn--80az8a.xn--d1aqf.xn--p1ai/проверка-новостроек/жилой-комплекс-галилей-52069/",
+          "title": "ЕИСЖС / наш.дом.рф — карточка дома ID 52069",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "government",
+          "quoteOrEvidence": "Снимок карточки от 27.08.2026: статус «Строится», плановый ввод III квартал 2026, выдача ключей 31.12.2026; в разделе сроков указано нарушение плановых сроков строительства. Это исторический снимок одной карточки, а не текущий статус."
+        },
+        {
+          "url": "https://xn--80az8a.xn--d1aqf.xn--p1ai/сервисы/каталог-новостроек/объект/52070",
+          "title": "ЕИСЖС / наш.дом.рф — карточка дома ID 52070",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "government",
+          "quoteOrEvidence": "Поисковый снимок карточки показывает публикацию проектной декларации №36-000897 от 29.09.2026; карточка от 27.08.2026 показывала плановый ввод III квартал 2026 и выдачу ключей 31.12.2026. Текущую карточку открыть не удалось (403), поэтому актуальный срок не подтверждён."
+        },
+        {
+          "url": "https://orvista.ru/voronezh/galiley/",
+          "title": "Орвиста — сохранённый срез характеристик домов ЖК «Галилей»",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "other",
+          "quoteOrEvidence": "Вторичный снимок, сохранённый 28.10.2026, перечисляет три дома и указывает плановый ввод IV квартал 2026 и передачу квартир до 31.12.2026 для каждого из трёх наборов характеристик; декларация №36-000897 от 21.10.2026. Снимок не заменяет первичные карточки ЕИСЖС и саму декларацию."
+        }
+      ],
+      "lastChecked": "2026-11-06T00:00:00Z",
+      "note": "Источники расходятся по датам и версии данных. Текущая доступная версия официальной страницы КРАЙС показывает II кв. 2023 — III кв. 2026 без разбивки по домам. Исторические карточки ЕИСЖС ID 52069 и 52070 от 27.08.2026 показывали III кв. 2026, нарушение плановых сроков строительства и передачу до 31.12.2026; в карточке 52070 позднее отображалась декларация №36-000897 от 29.09.2026. Вторичный снимок Орвисты от 28.10.2026 перечисляет три дома с плановым вводом IV кв. 2026 и передачей до 31.12.2026, всего 482 квартиры по декларациям (172, 161 и 149), но не даёт достаточной первичной привязки этих наборов к ID каждого дома в доступной версии. Дом 52071 обнаружен как ссылка на карточку ЕИСЖС из вторичного списка, однако сама карточка недоступна для проверки (403). Не назначать сроки и статусы конкретным корпусам без получения самой декларации №36-000897 от 21.10.2026 и актуальных карточек ЕИСЖС по ID 52069, 52070 и 52071. Не использовать общий срок реализации как гарантию ввода или передачи ключей."
+    },
+    "constructionStatus": {
+      "value": null,
+      "status": "missing",
+      "sources": [],
+      "note": "Актуальный статус на 06.11.2026 требует проверки по свежей проектной декларации и ЕИСЖС."
+    },
+    "inventory": {
+      "apartmentCount": {
+        "value": null,
+        "status": "missing",
+        "sources": []
+      },
+      "layoutsAvailable": false,
+      "priceFrom": {
+        "value": null,
+        "status": "missing",
+        "sources": []
+      },
+      "areaRange": {
+        "value": null,
+        "status": "missing",
+        "sources": []
+      },
+      "finishing": {
+        "value": "Официальная страница показывает варианты «Чистовая» и «White-box»",
+        "status": "verified",
+        "sources": [
+          {
+            "url": "https://krays.ru/object/galiley",
+            "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+            "accessedAt": "2026-11-06T00:00:00Z",
+            "sourceType": "official_project",
+            "quoteOrEvidence": "В блоке «Виды отделки в доме» представлены варианты «Чистовая» и «White-box»."
+          }
+        ],
+        "lastChecked": "2026-11-06T00:00:00Z",
+        "note": "Не считать эти варианты доступными для каждой квартиры; уточнять по конкретному лоту."
+      }
+    }
+  },
+  "facts": [
+    {
+      "id": "address",
+      "claim": "ЖК расположен по адресу: Воронеж, ул. Кривошеина, 13/14.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed"
+    },
+    {
+      "id": "district",
+      "claim": "На официальной странице указан Ленинский район Воронежа.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed"
+    },
+    {
+      "id": "building-height",
+      "claim": "На официальной странице указана этажность 25 этажей.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "landscape-garden",
+      "claim": "На территории комплекса предусмотрен сад с различными функциональными зонами и ландшафтной подсветкой.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed"
+    },
+    {
+      "id": "car-free-inner-courtyard",
+      "claim": "Согласно описанию застройщика, автомобильный трафик проходит по краям участка, во внутренний двор машины не заезжают.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "dry-fountain",
+      "claim": "В центре территории предусмотрена главная площадь с сухим фонтаном.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed"
+    },
+    {
+      "id": "bavarian-brick-facade",
+      "claim": "Фасады описаны как кирпичная кладка с чередующимися оттенками в баварском стиле.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed"
+    },
+    {
+      "id": "large-windows-triple-glazing",
+      "claim": "Официальная страница описывает увеличенные окна с низкими подоконниками и тройной стеклопакет.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "ground-floor-terraces",
+      "claim": "На первых этажах предусмотрены квартиры с террасами и индивидуальными входами; это не относится ко всем квартирам.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "roof-boiler",
+      "claim": "По описанию застройщика, каждая секция оборудована крышной котельной.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "smart-meters",
+      "claim": "На официальной странице заявлены умные счётчики теплоснабжения, электроэнергии и воды с автоматической передачей показаний.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "storage-cellars",
+      "claim": "В подземном уровне и на этажах предусмотрены кладовые помещения — келлеры.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed"
+    },
+    {
+      "id": "dog-wash",
+      "claim": "В каждой секции на первом этаже заявлена комната с лапомойкой для собак.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "barrier-free-access",
+      "claim": "Застройщик описывает безбарьерную среду и доступ в секции с нулевой отметки.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "children-room",
+      "claim": "На официальной странице указана детская комната.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "schools-nearby",
+      "claim": "Застройщик перечисляет школы в зоне шаговой доступности, без точных расстояний и маршрутов.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    },
+    {
+      "id": "kindergartens-nearby",
+      "claim": "Застройщик перечисляет детские сады в зоне шаговой доступности, без точных расстояний и маршрутов.",
+      "status": "verified",
+      "sources": [
+        {
+          "url": "https://krays.ru/object/galiley",
+          "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+          "accessedAt": "2026-11-06T00:00:00Z",
+          "sourceType": "official_project",
+          "quoteOrEvidence": "Подтверждается соответствующим описательным блоком официальной страницы объекта."
+        }
+      ],
+      "publicUse": "allowed_with_qualification"
+    }
+  ],
+  "advantages": [
+    {
+      "id": "garden-in-the-city",
+      "title": "Сад внутри городского комплекса",
+      "benefit": "Ландшафтный сад объединяет прогулочные, спокойные и игровые зоны.",
+      "supportingFactIds": [
+        "landscape-garden",
+        "dry-fountain"
+      ],
+      "strength": "core",
+      "audienceFit": [
+        "семьи",
+        "покупатели для собственного проживания"
+      ],
+      "hook": "Городской адрес — и собственный сад внутри территории."
+    },
+    {
+      "id": "distinctive-facade",
+      "title": "Кирпичная архитектура с характером",
+      "benefit": "Фасады выполнены в баварской кладке с чередованием оттенков кирпича.",
+      "supportingFactIds": [
+        "bavarian-brick-facade"
+      ],
+      "strength": "strong",
+      "hook": "Архитектура, которую узнаёшь по фактуре кирпича."
+    },
+    {
+      "id": "thoughtful-everyday-life",
+      "title": "Детали для повседневной жизни",
+      "benefit": "В проекте заявлены безбарьерный доступ, детская комната и лапомойка.",
+      "supportingFactIds": [
+        "barrier-free-access",
+        "children-room",
+        "dog-wash"
+      ],
+      "strength": "strong",
+      "audienceFit": [
+        "семьи",
+        "владельцы собак"
+      ],
+      "hook": "Продуманные сценарии начинаются с повседневных мелочей."
+    },
+    {
+      "id": "terrace-formats",
+      "title": "Квартиры с собственными террасами",
+      "benefit": "На первых этажах предусмотрены отдельные квартиры с террасами и индивидуальными входами.",
+      "supportingFactIds": [
+        "ground-floor-terraces"
+      ],
+      "strength": "supporting",
+      "hook": "Отдельный формат для тех, кому важен собственный выход наружу."
+    }
+  ],
+  "infrastructure": [
+    {
+      "name": "МБОУ СОШ № 73 им. А. Ф. Чернонога",
+      "category": "school",
+      "status": "verified",
+      "source": {
+        "url": "https://krays.ru/object/galiley",
+        "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+        "accessedAt": "2026-11-06T00:00:00Z",
+        "sourceType": "official_project",
+        "quoteOrEvidence": "Школа включена застройщиком в перечень инфраструктуры в зоне шаговой доступности."
+      },
+      "marketingMeaning": "Возможность рассмотреть несколько образовательных учреждений района; доступность и приём детей уточнять отдельно.",
+      "publicLabel": "Школа рядом"
+    },
+    {
+      "name": "МБОУ Гимназия им. И. А. Бунина",
+      "category": "school",
+      "status": "verified",
+      "source": {
+        "url": "https://krays.ru/object/galiley",
+        "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+        "accessedAt": "2026-11-06T00:00:00Z",
+        "sourceType": "official_project",
+        "quoteOrEvidence": "Школа включена застройщиком в перечень инфраструктуры в зоне шаговой доступности."
+      },
+      "marketingMeaning": "Возможность рассмотреть несколько образовательных учреждений района; доступность и приём детей уточнять отдельно.",
+      "publicLabel": "Школа рядом"
+    },
+    {
+      "name": "МБОУ СОШ № 75",
+      "category": "school",
+      "status": "verified",
+      "source": {
+        "url": "https://krays.ru/object/galiley",
+        "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+        "accessedAt": "2026-11-06T00:00:00Z",
+        "sourceType": "official_project",
+        "quoteOrEvidence": "Школа включена застройщиком в перечень инфраструктуры в зоне шаговой доступности."
+      },
+      "marketingMeaning": "Возможность рассмотреть несколько образовательных учреждений района; доступность и приём детей уточнять отдельно.",
+      "publicLabel": "Школа рядом"
+    },
+    {
+      "name": "МБОУ Лицей № 5",
+      "category": "school",
+      "status": "verified",
+      "source": {
+        "url": "https://krays.ru/object/galiley",
+        "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+        "accessedAt": "2026-11-06T00:00:00Z",
+        "sourceType": "official_project",
+        "quoteOrEvidence": "Школа включена застройщиком в перечень инфраструктуры в зоне шаговой доступности."
+      },
+      "marketingMeaning": "Возможность рассмотреть несколько образовательных учреждений района; доступность и приём детей уточнять отдельно.",
+      "publicLabel": "Школа рядом"
+    },
+    {
+      "name": "МБОУ СОШ № 108",
+      "category": "school",
+      "status": "verified",
+      "source": {
+        "url": "https://krays.ru/object/galiley",
+        "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+        "accessedAt": "2026-11-06T00:00:00Z",
+        "sourceType": "official_project",
+        "quoteOrEvidence": "Школа включена застройщиком в перечень инфраструктуры в зоне шаговой доступности."
+      },
+      "marketingMeaning": "Возможность рассмотреть несколько образовательных учреждений района; доступность и приём детей уточнять отдельно.",
+      "publicLabel": "Школа рядом"
+    },
+    {
+      "name": "Детский сад № 150",
+      "category": "kindergarten",
+      "status": "verified",
+      "source": {
+        "url": "https://krays.ru/object/galiley",
+        "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+        "accessedAt": "2026-11-06T00:00:00Z",
+        "sourceType": "official_project",
+        "quoteOrEvidence": "Детский сад включён застройщиком в перечень инфраструктуры в зоне шаговой доступности."
+      },
+      "marketingMeaning": "В районе перечислены дошкольные учреждения; наличие мест и актуальный режим работы не подтверждены.",
+      "publicLabel": "Детский сад рядом"
+    },
+    {
+      "name": "Детский сад № 115",
+      "category": "kindergarten",
+      "status": "verified",
+      "source": {
+        "url": "https://krays.ru/object/galiley",
+        "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+        "accessedAt": "2026-11-06T00:00:00Z",
+        "sourceType": "official_project",
+        "quoteOrEvidence": "Детский сад включён застройщиком в перечень инфраструктуры в зоне шаговой доступности."
+      },
+      "marketingMeaning": "В районе перечислены дошкольные учреждения; наличие мест и актуальный режим работы не подтверждены.",
+      "publicLabel": "Детский сад рядом"
+    },
+    {
+      "name": "Детский сад № 116",
+      "category": "kindergarten",
+      "status": "verified",
+      "source": {
+        "url": "https://krays.ru/object/galiley",
+        "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+        "accessedAt": "2026-11-06T00:00:00Z",
+        "sourceType": "official_project",
+        "quoteOrEvidence": "Детский сад включён застройщиком в перечень инфраструктуры в зоне шаговой доступности."
+      },
+      "marketingMeaning": "В районе перечислены дошкольные учреждения; наличие мест и актуальный режим работы не подтверждены.",
+      "publicLabel": "Детский сад рядом"
+    },
+    {
+      "name": "Детский сад «Умка»",
+      "category": "kindergarten",
+      "status": "verified",
+      "source": {
+        "url": "https://krays.ru/object/galiley",
+        "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+        "accessedAt": "2026-11-06T00:00:00Z",
+        "sourceType": "official_project",
+        "quoteOrEvidence": "Детский сад включён застройщиком в перечень инфраструктуры в зоне шаговой доступности."
+      },
+      "marketingMeaning": "В районе перечислены дошкольные учреждения; наличие мест и актуальный режим работы не подтверждены.",
+      "publicLabel": "Детский сад рядом"
+    },
+    {
+      "name": "Детский сад № 48",
+      "category": "kindergarten",
+      "status": "verified",
+      "source": {
+        "url": "https://krays.ru/object/galiley",
+        "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+        "accessedAt": "2026-11-06T00:00:00Z",
+        "sourceType": "official_project",
+        "quoteOrEvidence": "Детский сад включён застройщиком в перечень инфраструктуры в зоне шаговой доступности."
+      },
+      "marketingMeaning": "В районе перечислены дошкольные учреждения; наличие мест и актуальный режим работы не подтверждены.",
+      "publicLabel": "Детский сад рядом"
+    },
+    {
+      "name": "Детский сад № 58",
+      "category": "kindergarten",
+      "status": "verified",
+      "source": {
+        "url": "https://krays.ru/object/galiley",
+        "title": "Официальная страница ЖК «Галилей» — ГК КРАЙС",
+        "accessedAt": "2026-11-06T00:00:00Z",
+        "sourceType": "official_project",
+        "quoteOrEvidence": "Детский сад включён застройщиком в перечень инфраструктуры в зоне шаговой доступности."
+      },
+      "marketingMeaning": "В районе перечислены дошкольные учреждения; наличие мест и актуальный режим работы не подтверждены.",
+      "publicLabel": "Детский сад рядом"
+    }
+  ],
+  "offers": [
+    {
+      "id": "presentation",
+      "scenarioId": "galiley.presentation",
+      "title": "Получить презентацию ЖК",
+      "type": "presentation",
+      "status": "active",
+      "description": "Запросить у KEY презентацию жилого комплекса и подробную информацию о проекте.",
+      "requiredFields": [
+        "phone"
+      ],
+      "consentRequired": true
+    }
+  ],
+  "assets": {
+    "images": [],
+    "videos": [],
+    "plans": [],
+    "documents": [],
+    "maps": []
+  },
+  "contentStrategy": {
+    "coreIdea": "Не просто высотный дом, а городской сад с архитектурой, внутренними сценариями и деталями повседневного комфорта.",
+    "primaryCta": "Получить презентацию ЖК",
+    "audiencePriority": [
+      "Семьи, которым важны благоустроенная территория и повседневная инфраструктура",
+      "Покупатели, которым интересна архитектура и видовые характеристики"
+    ],
+    "modules": [
+      {
+        "moduleId": "hero",
+        "decision": "include",
+        "reason": "Сразу показывает главную особенность — садовую среду в городском комплексе.",
+        "order": 0,
+        "variant": "image-led",
+        "requiredFactIds": [
+          "landscape-garden",
+          "bavarian-brick-facade"
+        ],
+        "userQuestion": "Чем этот комплекс отличается?",
+        "assetIds": [],
+        "ctaIds": [
+          "presentation"
+        ]
+      },
+      {
+        "moduleId": "lifestyle",
+        "decision": "include",
+        "reason": "Сильнейшая история проекта — внутренний сад, сухой фонтан и сценарии двора.",
+        "order": 1,
+        "variant": "feature-led",
+        "requiredFactIds": [
+          "landscape-garden",
+          "dry-fountain",
+          "car-free-inner-courtyard"
+        ],
+        "userQuestion": "Как устроено пространство между домами?",
+        "assetIds": []
+      },
+      {
+        "moduleId": "about",
+        "decision": "include",
+        "reason": "Раскрывает кирпичную архитектуру, остекление и особенности дома.",
+        "order": 2,
+        "variant": "architectural",
+        "requiredFactIds": [
+          "bavarian-brick-facade",
+          "large-windows-triple-glazing",
+          "building-height"
+        ],
+        "userQuestion": "Как выглядит и устроен дом?",
+        "assetIds": []
+      },
+      {
+        "moduleId": "gallery",
+        "decision": "conditional",
+        "reason": "Потребуется разрешённый набор визуальных материалов с подтверждёнными правами.",
+        "order": 3,
+        "variant": "immersive",
+        "requiredFactIds": [],
+        "assetIds": [],
+        "dependencies": [
+          "approved-project-media"
+        ]
+      },
+      {
+        "moduleId": "location",
+        "decision": "include",
+        "reason": "Показывает образовательную инфраструктуру района без неподтверждённых расстояний.",
+        "order": 4,
+        "variant": "location-led",
+        "requiredFactIds": [
+          "schools-nearby",
+          "kindergartens-nearby"
+        ],
+        "assetIds": []
+      },
+      {
+        "moduleId": "faq",
+        "decision": "include",
+        "reason": "Отвечает на вопросы об отделке, террасах и повседневных деталях.",
+        "order": 5,
+        "variant": "proof-led",
+        "requiredFactIds": [
+          "ground-floor-terraces",
+          "storage-cellars",
+          "dog-wash"
+        ],
+        "assetIds": []
+      }
+    ],
+    "informationGaps": [
+      "Актуальные планировки и наличие квартир по каждому корпусу",
+      "Актуальные цены и условия покупки",
+      "Свежая проектная декларация и статус ввода/передачи ключей по каждому корпусу",
+      "Точные расстояния и пешеходные маршруты до инфраструктуры",
+      "Права на фотографии, рендеры, видео и планы",
+      "Подтверждение доступности чистовой и White-box отделки для конкретных лотов"
+    ],
+    "visualDirection": {
+      "theme": "garden-modern",
+      "composition": "architectural",
+      "mood": "Городской сад, кирпичная фактура, зелёная архитектура, спокойная современная среда.",
+      "palette": [
+        "глубокий хвойный",
+        "приглушённый шалфей",
+        "тёплый кирпичный",
+        "молочный камень"
+      ],
+      "imageTreatment": "Крупные архитектурные планы, фактура кирпича и ландшафтные детали; не использовать до подтверждения прав.",
+      "signatureInteraction": "Прокрутка-история от архитектуры к внутреннему саду и сценариям двора."
+    }
+  },
+  "verification": {
+    "checkedAt": "2026-11-06T00:00:00Z",
+    "factsWithoutSources": [],
+    "conflicts": [
+      "Сроки расходятся между версиями источников: текущая доступная страница КРАЙС показывает период реализации до III кв. 2026; карточки ЕИСЖС ID 52069 и 52070 в снимке от 27.08.2026 показывали ввод III кв. 2026 и нарушение плановых сроков; вторичный снимок от 28.10.2026 со ссылкой на декларацию №36-000897 от 21.10.2026 показывает IV кв. 2026 для трёх домов. Это может быть следствием обновления декларации, но первичная декларация и актуальные карточки не получены.",
+      "Вторичный список Орвисты связывает ЖК с тремя домами и 482 квартирами по декларациям (172, 161, 149); ID 52071 обнаружен через ссылку на карточку ЕИСЖС, но не удалось проверить её содержимое из-за 403. Точное соответствие каждого набора квартир и срока ID 52069/52070/52071 остаётся неподтверждённым.",
+      "Снимок ЕИСЖС от 27.08.2026 сообщает дату обновления фото хода строительства 06.08.2026 для карточек 52069 и 52070. Дата последнего фотоотчёта для третьего дома и более поздние фотоотчёты не подтверждены."
+    ],
+    "manualReviewRequired": true
+  }
+}

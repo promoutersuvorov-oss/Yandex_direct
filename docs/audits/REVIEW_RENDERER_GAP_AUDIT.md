@@ -61,6 +61,7 @@
 
 ### P3 — production readiness
 
+- Для ипотечных программ подключать только актуальные подтверждённые ставки и условия с источником, датой проверки и сроком действия; не превращать локальный калькулятор в обещание одобрения.
 - Подключить интеграцию только после согласования endpoint, схемы payload, согласия на обработку данных и политики хранения.
 - Проверить Android/iOS Safari/Chrome на реальных устройствах или достоверной device matrix.
 - Провести визуальный аудит двух разных ЖК и убедиться, что результат отличается не только текстом и фотографиями.
@@ -88,4 +89,15 @@ The review renderer now has a first set of specialized components and explicit d
 
 The browser CI now uses a clearly synthetic passport and local SVG assets to test the actual gallery, plan card and quiz interactions. This fixture is not a real ЖК and must never be used as a publication source.
 
-The source-integrity job and the first cross-browser run after these changes should be treated as the release evidence for this incremental preview milestone; production readiness remains false. The renderer still does not implement production lead delivery, mortgage calculations, inventory availability, complete FAQ/navigation systems or the full visual art direction required by the product standard.
+The source-integrity job and the first cross-browser run after these changes should be treated as the release evidence for this incremental preview milestone; production readiness remains false. The renderer now includes a local annuity calculator that uses only visitor-entered assumptions. It still does not provide bank-integrated mortgage programs or production lead delivery, inventory availability, complete FAQ/navigation systems or the full visual art direction required by the product standard.
+
+
+## Update 2026-11-06 — composition verified as rendered geometry
+
+The latest browser run (`42184610184`) passed in Chromium, Firefox and WebKit. Project-specific composition checks now go beyond the `data-composition` attribute:
+
+- Galiley's architectural hero is expected to render an architectural drafting-grid treatment, Inter headline typography and a tighter vertical rhythm.
+- KD 905's editorial hero is expected to render a soft tonal gradient, Georgia headline typography and more generous vertical spacing.
+- Both text-only heroes remain single-column; no empty media column is reserved when the project has no approved images.
+
+These checks verify real computed browser styles rather than claiming that the full art direction is complete. Remaining visual acceptance blockers are approved project-specific media and desktop/mobile visual review.

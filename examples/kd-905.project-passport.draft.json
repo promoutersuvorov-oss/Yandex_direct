@@ -322,7 +322,7 @@
         "total-apartments"
       ],
       "strength": "strong",
-      "hook": "Всего 45 квартир — камерный формат городского дома."
+      "hook": "Небольшой масштаб дома — часть его характера."
     },
     {
       "id": "private-courtyard",
@@ -393,7 +393,6 @@
         "order": 2,
         "variant": "feature-led",
         "requiredFactIds": [
-          "total-apartments",
           "architecture-7-9"
         ],
         "userQuestion": "Что отличает дом?",
@@ -573,7 +572,8 @@
         "variant": "feature-led",
         "requiredFactIds": [
           "central-district",
-          "quiet-street"
+          "quiet-street",
+          "total-apartments"
         ],
         "userQuestion": "Какой характер у этого городского дома?",
         "assetIds": [],

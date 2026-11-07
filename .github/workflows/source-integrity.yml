@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   source-integrity:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,6 +33,14 @@ jobs:
         run: python scripts/validate-passport-schema.py
       - name: Validate KD 905 draft passport against JSON Schema
         run: python scripts/validate-passport-schema.py examples/kd-905.project-passport.draft.json
+      - name: Validate Galiley draft passport against JSON Schema
+        run: python scripts/validate-passport-schema.py examples/galiley.project-passport.draft.json
+      - name: Build Galiley second-project review bundle
+        run: node scripts/build-review-bundle.mjs --passport examples/galiley.project-passport.draft.json --out artifacts/galiley-review
+      - name: Render Galiley second-project preview
+        run: node scripts/render-review-preview.mjs --bundle artifacts/galiley-review --out artifacts/galiley-review/preview.html
+      - name: Verify Galiley review preview and project-specific art direction
+        run: node scripts/test-galiley-review.mjs artifacts/galiley-review
       - name: Validate CTA context contract schema and negative cases
         run: python scripts/validate-cta-context-schema.py
       - name: Generate synthetic passport fixture for location evidence schema validation
@@ -73,6 +81,14 @@ jobs:
           path: artifacts/review-bundle/
           if-no-files-found: error
           retention-days: 14
+      - name: Upload Galiley internal review preview
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: galiley-internal-review-preview
+          path: artifacts/galiley-review/
+          if-no-files-found: error
+          retention-days: 14
       - name: Upload KD 905 internal review preview
         if: success()
         uses: actions/upload-artifact@v4
@@ -84,7 +100,7 @@ jobs:
 
   browser-smoke:
     needs: source-integrity
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
@@ -109,6 +125,10 @@ jobs:
         run: node scripts/build-review-bundle.mjs --passport examples/kd-905.project-passport.draft.json --out artifacts/kd905-review
       - name: Render KD 905 preview for cross-browser validation
         run: node scripts/render-review-preview.mjs --bundle artifacts/kd905-review --out artifacts/kd905-review/preview.html
+      - name: Build Galiley preview for cross-browser validation
+        run: node scripts/build-review-bundle.mjs --passport examples/galiley.project-passport.draft.json --out artifacts/galiley-review
+      - name: Render Galiley preview for cross-browser validation
+        run: node scripts/render-review-preview.mjs --bundle artifacts/galiley-review --out artifacts/galiley-review/preview.html
       - name: Render editorial reference concept for browser validation
         run: node scripts/render-reference-landing.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/reference.html
       - name: Install Playwright test runner
@@ -117,13 +137,13 @@ jobs:
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Start local static server
         run: python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/klanding-http.log 2>&1 &
-      - name: Run K15 and reference concept browser smoke tests
+      - name: Run K15, KD 905, Galiley and reference browser smoke tests
         run: npx playwright test
       - name: Upload browser evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: k15-browser-audit-${{ matrix.browser }}
+          name: klanding-browser-audit-${{ matrix.browser }}
           path: |
             test-results/
             playwright-report/

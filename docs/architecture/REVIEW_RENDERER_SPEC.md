@@ -54,6 +54,8 @@ Current module families include:
 - `gallery` — responsive multi-image presentation;
 - `floor-plans` / `apartments` — evidence-backed plan cards and contextual plan CTA;
 - `quiz` — approved finite-choice quiz; answers remain local to the preview;
+- `mortgage` — local annuity-payment calculator; the visitor enters price, down payment, annual rate and term. No bank rate, apartment price or loan condition is assumed, and no lead is sent;
+- contextual conversion actions — each semantic module may expose at most one primary CTA, tied to its own visitor intent and entity context (for example, presentation in the hero and apartment selection in floor plans); the preview never renders a page-wide chooser of active offers. Utility modules such as the local mortgage calculator remain tools, not lead-request CTAs;
 - `location` / `places` — verified infrastructure facts;
 - additional mapped editorial sections such as `about`, `security`, `lifestyle`, `gift`, `price`, `developer`, `mortgage`, `steps`, `faq` and `contacts`.
 
@@ -70,13 +72,24 @@ The current renderer has an explicit allowlist of visual variants:
 
 Unknown variants fall back to the safe base layout. Variants are responsive and must not create horizontal overflow. This is a small first implementation of strategy-to-art-direction mapping, not a complete design system.
 
+### Text-only hero art direction
+
+A missing approved hero image must not create an empty or misleading media slot. The renderer keeps the hero text-only and applies the selected composition archetype to its typography, background geometry and metadata rail:
+
+- `editorial` — restrained asymmetry, large editorial typography and a compact evidence-backed location rail;
+- `cinematic` — full-height typographic treatment with a subtle abstract geometry layer, without implying a project photograph or rendering;
+- `architectural` — measured grid treatment, strong typographic scale and a structured location rail.
+
+The location rail may display only the project's public city and verified district. It deliberately omits the street address from the hero, does not manufacture a tagline, and never substitutes stock or synthetic imagery for approved project media. If no verified district exists, that item is omitted. These treatments are visual scaffolding, not evidence of architecture, landscape or amenities.
+
 ## Security and privacy requirements
 
 - Escape all passport-derived text before HTML insertion.
 - Revalidate image URLs at render time; only HTTP(S) is accepted.
 - Never render raw source URLs, internal broker notes, evidence ledger, webhook URLs, analytics IDs or internal module rationale in the visitor-facing preview.
 - Never generate a lead form or simulate a real lead delivery in preview.
-- Quiz answers are held in browser memory only and are not transmitted.
+- Quiz answers and mortgage inputs are processed in browser memory only and are not transmitted.
+- Mortgage results are indicative annuity estimates from visitor-entered assumptions; they are not a bank offer, approval or confirmation of available terms.
 - Do not copy a K15 fact, asset, plan, CTA or commercial setting into another project's profile.
 
 ## Automated verification
@@ -88,7 +101,7 @@ The CI pipeline currently checks:
 - safe escaping and unsafe media URL rejection;
 - private/internal data isolation;
 - a second project's profile and rendered HTML do not inherit the first project's name or facts;
-- gallery, plan card, quiz and contextual CTA behavior;
+- gallery, plan card, quiz, visitor-input mortgage calculation and contextual CTA behavior;
 - loaded media, no JavaScript page errors and no horizontal overflow at 360, 390, 768 and 1440 px;
 - K15 reference page smoke tests, including CTA form validation and failed lead transport;
 - Chromium, Firefox and WebKit.

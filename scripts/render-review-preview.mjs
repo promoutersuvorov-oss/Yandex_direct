@@ -64,6 +64,18 @@ const renderPlans = offer => (profile.apartmentPlans || []).map(plan => {
     esc(plan.title || rooms) + '</h3><p>' + esc(meta) + '</p>' + (plan.finishing ? '<p>' + esc(plan.finishing) + '</p>' : "") +
     action + '</div></article>';
 }).filter(Boolean).join("");
+const renderMortgageCalculator = () => `
+  <form class="mortgage-calculator" data-mortgage-calculator novalidate>
+    <div class="mortgage-fields">
+      <label>Стоимость квартиры, ₽<input name="price" type="number" inputmode="decimal" min="1" step="any" required placeholder="Введите стоимость"></label>
+      <label>Первоначальный взнос, ₽<input name="downPayment" type="number" inputmode="decimal" min="0" step="any" required placeholder="Введите сумму"></label>
+      <label>Ставка, % годовых<input name="rate" type="number" inputmode="decimal" min="0" max="100" step="any" required placeholder="По условиям банка"></label>
+      <label>Срок кредита, лет<input name="years" type="number" inputmode="numeric" min="1" step="1" required placeholder="Например, 20"></label>
+    </div>
+    <button class="cta" type="submit">Рассчитать платёж</button>
+    <p class="mortgage-note">Введите параметры конкретной банковской программы. Ставка и стоимость не подставляются автоматически.</p>
+    <output class="mortgage-result" data-mortgage-result aria-live="polite" hidden></output>
+  </form>`;
 const renderQuiz = (quiz, offer) => {
   if (!quiz) return "";
   const total = quiz.questions.length;
@@ -86,7 +98,7 @@ const renderQuiz = (quiz, offer) => {
 };
 const renderFaq = items => items.length ? '<div class="faq-list">' + items.map(item => '<details class="faq-item"><summary>' + esc(item.question) + '</summary><div class="faq-answer">' + item.answers.map(answer => '<p>' + esc(answer) + '</p>').join("") + '</div></details>').join("") + '</div>' : "";
 const infrastructureCategory = {
-  school: "Образование", kindergarten: "Детский сад", park: "Парк и прогулки",
+  school: "Школы", kindergarten: "Детские сады", park: "Парк и прогулки",
   shopping: "Покупки", transport: "Транспорт", healthcare: "Здоровье",
   leisure: "Досуг", other: "Рядом с домом"
 };
@@ -94,22 +106,32 @@ const formatDistance = meters => meters < 1000
   ? Math.round(meters).toLocaleString("ru-RU") + " м"
   : (meters / 1000).toLocaleString("ru-RU", { maximumFractionDigits: 1 }) + " км";
 const renderLocation = () => {
-  const cards = infrastructure.map(item => {
+  const groups = new Map();
+  for (const item of infrastructure) {
+    const category = item.category || "other";
+    if (!groups.has(category)) groups.set(category, []);
+    groups.get(category).push(item);
+  }
+  const placeItem = item => {
     const details = Number.isFinite(item.distanceMeters)
       ? [(item.distanceMethod === "walking_route" ? "по маршруту — " : "по прямой — ") + formatDistance(item.distanceMeters),
          item.distanceMethod === "walking_route" && Number.isFinite(item.walkingMinutes)
            ? item.walkingMinutes.toLocaleString("ru-RU") + " мин пешком" : ""].filter(Boolean)
       : [];
-    return '<article class="place-card"><p class="place-category">' + esc(infrastructureCategory[item.category] || infrastructureCategory.other) +
-      '</p><h3>' + esc(item.name) + '</h3>' +
-      (item.publicLabel ? '<p class="place-label">' + esc(item.publicLabel) + '</p>' : "") +
-      (details.length ? '<p class="place-distance">' + details.map(esc).join(" · ") + '</p>' : "") +
-      '</article>';
-  }).join("");
-  if (!cards && !profile.project.address) return "";
+    return '<li class="place-item"><span class="place-name">' + esc(item.name) + '</span>' +
+      (details.length ? '<span class="place-distance">' + details.map(esc).join(" · ") + '</span>' : "") +
+      '</li>';
+  };
+  const groupedCards = [...groups.entries()].map(([category, items]) =>
+    '<details class="place-group">' +
+      '<summary class="place-group-title"><span class="place-group-name">' + esc(infrastructureCategory[category] || infrastructureCategory.other) +
+      '</span><span class="place-group-count">' + items.length + ' ' + (items.length === 1 ? 'объект' : items.length < 5 ? 'объекта' : 'объектов') + '</span></summary>' +
+      '<ul class="place-list">' + items.map(placeItem).join("") + '</ul></details>'
+  ).join("");
+  if (!groupedCards && !profile.project.address) return "";
   return '<div class="location-content">' +
     (profile.project.address ? '<p class="location-address"><span>Адрес проекта</span>' + esc(profile.project.address) + '</p>' : "") +
-    (cards ? '<div class="place-grid" aria-label="Подтверждённые объекты инфраструктуры">' + cards + '</div>' : "") +
+    (groupedCards ? '<div class="place-groups" aria-label="Инфраструктура рядом с проектом">' + groupedCards + '</div>' : "") +
     '</div>';
 };
 const factsFor = module => (module.requiredFactIds || []).map(id => byId(facts, id)).filter(Boolean);
@@ -128,7 +150,14 @@ const labelFor = module => ({
   developer: "О застройщике", mortgage: "Финансовый сценарий", steps: "Следующий шаг",
   faq: "Вопросы и ответы", contacts: "Связаться с KEY"
 }[module.moduleId] || module.moduleId.replace(/[-_]/g, " "));
-const offerFor = module => (module.ctaIds || []).map(id => byId(offers, id)).find(Boolean);
+const offersFor = module => (module.ctaIds || []).map(id => byId(offers, id)).filter(Boolean);
+const offerFor = module => {
+  const linkedOffers = offersFor(module);
+  if (linkedOffers.length > 1) {
+    throw new Error(`Module "${module.moduleId}" may define only one primary CTA; split distinct intents into separate modules.`);
+  }
+  return linkedOffers[0];
+};
 const button = (offer, fallback) => offer
   ? `<button class="cta" type="button" ${ctaAttributes(offer)}>${esc(offer.title)}</button>`
   : fallback ? `<button class="cta" type="button" data-preview-cta="generic" data-preview-scenario="generic" data-preview-title="${esc(fallback)}" data-preview-required-fields="[]" data-preview-consent-required="true">${esc(fallback)}</button>` : "";
@@ -136,7 +165,9 @@ const button = (offer, fallback) => offer
 function renderModule(module, index) {
   const advantagesHere = module.moduleId === "hero" ? [] : advantagesFor(module);
   const benefitFactIds = new Set(advantagesHere.flatMap(item => item.supportingFactIds || []));
-  const factsHere = module.moduleId === "faq" ? [] : factsFor(module).filter(fact => !benefitFactIds.has(fact.id));
+  const factsHere = ["faq", "location", "places"].includes(module.moduleId)
+    ? []
+    : factsFor(module).filter(fact => !benefitFactIds.has(fact.id));
   const asset = imageFor(module);
   const moduleAssets = assetsFor(module);
   const offer = offerFor(module);
@@ -148,28 +179,39 @@ function renderModule(module, index) {
     ? (profile.project.positioning || "")
     : (module.userQuestion || "");
   const factList = factsHere.map(fact => `<li>${esc(fact.claim)}</li>`).join("");
-  const benefitList = advantagesHere.map(item => `<article class="benefit"><h3>${esc(item.title)}</h3><p>${esc(item.benefit)}</p></article>`).join("");
+  const factsClass = module.moduleId === "hero" ? "facts hero-proof" : "facts";
+  const heroMetaItems = module.moduleId === "hero"
+    ? [["Город", profile.project.city], ["Район", profile.project.district]].filter(([, value]) => typeof value === "string" && value.trim())
+    : [];
+  const heroMeta = heroMetaItems.length
+    ? `<dl class="hero-meta" aria-label="Расположение проекта">${heroMetaItems.map(([label, value]) => `<div class="hero-meta-item"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join("")}</dl>`
+    : "";
+  const benefitList = advantagesHere.map(item => `<article class="benefit"><h3>${esc(item.title)}</h3><p>${esc(item.benefit)}</p>${item.hook ? `<p class="benefit-hook">${esc(item.hook)}</p>` : ""}</article>`).join("");
   const image = module.moduleId === "gallery" && moduleAssets.length
     ? renderGallery(moduleAssets)
     : ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? ""
     : asset ? '<figure><img src="' + esc(safeImageUrl(asset.url)) + '" alt="' + esc(asset.alt || profile.project.name || "Изображение проекта") + '" loading="lazy"></figure>' : "";
   const plans = (module.moduleId === "floor-plans" || module.moduleId === "apartments") ? renderPlans(offer) : "";
   const quiz = module.moduleId === "quiz" ? renderQuiz(profile.selectionQuiz, byId(offers, profile.selectionQuiz?.resultOfferId)) : "";
+  const mortgage = module.moduleId === "mortgage" ? renderMortgageCalculator() : "";
   const faq = module.moduleId === "faq" ? renderFaq(faqItems) : "";
-  const cta = ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? "" : button(offer, "");
+  const cta = ["floor-plans", "apartments", "quiz", "mortgage"].includes(module.moduleId) ? "" : button(offer, "");
   const locationContent = module.moduleId === "location" || module.moduleId === "places" ? renderLocation() : "";
   const headingTag = module.moduleId === "hero" ? "h1" : "h2";
   const renderVariant = module.variant === "image-led" && !image ? "feature-led" : (module.variant || "default");
   const moduleClasses = ["module", module.moduleId === "hero" ? "hero" : "", image || plans ? "" : "text-only"].filter(Boolean).join(" ");
+  const moduleCopyClasses = ["module-copy", module.moduleId === "hero" ? "hero-editorial" : "", benefitList && factList ? "editorial-pair" : ""].filter(Boolean).join(" ");
   return `<section class="${moduleClasses}" data-module="${esc(module.moduleId)}" data-variant="${esc(renderVariant)}" id="module-${esc(module.moduleId)}" aria-labelledby="heading-${index}">
-    <div class="module-copy"><p class="eyebrow">${String(index + 1).padStart(2, "0")}</p>
+    <div class="${moduleCopyClasses}"><p class="eyebrow">${String(index + 1).padStart(2, "0")}</p>
       <${headingTag} id="heading-${index}">${esc(heading)}</${headingTag}>
       ${intro ? `<p class="intro">${esc(intro)}</p>` : ""}
+      ${heroMeta}
       ${benefitList ? `<div class="benefits">${benefitList}</div>` : ""}
-      ${factList ? `<ul class="facts">${factList}</ul>` : ""}
+      ${factList ? `<ul class="${factsClass}">${factList}</ul>` : ""}
       ${locationContent}
       ${plans}
       ${quiz}
+      ${mortgage}
       ${faq}
       ${cta}
     </div>${image}
@@ -203,7 +245,8 @@ body[data-theme="garden-modern"] h1,body[data-theme="garden-modern"] h2{font-fam
 body[data-theme="garden-modern"] .module:nth-child(odd){background:#15231e}
 body[data-theme="garden-modern"] .module[data-variant="proof-led"]{background:#1b3027}
 body[data-theme="garden-modern"] .module[data-variant="conversion-led"]{background:#233329}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);line-height:1.55}a,button{font:inherit}.top{padding:20px var(--pad);display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);color:var(--muted);font-size:13px}.brand{color:var(--text);letter-spacing:.16em;font-weight:700}.module{min-height:52vh;padding:clamp(64px,10vw,140px) var(--pad);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(260px,.95fr);align-items:center;gap:clamp(28px,6vw,90px);border-bottom:1px solid var(--line);max-width:1440px;margin:auto}.module:nth-child(odd){background:#1b1e23}.module.hero{min-height:78vh}.module-copy{max-width:720px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--accent)}h1,h2{font-family:Georgia,serif;font-weight:500;line-height:1.05;letter-spacing:-.035em}h1{font-size:clamp(42px,7vw,88px);margin:18px 0}h2{font-size:clamp(34px,5vw,64px);margin:16px 0 24px}.intro{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:58ch}.facts{padding-left:20px;color:var(--muted);display:grid;gap:12px}.location-content{display:grid;gap:18px;margin:28px 0}.location-address{margin:0;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:18px}.location-address span{display:block;margin-bottom:4px;color:var(--accent);font-size:10px;text-transform:uppercase;letter-spacing:.14em}.place-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.place-card{padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:8px;min-width:0}.place-category{margin:0 0 10px;color:var(--accent);font-size:10px;text-transform:uppercase;letter-spacing:.12em}.place-card h3{margin:0;font-size:19px;line-height:1.2}.place-label{margin:8px 0 0;color:var(--muted)}.place-distance{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}.benefits{display:grid;gap:14px;margin:28px 0}.benefit{padding:18px 0;border-top:1px solid var(--line)}.benefit h3{margin:0 0 5px;font-size:18px}.benefit p{margin:0;color:var(--muted)}figure{margin:0;overflow:hidden;border-radius:8px;background:var(--panel);min-height:240px}figure img{width:100%;height:100%;min-height:240px;max-height:580px;object-fit:cover}.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.media-card:first-child{grid-row:span 2}.media-card figcaption{padding:8px 12px;color:var(--muted);font-size:12px}.plan-card{display:grid;grid-template-columns:minmax(120px,.8fr) minmax(0,1fr);gap:18px;padding:18px;margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px}.plan-card img{width:100%;height:auto;align-self:center;object-fit:contain}.plan-copy h3{margin:4px 0;font-size:22px}.plan-copy p{color:var(--muted)}.plan-copy .cta{margin-top:8px}.preview-quiz{margin:24px 0;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:10px}.quiz-question[hidden],.quiz-actions [hidden]{display:none!important}.faq-list{display:grid;gap:0;margin:28px 0;border-top:1px solid var(--line)}.faq-item{border-bottom:1px solid var(--line);padding:0}.faq-item summary{cursor:pointer;list-style:none;padding:20px 36px 20px 0;position:relative;font-size:clamp(17px,2vw,21px);font-weight:600}.faq-item summary::-webkit-details-marker{display:none}.faq-item summary:after{content:"+";position:absolute;right:4px;top:16px;color:var(--accent);font-size:26px;font-weight:400}.faq-item[open] summary:after{content:"−"}.faq-answer{max-width:68ch;padding:0 24px 18px 0;color:var(--muted)}.faq-answer p{margin:0 0 10px}.quiz-progress{margin:18px 0}.quiz-progress progress{width:100%;height:8px;accent-color:var(--accent)}.quiz-progress p{margin:6px 0;color:var(--muted);font-size:13px}.quiz-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.quiz-actions .cta{margin-top:0}.quiz-secondary{padding:12px 18px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--text);cursor:pointer}.notice pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:38vh;overflow:auto;padding:12px;background:#e9e3d9;border-radius:8px;font-size:12px}.preview-quiz h3{font-size:24px;margin:0 0 8px}.quiz-question{border:0;border-top:1px solid var(--line);padding:18px 0;margin:0}.quiz-question legend{font-weight:600;padding:0 0 12px}.quiz-option{display:flex;gap:10px;align-items:center;padding:9px 0;cursor:pointer;color:var(--muted)}.quiz-option input{appearance:auto;accent-color:var(--accent);width:18px;height:18px;min-width:18px;flex:0 0 18px;position:relative;z-index:1;pointer-events:auto}.cta{display:inline-flex;margin-top:24px;padding:14px 22px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);color:var(--cta-text);cursor:pointer;font-weight:600}.cta:focus-visible,.close:focus-visible{outline:3px solid white;outline-offset:4px}.footer{padding:50px var(--pad);color:var(--muted);font-size:13px}.notice{position:fixed;inset:auto 18px 18px;z-index:5;max-width:520px;margin:auto;padding:16px 18px;background:#f5f1ea;color:#17191d;border-radius:10px;box-shadow:0 12px 50px #0008;display:none}.notice[open]{display:block}.notice p{margin:0 32px 0 0}.close{position:absolute;right:10px;top:8px;border:0;background:none;font-size:24px;cursor:pointer;color:inherit}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);line-height:1.55}a,button{font:inherit}.top{padding:20px var(--pad);display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);color:var(--muted);font-size:13px}.brand{color:var(--text);letter-spacing:.16em;font-weight:700}.module{min-height:52vh;padding:clamp(64px,10vw,140px) var(--pad);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(260px,.95fr);align-items:center;gap:clamp(28px,6vw,90px);border-bottom:1px solid var(--line);max-width:1440px;margin:auto}.module:nth-child(odd){background:#1b1e23}.module.hero{min-height:78vh}.module-copy{max-width:720px}.module.text-only{grid-template-columns:minmax(0,1fr)}.module.text-only .module-copy{max-width:920px}.module.hero.text-only .module-copy{max-width:1040px}.module.hero.text-only h1{max-width:12ch}.module.hero.text-only .intro{max-width:52ch}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--accent)}h1,h2{font-family:Georgia,serif;font-weight:500;line-height:1.05;letter-spacing:-.035em}h1{font-size:clamp(42px,7vw,88px);margin:18px 0}h2{font-size:clamp(34px,5vw,64px);margin:16px 0 24px}.intro{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:58ch}.facts{padding-left:20px;color:var(--muted);display:grid;gap:12px}.location-content{display:grid;gap:18px;margin:28px 0}.location-address{margin:0;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:18px}.location-address span{display:block;margin-bottom:4px;color:var(--accent);font-size:10px;text-transform:uppercase;letter-spacing:.14em}.place-list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 28px}.place-groups{display:grid;gap:28px}.place-group{min-width:0}.place-group-title{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--line);font-size:16px;font-weight:600}.place-group-title span{color:var(--muted);font-size:12px;font-weight:400;white-space:nowrap}.place-item{min-width:0;padding:13px 0;border-bottom:1px solid var(--line)}.place-name{display:block;font-size:15px;line-height:1.4}.place-item .place-distance{display:block;margin:6px 0 0;padding:0;border:0}.place-distance{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}.benefits{display:grid;gap:14px;margin:28px 0}.benefit{padding:18px 0;border-top:1px solid var(--line)}.benefit h3{margin:0 0 5px;font-size:18px}.benefit p{margin:0;color:var(--muted)}figure{margin:0;overflow:hidden;border-radius:8px;background:var(--panel);min-height:240px}figure img{width:100%;height:100%;min-height:240px;max-height:580px;object-fit:cover}.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.media-card:first-child{grid-row:span 2}.media-card figcaption{padding:8px 12px;color:var(--muted);font-size:12px}.plan-card{display:grid;grid-template-columns:minmax(120px,.8fr) minmax(0,1fr);gap:18px;padding:18px;margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px}.plan-card img{width:100%;height:auto;align-self:center;object-fit:contain}.plan-copy h3{margin:4px 0;font-size:22px}.plan-copy p{color:var(--muted)}.plan-copy .cta{margin-top:8px}.preview-quiz{margin:24px 0;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:10px}.mortgage-calculator{margin:24px 0;padding:22px;background:var(--panel);border:1px solid var(--line);border-radius:10px}.mortgage-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.mortgage-fields label{display:grid;gap:7px;color:var(--muted);font-size:13px}.mortgage-fields input{width:100%;min-width:0;padding:13px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit}.mortgage-note{margin:14px 0 0;color:var(--muted);font-size:12px}.mortgage-result{display:block;margin-top:18px;padding:18px;background:var(--bg);border-left:3px solid var(--accent);font-size:18px;font-weight:600}.mortgage-result[hidden]{display:none}@media(max-width:600px){.mortgage-fields{grid-template-columns:1fr}}.quiz-question[hidden],.quiz-actions [hidden]{display:none!important}.faq-list{display:grid;gap:0;margin:28px 0;border-top:1px solid var(--line)}.faq-item{border-bottom:1px solid var(--line);padding:0}.faq-item summary{cursor:pointer;list-style:none;padding:20px 36px 20px 0;position:relative;font-size:clamp(17px,2vw,21px);font-weight:600}.faq-item summary::-webkit-details-marker{display:none}.faq-item summary:after{content:"+";position:absolute;right:4px;top:16px;color:var(--accent);font-size:26px;font-weight:400}.faq-item[open] summary:after{content:"−"}.faq-answer{max-width:68ch;padding:0 24px 18px 0;color:var(--muted)}.faq-answer p{margin:0 0 10px}.quiz-progress{margin:18px 0}.quiz-progress progress{width:100%;height:8px;accent-color:var(--accent)}.quiz-progress p{margin:6px 0;color:var(--muted);font-size:13px}.quiz-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.quiz-actions .cta{margin-top:0}.quiz-secondary{padding:12px 18px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--text);cursor:pointer}.notice pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:38vh;overflow:auto;padding:12px;background:#e9e3d9;border-radius:8px;font-size:12px}.preview-quiz h3{font-size:24px;margin:0 0 8px}.quiz-question{border:0;border-top:1px solid var(--line);padding:18px 0;margin:0}.quiz-question legend{font-weight:600;padding:0 0 12px}.quiz-option{display:flex;gap:10px;align-items:center;padding:9px 0;cursor:pointer;color:var(--muted)}.quiz-option input{appearance:auto;accent-color:var(--accent);width:18px;height:18px;min-width:18px;flex:0 0 18px;position:relative;z-index:1;pointer-events:auto}.cta{display:inline-flex;margin-top:24px;padding:14px 22px;border-radius:999px;border:1px solid var(--accent);background:var(--accent);color:var(--cta-text);cursor:pointer;font-weight:600}.cta:focus-visible,.close:focus-visible{outline:3px solid white;outline-offset:4px}.footer{padding:50px var(--pad);color:var(--muted);font-size:13px}.notice{position:fixed;inset:auto 18px 18px;z-index:5;max-width:520px;margin:auto;padding:16px 18px;background:#f5f1ea;color:#17191d;border-radius:10px;box-shadow:0 12px 50px #0008;display:none}.notice[open]{display:block}.notice p{margin:0 32px 0 0}.close{position:absolute;right:10px;top:8px;border:0;background:none;font-size:24px;cursor:pointer;color:inherit}
+.place-group{border-bottom:1px solid var(--line)}.place-group-title{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0;padding:16px 28px 16px 0;position:relative;font-size:16px;font-weight:600}.place-group-title::-webkit-details-marker{display:none}.place-group-title:after{content:"+";position:absolute;right:4px;top:10px;color:var(--accent);font-size:24px;font-weight:400}.place-group[open]>.place-group-title:after{content:"−"}.place-group-count{color:var(--muted);font-size:12px;font-weight:400;white-space:nowrap}.place-group .place-list{padding:0 0 12px}
 /* Composition archetypes change the page rhythm and geometry independently of its palette. */
 body[data-composition="editorial"] .module{max-width:1320px;grid-template-columns:minmax(0,1.12fr) minmax(280px,.88fr);padding-block:clamp(88px,12vw,168px)}
 body[data-composition="editorial"] .module-copy{max-width:650px}
@@ -215,6 +258,7 @@ body[data-composition="cinematic"] .module{max-width:none;min-height:66vh;paddin
 body[data-composition="cinematic"] .module:nth-child(even){background:transparent}
 body[data-composition="cinematic"] .module.hero{min-height:min(92svh,980px)}
 body[data-composition="cinematic"] .module.hero[data-variant]:not([data-variant="full-bleed"]):not([data-variant="immersive"]){grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+body[data-composition="cinematic"] .module.hero.text-only[data-variant]:not([data-variant="full-bleed"]):not([data-variant="immersive"]){grid-template-columns:minmax(0,1fr)}
 body[data-composition="cinematic"] .module-copy{max-width:760px}
 body[data-composition="cinematic"] .module.text-only{grid-template-columns:minmax(0,1fr)}
 body[data-composition="cinematic"] h1{font-size:clamp(52px,9vw,124px);letter-spacing:-.065em}
@@ -227,6 +271,33 @@ body[data-composition="architectural"] .eyebrow{font-family:Inter,Arial,sans-ser
 body[data-composition="architectural"] h1,body[data-composition="architectural"] h2{font-family:Inter,Arial,sans-serif;font-weight:600;letter-spacing:-.07em;line-height:.98}
 body[data-composition="architectural"] figure{border-radius:0;outline:1px solid var(--line);outline-offset:8px}
 @media(max-width:760px){body[data-composition="editorial"] .module,body[data-composition="cinematic"] .module,body[data-composition="architectural"] .module{padding-block:60px}body[data-composition="cinematic"] .module.hero{min-height:68svh}body[data-composition="architectural"] figure{outline-offset:4px}}
+/* Marketing hooks are evidence-linked copy from the project strategy, not invented decorative claims. */
+.benefit-hook{margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line);color:var(--accent);font-family:Georgia,"Times New Roman",serif;font-size:clamp(20px,2.6vw,30px);line-height:1.18;letter-spacing:-.025em}
+.module[data-module="lifestyle"] .benefits{margin-top:36px}
+.module[data-module="lifestyle"] .benefit{max-width:880px;padding:clamp(26px,4vw,48px);background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:2px}
+.module[data-module="lifestyle"] .benefit h3{font-size:clamp(24px,3.4vw,42px);line-height:1.08;letter-spacing:-.04em;font-weight:500}
+.module[data-module="lifestyle"] .benefit>p:not(.benefit-hook){max-width:56ch;font-size:17px;line-height:1.65}
+.module[data-module="lifestyle"] .benefit-hook{max-width:24ch;font-size:clamp(25px,3.6vw,42px)}
+@media(max-width:760px){.module[data-module="lifestyle"] .benefit{padding:24px 20px}.module[data-module="lifestyle"] .benefit-hook{max-width:18ch}}
+
+/* Text-only hero art direction: evidence-backed location metadata replaces empty space, never synthetic project imagery. */
+.hero-meta{display:flex;flex-wrap:wrap;gap:clamp(22px,5vw,64px);margin:clamp(28px,5vw,56px) 0 0;padding:18px 0 0;border-top:1px solid var(--line)}
+.hero-meta-item{display:grid;gap:5px;min-width:120px;margin:0}
+.hero-meta dt{color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+.hero-meta dd{margin:0;color:var(--text);font-size:14px;font-weight:550}
+body[data-composition="editorial"] .hero.text-only{background:linear-gradient(115deg,transparent 0 68%,color-mix(in srgb,var(--accent) 7%,transparent) 68% 100%)}
+body[data-composition="editorial"] .hero.text-only h1{max-width:10ch;font-size:clamp(54px,8.4vw,112px);line-height:.98}
+body[data-composition="editorial"] .hero.text-only .hero-meta{max-width:680px}
+body[data-composition="cinematic"] .hero.text-only{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 78% 24%,rgba(216,198,168,.15),transparent 42%),linear-gradient(135deg,transparent 58%,rgba(216,198,168,.055))}
+body[data-composition="cinematic"] .hero.text-only:after{content:"";position:absolute;z-index:-1;right:-10vw;top:10%;width:min(48vw,620px);aspect-ratio:1;border:1px solid var(--line);border-radius:50%;box-shadow:0 0 0 42px rgba(255,255,255,.018),0 0 0 84px rgba(255,255,255,.012);pointer-events:none}
+body[data-composition="cinematic"] .hero.text-only h1{max-width:11ch;font-size:clamp(58px,10vw,136px);line-height:.9}
+body[data-composition="cinematic"] .hero.text-only .hero-meta{max-width:760px;margin-top:clamp(38px,7vw,82px)}
+body[data-composition="architectural"] .hero.text-only{position:relative;isolation:isolate;background-image:repeating-linear-gradient(90deg,transparent 0 119px,var(--line) 120px 121px),repeating-linear-gradient(0deg,transparent 0 119px,var(--line) 120px 121px);background-size:100% 100%;background-position:center}
+body[data-composition="architectural"] .hero.text-only .module-copy{max-width:1040px}
+body[data-composition="architectural"] .hero.text-only h1{max-width:9ch;font-size:clamp(58px,9.4vw,128px)}
+body[data-composition="architectural"] .hero.text-only .hero-meta{max-width:620px;margin-left:auto;border-top:0;border-left:2px solid var(--accent);padding:4px 0 4px 22px;gap:24px}
+body[data-composition="architectural"] .hero.text-only .hero-meta-item{min-width:150px}
+@media(max-width:760px){.hero-meta{gap:18px 28px;margin-top:28px;padding-top:14px}body[data-composition="cinematic"] .hero.text-only:after{right:-34vw;top:18%;width:78vw}body[data-composition="architectural"] .hero.text-only .hero-meta{margin-left:0;padding-left:16px;gap:16px}}
 /* Strategy-selected variants are real layout choices, not passive metadata. */
 .module[data-variant="editorial-split"]{grid-template-columns:minmax(0,1.25fr) minmax(280px,.75fr);gap:clamp(32px,7vw,110px)}
 .module[data-variant="gallery-mosaic"]{grid-template-columns:minmax(220px,.72fr) minmax(0,1.28fr)}
@@ -259,8 +330,36 @@ body[data-composition="architectural"] figure{border-radius:0;outline:1px solid 
 .module[data-variant="full-bleed"] figure img{height:100%;max-height:none;filter:brightness(.55)}
 .module[data-variant="full-bleed"] .module-copy{position:relative;z-index:1;max-width:760px}
 .module.text-only,.module.text-only[data-variant="location-led"]{grid-template-columns:minmax(0,1fr);min-height:auto;padding-block:clamp(52px,7vw,88px)}.module.hero.text-only{min-height:clamp(440px,58vh,620px)}.module.text-only .module-copy{max-width:1000px}
-@media(max-width:760px){.place-grid{grid-template-columns:1fr}.module.text-only,.module.hero.text-only{min-height:unset;padding-block:52px}.module,.module.hero,.module[data-variant="editorial-split"],.module[data-variant="gallery-mosaic"],.module[data-variant="plan-selector"],.module[data-variant="step-form"],.module[data-variant="feature-led"],.module[data-variant="image-led"],.module[data-variant="location-led"]{grid-template-columns:1fr;min-height:unset;padding-block:68px}.module figure,.module .media-grid{grid-row:1}.module-copy{grid-row:2}.module[data-variant="full-bleed"]{display:flex;min-height:64svh;padding-block:68px}.module[data-variant="full-bleed"] figure{position:absolute;inset:0;grid-row:auto}.module[data-variant="full-bleed"] .module-copy{grid-row:auto}figure img{max-height:360px}.plan-card{grid-template-columns:1fr}.plan-card img{max-height:260px}.top{font-size:11px}}
+@media(max-width:760px){.place-list{grid-template-columns:1fr}.module.text-only,.module.hero.text-only{min-height:unset;padding-block:52px}.module,.module.hero,.module[data-variant="editorial-split"],.module[data-variant="gallery-mosaic"],.module[data-variant="plan-selector"],.module[data-variant="step-form"],.module[data-variant="feature-led"],.module[data-variant="image-led"],.module[data-variant="location-led"]{grid-template-columns:1fr;min-height:unset;padding-block:68px}.module figure,.module .media-grid{grid-row:1}.module-copy{grid-row:2}.module[data-variant="full-bleed"]{display:flex;min-height:64svh;padding-block:68px}.module[data-variant="full-bleed"] figure{position:absolute;inset:0;grid-row:auto}.module[data-variant="full-bleed"] .module-copy{grid-row:auto}figure img{max-height:360px}.plan-card{grid-template-columns:1fr}.plan-card img{max-height:260px}.top{font-size:11px}}
+/* Distinct text-only editorial layouts for feature and architectural modules. */
+.module-copy.editorial-pair{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(240px,.92fr);column-gap:clamp(24px,5vw,64px);row-gap:12px;align-items:start}
+.module-copy.editorial-pair>.eyebrow,.module-copy.editorial-pair>h2,.module-copy.editorial-pair>.intro{grid-column:1/-1}
+.module[data-variant="feature-led"] .module-copy.editorial-pair>.benefits{grid-column:1;margin:12px 0}
+.module[data-variant="feature-led"] .module-copy.editorial-pair>.benefits .benefit{height:100%;padding:clamp(22px,3vw,36px);background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px}
+.module[data-variant="feature-led"] .module-copy.editorial-pair>.benefits .benefit h3{font-size:clamp(20px,2.5vw,30px);letter-spacing:-.03em}
+.module[data-variant="feature-led"] .module-copy.editorial-pair>.facts{grid-column:2;align-self:stretch;margin:12px 0;padding:clamp(18px,2.5vw,28px);border-top:1px solid var(--accent);background:color-mix(in srgb,var(--panel) 70%,transparent);gap:14px}
+.module[data-variant="architectural"] .module-copy.editorial-pair>.benefits{grid-column:1;margin:12px 0}
+.module[data-variant="architectural"] .module-copy.editorial-pair>.benefits .benefit{padding:18px 0;border-top:2px solid var(--accent)}
+.module[data-variant="architectural"] .module-copy.editorial-pair>.facts{grid-column:2;display:grid;grid-template-columns:1fr;align-self:stretch;list-style:none;padding:0;margin:12px 0;gap:10px}
+.module[data-variant="architectural"] .module-copy.editorial-pair>.facts li{padding:14px 16px;border:1px solid var(--line);background:var(--panel);font-size:14px}
+@media(max-width:760px){.module-copy.editorial-pair{grid-template-columns:minmax(0,1fr)}.module-copy.editorial-pair>.eyebrow,.module-copy.editorial-pair>h2,.module-copy.editorial-pair>.intro,.module-copy.editorial-pair>.benefits,.module-copy.editorial-pair>.facts{grid-column:1}.module[data-variant="feature-led"] .module-copy.editorial-pair>.facts,.module[data-variant="architectural"] .module-copy.editorial-pair>.facts{grid-column:1}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Evidence-led hero: use verified project facts as a deliberate second column when approved media is absent. */
+.module.hero.text-only .module-copy.hero-editorial{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.72fr);column-gap:clamp(32px,7vw,104px);row-gap:18px;align-items:start;max-width:1160px}
+.module.hero.text-only .hero-editorial>.eyebrow,.module.hero.text-only .hero-editorial>h1{grid-column:1/-1}
+.module.hero.text-only .hero-editorial>h1{max-width:9ch;margin:12px 0 4px}
+.module.hero.text-only .hero-editorial>.hero-meta{grid-column:1;grid-row:3;align-self:start;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 28px;max-width:440px;margin:10px 0 0;padding-top:16px}
+.module.hero.text-only .hero-editorial>.hero-proof{grid-column:2;grid-row:3;align-self:stretch;list-style:none;display:grid;gap:0;margin:10px 0 0;padding:0;border-top:1px solid var(--accent);border-bottom:1px solid var(--line);color:var(--text)}
+.module.hero.text-only .hero-editorial>.hero-proof li{padding:15px 0;border-bottom:1px solid var(--line);font-size:clamp(14px,1.2vw,17px);line-height:1.5}
+.module.hero.text-only .hero-editorial>.hero-proof li:last-child{border-bottom:0}
+.module.hero.text-only .hero-editorial>.cta{grid-column:1;justify-self:start;margin-top:8px}
+@media(max-width:760px){
+ .module.hero.text-only .module-copy.hero-editorial{grid-template-columns:minmax(0,1fr);row-gap:14px}
+ .module.hero.text-only .hero-editorial>.eyebrow,.module.hero.text-only .hero-editorial>h1,.module.hero.text-only .hero-editorial>.hero-meta,.module.hero.text-only .hero-editorial>.hero-proof,.module.hero.text-only .hero-editorial>.cta{grid-column:1;grid-row:auto}
+ .module.hero.text-only .hero-editorial>.hero-meta{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none;margin-top:8px}
+ .module.hero.text-only .hero-editorial>.hero-proof{margin-top:4px}
+}
 </style>
 </head>
 <body data-theme="${esc(designTheme)}" data-composition="${esc(["editorial", "cinematic", "architectural"].includes(profile.design?.composition) ? profile.design.composition : "editorial")}">
@@ -298,6 +397,31 @@ document.querySelectorAll("[data-preview-cta]").forEach(button=>button.addEventL
   delivery:{status:"disabled_in_preview",accepted:false}};
  showPreview(button.dataset.previewTitle||"Сценарий обращения","Предпросмотр контекста обращения. Ничего не отправляется.",payload);
 }));
+document.querySelectorAll("form[data-mortgage-calculator]").forEach(form=>{
+ form.addEventListener("submit",event=>{
+  event.preventDefault();
+  const fields=Object.fromEntries(new FormData(form).entries());
+  const price=Number(fields.price);
+  const downPayment=Number(fields.downPayment);
+  const annualRate=Number(fields.rate);
+  const years=Number(fields.years);
+  const inputs=form.querySelectorAll("input");
+  inputs.forEach(input=>input.setCustomValidity(""));
+  if(!Number.isFinite(price)||price<=0){form.elements.price.setCustomValidity("Укажите стоимость квартиры больше нуля.");}
+  if(!Number.isFinite(downPayment)||downPayment<0||downPayment>=price){form.elements.downPayment.setCustomValidity("Взнос должен быть не меньше нуля и меньше стоимости квартиры.");}
+  if(!Number.isFinite(annualRate)||annualRate<0||annualRate>100){form.elements.rate.setCustomValidity("Укажите ставку от 0 до 100% годовых.");}
+  if(!Number.isInteger(years)||years<1){form.elements.years.setCustomValidity("Укажите срок кредита в полных годах.");}
+  if(!form.reportValidity())return;
+  const principal=price-downPayment;
+  const months=years*12;
+  const monthlyRate=annualRate/1200;
+  const payment=monthlyRate===0?principal/months:principal*monthlyRate/(1-Math.pow(1+monthlyRate,-months));
+  const format=value=>new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0}).format(Math.round(value))+" ₽";
+  const result=form.querySelector("[data-mortgage-result]");
+  result.textContent="Ориентировочный платёж — "+format(payment)+" в месяц. Сумма кредита: "+format(principal)+".";
+  result.hidden=false;
+ });
+});
 document.querySelectorAll("form[data-preview-quiz]").forEach(form=>{
  const steps=Array.from(form.querySelectorAll("[data-quiz-step]"));
  const previous=form.querySelector("[data-quiz-prev]");
