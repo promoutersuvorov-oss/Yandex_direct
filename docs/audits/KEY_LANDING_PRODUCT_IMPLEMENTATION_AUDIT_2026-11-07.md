@@ -193,3 +193,20 @@ K15 audit также остаётся ограниченным: автомати
 ## Дополнение: покрытие каталога модулей
 
 Подробная сверка 24 модулей продуктового каталога с Registry V1, основным runtime и review renderer вынесена в [KEY Module Implementation Matrix](KEY_MODULE_IMPLEMENTATION_MATRIX_2026-11-07.md). В ней зафиксированы несовпадения canonical IDs (`apartments` / `floor-plans`, `quiz` / `selection`), shared renderers и отдельные UI-примитивы. До синхронизации этих контрактов нельзя считать весь каталог доступным генератору.
+
+
+## Дополнение: сквозная интеграция canonical builder → primary browser runtime (2026-11-07)
+
+На stacked PR #24 добавлен явный CLI target `--target-runtime`, который пишет профиль в `landing/runtime/project.config.js` — файл, подключённый основным `landing/runtime/index.html`. Для CI используется изолированный `--out`, чтобы не изменять demo-конфиг репозитория.
+
+Проверка GitHub Actions [run #692](https://github.com/promoutersuvorov-oss/Yandex_direct/actions/runs/42357341810) завершилась успешно:
+- source-integrity — success; отдельный контрактный тест CLI — 1/1;
+- Chromium — 36/36;
+- Firefox — 36/36;
+- WebKit — 36/36.
+
+Новый browser integration test действительно запускает основной runtime, подменяя загружаемый `project.config.js` сгенерированным профилем. Проверяются project identity, marketing headline, hero metadata, состав и порядок видимых секций, отсутствие невыбранных секций, CTA → lead dialog и fail-closed demo submit. Тестовый паспорт «Галилея» сужен до минимальной безопасной композиции; остальные draft modules не публикуются и не получают фиктивные подтверждения.
+
+**Граница доказательства:** теперь подтверждён путь canonical builder → основной browser runtime на одном контролируемом профиле. Это не доказывает разнообразие двух проектов, визуальную премиальность, mobile device QA, CRM delivery, production consent/privacy, live analytics или коммерческую конверсию. PR #24 остаётся Draft и зависит от PR #20; изменения ещё не вошли в основную ветку продукта.
+
+Следующая продуктовая задача вынесена в [issue #25](https://github.com/promoutersuvorov-oss/Yandex_direct/issues/25): доказать, что два разных паспорта формируют заметно разные композиции и art direction именно в primary runtime, а не только в review renderer.
