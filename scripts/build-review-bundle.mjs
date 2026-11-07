@@ -271,6 +271,35 @@ const positioningApproved = passport.project?.positioningStatus === "approved" &
 if (passport.project?.positioningStatus === "approved" && !positioningApproved) {
   errors.push("Project positioning is marked approved but lacks publishable supporting fact IDs.");
 }
+const rawHeroCopy = passport.contentStrategy?.heroCopy;
+let approvedHeroCopy = null;
+if (rawHeroCopy) {
+  const supportIds = asArray(rawHeroCopy.supportingFactIds);
+  const proofPoints = asArray(rawHeroCopy.proofPoints);
+  if (typeof rawHeroCopy.headline !== "string" || rawHeroCopy.headline.trim().length < 8 ||
+      typeof rawHeroCopy.lead !== "string" || rawHeroCopy.lead.trim().length < 20) {
+    errors.push("Hero copy requires a meaningful headline and lead.");
+  }
+  if (!supportIds.length || !supportIds.every(id => publicFact(factById.get(id)))) {
+    errors.push("Hero copy references missing or non-publishable supporting facts.");
+  }
+  if (proofPoints.length < 2 || proofPoints.length > 4 ||
+      proofPoints.some(point => !point.label?.trim() || !supportIds.includes(point.factId) || !publicFact(factById.get(point.factId)))) {
+    errors.push("Hero proof points must each reference a publishable fact included in supportingFactIds.");
+  }
+  if (supportIds.length && supportIds.every(id => publicFact(factById.get(id))) &&
+      proofPoints.length >= 2 && proofPoints.length <= 4 &&
+      proofPoints.every(point => point.label?.trim() && supportIds.includes(point.factId) && publicFact(factById.get(point.factId))) &&
+      typeof rawHeroCopy.headline === "string" && rawHeroCopy.headline.trim().length >= 8 &&
+      typeof rawHeroCopy.lead === "string" && rawHeroCopy.lead.trim().length >= 20) {
+    approvedHeroCopy = {
+      headline: rawHeroCopy.headline.trim(),
+      lead: rawHeroCopy.lead.trim(),
+      supportingFactIds: supportIds,
+      proofPoints: proofPoints.map(point => ({ label: point.label.trim(), factId: point.factId }))
+    };
+  }
+}
 const designTheme = ["urban-noir", "warm-editorial", "garden-modern"].includes(passport.contentStrategy?.visualDirection?.theme)
   ? passport.contentStrategy.visualDirection.theme : "urban-noir";
 const profile = {
@@ -287,6 +316,12 @@ const profile = {
     delivery: publicValue(passport.project?.delivery),
     constructionStatus: publicValue(passport.project?.constructionStatus)
   },
+  marketing: approvedHeroCopy ? {
+    headline: approvedHeroCopy.headline,
+    lead: approvedHeroCopy.lead,
+    supportingFactIds: approvedHeroCopy.supportingFactIds,
+    proofPoints: approvedHeroCopy.proofPoints
+  } : null,
   facts: allowedFacts.map(({ id, claim, publicUse }) => ({ id, claim, publicUse })),
   advantages: allowedAdvantages,
   infrastructure: infrastructureRecords
