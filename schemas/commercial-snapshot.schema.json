@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://key.example/schemas/commercial-snapshot.schema.json",
+  "title": "KEY Commercial Snapshot",
+  "description": "Снимок коммерческих условий и квартир. Наблюдение на странице застройщика не приравнивается к подтверждённой доступности или разрешению на публикацию.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "checkedAt",
+    "offers",
+    "units"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "checkedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "offers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/offer"
+      }
+    },
+    "units": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/unit"
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url",
+        "title",
+        "accessedAt"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "accessedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sourceType": {
+          "enum": [
+            "developer",
+            "official_project",
+            "government",
+            "other"
+          ]
+        }
+      }
+    },
+    "offer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "observedStatus",
+        "verificationStatus",
+        "validFrom",
+        "validUntil",
+        "publicationAllowed",
+        "source",
+        "linkedUnitIds",
+        "terms"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observedStatus": {
+          "enum": [
+            "published",
+            "not_found",
+            "withdrawn"
+          ]
+        },
+        "verificationStatus": {
+          "enum": [
+            "verified",
+            "needs_reverification",
+            "conflicting",
+            "expired"
+          ]
+        },
+        "validFrom": {
+          "type": "string",
+          "format": "date"
+        },
+        "validUntil": {
+          "type": "string",
+          "format": "date"
+        },
+        "publicationAllowed": {
+          "type": "boolean"
+        },
+        "discounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "target",
+              "percent"
+            ],
+            "properties": {
+              "target": {
+                "type": "string",
+                "minLength": 1
+              },
+              "percent": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            }
+          }
+        },
+        "linkedUnitIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "terms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "conflictNote": {
+          "type": "string"
+        }
+      }
+    },
+    "unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "areaSqm",
+        "observedAvailability",
+        "availabilityStatus",
+        "availabilitySource",
+        "publicationAllowed",
+        "manualReviewReasons"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rooms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "areaSqm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "floor": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "observedAvailability": {
+          "type": "string"
+        },
+        "availabilityStatus": {
+          "enum": [
+            "confirmed_available",
+            "manual_review_required",
+            "sold",
+            "unknown"
+          ]
+        },
+        "availabilityConfirmedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "availabilitySource": {
+          "$ref": "#/$defs/source"
+        },
+        "publicationAllowed": {
+          "type": "boolean"
+        },
+        "manualReviewReasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

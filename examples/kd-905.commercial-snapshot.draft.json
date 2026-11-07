@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "kd-905-voronezh",
+  "checkedAt": "2026-11-07T12:00:00Z",
+  "offers": [
+    {
+      "id": "kd905-10-percent-two-units",
+      "title": "Скидка 10% на выбранные квартиры 82,58 и 57,4 м²",
+      "observedStatus": "published",
+      "verificationStatus": "needs_reverification",
+      "validFrom": "2026-10-15",
+      "validUntil": "2026-11-15",
+      "publicationAllowed": false,
+      "discounts": [
+        {
+          "target": "selected apartments",
+          "percent": 10
+        }
+      ],
+      "linkedUnitIds": [
+        "kd905-82-58",
+        "kd905-57-4"
+      ],
+      "terms": [
+        "Только для новых клиентов КРАЙС",
+        "Не суммируется с другими акциями",
+        "Ограниченное предложение; условия требуется подтвердить у отдела продаж"
+      ],
+      "source": {
+        "url": "https://www.krays.ru/stock/akciya-kvartira-mesyaca-v-klubnom-dome-905-skidka-10",
+        "title": "Официальная акция КД 905 — скидка 10%",
+        "accessedAt": "2026-11-07T12:00:00Z",
+        "sourceType": "developer"
+      }
+    },
+    {
+      "id": "kd905-apartment-parking-storage-combo",
+      "title": "Комбо: квартира 5%, паркинг 6%, кладовая 7%",
+      "observedStatus": "published",
+      "verificationStatus": "needs_reverification",
+      "validFrom": "2026-10-15",
+      "validUntil": "2026-11-15",
+      "publicationAllowed": false,
+      "discounts": [
+        {
+          "target": "apartment",
+          "percent": 5
+        },
+        {
+          "target": "parking",
+          "percent": 6
+        },
+        {
+          "target": "storage",
+          "percent": 7
+        }
+      ],
+      "linkedUnitIds": [],
+      "terms": [
+        "Применяется к доступным предложениям",
+        "Не суммируется с другими акциями",
+        "Состав и применимость требуется подтвердить у отдела продаж"
+      ],
+      "source": {
+        "url": "https://www.krays.ru/stock/kombo-kvartira-5-parking-6-kladovaya-7",
+        "title": "Официальная комбо-акция КД 905",
+        "accessedAt": "2026-11-07T12:00:00Z",
+        "sourceType": "developer"
+      }
+    }
+  ],
+  "units": [
+    {
+      "id": "kd905-82-58",
+      "rooms": 2,
+      "areaSqm": 82.58,
+      "floor": 5,
+      "observedAvailability": "Свободна (по карточке квартиры)",
+      "availabilityStatus": "manual_review_required",
+      "availabilitySource": {
+        "url": "https://krays.ru/flats/1389",
+        "title": "Карточка квартиры 82,58 м²",
+        "accessedAt": "2026-11-07T12:00:00Z",
+        "sourceType": "developer"
+      },
+      "publicationAllowed": false,
+      "manualReviewReasons": [
+        "Статус на карточке не подтверждён отделом продаж на дату снимка",
+        "Карточка индексировалась существенно раньше даты снимка"
+      ]
+    },
+    {
+      "id": "kd905-57-4",
+      "rooms": 1,
+      "areaSqm": 57.4,
+      "floor": 4,
+      "observedAvailability": "Свободна (по карточке квартиры)",
+      "availabilityStatus": "manual_review_required",
+      "availabilitySource": {
+        "url": "https://krays.ru/flats/1379",
+        "title": "Карточка квартиры 57,4 м²",
+        "accessedAt": "2026-11-07T12:00:00Z",
+        "sourceType": "developer"
+      },
+      "publicationAllowed": false,
+      "manualReviewReasons": [
+        "Статус на карточке не подтверждён отделом продаж на дату снимка",
+        "В карточке обнаружены условия акций с истёкшими периодами; страницы коммерческих условий несинхронны"
+      ]
+    }
+  ],
+  "notes": [
+    "Это фиксирует опубликованное на официальных страницах, а не подтверждает наличие квартир или возможность применить скидку.",
+    "Не переносить скидки и наличие в публичный лендинг до ручного подтверждения застройщиком.",
+    "Срок действия страниц акций заканчивается 15.11.2026; после этой даты снимок требует повторной проверки."
+  ]
+}
