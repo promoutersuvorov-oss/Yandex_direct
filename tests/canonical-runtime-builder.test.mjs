@@ -37,7 +37,7 @@ test("canonical CLI emits the browser runtime contract and supports the exact ru
     assert.equal(profile.mode, "demo");
     assert.equal(profile.integration.leadEndpoint, "");
     assert.equal(profile.analytics.enabled, false);
-    assert.ok(Array.isArray(profile.composition));
+    assert.deepEqual(Array.from(profile.composition), ["concept", "location"]);
     assert.match(result, /Built galiley-voronezh in demo mode/);
 
     const runtimeConfig = path.join(root, "landing/runtime/project.config.js");
