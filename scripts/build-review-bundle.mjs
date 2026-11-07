@@ -119,7 +119,8 @@ for (const module of modules) {
   }
   for (const id of asArray(module.ctaIds)) {
     if (!offerById.has(id)) errors.push(`Module "${module.moduleId}" references unknown offer "${id}".`);
-    else if (offerById.get(id).status !== "active") errors.push(`Module "${module.moduleId}" references inactive offer "${id}".`);
+    else if (offerById.get(id).status === "inactive") errors.push(`Module "${module.moduleId}" references inactive offer "${id}".`);
+    else if (offerById.get(id).status === "provisional") warnings.push(`Module "${module.moduleId}" references provisional offer "${id}"; it is shown only in the internal review preview and is not approved for publication.`);
   }
 }
 for (const asset of assets) {
@@ -213,11 +214,22 @@ for (const module of modules) {
     errors.push('The "quiz" module must reference its selectionQuiz resultOfferId in ctaIds.');
   }
 }
+const reviewOffers = offers.filter(offer => ["active", "provisional"].includes(offer.status)).map(offer => ({
+  id: offer.id,
+  scenarioId: offer.scenarioId || offer.id,
+  title: offer.title,
+  type: offer.type,
+  status: offer.status,
+  description: offer.description ?? null,
+  requiredFields: asArray(offer.requiredFields),
+  consentRequired: offer.consentRequired !== false
+}));
 const activeOffers = offers.filter(offer => offer.status === "active").map(offer => ({
   id: offer.id,
   scenarioId: offer.scenarioId || offer.id,
   title: offer.title,
   type: offer.type,
+  status: offer.status,
   description: offer.description ?? null,
   requiredFields: asArray(offer.requiredFields),
   consentRequired: offer.consentRequired !== false
@@ -351,7 +363,7 @@ const profile = {
         publicLabel: item.publicLabel
       };
     }),
-  offers: activeOffers,
+  offers: reviewOffers,
   apartmentPlans: publicApartmentPlans,
   selectionQuiz: publicSelectionQuiz,
   faq: asArray(passport.faq).map(item => ({ id: item.id, question: item.question, answers: asArray(item.requiredFactIds).map(id => facts.find(fact => fact.id === id)).filter(fact => fact && publishableFactIds.has(fact.id)).map(fact => fact.claim) })).filter(item => item.question && item.answers.length > 0 && asArray(passport.faq).find(source => source.id === item.id)?.requiredFactIds?.every(id => publishableFactIds.has(id))),
@@ -464,6 +476,7 @@ const report = {
     apartmentPlansPublishable: publicApartmentPlans.length,
     selectionQuizAvailable: Boolean(publicSelectionQuiz),
     offersActive: activeOffers.length,
+    offersProvisional: reviewOffers.filter(offer => offer.status === "provisional").length,
     assetsTotal: assets.length,
     assetsApproved: approvedAssets.length
   },
