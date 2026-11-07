@@ -596,7 +596,6 @@
         "positionReason": "Первый экран.",
         "assetIds": [],
         "ctaIds": [
-          "k15-request-presentation",
           "k15-check-layouts"
         ],
         "dependencies": [],
@@ -665,6 +664,25 @@
         "qaCriteria": [
           "plan-type-area-match",
           "plan-image-integrity"
+        ]
+      },
+      {
+        "moduleId": "contacts",
+        "decision": "include",
+        "reason": "Завершает историю отдельным приглашением обсудить просмотр с KEY; отправка заявки в preview отключена.",
+        "variant": "conversion-led",
+        "requiredFactIds": [],
+        "userQuestion": "Хотите увидеть К-15 лично?",
+        "whyIncluded": "Переводит интерес к объекту в конкретный следующий шаг через KEY.",
+        "positionReason": "Финальный блок после раскрытия преимуществ.",
+        "assetIds": [],
+        "ctaIds": [
+          "k15-book-viewing"
+        ],
+        "dependencies": [],
+        "qaCriteria": [
+          "cta-scenario-context",
+          "preview-only-no-delivery"
         ]
       }
     ],
