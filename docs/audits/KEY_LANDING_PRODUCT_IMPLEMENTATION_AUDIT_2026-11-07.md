@@ -210,3 +210,18 @@ K15 audit также остаётся ограниченным: автомати
 **Граница доказательства:** теперь подтверждён путь canonical builder → основной browser runtime на одном контролируемом профиле. Это не доказывает разнообразие двух проектов, визуальную премиальность, mobile device QA, CRM delivery, production consent/privacy, live analytics или коммерческую конверсию. PR #24 остаётся Draft и зависит от PR #20; изменения ещё не вошли в основную ветку продукта.
 
 Следующая продуктовая задача вынесена в [issue #25](https://github.com/promoutersuvorov-oss/Yandex_direct/issues/25): доказать, что два разных паспорта формируют заметно разные композиции и art direction именно в primary runtime, а не только в review renderer.
+
+
+## Дополнение: два проекта в primary runtime (2026-11-07)
+
+[PR #26](https://github.com/promoutersuvorov-oss/Yandex_direct/pull/26) и [GitHub Actions run #694](https://github.com/promoutersuvorov-oss/Yandex_direct/actions/runs/42357689874) подтвердили structural diversity двух разных паспортов в основном runtime:
+- ЖК «Галилей»: композиция `concept → location`, hero `fullscreen`, palette `garden-modern`;
+- КД «905»: композиция `advantages → location`, hero `split`, palette `warm-editorial`.
+
+Оба профиля собраны одним canonical CLI и отрисованы основным browser runtime. На desktop 1440×900 и mobile 390×844 проверены порядок и видимость секций, hero layout, CSS palette token, отсутствие горизонтального overflow, видимость CTA и fail-closed demo submit. Во всех движках:
+- source-integrity — success;
+- Chromium — 37/37;
+- Firefox — 37/37;
+- WebKit — 37/37.
+
+В KD 905 fixture сохранены реальные статусы паспорта: факты со статусом `allowed_with_qualification` не продвигаются в публичные claims без утверждённой квалификации; gallery скрыта без одобренных media rights; в блоке преимуществ показано явное empty-state сообщение. Это не визуальная приёмка качества и не подтверждение production readiness. Human design review, реальная CRM delivery, privacy/consent, analytics и performance остаются следующими этапами.
