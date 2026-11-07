@@ -1,6 +1,7 @@
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { buildLandingReadinessReport } from "../src/landing-readiness-report-v1.mjs";
+import { buildLandingLayoutAudit } from "../src/landing-layout-audit-v1.mjs";
 
 function arg(name, fallback) {
   const index = process.argv.indexOf(name);
@@ -430,6 +431,7 @@ const rendererAudit = {
   missingRendererSections,
   unsupportedCapabilities
 };
+const layoutAudit = buildLandingLayoutAudit({ profile, manifest });
 const report = {
   reportVersion: "1.0.0",
   generatedAt: new Date().toISOString(),
@@ -465,6 +467,7 @@ const report = {
   blockers: errors,
   warnings,
   rendererAudit,
+  layoutAudit,
   publicationReadiness: {
     status: errors.length ? "blocked" : "review_required",
     productionReady: false,
@@ -505,7 +508,8 @@ for (const [name, value] of Object.entries({
   "project-profile.json": profile,
   "module-manifest.json": manifest,
   "generation-report.json": report,
-  "readiness-report.json": readinessReport
+  "readiness-report.json": readinessReport,
+  "layout-audit.json": layoutAudit
 })) {
   const target = resolve(outDir, name);
   mkdirSync(dirname(target), { recursive: true });
