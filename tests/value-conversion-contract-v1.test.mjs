@@ -40,7 +40,7 @@ test("rejects generic contact capture without a specific fulfillment purpose", (
   assert.throws(() => buildValueConversion({
     ...base(),
     contactRequest: { required: true, purpose: "Оставьте контакты, мы свяжемся с вами", fields: ["phone"] }
-  }), error => error.code === "INVALID_VALUE_CONVERSION" && /specific value/.test(error.message));
+  }), error => error.code === "INVALID_VALUE_CONVERSION" && /scenario-specific purposeId/.test(error.message));
 });
 
 test("rejects fake asset or service promises without configured identifiers", () => {
