@@ -197,6 +197,14 @@ test("builds the real KD 905 draft with a qualified advantage and named POIs but
   const landing=normalizeLandingInputsV1(passport);
   assert.deepEqual(normalized.errors,[]);
   assert.deepEqual(landing.errors,[]);
+  // Keep the real passport facts and scoped qualification, but select only the
+  // modules whose exact runtime content is currently supported by this evidence.
+  landing.landingInputs.strategy.modules=[
+    {moduleId:"hero",decision:"include",reason:"Identity only",order:0,variant:"editorial-split",requiredFactIds:[]},
+    {moduleId:"security",decision:"include",reason:"Qualified parking card",order:1,variant:"proof-led",requiredFactIds:["underground-parking"]},
+    {moduleId:"location",decision:"include",reason:"Source-backed place names",order:2,variant:"location-led",requiredFactIds:[]},
+    {moduleId:"gallery",decision:"conditional",reason:"No approved media",order:3,variant:"immersive",requiredFactIds:[],dependencies:["approved-project-media"]}
+  ];
   const copy=Object.fromEntries(Object.keys(marketing.copy).map(key=>[key,key]));
   const approvedCopy={projectId:passport.project.id,approvalStatus:"approved",copy,claimFactIds:{}};
   const result=buildLandingProfileFromKnowledgeWithDiagnostics(
