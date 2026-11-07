@@ -520,7 +520,51 @@
     }
   ],
   "infrastructure": [],
-  "offers": [],
+  "offers": [
+    {
+      "id": "k15-request-presentation",
+      "scenarioId": "k15.presentation.request",
+      "title": "Получить презентацию К-15",
+      "type": "presentation",
+      "status": "provisional",
+      "description": "Запросить у KEY актуальную презентацию проекта и подтверждённые материалы.",
+      "requiredFields": [
+        "name",
+        "phone"
+      ],
+      "consentRequired": true,
+      "successMessage": "Запрос на презентацию подготовлен для передачи в KEY после подключения CRM."
+    },
+    {
+      "id": "k15-check-layouts",
+      "scenarioId": "k15.layouts.check",
+      "title": "Уточнить планировки и наличие",
+      "type": "apartment_selection",
+      "status": "provisional",
+      "description": "Уточнить у KEY актуальные планировки, доступные квартиры и условия.",
+      "requiredFields": [
+        "name",
+        "phone"
+      ],
+      "consentRequired": true,
+      "successMessage": "Запрос на подбор подготовлен для передачи в KEY после подключения CRM."
+    },
+    {
+      "id": "k15-book-viewing",
+      "scenarioId": "k15.viewing.request",
+      "title": "Записаться на просмотр",
+      "type": "viewing",
+      "status": "provisional",
+      "description": "Обсудить с KEY возможное время просмотра проекта.",
+      "requiredFields": [
+        "name",
+        "phone",
+        "preferredTime"
+      ],
+      "consentRequired": true,
+      "successMessage": "Запрос на просмотр подготовлен для передачи в KEY после подключения CRM."
+    }
+  ],
   "assets": {
     "images": [],
     "videos": [],
@@ -530,9 +574,9 @@
   },
   "contentStrategy": {
     "coreIdea": "Клубный дом К-15 на Кольцовской: приватность, сервисная входная зона и городская жизнь в Центральном районе. Лендинг показывает характер проекта и помогает через KEY запросить актуальные планировки, наличие и условия просмотра.",
-    "primaryCta": "Запросить консультацию KEY",
+    "primaryCta": "Получить презентацию К-15 через KEY",
     "secondaryCtas": [
-      "Уточнить актуальные планировки",
+      "Уточнить планировки и наличие",
       "Записаться на просмотр"
     ],
     "audiencePriority": [],
@@ -540,14 +584,21 @@
       {
         "moduleId": "hero",
         "decision": "include",
-        "reason": "Нужна стартовая точка канонического preview; публичные утверждения не добавляются без подтверждённых фактов.",
+        "reason": "Первый экран показывает три коротких подтверждённых ориентира проекта и предлагает следующий шаг через KEY; визуальные материалы ещё не допущены.",
         "variant": "editorial-split",
-        "requiredFactIds": [],
+        "requiredFactIds": [
+          "k15-74-apartments",
+          "k15-closed-territory",
+          "k15-lobby-24-7"
+        ],
         "userQuestion": "Подходит ли мне этот проект?",
         "whyIncluded": "Обозначает объект и ведёт к следующему контакту с KEY.",
         "positionReason": "Первый экран.",
         "assetIds": [],
-        "ctaIds": [],
+        "ctaIds": [
+          "k15-request-presentation",
+          "k15-check-layouts"
+        ],
         "dependencies": [],
         "qaCriteria": [
           "hero-copy-evidence",
@@ -557,7 +608,7 @@
       {
         "moduleId": "security",
         "decision": "include",
-        "reason": "Преимущества секции подтверждаются официальной страницей застройщика: приватность, семейная инфраструктура и инженерные решения.",
+        "reason": "Семь преимуществ выводятся в карточках proof-led и подкрепляются подтверждёнными фактами застройщика.",
         "requiredFactIds": [
           "k15-closed-territory",
           "k15-lobby-24-7",
@@ -576,12 +627,14 @@
         "whyIncluded": "Показывать только после подтверждения преимуществ.",
         "positionReason": "После первого экрана — раскрыть практические отличия клубного дома.",
         "assetIds": [],
-        "ctaIds": [],
+        "ctaIds": [
+          "k15-request-presentation"
+        ],
         "dependencies": [],
         "qaCriteria": [
           "advantage-evidence"
         ],
-        "variant": "evidence-backed-benefits"
+        "variant": "proof-led"
       },
       {
         "moduleId": "location",
@@ -653,6 +706,9 @@
       "Вместимость подземного паркинга расходится: официальный сайт застройщика указывает 76 автомобилей, сторонние источники — 70 мест. Не использовать вместимость до сверки с актуальной проектной документацией.",
       "Сторонние агрегаторы показывают разное число квартир в продаже; это не противоречит общему числу 74 квартиры и не должно использоваться как общее количество квартир."
     ],
-    "manualReviewRequired": true
+    "manualReviewRequired": true,
+    "manualReview": [
+      "Утвердить черновые hooks и тексты первого экрана перед публичным использованием."
+    ]
   }
 }
