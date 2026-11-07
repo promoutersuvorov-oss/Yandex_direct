@@ -334,6 +334,34 @@ MARKETING
 
 Если нет — не добавляй ещё информации. Сначала исправь первый экран, главный hook, визуальную историю, lifestyle, последовательность и CTA.
 
+## МАШИННЫЙ HANDOFF ДЛЯ CANONICAL RUNTIME
+
+Помимо готового лендинга подготовь отдельный файл `marketing-copy.json`, который напрямую потребляет канонический runtime builder. Это обязательный артефакт сборки, а не свободный текстовый отчёт.
+
+Входы для этого артефакта:
+- Project Passport по `schemas/project-passport.schema.json` — единственный источник фактов и legacy fact IDs;
+- LANDING BRIEF по `schemas/landing-brief.schema.json` — утверждённая стратегия, сегмент, hooks, offers и CTA;
+- `schemas/marketing-copy.schema.json` — точный контракт текстов.
+
+Структура:
+- `projectId` — строго совпадает с `passport.project.id`;
+- `sourcePassportVersion` — версия входного паспорта;
+- `approvalStatus` — по умолчанию `draft`. Не выставляй `approved` от имени AI: это решение ответственного человека после проверки;
+- `copy` — все 15 обязательных ключей из схемы, без пустых строк;
+- `claimFactIds` — для каждого поля с проверяемыми утверждениями перечисли точные ID подтверждающих фактов из паспорта;
+- `claimQualifications` — только если факт имеет `publicUse=allowed_with_qualification`; для того же `factId` укажи утверждённый текст оговорки. Оговорка относится только к конкретному полю copy и не расширяет право публикации факта в других блоках.
+
+Не добавляй факты, цены, наличие, сроки, расстояния, время пешком, инфраструктуру или характеристики, которых нет в паспорте с допустимым статусом. Маркетинговая формулировка не является доказательством. Не добавляй ссылки на факты к чисто эмоциональному/навигационному тексту, но любое конкретное утверждение должно иметь явную опору. Если опоры нет — перепиши текст нейтрально или обозначь блокирующий пробел.
+
+Проверь файл командой `python scripts/validate-marketing-copy-schema.py marketing-copy.json`. После человеческого утверждения `approvalStatus=approved` каноническая сборка выполняется так:
+
+```bash
+node scripts/build-landing-runtime.mjs --passport passport.json --marketing marketing-copy.json --brief landing-brief.json --out landing/runtime/project.config.js
+```
+
+Для production дополнительно передаётся проверенная `--integration public-integration.json` и флаг `--production`. Без человеческого approval не называй сборку production-ready. Не включай секреты CRM или webhook в marketing-copy.json.
+
+
 РЕЗУЛЬТАТ
 Создай полностью готовый адаптивный лендинг. Не ограничивайся описанием — сделай продукт.
 

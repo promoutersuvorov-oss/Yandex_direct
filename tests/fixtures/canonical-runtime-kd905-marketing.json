@@ -18,5 +18,7 @@
     "closingTitle": "Обсудим, что важно именно вам",
     "closingCopy": "Оставьте запрос, чтобы специалист KEY помог разобраться в доступных и подтверждённых сведениях."
   },
-  "claimFactIds": {}
+  "claimFactIds": {},
+  "schemaVersion": "1.0.0",
+  "sourcePassportVersion": "1.0.0"
 }

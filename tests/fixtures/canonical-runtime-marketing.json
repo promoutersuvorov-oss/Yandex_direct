@@ -18,5 +18,7 @@
     "closingTitle": "Разберём проект вместе",
     "closingCopy": "Оставьте запрос, чтобы специалист KEY помог разобраться в подтверждённых характеристиках."
   },
-  "claimFactIds": {}
+  "claimFactIds": {},
+  "schemaVersion": "1.0.0",
+  "sourcePassportVersion": "1.0.0"
 }
