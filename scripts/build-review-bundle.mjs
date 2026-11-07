@@ -2,6 +2,7 @@ import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { buildLandingReadinessReport } from "../src/landing-readiness-report-v1.mjs";
 import { buildLandingLayoutAudit } from "../src/landing-layout-audit-v1.mjs";
+import { selectLandingLayoutVariants } from "../src/landing-layout-selector-v1.mjs";
 
 function arg(name, fallback) {
   const index = process.argv.indexOf(name);
@@ -403,6 +404,8 @@ const manifest = {
     };
   })
 };
+const layoutSelection = selectLandingLayoutVariants({ profile, manifest });
+manifest.modules = layoutSelection.manifest.modules;
 const missingRendererSections = manifest.modules
   .filter(item => !item.rendererSectionId || !renderedSections.has(item.rendererSectionId))
   .map(item => ({ moduleId: item.moduleId, rendererSectionId: item.rendererSectionId }));
@@ -467,6 +470,7 @@ const report = {
   blockers: errors,
   warnings,
   rendererAudit,
+  layoutSelection: layoutSelection.report,
   layoutAudit,
   publicationReadiness: {
     status: errors.length ? "blocked" : "review_required",
