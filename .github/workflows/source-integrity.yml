@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Includes the KD 905 passport-to-primary-runtime evidence contract and route-less POI assertions.
+  # Includes KD 905 passport-to-runtime qualification, POI, and conditional-module assertions.
   source-integrity:
     runs-on: ubuntu-24.04
     steps:
