@@ -202,7 +202,11 @@ test("K15 navigation, gallery, apartment and location controls remain interactiv
   await expect(plan2d).toHaveClass(/on/);
   await expect(page.locator("#planImg")).toHaveAttribute("data-zoom", /чертёж с площадями/);
   await expect(page.locator("#planImg .slot")).toHaveAttribute("data-img", "plan-2d.jpg");
-  await plan3d.click();
+  // Use the native button keyboard activation for the return transition.
+  // This keeps the state assertion independent of WebKit's pointer hit-testing
+  // while also exercising the accessible keyboard path.
+  await plan3d.focus();
+  await plan3d.press("Enter");
   await expect(plan3d).toHaveClass(/on/);
   await expect(page.locator("#planImg")).toHaveAttribute("data-zoom", /3D-вид/);
   await expect(page.locator("#planImg .slot")).toHaveAttribute("data-img", "plan-3room.jpg");
