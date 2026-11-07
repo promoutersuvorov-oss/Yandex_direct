@@ -325,8 +325,12 @@ export function buildCanonicalLandingProfile(passport, marketing, integration = 
 async function main() {
   const args = process.argv.slice(2);
   const get = key => { const i=args.indexOf(key); return i >= 0 ? args[i+1] : null; };
-  const passportPath=get("--passport"), marketingPath=get("--marketing"), integrationPath=get("--integration"), briefPath=get("--brief"), out=get("--out");
-  if (!passportPath || !marketingPath || !out) throw new Error("Usage: node scripts/build-landing-runtime.mjs --passport passport.json --marketing marketing.json [--brief landing-brief.json] [--integration integration.json] --out project.config.js [--production]");
+  const passportPath=get("--passport"), marketingPath=get("--marketing"), integrationPath=get("--integration"), briefPath=get("--brief");
+  const targetRuntime=args.includes("--target-runtime");
+  const explicitOut=get("--out");
+  if (targetRuntime && explicitOut) throw new Error("--target-runtime and --out are mutually exclusive");
+  const out=targetRuntime ? path.resolve("landing/runtime/project.config.js") : explicitOut;
+  if (!passportPath || !marketingPath || !out) throw new Error("Usage: node scripts/build-landing-runtime.mjs --passport passport.json --marketing marketing.json [--brief landing-brief.json] [--integration integration.json] (--out project.config.js | --target-runtime) [--production]");
   const read = file => JSON.parse(fs.readFileSync(file,"utf8"));
   const built = buildCanonicalLandingProfile(read(passportPath), read(marketingPath), integrationPath ? read(integrationPath) : {}, { mode:args.includes("--production") ? "production" : "demo", brief: briefPath ? read(briefPath) : null });
   const profile = built.profile;
