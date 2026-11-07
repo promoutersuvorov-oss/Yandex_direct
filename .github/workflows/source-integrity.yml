@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Includes KD 905 passport-to-runtime qualification, distinct route labels, and source-note visual checks.
+  # Includes KD 905 evidence separation, source-note rendering, and single-card responsive layout checks.
   source-integrity:
     runs-on: ubuntu-24.04
     steps:
