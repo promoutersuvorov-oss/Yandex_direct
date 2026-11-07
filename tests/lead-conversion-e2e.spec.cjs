@@ -173,14 +173,23 @@ test("malformed acknowledgement and request timeout never display a success stat
     const nativeSetTimeout = window.setTimeout.bind(window);
     window.setTimeout = (callback, delay, ...args) =>
       nativeSetTimeout(callback, delay === 12000 ? 10 : delay, ...args);
+    window.__keyLeadRequestAborted = false;
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = (input, init = {}) => {
+      if (String(input).includes("/__test/lead")) {
+        init.signal?.addEventListener("abort", () => {
+          window.__keyLeadRequestAborted = true;
+        }, { once: true });
+      }
+      return nativeFetch(input, init);
+    };
   });
-  let routeAborted = false;
   await timeoutPage.route(endpoint, async route => {
     await new Promise(resolve => setTimeout(resolve, 100));
     try {
       await route.fulfill({ status: 200, contentType: "application/json", body: '{"accepted":true}' });
     } catch {
-      routeAborted = true;
+      // The browser may cancel the intercepted route after AbortController fires.
     }
   });
   await openPage(timeoutPage, source);
@@ -188,7 +197,7 @@ test("malformed acknowledgement and request timeout never display a success stat
   await timeoutPage.locator("#lead-submit").click();
   await expect(timeoutPage.locator("#form-status")).toContainText("Не удалось передать запрос");
   await expect(timeoutPage.locator("#lead-submit")).toBeEnabled();
-  expect(routeAborted).toBe(true);
+  await expect.poll(() => timeoutPage.evaluate(() => window.__keyLeadRequestAborted)).toBe(true);
   await timeoutPage.close();
 });
 
