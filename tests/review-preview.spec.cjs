@@ -87,6 +87,14 @@ test("general CTA exposes a stable scenario contract and never claims delivery",
     delivery: { status: "disabled_in_preview", accepted: false }
   });
   await expect(dialog).toContainText("Ничего не отправляется");
+  await expect(dialog.locator("#noticeOffer")).toContainText("презентацию");
+  await expect(dialog.locator("[data-preview-contact-form] input[name=phone]")).toBeVisible();
+  await expect(dialog.locator(".preview-disclaimer")).toContainText("нигде не отправляются");
+  await dialog.locator("[data-preview-contact-form] input[name=phone]").fill("+7 900 000-00-00");
+  await dialog.locator("[data-preview-contact-form] [name=consent]").check();
+  await dialog.locator("[data-preview-contact-form] button[type=submit]").click();
+  await expect(dialog).toContainText("данные не сохраняются и не отправляются");
+  await expect(dialog.locator("#noticePayload")).toContainText("disabled_in_preview");
 });
 
 test("preview CTA preserves selected apartment context and never claims delivery", async ({ page }) => {
