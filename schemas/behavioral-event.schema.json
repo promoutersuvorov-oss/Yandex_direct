@@ -210,6 +210,95 @@
       "type": "string",
       "pattern": "^attr_[a-zA-Z0-9_-]{16,96}$",
       "description": "Opaque server-side reference to restricted click/client identifiers. Must match restricted-attribution-link.schema.json. Never a raw phone, email, ClientID or yclid."
+    },
+    "leadRef": {
+      "type": "string",
+      "pattern": "^lead_[a-zA-Z0-9_-]{8,96}$",
+      "description": "Opaque server-assigned KEY lead reference. Must match restricted-attribution-link.schema.json. Never a contact identifier."
+    },
+    "sourceEventId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9._:-]{8,128}$",
+      "description": "Stable upstream CRM webhook/event identifier used for idempotent ingestion. Never a contact identifier."
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "eventName": {
+            "enum": [
+              "lead_accepted",
+              "lead_delivery_failed",
+              "crm_lead_qualified",
+              "crm_viewing_completed",
+              "crm_deal_won",
+              "crm_deal_lost"
+            ]
+          }
+        },
+        "required": [
+          "eventName"
+        ]
+      },
+      "then": {
+        "required": [
+          "leadRef"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "source": {
+            "const": "crm"
+          }
+        },
+        "required": [
+          "source"
+        ]
+      },
+      "then": {
+        "required": [
+          "leadRef",
+          "sourceEventId",
+          "eventName"
+        ],
+        "properties": {
+          "eventName": {
+            "enum": [
+              "crm_lead_qualified",
+              "crm_viewing_completed",
+              "crm_deal_won",
+              "crm_deal_lost"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventName": {
+            "enum": [
+              "crm_lead_qualified",
+              "crm_viewing_completed",
+              "crm_deal_won",
+              "crm_deal_lost"
+            ]
+          }
+        },
+        "required": [
+          "eventName"
+        ]
+      },
+      "then": {
+        "properties": {
+          "source": {
+            "const": "crm"
+          }
+        }
+      }
+    }
+  ]
 }
