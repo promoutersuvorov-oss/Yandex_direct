@@ -68,7 +68,11 @@ test("canonical K15 preview renders its approved five-module composition", async
       const heading = section.locator("h1, h2").first();
       if (moduleId !== "contacts") await expect(heading).toBeVisible();
       if (["security", "lifestyle", "about"].includes(moduleId)) {
+        const benefits = section.locator(".benefits");
         await expect(section.locator(".benefit")).not.toHaveCount(0);
+        const benefitColumns = await benefits.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length);
+        expect(benefitColumns, `Evidence cards should adapt at ${viewport.name} in ${moduleId}`)
+          .toBe(viewport.width > 760 ? 2 : 1);
       }
     }
     if (["mobile-390", "desktop-1440"].includes(viewport.name)) {
