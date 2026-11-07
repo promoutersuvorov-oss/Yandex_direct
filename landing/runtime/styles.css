@@ -113,7 +113,7 @@
 .hero-fallback-title{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-size:clamp(58px,11vw,150px);line-height:.86;letter-spacing:-.07em;max-width:7ch;overflow-wrap:anywhere}
 .hero-fallback-index{align-self:flex-end;padding-top:18px;border-top:1px solid #53625366;width:100%;text-align:right}
 .hero-art.has-media .hero-fallback{display:none}
-.location-list li{align-items:center}
+.location-list li{align-items:flex-start}.location-list .place-qualification,.location-list .place-source{display:block;margin-top:5px;max-width:48ch;font-size:10px;line-height:1.5;color:var(--muted)}.location-list li>.place-distance{flex:0 0 auto}
 .location-list .place-kind{display:block;margin-bottom:4px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#8a8b82}
 .location-list li>div{min-width:0}
 .location-list strong{font-weight:500}
