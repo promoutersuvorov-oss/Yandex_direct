@@ -12,7 +12,7 @@ const base = () => ({
   },
   interaction: { type: "calculator", actionLabel: "Получить индивидуальный расчёт" },
   fulfillment: { mode: "credit_calculation", serviceId: "key-mortgage-review" },
-  contactRequest: { required: true, purpose: "Получить индивидуальный кредитный расчёт по выбранным параметрам", fields: ["name", "phone"] },
+  contactRequest: { required: true, purposeId: "individual_credit_calculation", purpose: "Получить индивидуальный кредитный расчёт по выбранным параметрам", fields: ["name", "phone"] },
   entityContext: { budget: 8500000, downPayment: 2000000, loanTermMonths: 300, planId: "plan-2" }
 });
 
@@ -31,7 +31,7 @@ test("supports immediate on-page value without asking for contact details", () =
     scenarioId: "instant-mortgage-estimate",
     offerId: null,
     fulfillment: { mode: "on_page" },
-    contactRequest: { required: false, purpose: null, fields: [] }
+    contactRequest: { required: false, purposeId: null, purpose: null, fields: [] }
   });
   assert.equal(conversion.contactRequest.required, false);
 });
@@ -54,11 +54,11 @@ test("rejects fake asset or service promises without configured identifiers", ()
 
 test("requires minimum field declaration and disallows contact fields for instant interactions", () => {
   assert.throws(() => buildValueConversion({
-    ...base(), contactRequest: { required: true, purpose: "Получить расчёт", fields: [] }
+    ...base(), contactRequest: { required: true, purposeId: "individual_credit_calculation", purpose: "Получить расчёт", fields: [] }
   }), /minimum required fields/);
   assert.throws(() => buildValueConversion({
     ...base(), fulfillment: { mode: "on_page" },
-    contactRequest: { required: false, purpose: null, fields: ["phone"] }
+    contactRequest: { required: false, purposeId: null, purpose: null, fields: ["phone"] }
   }), /must not request/);
 });
 
