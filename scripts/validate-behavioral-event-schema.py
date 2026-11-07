@@ -26,4 +26,17 @@ invalid_query["pagePath"] = "/?phone=79991234567"
 if not list(validator.iter_errors(invalid_query)):
     raise SystemExit("Privacy regression: query string accepted in pagePath")
 
-print("Behavioral event schema and privacy negative cases: OK")
+
+for valid_ref in ("attr_0123456789abcdef", "attr_AbCd_0123456789-XYZ"):
+    candidate = dict(example)
+    candidate["attributionRef"] = valid_ref
+    if list(validator.iter_errors(candidate)):
+        raise SystemExit(f"Valid attributionRef rejected: {valid_ref}")
+
+for invalid_ref in ("", "attr_short", "raw-client-id-123456", "attr_" + "x" * 97):
+    candidate = dict(example)
+    candidate["attributionRef"] = invalid_ref
+    if not list(validator.iter_errors(candidate)):
+        raise SystemExit(f"Attribution contract regression: invalid reference accepted: {invalid_ref}")
+
+print("Behavioral event schema, attribution reference, and privacy negative cases: OK")
