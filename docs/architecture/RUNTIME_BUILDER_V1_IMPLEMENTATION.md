@@ -43,3 +43,14 @@ The canonical CLI now supports an explicit `--target-runtime` mode. It writes th
 A focused fixture for ЖК «Галилей» and a Node CLI contract test verify the generated profile identity, visitor-facing copy, demo mode, disabled analytics and empty lead endpoint. The browser integration spec injects the actual generated profile into the primary runtime and checks rendered project data, selected section composition and the fail-closed demo lead path.
 
 **Evidence status (2026-11-07):** GitHub Actions run [#692](https://github.com/promoutersuvorov-oss/Yandex_direct/actions/runs/42357341810) passed: source-integrity success; Chromium 36/36, Firefox 36/36 and WebKit 36/36. The canonical CLI contract test passed (1/1), including writing to the exact runtime config path and restoring the original demo config after the test. The browser integration test passed in all three engines. This proves builder-to-primary-runtime consumption and selected DOM composition with a controlled, evidence-safe fixture. It does not prove production CRM delivery, legal approval, live analytics, commercial performance or visual acceptance on physical devices. PR #24 remains Draft and stacked on PR #20; the handoff is not considered merged into the product baseline until the dependency chain is reviewed and merged.
+
+
+## LANDING BRIEF → contextual lead intent — CI verified
+
+Implementation: [Draft PR #30](https://github.com/promoutersuvorov-oss/Yandex_direct/pull/30).
+
+[GitHub Actions run #707](https://github.com/promoutersuvorov-oss/Yandex_direct/actions/runs/42359174864) passed source integrity and the complete primary-runtime browser matrix. Source integrity: 40/40 steps. Each browser engine ran 38 tests: Chromium 38/38, Firefox 38/38, WebKit 38/38.
+
+The canonical CLI accepted an explicitly test-only LANDING BRIEF, resolved its project/segment/hook/funnel/offer references and mapped two different CTA placements (hero and closing) to the passport's active presentation offer. The primary runtime rendered distinct CTA labels/IDs and emitted PII-free `key:conversion-intent` events with project, CTA, intent, offer/scenario, module, funnel, hook, segment and qualification-question references. Demo form submission remained fail-closed and generated no POST requests. Conversion payload schema now preserves an allowlisted intent and validated qualification-question references.
+
+All positioning approval, research and offer delivery fields in the fixture are synthetic and explicitly TEST FIXTURE ONLY. This verifies reference plumbing and runtime behavior, not real audience research, real approval, CRM receipt, consent/legal approval, production analytics or conversion performance. PR #30 remains Draft and stacked on PR #26 → #24 → #20.
