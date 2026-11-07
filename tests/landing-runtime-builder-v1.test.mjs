@@ -120,7 +120,10 @@ test("a marketing-only qualification does not publish route metrics; a separatel
   x.knowledge.routes=[{id:"route-1",originRef:{type:"project",id:"p1"},destinationPoiId:"poi-1",method:"route",mode:"walking",observedAt:"2026-11-05T12:00:00Z",validUntil:"2027-11-05T12:00:00Z",sourceIds:["s2"],evidenceIds:["e2"],durationSeconds:300}];
   const qualifiedMarketing={...marketing,claimQualifications:{headline:[{factId:"f1",text:"По данным источника; сведения могут измениться."}]}};
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,qualifiedMarketing,{},{now:"2026-11-06T00:00:00Z"});
-  assert.deepEqual(profile.infrastructure,[], "A qualifier attached to marketing copy must not authorize the same claim in location/infrastructure.");
+  assert.equal(profile.infrastructure.length,1);
+  assert.equal(profile.infrastructure[0].name,"Городской парк");
+  assert.equal(profile.infrastructure[0].distanceLabel,undefined);
+  assert.match(profile.infrastructure[0].qualification,/расстояние и маршрут отдельно не подтверждены/);
 });
 
 test("infrastructure requires a project-scoped route with linked evidence",()=>{
