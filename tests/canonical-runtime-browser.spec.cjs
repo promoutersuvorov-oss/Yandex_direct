@@ -10,7 +10,7 @@ const cases = [
     file: "artifacts/canonical-runtime/galiley/project.config.js",
     headline: "Проверьте, подходит ли вам ЖК «Галилей»",
     composition: ["concept", "location"],
-    heroLayout: "fullscreen",
+    heroLayout: "editorial",
     paper: "#f1f3ed",
     expectedVisible: ["hero", "concept", "location"]
   },
@@ -41,6 +41,7 @@ for (const scenario of cases) {
     expect(profile.analytics.enabled).toBe(false);
     expect(Array.from(profile.composition)).toEqual(scenario.composition);
     expect(profile.design.heroLayout).toBe(scenario.heroLayout);
+    if (scenario.id === "galiley-voronezh") expect(profile.heroMedia).toBeNull();
 
     const pageErrors = [];
     page.on("pageerror", error => pageErrors.push(error.message));
@@ -57,6 +58,10 @@ for (const scenario of cases) {
       await expect(page.locator("#hero-meta")).toContainText("Воронеж");
       await expect(page).toHaveTitle(profile.project.name + " — KEY");
       await expect(page.locator("#hero")).toHaveAttribute("data-layout", scenario.heroLayout);
+      if (scenario.id === "galiley-voronezh") {
+        await expect(page.locator("#hero .hero-fallback")).toBeVisible();
+        await expect(page.locator("#hero .hero-fallback-title")).toBeVisible();
+      }
       expect(await page.locator("html").evaluate(node => getComputedStyle(node).getPropertyValue("--paper").trim())).toBe(scenario.paper);
 
       const visibleSections = await page.locator("main > section:not(.closing-section)").evaluateAll(nodes =>

@@ -38,6 +38,8 @@ test("canonical CLI emits the browser runtime contract and supports the exact ru
     assert.equal(profile.mode, "demo");
     assert.equal(profile.integration.leadEndpoint, "");
     assert.equal(profile.analytics.enabled, false);
+    assert.equal(profile.heroMedia, null);
+    assert.equal(profile.design.heroLayout, "editorial");
     assert.deepEqual(Array.from(profile.composition), ["concept", "location"]);
     assert.match(result, /Built galiley-voronezh in demo mode/);
 
