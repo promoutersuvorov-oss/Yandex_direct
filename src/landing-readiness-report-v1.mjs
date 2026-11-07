@@ -18,7 +18,7 @@ export function buildLandingReadinessReport({ profile, warnings = [], requestedM
   const assets = Array.isArray(profile.assets) ? profile.assets : [];
   const heroModule = Array.isArray(profile.modules) ? profile.modules.find(item => item.moduleId === "hero") : null;
   const heroAssetIds = new Set(heroModule?.assetIds || []);
-  const heroMedia = assets.find(asset => heroAssetIds.has(asset.id) && ["photo", "render", "video"].includes(asset.type)) ||
+  const heroMedia = profile.heroMedia || assets.find(asset => heroAssetIds.has(asset.id) && ["photo", "render", "video"].includes(asset.type)) ||
     assets.find(asset => ["photo", "render"].includes(asset.type));
   const composition = Array.isArray(profile.composition) ? profile.composition :
     Array.isArray(profile.modules) ? profile.modules.map(item => item.moduleId) : [];
