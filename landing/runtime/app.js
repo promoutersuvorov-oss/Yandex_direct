@@ -99,6 +99,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
       typeof source.sourceTitle === "string" && source.sourceTitle.trim()
     )
   ) : [];
+  advantageGrid.classList.toggle("is-single", publishableAdvantages.length === 1);
   if (publishableAdvantages.length) {
     advantageGrid.innerHTML = publishableAdvantages.map((item, index) => {
       const evidence = item.evidence.filter(source =>
