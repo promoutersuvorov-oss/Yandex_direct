@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, feature/universal-landing-runtime-v2, feat/canonical-runtime-browser-handoff]
+    branches: [main, feature/universal-landing-runtime-v2, feat/canonical-runtime-browser-handoff, feat/primary-runtime-project-diversity]
 
 permissions:
   contents: read
