@@ -201,11 +201,16 @@ import { createAttributionState } from "../../src/attribution.mjs";
 
   const locationList = $("#location-list");
   const places = Array.isArray(data.infrastructure) ? data.infrastructure
-    .filter(p => p && p.status === "verified" && p.name && p.distanceLabel)
+    .filter(p => p && p.status === "verified" && typeof p.name === "string" && p.name.trim())
     .slice().sort((a, b) => (Number.isFinite(a.distanceMeters) ? a.distanceMeters : Number.MAX_SAFE_INTEGER) - (Number.isFinite(b.distanceMeters) ? b.distanceMeters : Number.MAX_SAFE_INTEGER))
     .slice(0, 4) : [];
   const placeKinds = { school:"Школа", kindergarten:"Детский сад", park:"Парк", shopping:"Покупки", transport:"Транспорт", healthcare:"Здоровье", leisure:"Досуг", other:"Рядом" };
-  if (places.length) locationList.innerHTML = places.map(place => '<li><div><span class="place-kind">' + esc(placeKinds[place.category] || "Рядом") + '</span><strong>' + esc(place.name) + '</strong></div><span>' + esc(place.distanceLabel) + '</span></li>').join("");
+  if (places.length) locationList.innerHTML = places.map(place =>
+    '<li><div><span class="place-kind">' + esc(placeKinds[place.category] || "Рядом") + '</span><strong>' + esc(place.name) + '</strong>' +
+    (place.qualification ? '<small class="place-qualification">' + esc(place.qualification) + '</small>' : '') +
+    (place.sourceTitle ? '<small class="place-source">Источник: ' + esc(place.sourceTitle) + '</small>' : '') +
+    '</div>' + (place.distanceLabel ? '<span class="place-distance">' + esc(place.distanceLabel) + '</span>' : '') + '</li>'
+  ).join("");
   const locationArt = $(".location-art");
   const locationMapImage = $("#location-map");
   const locationMap = data.locationMap;
