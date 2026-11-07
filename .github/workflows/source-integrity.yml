@@ -161,6 +161,14 @@ jobs:
         run: python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/klanding-http.log 2>&1 &
       - name: Run K15 and reference concept browser smoke tests
         run: npx playwright test
+      - name: Upload primary runtime visual review screenshots
+        if: always() && matrix.browser == 'chromium'
+        uses: actions/upload-artifact@v4
+        with:
+          name: key-primary-runtime-visual-review-${{ github.run_number }}
+          path: artifacts/visual-review/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Upload browser evidence
         if: always()
         uses: actions/upload-artifact@v4
