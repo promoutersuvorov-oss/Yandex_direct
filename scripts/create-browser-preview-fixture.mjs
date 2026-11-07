@@ -127,7 +127,7 @@ passport.selectionQuiz = {
 };
 passport.contentStrategy.modules = [
   { moduleId: "hero", decision: "include", reason: "Синтетический первый экран", variant: "editorial-split", assetIds: ["fixture-hero"], ctaIds: ["presentation", "mortgage"] },
-  { moduleId: "gallery", decision: "include", reason: "Проверка нескольких изображений", variant: "gallery-mosaic", assetIds: ["fixture-hero", "fixture-gallery"], ctaIds: ["inactive-viewing"] },
+  { moduleId: "gallery", decision: "include", reason: "Проверка нескольких изображений", variant: "gallery-mosaic", assetIds: ["fixture-hero", "fixture-gallery"] },
   { moduleId: "location", decision: "include", reason: "Проверка подтверждённой инфраструктуры", variant: "location-led", userQuestion: "Что находится рядом с домом?", requiredFactIds: ["fixture-positioning-proof"] },
   { moduleId: "floor-plans", decision: "include", reason: "Проверка данных планировки", variant: "plan-selector", assetIds: ["fixture-plan"], ctaIds: ["selection"] },
   { moduleId: "quiz", decision: "include", reason: "Проверка локального квиза", variant: "step-form", ctaIds: ["selection"] },
