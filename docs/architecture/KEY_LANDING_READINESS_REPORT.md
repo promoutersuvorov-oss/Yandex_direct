@@ -47,3 +47,12 @@ The audit checks only deterministic facts available in the built profile and sel
 Each finding contains a severity, stable code, explanation, affected module IDs, supporting counts/IDs, and an actionable recommendation. The audit never inserts stock imagery, invents claims, or silently changes the composition.
 
 This is not computer-vision screenshot scoring. The report explicitly sets `visualScreenshotAssessment: not_performed` and keeps `humanReviewRequired: true`. Browser viewport tests and a human visual review remain separate publication gates. A recommendation is not an automatic approval or a blocker unless the underlying builder contract already makes it one.
+
+
+## Deterministic layout selection v1
+
+Before composition audit and preview rendering, the review-bundle builder runs a deterministic variant selector. It considers only the built profile (publishable facts, supported advantages, approved media and active offers) and the module manifest. It records the requested and selected variant, the reason, and the input counts per module in `generation-report.json.layoutSelection`; the selected variant is also recorded in `module-manifest.json`.
+
+Rules are intentionally narrow: a hero without approved media can use `editorial-split` when it has at least two approved proof points; text/fact sections without media can use `proof-led`; a conversion section with an active CTA can use `conversion-led`. An image-led request without approved media falls back to `proof-led`. Existing explicit variants are otherwise preserved. CTA IDs, fact IDs, asset IDs, module order, and inclusion decisions are not rewritten.
+
+The selector does not score screenshots, invent content, create media, or approve publication. It is a small productivity aid that removes avoidable manual variant decisions; browser tests and human visual review remain required.
