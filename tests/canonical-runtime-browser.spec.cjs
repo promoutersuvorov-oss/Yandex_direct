@@ -79,6 +79,46 @@ for (const scenario of cases) {
       }));
       expect(overflow.scrollWidth, JSON.stringify(overflow)).toBeLessThanOrEqual(overflow.viewportWidth);
 
+      const visualMetrics = await page.evaluate(() => {
+        const hero = document.querySelector("#hero");
+        const title = document.querySelector("#hero-title");
+        const lead = document.querySelector("#hero-lead");
+        const cta = document.querySelector("#hero [data-open-offer]");
+        const rect = node => {
+          const box = node.getBoundingClientRect();
+          return { x: Math.round(box.x), y: Math.round(box.y), width: Math.round(box.width), height: Math.round(box.height) };
+        };
+        return {
+          hero: rect(hero),
+          title: { ...rect(title), fontSize: getComputedStyle(title).fontSize, lineHeight: getComputedStyle(title).lineHeight },
+          lead: { ...rect(lead), fontSize: getComputedStyle(lead).fontSize, lineHeight: getComputedStyle(lead).lineHeight },
+          cta: rect(cta),
+          paper: getComputedStyle(document.documentElement).getPropertyValue("--paper").trim()
+        };
+      });
+      expect(visualMetrics.hero.height).toBeGreaterThan(0);
+      expect(visualMetrics.title.height).toBeGreaterThan(visualMetrics.lead.height / 2);
+      expect(visualMetrics.cta.width).toBeGreaterThan(0);
+      if (process.env.KEY_BROWSER === "chromium") {
+        const slug = scenario.id + "-" + viewport.width + "x" + viewport.height;
+        const outputDir = path.resolve("artifacts/visual-review");
+        fs.mkdirSync(outputDir, { recursive: true });
+        await page.screenshot({
+          path: path.join(outputDir, slug + ".png"),
+          fullPage: true,
+          animations: "disabled"
+        });
+        fs.writeFileSync(path.join(outputDir, slug + ".json"), JSON.stringify({
+          projectId: profile.project.id,
+          projectName: profile.project.name,
+          viewport,
+          expectedComposition: scenario.expectedVisible,
+          heroLayout: scenario.heroLayout,
+          visualMetrics,
+          note: "Automated visual-review evidence only; not a human design approval."
+        }, null, 2) + "\\n");
+      }
+
       const cta = page.locator(".hero [data-open-offer]").first();
       await expect(cta).toBeVisible();
       await cta.click();
