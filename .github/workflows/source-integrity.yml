@@ -67,6 +67,8 @@ jobs:
         run: node scripts/test-review-bundle.mjs
       - name: Run K15 static product and interaction audit
         run: node scripts/audit-k15.mjs
+      - name: Generate structured K15 legacy readiness report
+        run: node scripts/report-k15-static-readiness.mjs --out artifacts/k15-readiness
       - name: Upload review-only bundle
         if: success()
         uses: actions/upload-artifact@v4
@@ -81,6 +83,14 @@ jobs:
         with:
           name: kd905-internal-review-preview
           path: artifacts/kd905-review/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload K15 static readiness report
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k15-static-readiness-report
+          path: artifacts/k15-readiness/k15-static-readiness-report.json
           if-no-files-found: error
           retention-days: 14
 
