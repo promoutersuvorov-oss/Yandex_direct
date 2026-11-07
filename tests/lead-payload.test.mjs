@@ -128,6 +128,7 @@ test("preserves validated marketing intent in the conversion payload", () => {
   };
   const conversion = createLeadPayload(input).conversion;
   assert.equal(conversion.intent, "get_information");
+  assert.equal(conversion.scenarioId, "galiley.presentation");
   input.conversion.intent = "send_all_data";
   assert.throws(() => createLeadPayload(input), /Unsupported conversion intent/);
 });
