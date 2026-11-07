@@ -327,11 +327,10 @@ document.querySelectorAll("[data-preview-cta]").forEach(button=>button.addEventL
   floor:button.dataset.previewPlanFloor?Number(button.dataset.previewPlanFloor):null,
   finishing:button.dataset.previewPlanFinishing||null,assetId:button.dataset.previewPlanAssetId
  }:null;
- const payload={schemaVersion:"key-cta-context/2.0",state:"preview_only",projectId:null,
+ const payload={schemaVersion:"key-cta-context/2.0",state:"preview_only",projectId:${JSON.stringify(projectId)},
   conversion:{scenarioId:button.dataset.previewScenario||button.dataset.previewCta,offerId:button.dataset.previewCta==="generic"?null:button.dataset.previewCta,moduleId:section?.dataset.module||null,entityContext:plan?{plan}:{}},
   requirements:{requiredFields:JSON.parse(button.dataset.previewRequiredFields||"[]"),consentRequired:button.dataset.previewConsentRequired!=="false"},
   delivery:{status:"disabled_in_preview",accepted:false}};
- payload.projectId=${JSON.stringify(projectId)};
  showPreview(button.dataset.previewTitle||"Сценарий обращения","Предпросмотр персонального предложения. Отправка заявок отключена.",payload,{
   title:button.dataset.previewTitle||"Получить результат",description:button.dataset.previewDescription||"",
   type:button.dataset.previewType||"other",fields:JSON.parse(button.dataset.previewRequiredFields||"[]"),
