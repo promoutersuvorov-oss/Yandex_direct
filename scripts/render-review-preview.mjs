@@ -331,7 +331,7 @@ document.querySelectorAll("[data-preview-cta]").forEach(button=>button.addEventL
   conversion:{scenarioId:button.dataset.previewScenario||button.dataset.previewCta,offerId:button.dataset.previewCta==="generic"?null:button.dataset.previewCta,moduleId:section?.dataset.module||null,entityContext:plan?{plan}:{}},
   requirements:{requiredFields:JSON.parse(button.dataset.previewRequiredFields||"[]"),consentRequired:button.dataset.previewConsentRequired!=="false"},
   delivery:{status:"disabled_in_preview",accepted:false}};
- showPreview(button.dataset.previewTitle||"Сценарий обращения","Предпросмотр персонального предложения. Отправка заявок отключена.",payload,{
+ showPreview(button.dataset.previewTitle||"Сценарий обращения","Предпросмотр контекста обращения. Ничего не отправляется.",payload,{
   title:button.dataset.previewTitle||"Получить результат",description:button.dataset.previewDescription||"",
   type:button.dataset.previewType||"other",fields:JSON.parse(button.dataset.previewRequiredFields||"[]"),
   consentRequired:button.dataset.previewConsentRequired!=="false"
@@ -366,7 +366,7 @@ document.querySelectorAll("form[data-preview-quiz]").forEach(form=>{
    conversion:{scenarioId:form.dataset.resultScenario||form.dataset.resultOffer,offerId:form.dataset.resultOffer,moduleId:form.dataset.moduleId||"quiz",entityContext:{quizAnswers:answers}},
    requirements:{requiredFields:JSON.parse(form.dataset.previewRequiredFields||"[]"),consentRequired:form.dataset.previewConsentRequired!=="false"},
    delivery:{status:"disabled_in_preview",accepted:false}};
-  showPreview("Подбор завершён","Ответы подготовлены локально. Выберите следующий полезный шаг.",payload,{
+  showPreview("Подбор завершён","Ответы подготовлены локально. Данные не отправляются. Выберите следующий полезный шаг.",payload,{
    title:"Получить персональную подборку",type:"apartment_selection",
    description:valueCopy.apartment_selection,
    fields:JSON.parse(form.dataset.previewRequiredFields||"[]"),
