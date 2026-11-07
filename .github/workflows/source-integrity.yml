@@ -131,6 +131,10 @@ jobs:
         run: node scripts/build-review-bundle.mjs --passport artifacts/browser-fixture/passport.json --out artifacts/review-bundle
       - name: Render review preview for browser validation
         run: node scripts/render-review-preview.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/preview.html
+      - name: Build canonical K15 preview for cross-browser validation
+        run: node scripts/build-review-bundle.mjs --passport examples/k15.project-passport.draft.json --out artifacts/k15-review
+      - name: Render canonical K15 preview for cross-browser validation
+        run: node scripts/render-review-preview.mjs --bundle artifacts/k15-review --out artifacts/k15-review/preview.html
       - name: Build KD 905 preview for cross-browser validation
         run: node scripts/build-review-bundle.mjs --passport examples/kd-905.project-passport.draft.json --out artifacts/kd905-review
       - name: Render KD 905 preview for cross-browser validation
