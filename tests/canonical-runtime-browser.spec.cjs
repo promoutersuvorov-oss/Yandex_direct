@@ -74,7 +74,8 @@ for (const scenario of cases) {
         await expect(page.locator("#advantage-grid .advantage-evidence")).toContainText("наличие свободных мест");
         await expect(page.locator("#location-list")).toContainText("Детский сад № 108");
         await expect(page.locator("#location-list")).toContainText("Парк «Орлёнок»");
-        await expect(page.locator("#location-list .place-qualification").first()).toContainText("расстояние и маршрут отдельно не подтверждены");
+        await expect(page.locator(".location-evidence-note")).toContainText("Официальная страница Клубного дома «905»");
+        await expect(page.locator("#location-list .place-qualification").first()).toContainText("Расстояние и маршрут не подтверждены");
         await expect(page.locator("#location-list .place-distance")).toHaveCount(0);
         await expect(page.locator("#visual-story")).toBeHidden();
       }
