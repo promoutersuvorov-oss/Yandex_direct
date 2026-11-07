@@ -160,6 +160,7 @@ export function createLeadPayload(input) {
       })()),
       ...(optionalString(conversion.offerId, "conversion.offerId", 80) ? { offerId: conversion.offerId.trim() } : {}),
       ...(optionalString(conversion.moduleId, "conversion.moduleId", 80) ? { moduleId: conversion.moduleId.trim() } : {}),
+      ...(qualificationQuestionIds.length ? { qualificationQuestionIds } : {}),
       ...(["ctaId", "hookId", "funnelId", "segmentId"].reduce((result, key) => {
         const value = optionalString(conversion[key], "conversion." + key, 80);
         if (value) {
