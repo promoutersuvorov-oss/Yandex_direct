@@ -435,6 +435,7 @@ test("content-scoped lifestyle qualification requires the selected story, verifi
     moduleId:"lifestyle",contentId:"courtyard-morning",factId:"f1",
     text:"Сведения приведены по данным застройщика."
   }];
+  const noMarketingClaims={...marketing,claimFactIds:{}};
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,noMarketingClaims,{},{now:"2026-11-06T00:00:00Z"});
   assert.deepEqual(profile.composition,["lifestyle"]);
   assert.equal(profile.lifestyleStories[0].evidence[0].qualification,"Сведения приведены по данным застройщика.");
