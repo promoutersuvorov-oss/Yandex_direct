@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const builder = path.join(root, "scripts/build-landing-runtime.mjs");
 const fixtureBuilder = path.join(root, "scripts/create-canonical-runtime-fixture.mjs");
+const briefFixtureBuilder = path.join(root, "scripts/create-brief-intent-fixture.mjs");
 const marketing = path.join(root, "tests/fixtures/canonical-runtime-marketing.json");
 
 function readProfile(file) {
@@ -51,6 +52,48 @@ test("canonical CLI emits the browser runtime contract and supports the exact ru
     } finally {
       fs.writeFileSync(runtimeConfig, original);
     }
+  } finally {
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
+});
+
+
+test("canonical CLI maps approved test-only LANDING BRIEF CTAs into the primary runtime contract", () => {
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), "key-brief-intent-"));
+  const passport = path.join(temp, "passport.json");
+  const brief = path.join(temp, "landing-brief.test-only.json");
+  const output = path.join(temp, "project.config.js");
+  execFileSync(process.execPath, [fixtureBuilder, "--out", passport], { cwd: root, encoding: "utf8" });
+  execFileSync(process.execPath, [briefFixtureBuilder, "--passport", passport, "--out", brief], { cwd: root, encoding: "utf8" });
+  const command = briefPath => execFileSync(process.execPath, [
+    builder, "--passport", passport, "--marketing", marketing, "--brief", briefPath, "--out", output
+  ], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+
+  try {
+    command(brief);
+    const profile = readProfile(output);
+    assert.equal(profile.mode, "demo");
+    assert.equal(profile.analytics.enabled, false);
+    assert.equal(profile.integration.leadEndpoint, "");
+    assert.equal(profile.marketingStrategy.primarySegmentId, "young_professionals");
+    assert.equal(profile.ctaMap.hero.ctaId, "test_hero_presentation");
+    assert.equal(profile.ctaMap.hero.intent, "get_information");
+    assert.equal(profile.ctaMap.hero.offerKey, "presentation");
+    assert.equal(profile.ctaMap.closing.ctaId, "test_closing_presentation");
+    assert.equal(profile.ctaMap.closing.label, "TEST: обсудить проект");
+    assert.equal(profile.ctaMap.closing.funnelId, "test_presentation_funnel");
+
+    const invalid = JSON.parse(fs.readFileSync(brief, "utf8"));
+    invalid.projectId = "different-project";
+    fs.writeFileSync(brief, JSON.stringify(invalid));
+    assert.throws(() => command(brief), /LANDING BRIEF is invalid: LANDING BRIEF projectId must match passport.project.id/);
+
+    const mismatched = JSON.parse(fs.readFileSync(brief, "utf8"));
+    mismatched.projectId = profile.project.id;
+    mismatched.approvalStatus = "approved";
+    mismatched.ctas[0].intent = "select_apartment";
+    fs.writeFileSync(brief, JSON.stringify(mismatched));
+    assert.throws(() => command(brief), /does not match offer type/);
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
   }
