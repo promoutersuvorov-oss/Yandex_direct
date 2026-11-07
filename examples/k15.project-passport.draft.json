@@ -586,11 +586,7 @@
         "decision": "include",
         "reason": "Первый экран показывает три коротких подтверждённых ориентира проекта и предлагает следующий шаг через KEY; визуальные материалы ещё не допущены.",
         "variant": "editorial-split",
-        "requiredFactIds": [
-          "k15-74-apartments",
-          "k15-closed-territory",
-          "k15-lobby-24-7"
-        ],
+        "requiredFactIds": [],
         "userQuestion": "Подходит ли мне этот проект?",
         "whyIncluded": "Обозначает объект и ведёт к следующему контакту с KEY.",
         "positionReason": "Первый экран.",
