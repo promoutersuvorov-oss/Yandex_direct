@@ -1,0 +1,200 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": {
+    "id": "k15",
+    "name": "K15",
+    "developer": {
+      "value": null,
+      "status": "missing",
+      "sources": [],
+      "note": "Нужен официальный источник девелопера."
+    },
+    "class": {
+      "value": null,
+      "status": "missing",
+      "sources": []
+    },
+    "location": {
+      "city": "Воронеж",
+      "address": {
+        "value": null,
+        "status": "missing",
+        "sources": [],
+        "note": "Точный адрес требует подтверждения первичным источником."
+      },
+      "district": {
+        "value": null,
+        "status": "missing",
+        "sources": [],
+        "note": "Район не подтверждён."
+      }
+    },
+    "positioning": "",
+    "audiences": [],
+    "delivery": {
+      "value": null,
+      "status": "missing",
+      "sources": [],
+      "note": "Срок сдачи не подтверждён для публикации."
+    },
+    "constructionStatus": {
+      "value": null,
+      "status": "missing",
+      "sources": [],
+      "note": "Статус строительства требует актуального официального источника."
+    },
+    "inventory": {
+      "apartmentCount": {
+        "value": null,
+        "status": "conflicting",
+        "sources": [],
+        "note": "В legacy HTML обнаружено значение 74 квартиры; независимое подтверждение и актуальность не установлены."
+      },
+      "layoutsAvailable": false,
+      "priceFrom": {
+        "value": null,
+        "status": "missing",
+        "sources": [],
+        "note": "Цена из legacy HTML не переносится без актуального прайса."
+      },
+      "areaRange": {
+        "value": null,
+        "status": "missing",
+        "sources": []
+      },
+      "finishing": {
+        "value": null,
+        "status": "missing",
+        "sources": []
+      }
+    },
+    "positioningStatus": "draft",
+    "positioningFactIds": []
+  },
+  "facts": [],
+  "advantages": [],
+  "infrastructure": [],
+  "offers": [],
+  "assets": {
+    "images": [],
+    "videos": [],
+    "plans": [],
+    "documents": [],
+    "maps": []
+  },
+  "contentStrategy": {
+    "coreIdea": "",
+    "primaryCta": "Запросить консультацию KEY",
+    "secondaryCtas": [
+      "Уточнить актуальные планировки",
+      "Записаться на просмотр"
+    ],
+    "audiencePriority": [],
+    "modules": [
+      {
+        "moduleId": "hero",
+        "decision": "include",
+        "reason": "Нужна стартовая точка канонического preview; публичные утверждения не добавляются без подтверждённых фактов.",
+        "variant": "editorial-split",
+        "requiredFactIds": [],
+        "userQuestion": "Подходит ли мне этот проект?",
+        "whyIncluded": "Обозначает объект и ведёт к следующему контакту с KEY.",
+        "positionReason": "Первый экран.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [],
+        "qaCriteria": [
+          "hero-copy-evidence",
+          "mobile-hero-crop"
+        ]
+      },
+      {
+        "moduleId": "advantages",
+        "decision": "conditional",
+        "reason": "Преимущества не включать до проверки фактов и доказательств.",
+        "requiredFactIds": [],
+        "userQuestion": "Что отличает проект?",
+        "whyIncluded": "Показывать только после подтверждения преимуществ.",
+        "positionReason": "После hero.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [],
+        "qaCriteria": [
+          "advantage-evidence"
+        ]
+      },
+      {
+        "moduleId": "location",
+        "decision": "conditional",
+        "reason": "Инфраструктура и маршруты требуют источников и актуальной проверки.",
+        "requiredFactIds": [],
+        "userQuestion": "Что находится рядом?",
+        "whyIncluded": "Локальные hooks могут усилить релевантность после проверки.",
+        "positionReason": "После позиционирования.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [],
+        "qaCriteria": [
+          "poi-route-evidence"
+        ]
+      },
+      {
+        "moduleId": "floor-plans",
+        "decision": "exclude",
+        "reason": "Нет подтверждённых файлов планировок и соответствия метражей.",
+        "requiredFactIds": [],
+        "userQuestion": "Какие планировки доступны?",
+        "whyIncluded": "Не показывать неподтверждённые планы.",
+        "positionReason": "Вернуть после получения оригиналов.",
+        "assetIds": [],
+        "ctaIds": [],
+        "dependencies": [],
+        "qaCriteria": [
+          "plan-type-area-match",
+          "plan-image-integrity"
+        ]
+      }
+    ],
+    "informationGaps": [
+      "Официальная карточка проекта и точный адрес",
+      "Подтверждённый застройщик и статус строительства",
+      "Актуальные цены, наличие и сроки сдачи",
+      "Подтверждение числа квартир: legacy HTML содержит неподтверждённое значение 74",
+      "Оригинальные изображения с правами использования",
+      "Планировки с привязкой к типам и площадям",
+      "Проверенные POI, расстояния и маршруты",
+      "Подтверждённые офферы и фактическая доставка материалов",
+      "Юридическая политика и production-приём заявок"
+    ],
+    "visualDirection": {
+      "theme": "urban-noir",
+      "composition": "editorial",
+      "mood": "Черновой визуальный ориентир; не утверждён.",
+      "palette": [
+        "#15181d",
+        "#f5f2ed",
+        "#eadfd0"
+      ],
+      "imageTreatment": "Использовать только проверенные изображения проекта.",
+      "signatureInteraction": "Контекстные CTA после утверждения сценариев."
+    }
+  },
+  "commercial": {
+    "leadWebhookEnvKey": "KEY_LEAD_WEBHOOK_URL",
+    "crmPipeline": "",
+    "brokerNotes": "",
+    "restrictedData": [
+      "Внутренние комментарии брокера",
+      "Секреты интеграций",
+      "Закрытые коммерческие условия"
+    ]
+  },
+  "verification": {
+    "checkedAt": "2026-11-07T14:20:00Z",
+    "factsWithoutSources": [],
+    "conflicts": [
+      "В legacy HTML указано 74 квартиры; значение не подтверждено первичным источником."
+    ],
+    "manualReviewRequired": true
+  }
+}
