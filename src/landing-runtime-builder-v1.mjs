@@ -122,6 +122,46 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     const claimId = legacyReferences.factIdToClaimId[id];
     return Boolean(claimId && claimIsPublic(claims.get(claimId), knowledge, now, qualifiedClaimIdsByCopyKey.get(key)));
   };
+
+  // One selected module + one approved content item + one supporting fact.
+  const selectedModules = new Set((landingInputs.strategy?.modules || [])
+    .filter(item => item?.decision === "include").map(item => item.moduleId));
+  const contentQualifications = new Map();
+  const contentQualificationEntries = landingInputs.contentQualifications || [];
+  if (!Array.isArray(contentQualificationEntries)) throw new Error("Content qualifications must be an array");
+  for (const entry of contentQualificationEntries) {
+    if (!isObject(entry) || !["security","lifestyle"].includes(entry.moduleId) ||
+        !nonEmpty(entry.contentId) || !nonEmpty(entry.factId) || !nonEmpty(entry.text)) {
+      throw new Error("Content qualification must identify a supported module, content item, fact and approved text");
+    }
+    if (!selectedModules.has(entry.moduleId)) throw new Error(`Content qualification requires the exact module to be selected: ${entry.moduleId}`);
+    const items = entry.moduleId === "security" ? (landingInputs.marketingCandidates || []) : (landingInputs.lifestyleStories || []);
+    const content = items.find(item => item.id === entry.contentId);
+    if (!content || !content.supportingFactIds?.includes(entry.factId) ||
+        (entry.moduleId === "security" && content.classification !== "marketing_candidate") ||
+        (entry.moduleId === "lifestyle" && content.publicationStatus !== "approved")) {
+      throw new Error(`Content qualification does not match approved content and its supporting fact: ${entry.moduleId}/${entry.contentId}/${entry.factId}`);
+    }
+    const key = `${entry.moduleId}:${entry.contentId}`;
+    const qualifications = contentQualifications.get(key) || new Map();
+    if (qualifications.has(entry.factId)) throw new Error(`Content qualification must be unique per fact: ${key}/${entry.factId}`);
+    const claimId = legacyReferences.factIdToClaimId[entry.factId];
+    const claim = claims.get(claimId);
+    if (!claim || claim.publicUse !== "allowed_with_qualification" || claim.epistemicStatus !== "verified" ||
+        !Array.isArray(claim.limitations) || !claim.limitations.length || !claim.limitations.every(nonEmpty) ||
+        !claimIsPublic(claim, knowledge, now, new Set([claimId]))) {
+      throw new Error(`Content qualification does not match a current, evidenced verified claim requiring qualification: ${entry.factId}`);
+    }
+    if ([...qualifications.keys()].some(factId => legacyReferences.factIdToClaimId[factId] === claimId)) {
+      throw new Error(`Content qualification must be unique per claim: ${key}/${claimId}`);
+    }
+    qualifications.set(entry.factId, entry.text.trim());
+    contentQualifications.set(key, qualifications);
+  }
+  const contentQualificationFor = (moduleId, contentId, factId) =>
+    contentQualifications.get(`${moduleId}:${contentId}`)?.get(factId) || "";
+  const contentFactIsPublic = (moduleId, contentId, factId) =>
+    legacyFactIsPublic(factId) || Boolean(contentQualificationFor(moduleId, contentId, factId));
   for (const [key, ids] of Object.entries(claimFactIds)) {
     if (!COPY_KEYS.includes(key) || !Array.isArray(ids) || !ids.length) throw new Error(`Invalid marketing claim mapping for ${key}`);
     for (const id of ids) if (!marketingFactIsPublic(key, id)) throw new Error(`Marketing claim ${key} references non-publishable fact: ${id}`);
@@ -145,12 +185,13 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
 
   const advantages = (landingInputs.marketingCandidates || []).filter(item =>
     item.classification === "marketing_candidate" && item.title && item.benefit &&
-    item.supportingFactIds?.length && item.supportingFactIds.every(legacyFactIsPublic)
+    item.supportingFactIds?.length && item.supportingFactIds.every(id => contentFactIsPublic("security", item.id, id))
   ).map(item => {
     const evidence = item.supportingFactIds.map(id => {
       const claim = claims.get(legacyReferences.factIdToClaimId[id]);
       const source = (knowledge.sources || []).find(src => claim?.sourceIds?.includes(src.id) && nonEmpty(src.title));
-      return source && claimValueText(claim) ? { claim: claimValueText(claim), sourceTitle: source.title } : null;
+      const qualification = contentQualificationFor("security", item.id, id);
+      return source && claimValueText(claim) ? { claim: claimValueText(claim), sourceTitle: source.title, ...(qualification ? { qualification } : {}) } : null;
     }).filter(Boolean).slice(0, 3);
     return { id: item.id, title: item.title, benefit: item.benefit, strength: item.strength,
       audienceFit: item.audienceFit || [], hook: item.hook || "", evidence, status: "verified" };
@@ -165,7 +206,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
   }));
   const lifestyleStories = (landingInputs.lifestyleStories || []).filter(story =>
     story.publicationStatus === "approved" && nonEmpty(story.title) && nonEmpty(story.description) &&
-    story.supportingFactIds?.length && story.supportingFactIds.every(legacyFactIsPublic) &&
+    story.supportingFactIds?.length && story.supportingFactIds.every(id => contentFactIsPublic("lifestyle", story.id, id)) &&
     nonEmpty(story.assetId)
   ).map(story => {
     const asset = (knowledge.assets || []).find(item => item.id === story.assetId &&
@@ -174,7 +215,8 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     const evidence = story.supportingFactIds.map(id => {
       const claim = claims.get(legacyReferences.factIdToClaimId[id]);
       const source = (knowledge.sources || []).find(src => claim?.sourceIds?.includes(src.id) && nonEmpty(src.title));
-      return source && claimValueText(claim) ? { claim:claimValueText(claim), sourceTitle:source.title } : null;
+      const qualification = contentQualificationFor("lifestyle", story.id, id);
+      return source && claimValueText(claim) ? { claim:claimValueText(claim), sourceTitle:source.title, ...(qualification ? { qualification } : {}) } : null;
     }).filter(Boolean);
     if (evidence.length !== story.supportingFactIds.length) return null;
     return { id:story.id, title:story.title, description:story.description, sceneLabel:story.sceneLabel || "СЦЕНАРИЙ ЖИЗНИ",
@@ -298,7 +340,9 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
       .filter(([,claimId]) => publishableClaimIds.has(claimId)).map(([factId]) => factId),
     publishableFactIdsByModule: {
       faq: [...new Set(faqItems.flatMap(item => item.answer
-        .filter(part => nonEmpty(part.qualification)).map(part => part.factId)))]
+        .filter(part => nonEmpty(part.qualification)).map(part => part.factId)))],
+      security: [...new Set(contentQualificationEntries.filter(item => item.moduleId === "security").map(item => item.factId))],
+      lifestyle: [...new Set(contentQualificationEntries.filter(item => item.moduleId === "lifestyle").map(item => item.factId))]
     },
     capabilities: [
       ...(media.length ? ["approved-project-media"] : []),
