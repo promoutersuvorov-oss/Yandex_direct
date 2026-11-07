@@ -55,7 +55,7 @@ Current module families include:
 - `floor-plans` / `apartments` — evidence-backed plan cards and contextual plan CTA;
 - `quiz` — approved finite-choice quiz; answers remain local to the preview;
 - `mortgage` — local annuity-payment calculator; the visitor enters price, down payment, annual rate and term. No bank rate, apartment price or loan condition is assumed, and no lead is sent;
-- global conversion choices — a project-wide panel lists active contact-request offers as distinct preview-only scenarios; utility modules such as the local mortgage calculator are not misrepresented as lead requests;
+- contextual conversion actions — each semantic module may expose at most one primary CTA, tied to its own visitor intent and entity context (for example, presentation in the hero and apartment selection in floor plans); the preview never renders a page-wide chooser of active offers. Utility modules such as the local mortgage calculator remain tools, not lead-request CTAs;
 - `location` / `places` — verified infrastructure facts;
 - additional mapped editorial sections such as `about`, `security`, `lifestyle`, `gift`, `price`, `developer`, `mortgage`, `steps`, `faq` and `contacts`.
 
