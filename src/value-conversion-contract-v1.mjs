@@ -37,6 +37,7 @@ export function buildValueConversion(input = {}) {
     },
     contactRequest: {
       required: input.contactRequest?.required,
+      purposeId: input.contactRequest?.purposeId ?? null,
       purpose: input.contactRequest?.purpose ?? null,
       fields: input.contactRequest?.fields ?? []
     },
@@ -60,9 +61,17 @@ export function validateValueConversion(value) {
   if (typeof value.contactRequest?.required !== "boolean") fail("contactRequest.required must be explicit.");
   if (!Array.isArray(value.contactRequest.fields) || value.contactRequest.fields.some(field => !FIELDS.has(field)) || new Set(value.contactRequest.fields).size !== value.contactRequest.fields.length) fail("Contact fields must be a unique allowlisted array.");
   if (value.contactRequest.required) {
+    if (!nonEmpty(value.contactRequest.purposeId) || !ID.test(value.contactRequest.purposeId)) fail("Contact request must use a stable, scenario-specific purposeId.");
     if (!nonEmpty(value.contactRequest.purpose)) fail("Contact request must explain the specific value the visitor will receive.");
+    const allowedPurposeIds = {
+      credit_calculation: ["individual_credit_calculation"],
+      expert_followup: ["expert_answer"],
+      callback: ["scheduled_callback"],
+      asset_delivery: ["send_requested_asset"]
+    }[value.fulfillment.mode];
+    if (allowedPurposeIds && !allowedPurposeIds.includes(value.contactRequest.purposeId)) fail("Contact purpose does not match the promised fulfillment.");
     if (value.contactRequest.fields.length === 0) fail("A contact request must declare the minimum required fields.");
-  } else if (value.contactRequest.purpose !== null || value.contactRequest.fields.length !== 0) {
+  } else if (value.contactRequest.purposeId !== null || value.contactRequest.purpose !== null || value.contactRequest.fields.length !== 0) {
     fail("A no-contact interaction must not request a contact purpose or fields.");
   }
   if (!value.entityContext || typeof value.entityContext !== "object" || Array.isArray(value.entityContext)) fail("entityContext must be an object.");
