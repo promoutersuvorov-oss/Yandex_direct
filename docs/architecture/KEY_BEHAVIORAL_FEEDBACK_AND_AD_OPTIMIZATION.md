@@ -63,6 +63,17 @@ Supported event names cover landing view, section view, CTA impression/click, of
 - Enforce retention, deletion, access logging, role-based access and data-subject request handling across event store, CRM and export queues.
 - Do not send PII to LLMs or use recordings for model training. AI summaries should use minimized observations and aggregate data.
 
+## 5a. Lead linkage and idempotent CRM outcomes
+
+- The browser submission identifier is not the canonical CRM identity. KEY intake validates the submission, creates or resolves the lead, and assigns one opaque server-side `leadRef` (format `lead_...`). The restricted attribution-link record stores that same `leadRef`; no join is performed by phone, email or name.
+- Server-originated lifecycle events carry `leadRef`. Intake events such as `lead_accepted` and `lead_delivery_failed` also carry it once the intake service has resolved the lead.
+- CRM lifecycle events are server-only. They require both `leadRef` and a stable upstream `sourceEventId` supplied by the CRM webhook/event provider. A browser event must never assert qualification, viewing completion or deal outcome.
+- Persist event ingestion idempotently: unique `eventId` for KEY's canonical event and unique `(source, sourceEventId)` for CRM-originated events. A webhook retry with the same upstream ID returns the original ingestion result and must not create a second lifecycle event.
+- Offline export uses a separate idempotency constraint such as `(destination, sourceEventId, goalId)`. Retries reuse the same conversion identity. Distinct valid CRM transitions remain distinct; do not deduplicate solely by lead and stage because a lead may legitimately progress through repeated appointments or later lifecycle changes.
+- If a CRM provider does not supply a stable event ID, the intake adapter must create and persist an idempotency key at first receipt and reuse it on retries. Do not claim exactly-once delivery across external APIs; implement at-least-once delivery with durable deduplication and reconciliation.
+
+The JSON Schema validates identifier shape and required fields. It cannot prove that a `leadRef` exists, that it belongs to the same project/session, or that a CRM webhook is authentic. Those checks belong in the authenticated intake service and restricted mapping store.
+
 ## 6. Offline conversion feedback
 
 The CRM lifecycle should map to a small set of stable conversion milestones, for example:
