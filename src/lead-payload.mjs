@@ -3,6 +3,7 @@ import { attributionToPayload } from "./attribution.mjs";
 const ID = /^[a-z0-9][a-z0-9_-]{1,79}$/;
 const CHANNELS = new Set(["phone", "telegram", "max", "whatsapp", "email"]);
 const DEVICE_CLASSES = new Set(["mobile", "tablet", "desktop", "unknown"]);
+const CONVERSION_INTENTS = new Set(["get_information", "select_apartment", "calculate_payment", "book_viewing", "request_consultation", "request_callback", "other"]);
 const CONTEXT_KEYS = new Set(["rooms", "planId", "plan", "mortgage", "quizAnswers", "requestedInfo", "preferredViewing"]);
 const ANSWER_ID = /^[a-z0-9][a-z0-9_-]{0,79}$/i;
 
@@ -142,6 +143,11 @@ export function createLeadPayload(input) {
     },
     conversion: {
       scenarioId,
+      ...(conversion.intent == null || conversion.intent === "" ? {} : (() => {
+        const intent = requiredString(conversion.intent, "conversion.intent", 40);
+        if (!CONVERSION_INTENTS.has(intent)) throw new TypeError("Unsupported conversion intent.");
+        return { intent };
+      })()),
       ...(optionalString(conversion.offerId, "conversion.offerId", 80) ? { offerId: conversion.offerId.trim() } : {}),
       ...(optionalString(conversion.moduleId, "conversion.moduleId", 80) ? { moduleId: conversion.moduleId.trim() } : {}),
       ...(["ctaId", "hookId", "funnelId", "segmentId"].reduce((result, key) => {
