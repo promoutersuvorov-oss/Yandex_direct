@@ -147,6 +147,10 @@ jobs:
         run: node scripts/create-kd905-runtime-fixture.mjs --out artifacts/canonical-runtime/kd-905/passport.json
       - name: Build canonical KD 905 profile for the primary browser runtime
         run: node scripts/build-landing-runtime.mjs --passport artifacts/canonical-runtime/kd-905/passport.json --marketing tests/fixtures/canonical-runtime-kd905-marketing.json --out artifacts/canonical-runtime/kd-905/project.config.js
+      - name: Create explicitly test-only approved LANDING BRIEF fixture
+        run: node scripts/create-brief-intent-fixture.mjs --passport artifacts/canonical-runtime/galiley/passport.json --out artifacts/canonical-runtime/brief-intent/landing-brief.test-only.json
+      - name: Build primary runtime profile from the LANDING BRIEF
+        run: node scripts/build-landing-runtime.mjs --passport artifacts/canonical-runtime/galiley/passport.json --marketing tests/fixtures/canonical-runtime-marketing.json --brief artifacts/canonical-runtime/brief-intent/landing-brief.test-only.json --out artifacts/canonical-runtime/brief-intent/project.config.js
       - name: Start local static server
         run: python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/klanding-http.log 2>&1 &
       - name: Run K15 and reference concept browser smoke tests
