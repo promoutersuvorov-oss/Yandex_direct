@@ -252,7 +252,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
     const target = $(link.getAttribute("href"));
     if (!target || target.hidden) link.hidden = true;
   }
-  if ($(".desktop-nav a:not([hidden])").length === 0) $(".desktop-nav").hidden = true;
+  if ($$(".desktop-nav a:not([hidden])").length === 0) $(".desktop-nav").hidden = true;
   function applyStrategyCta(button, cta) {
     if (!button || !cta) return;
     const planAction = button.dataset.openOffer === "plan" && cta.moduleId === "apartments";
