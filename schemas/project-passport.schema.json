@@ -335,6 +335,21 @@
             },
             "additionalProperties": false
           }
+        },
+        "contentQualifications": {
+          "type": "array",
+          "description": "Оговорки к Claims, разрешённые только для одного выбранного модуля, конкретного contentId и supporting fact. Не создают глобальное разрешение на публикацию.",
+          "items": {
+            "type": "object",
+            "required": ["moduleId", "contentId", "factId", "text"],
+            "properties": {
+              "moduleId": { "type": "string", "enum": ["security", "lifestyle"] },
+              "contentId": { "type": "string", "minLength": 1 },
+              "factId": { "type": "string", "minLength": 1 },
+              "text": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
         }
       },
       "additionalProperties": false
