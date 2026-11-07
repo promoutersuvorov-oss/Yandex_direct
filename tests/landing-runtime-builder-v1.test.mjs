@@ -27,7 +27,7 @@ function input() {
   };
 }
 test("builds a demo profile from normalized inputs and keeps marketing candidates evidence-gated",()=>{
-  const x=input();const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,noMarketingClaims,{},{now:"2026-11-06T00:00:00Z"});
+  const x=input();const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.equal(profile.project.id,"p1");assert.equal(profile.mode,"demo");
   assert.deepEqual(profile.composition,["concept"]);
   assert.equal(profile.advantages.length,1);assert.equal(profile.offers.presentation.offerId,"o1");
@@ -133,7 +133,7 @@ test("infrastructure requires a project-scoped route with linked evidence",()=>{
   x.knowledge.evidence.push({id:"e2",sourceId:"s2",extract:"Проверенный пешеходный маршрут"});
   x.knowledge.routes=[{id:"route-1",originRef:{type:"project",id:"p1"},destinationPoiId:"poi-1",method:"route",mode:"walking",
     observedAt:"2026-11-05T12:00:00Z",validUntil:"2027-11-05T12:00:00Z",sourceIds:["s2"],evidenceIds:["e2"],durationSeconds:300}];
-  const valid=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,noMarketingClaims,{},{now:"2026-11-06T00:00:00Z"});
+  const valid=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.equal(valid.infrastructure.length,1);
   assert.equal(valid.infrastructure[0].distanceLabel,"5 мин. пешком");
   const missingEvidence=structuredClone(x);
@@ -208,7 +208,7 @@ test("apartment plans require an asset explicitly cleared for the floor-plans co
   x.knowledge.plans=[{id:"plan-1",planKind:"apartment_floor_plan",epistemicStatus:"verified",publicUse:"allowed",
     sourceIds:["s1"],evidenceIds:["e1"],rooms:2,area:{value:58,unit:"m2"},assetId:"plan-asset",
     validUntil:"2027-11-06T00:00:00Z"}];
-  const allowed=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,noMarketingClaims,{},{now:"2026-11-06T00:00:00Z"});
+  const allowed=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.equal(allowed.plans.length,1);
   const restricted=structuredClone(x);
   restricted.knowledge.assets[0].allowedContexts=["gallery"];
@@ -284,7 +284,7 @@ test("FAQ answers are composed only from publishable required claims and their s
   const x=input();
   x.landingInputs.strategy.modules=[{moduleId:"faq",decision:"include",variant:"faq-accordion",order:8,requiredFactIds:["f1"]}];
   x.landingInputs.faqDrafts=[{id:"faq-1",question:"Что известно о проекте?",requiredFactIds:["f1"],publicationStatus:"approved"}];
-  const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,noMarketingClaims,{},{now:"2026-11-06T00:00:00Z"});
+  const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.deepEqual(profile.composition,["faq"]);
   assert.deepEqual(profile.faqItems,[{id:"faq-1",question:"Что известно о проекте?",
     answer:[{factId:"f1",claim:"Факт",sourceTitle:"Официальный источник"}]}]);
