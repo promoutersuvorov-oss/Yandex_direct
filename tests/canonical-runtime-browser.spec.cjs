@@ -30,6 +30,11 @@ test("canonical passport builder output is consumed by the primary browser runti
   await expect(page.locator("#art-caption")).toContainText("Воронеж");
   await expect(page.locator("#hero-meta")).toContainText("Воронеж");
   await expect(page).toHaveTitle("ЖК «Галилей» — KEY");
+  expect(Array.from(generatedProfile.composition)).toEqual(["concept", "location"]);
+  const visibleSections = await page.locator("main > section:not(.closing-section)").evaluateAll(nodes =>
+    nodes.filter(node => !node.hidden).map(node => node.id)
+  );
+  expect(visibleSections).toEqual(["hero", "concept", "location"]);
 
   for (const sectionId of ["concept", "advantages", "visual-story", "lifestyle", "apartments", "location", "faq", "calculator", "selection"]) {
     const section = page.locator("#" + sectionId);
