@@ -105,7 +105,7 @@ test("fails closed on claims requiring publication qualification until qualified
   y.knowledge.claims[0].publicUse="internal_only";
   assert.throws(()=>buildLandingProfileFromKnowledge(y.knowledge,y.landingInputs,y.refs,marketing,{},{}),/non-publishable fact/);
 });
-test("a marketing-only qualification does not publish route metrics; a separately evidenced POI name may publish with its own location qualifier",()=>{
+test("a source-backed POI name renders without route metrics; marketing qualifications do not create proximity claims",()=>{
   const x=input();
   x.landingInputs.strategy.modules=[];
   x.knowledge.claims[0].publicUse="allowed_with_qualification";
@@ -115,9 +115,6 @@ test("a marketing-only qualification does not publish route metrics; a separatel
   x.knowledge.claims[0].subject={type:"poi",id:"poi-1"};
   x.knowledge.claims[0].predicate="poi.listed_by_source";
   x.knowledge.pointsOfInterest=[{id:"poi-1",name:"Городской парк",claimIds:["c1"]}];
-  x.knowledge.sources.push({id:"s2",title:"Источник маршрута"});
-  x.knowledge.evidence.push({id:"e2",sourceId:"s2",extract:"Проверенный пешеходный маршрут"});
-  x.knowledge.routes=[{id:"route-1",originRef:{type:"project",id:"p1"},destinationPoiId:"poi-1",method:"route",mode:"walking",observedAt:"2026-11-05T12:00:00Z",validUntil:"2027-11-05T12:00:00Z",sourceIds:["s2"],evidenceIds:["e2"],durationSeconds:300}];
   const qualifiedMarketing={...marketing,claimQualifications:{headline:[{factId:"f1",text:"По данным источника; сведения могут измениться."}]}};
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,qualifiedMarketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.equal(profile.infrastructure.length,1);
