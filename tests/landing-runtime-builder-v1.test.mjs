@@ -417,7 +417,7 @@ test("content-scoped qualification is rendered only beside the exact selected se
   assert.equal(profile.advantages.length,1,"The qualification must not authorize another card using the same fact.");
   assert.equal(profile.advantages[0].id,"a1");
   assert.equal(profile.advantages[0].evidence[0].qualification,
-    "Сведения приведены по данным застройщика; характеристики могут измениться.");
+    "Указано в материалах застройщика; сведения могут измениться.");
 });
 
 test("content-scoped lifestyle qualification requires the selected story, verified claim and cleared media",()=>{
@@ -438,7 +438,7 @@ test("content-scoped lifestyle qualification requires the selected story, verifi
   const noMarketingClaims={...marketing,claimFactIds:{}};
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,noMarketingClaims,{},{now:"2026-11-06T00:00:00Z"});
   assert.deepEqual(profile.composition,["lifestyle"]);
-  assert.equal(profile.lifestyleStories[0].evidence[0].qualification,"Сведения приведены по данным застройщика.");
+  assert.equal(profile.lifestyleStories[0].evidence[0].qualification,"Сведения указаны в материалах застройщика.");
 
   const wrongContent=structuredClone(x);
   wrongContent.landingInputs.contentQualifications[0].contentId="another-story";
