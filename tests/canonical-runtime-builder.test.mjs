@@ -131,3 +131,39 @@ test("canonical CLI maps approved test-only LANDING BRIEF CTAs into the primary 
     fs.rmSync(temp, { recursive: true, force: true });
   }
 });
+
+
+test("canonical CLI builds a second, evidence-qualified project passport through the same runtime", () => {
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), "key-runtime-kd905-"));
+  const output = path.join(temp, "project.config.js");
+  const passport = path.join(temp, "passport.json");
+  const kd905FixtureBuilder = path.join(root, "scripts/create-kd905-runtime-fixture.mjs");
+  const kd905Marketing = path.join(root, "tests/fixtures/canonical-runtime-kd905-marketing.json");
+
+  try {
+    execFileSync(process.execPath, [kd905FixtureBuilder, "--out", passport], { cwd: root, encoding: "utf8" });
+    const result = execFileSync(process.execPath, [
+      builder, "--passport", passport, "--marketing", kd905Marketing, "--out", output
+    ], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    const profile = readProfile(output);
+
+    assert.equal(profile.project.id, "kd-905-voronezh");
+    assert.equal(profile.project.name, "Клубный дом «905»");
+    assert.equal(profile.project.city, "Воронеж");
+    assert.equal(profile.mode, "demo");
+    assert.equal(profile.analytics.enabled, false);
+    assert.equal(profile.integration.leadEndpoint, "");
+    assert.deepEqual(Array.from(profile.composition), ["advantages", "location"]);
+    assert.equal(profile.design.palette.paper, "#f4f2ed");
+    assert.equal(profile.media.length, 0);
+    assert.equal(profile.plans.length, 0);
+    assert.equal(profile.infrastructure.length, 18);
+    assert.ok(profile.infrastructure.every(point =>
+      !("distanceMeters" in point) && !("distanceLabel" in point) &&
+      point.qualification === "Расстояние и маршрут не подтверждены."
+    ));
+    assert.match(result, /Built kd-905-voronezh in demo mode/);
+  } finally {
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
+});

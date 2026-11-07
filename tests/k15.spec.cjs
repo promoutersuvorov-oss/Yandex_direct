@@ -196,14 +196,17 @@ test("K15 navigation, gallery, apartment and location controls remain interactiv
   await expect(page.locator("#mnav")).toHaveAttribute("aria-hidden", "true");
 
   await page.setViewportSize({ width: 1440, height: 900 });
+  // WebKit may ignore the non-standard "instant" scroll behavior and retain
+  // the page's smooth-scroll CSS. Disable it and position controls explicitly
+  // so pointer hit-testing never races an in-flight scroll animation.
+  await page.addStyleTag({ content: "html, body { scroll-behavior: auto !important; }" });
   const planTabs = page.locator("#planTabs");
-  // The viewport changed from mobile to desktop above. Scroll the control
-  // into a stable viewport position rather than relying on the previous
-  // anchor's scroll offset, which varies with responsive layout and fonts.
   await planTabs.evaluate(element => {
-    element.scrollIntoView({ block: "center", behavior: "instant" });
+    const top = element.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo(0, Math.max(0, top - 120));
   });
-  await expect.poll(() => planTabs.evaluate(element => element.getBoundingClientRect().top)).toBeGreaterThan(82);
+  await expect.poll(() => planTabs.evaluate(element => element.getBoundingClientRect().top)).toBeGreaterThan(100);
+  await expect.poll(() => planTabs.evaluate(element => element.getBoundingClientRect().top)).toBeLessThan(240);
   const plan3d = page.locator('#planTabs button[data-p="0"]');
   const plan2d = page.locator('#planTabs button[data-p="1"]');
   await plan2d.click();
@@ -227,8 +230,18 @@ test("K15 navigation, gallery, apartment and location controls remain interactiv
   // Infrastructure controls live inside a reveal-on-scroll section. Bring the
   // section into view first so its IntersectionObserver can activate it.
   const infraSection = page.locator("#infra");
-  await infraSection.evaluate(el => el.scrollIntoView({ block: "center", behavior: "instant" }));
+  await infraSection.evaluate(el => {
+    const top = el.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo(0, Math.max(0, top - 100));
+  });
   await expect(infraSection).toHaveClass(/in/);
+  const nextPlace = page.locator("#iNext");
+  await nextPlace.evaluate(el => {
+    const top = el.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo(0, Math.max(0, top - Math.round(window.innerHeight / 2)));
+  });
+  await expect.poll(() => nextPlace.evaluate(el => el.getBoundingClientRect().top)).toBeGreaterThan(100);
+  await expect.poll(() => nextPlace.evaluate(el => el.getBoundingClientRect().bottom)).toBeLessThan(800);
 
   // The final K15 editorial CSS intentionally hides the redundant pill tabs.
   // Verify the visible carousel controls instead of asserting hidden tabs are usable.

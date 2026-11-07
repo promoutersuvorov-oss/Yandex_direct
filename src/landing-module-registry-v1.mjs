@@ -1,25 +1,44 @@
 const MODULES = {
-  hero: { slot:"hero", variants:{ "editorial-split":"split", "image-led":"fullscreen" }, capabilities:[], merge:"slot" },
-  key: { slot:"hero", variants:{ "feature-led":"feature-led" }, capabilities:[], merge:"slot" },
-  about: { sectionId:"concept", variants:{ "feature-led":"feature-led", "architectural":"feature-led" }, capabilities:[], merge:"single" },
-  gallery: { sectionId:"visual-story", variants:{ immersive:"editorial" }, capabilities:["approved-project-media"], merge:"append" },
-  lifestyle: { sectionId:"lifestyle", variants:{ "image-led":"image-led", "feature-led":"image-led" }, capabilities:["approved-lifestyle-stories"], merge:"single" },
-  security: { sectionId:"advantages", variants:{ "proof-led":"evidence-cards" }, capabilities:[], merge:"append" },
-  location: { sectionId:"location", variants:{ "location-led":"location-led" }, capabilities:[], merge:"single" },
-  "floor-plans": { sectionId:"apartments", variants:{ "plan-selector":"plan-selector" }, capabilities:["current-inventory","rights-cleared-plan-assets"], merge:"single" },
-  apartments: { sectionId:"apartments", variants:{ "plan-selector":"plan-selector" }, capabilities:["current-inventory","rights-cleared-plan-assets"], merge:"single" },
-  quiz: { sectionId:"selection", variants:{ "step-form":"step-form" }, capabilities:["approved-selection-flow"], merge:"single" },
-  mortgage: { sectionId:"calculator", variants:{ "conversion-led":"user-input-estimate" }, capabilities:["verified-mortgage-terms"], merge:"single" },
-  faq: { sectionId:"faq", variants:{ "faq-accordion":"evidence-accordion", "proof-led":"evidence-accordion" }, capabilities:["approved-faq-answers"], merge:"single" },
-  contacts: { slot:"closing", variants:{ "conversion-led":"closing-cta" }, capabilities:["approved-key-lead-workflow"], merge:"slot" }
+  hero: { status:"implemented", runtimeComponent:"HeroSection", slot:"hero", variants:{ "editorial-split":"split", "image-led":"fullscreen" }, capabilities:[], merge:"slot" },
+  key: { status:"partial", runtimeComponent:"HeroSection", slot:"hero", variants:{ "feature-led":"feature-led" }, capabilities:[], merge:"slot",
+    reason:"Ключевые факты пока выводятся через hero slot; отдельного самостоятельного блока key нет." },
+  about: { status:"implemented", runtimeComponent:"ConceptSection", sectionId:"concept", variants:{ "feature-led":"feature-led", "architectural":"feature-led" }, capabilities:[], merge:"single" },
+  gallery: { status:"implemented", runtimeComponent:"GallerySection", sectionId:"visual-story", variants:{ immersive:"editorial" }, capabilities:["approved-project-media"], merge:"append" },
+  lifestyle: { status:"partial", runtimeComponent:"LifestyleSection", sectionId:"lifestyle", variants:{ "image-led":"image-led", "feature-led":"image-led" }, capabilities:["approved-lifestyle-stories"], merge:"single",
+    reason:"Есть отдельная секция и evidence gate; глубина визуальных сценариев ограничена текущими вариантами." },
+  security: { status:"partial", runtimeComponent:"AdvantagesSection", sectionId:"advantages", variants:{ "proof-led":"evidence-cards" }, capabilities:[], merge:"append",
+    reason:"Рендерится как карточки преимуществ, но отдельного специализированного security-компонента нет." },
+  location: { status:"implemented", runtimeComponent:"LocationSection", sectionId:"location", variants:{ "location-led":"location-led" }, capabilities:[], merge:"single" },
+  "floor-plans": { status:"partial", aliasOf:"apartments", runtimeComponent:"ApartmentsSection", sectionId:"apartments", variants:{ "plan-selector":"plan-selector" }, capabilities:["current-inventory","rights-cleared-plan-assets"], merge:"single",
+    reason:"Legacy alias; canonical module ID — apartments." },
+  apartments: { status:"implemented", runtimeComponent:"ApartmentsSection", sectionId:"apartments", variants:{ "plan-selector":"plan-selector" }, capabilities:["current-inventory","rights-cleared-plan-assets"], merge:"single" },
+  quiz: { status:"implemented", runtimeComponent:"SelectionQuiz", sectionId:"selection", variants:{ "step-form":"step-form" }, capabilities:["approved-selection-flow"], merge:"single" },
+  mortgage: { status:"partial", runtimeComponent:"PaymentCalculator", sectionId:"calculator", variants:{ "conversion-led":"user-input-estimate" }, capabilities:["verified-mortgage-terms"], merge:"single",
+    reason:"Есть калькулятор пользовательского сценария; банковские программы и актуальные ипотечные ставки не подключены." },
+  faq: { status:"implemented", runtimeComponent:"FaqAccordion", sectionId:"faq", variants:{ "faq-accordion":"evidence-accordion", "proof-led":"evidence-accordion" }, capabilities:["approved-faq-answers"], merge:"single" },
+  contacts: { status:"partial", runtimeComponent:"LeadDialogAndClosing", slot:"closing", variants:{ "conversion-led":"closing-cta" }, capabilities:["approved-key-lead-workflow"], merge:"slot",
+    reason:"UI и клиентский handoff реализованы; production CRM delivery и юридическое согласование не подключены." },
+
+  territory: { status:"unsupported", unsupported:true, reason:"Нет самостоятельного runtime-компонента территории; не подменять его общими преимуществами." },
+  gift: { status:"unsupported", unsupported:true, reason:"Нет проверенного универсального модуля выдачи материалов; презентация доступна только как CTA-сценарий при наличии реального файла и delivery path." },
+  price: { status:"unsupported", unsupported:true, reason:"Нет отдельного компонента публикации актуальных цен и inventory; не выводить цену из устаревших данных." },
+  developer: { status:"unsupported", unsupported:true, reason:"Нет самостоятельного runtime-компонента застройщика и проверки внешних документов." },
+  progress: { status:"unsupported", unsupported:true, reason:"Нет компонента хронологии строительства с датированными официальными обновлениями." },
+  steps: { status:"unsupported", unsupported:true, reason:"Нет отдельного компонента этапов покупки с подтверждённым процессом KEY." },
+  "faq-legal": { status:"unsupported", unsupported:true, reason:"Нет отдельного компонента юридических пояснений и утверждённого юридического контента." },
+  "footer-nav": { status:"unsupported", unsupported:true, reason:"Футер является частью общего shell, но не поддерживается как независимо компонуемый модуль." },
+  modal: { status:"unsupported", unsupported:true, reason:"Диалог существует как shared UI primitive, но не является самостоятельным контентным модулем." },
+  lightbox: { status:"unsupported", unsupported:true, reason:"Просмотрщик существует как shared UI primitive, но не является самостоятельным контентным модулем." },
+  promo: { status:"unsupported", unsupported:true, reason:"Нет отдельного промо-компонента с проверкой срока действия и условий акции." },
+  map: { status:"unsupported", unsupported:true, reason:"Список мест и location-контент не равны интерактивной карте; самостоятельный map renderer отсутствует." }
 };
 
 const isObject = value => value !== null && typeof value === "object" && !Array.isArray(value);
 
 /**
  * Resolves campaign module decisions to the existing KEY browser runtime.
- * No semantic fallback is performed: unknown IDs, variants and missing requirements
- * are reported rather than silently dropped or guessed.
+ * Every catalog ID has an explicit capability status. Unsupported modules,
+ * unknown IDs, variants and missing requirements fail closed.
  */
 export function resolveRuntimeModulesV1(modules, options = {}) {
   const errors = [];
@@ -50,8 +69,13 @@ export function resolveRuntimeModulesV1(modules, options = {}) {
       errors.push({code:"MODULE_UNKNOWN",moduleId:module.moduleId,message:`Модуль "${module.moduleId}" отсутствует в Module Registry.`});
       continue;
     }
-    if (definition.unsupported) {
+    if (definition.status === "unsupported" || definition.unsupported) {
       errors.push({code:"MODULE_UNSUPPORTED",moduleId:module.moduleId,message:definition.reason});
+      continue;
+    }
+    if (definition.status === "placeholder") {
+      errors.push({code:"MODULE_PLACEHOLDER_NOT_READY",moduleId:module.moduleId,
+        message:definition.reason || "Модуль является заглушкой и не может быть опубликован."});
       continue;
     }
     const variant = module.variant || "";
@@ -76,13 +100,24 @@ export function resolveRuntimeModulesV1(modules, options = {}) {
       else errors.push({code:"INCLUDED_MODULE_NOT_READY",...issue});
       continue;
     }
+    if (definition.status === "partial") {
+      warnings.push({
+        code:"MODULE_PARTIAL_IMPLEMENTATION",
+        moduleId:module.moduleId,
+        runtimeComponent:definition.runtimeComponent,
+        message:definition.reason || "Модуль реализован частично; перед публикацией требуется ручная проверка границ реализации."
+      });
+    }
     const placement = {
       moduleId:module.moduleId,
       ...(definition.sectionId ? {sectionId:definition.sectionId} : {slot:definition.slot}),
       sourceOrder:Number.isInteger(module.order) ? module.order : 999,
       sourceVariant:variant,
       runtimeVariant,
-      merge:definition.merge
+      merge:definition.merge,
+      status:definition.status,
+      runtimeComponent:definition.runtimeComponent,
+      ...(definition.aliasOf ? {aliasOf:definition.aliasOf} : {})
     };
     if (definition.sectionId) {
       const prior = sectionOrders.get(definition.sectionId);
