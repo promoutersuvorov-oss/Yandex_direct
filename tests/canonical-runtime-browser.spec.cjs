@@ -34,11 +34,7 @@ test("canonical passport builder output is consumed by the primary browser runti
   for (const sectionId of ["concept", "advantages", "visual-story", "lifestyle", "apartments", "location", "faq", "calculator", "selection"]) {
     const section = page.locator("#" + sectionId);
     if (generatedProfile.composition.includes(sectionId)) {
-      // Content-dependent production gates may still hide an empty section.
-      if (sectionId === "advantages" && !generatedProfile.advantages?.length) await expect(section).toBeHidden();
-      else if (sectionId === "visual-story" && !generatedProfile.media?.length) await expect(section).toBeHidden();
-      else if (sectionId === "apartments" && !generatedProfile.plans?.length) await expect(section).toBeHidden();
-      else await expect(section).toBeVisible();
+      await expect(section).toBeVisible();
     } else {
       await expect(section).toBeHidden();
     }
