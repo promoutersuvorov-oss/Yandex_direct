@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, feature/universal-landing-runtime-v2, feat/canonical-runtime-browser-handoff, feat/primary-runtime-project-diversity, feat/brief-to-lead-intent-e2e, feat/primary-runtime-visual-review, feat/kd905-runtime-evidence-flow, feat/marketing-copy-handoff-contract]
+    branches: [main, feature/universal-landing-runtime-v2, feat/canonical-runtime-browser-handoff, feat/primary-runtime-project-diversity, feat/brief-to-lead-intent-e2e, feat/primary-runtime-visual-review, feat/kd905-runtime-evidence-flow, feat/marketing-copy-handoff-contract, feat/commercial-snapshot-verification]
 
 permissions:
   contents: read
