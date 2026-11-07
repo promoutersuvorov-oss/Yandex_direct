@@ -409,7 +409,7 @@ test("content-scoped qualification is rendered only beside the exact selected se
   });
   x.landingInputs.contentQualifications=[{
     moduleId:"security",contentId:"a1",factId:"f1",
-    text:"Сведения приведены по данным застройщика; характеристики могут измениться."
+    text:"Указано в материалах застройщика; сведения могут измениться."
   }];
   const noMarketingClaims={...marketing,claimFactIds:{}};
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,noMarketingClaims,{},{now:"2026-11-06T00:00:00Z"});
@@ -433,7 +433,7 @@ test("content-scoped lifestyle qualification requires the selected story, verifi
     assetId:"courtyard-render",supportingFactIds:["f1"],publicationStatus:"approved"}];
   x.landingInputs.contentQualifications=[{
     moduleId:"lifestyle",contentId:"courtyard-morning",factId:"f1",
-    text:"Сведения приведены по данным застройщика."
+    text:"Сведения указаны в материалах застройщика."
   }];
   const noMarketingClaims={...marketing,claimFactIds:{}};
   const profile=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,noMarketingClaims,{},{now:"2026-11-06T00:00:00Z"});
@@ -449,4 +449,17 @@ test("content-scoped lifestyle qualification requires the selected story, verifi
   unselected.landingInputs.strategy.modules=[];
   assert.throws(()=>buildLandingProfileFromKnowledge(unselected.knowledge,unselected.landingInputs,unselected.refs,noMarketingClaims,{},{now:"2026-11-06T00:00:00Z"}),
     /requires the exact module to be selected/);
+});
+
+test("content qualification text must exactly match an approved claim limitation",()=>{
+  const x=input();
+  x.knowledge.claims[0].publicUse="allowed_with_qualification";
+  x.knowledge.claims[0].limitations=["Характеристики могут измениться."];
+  x.landingInputs.strategy.modules=[{moduleId:"security",decision:"include",variant:"proof-led",order:1,requiredFactIds:["f1"]}];
+  x.landingInputs.contentQualifications=[{
+    moduleId:"security",contentId:"a1",factId:"f1",text:"Гарантированное преимущество."
+  }];
+  const noMarketingClaims={...marketing,claimFactIds:{}};
+  assert.throws(()=>buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,noMarketingClaims,{},{now:"2026-11-06T00:00:00Z"}),
+    /current, evidenced verified claim requiring qualification/);
 });
