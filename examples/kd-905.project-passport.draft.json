@@ -902,14 +902,11 @@
     "modules": [
       {
         "moduleId": "hero",
-        "decision": "conditional",
-        "reason": "Публичный hero-копирайт пока не связан с точными квалификациями подтверждающих фактов; не публиковать как проверенное позиционирование.",
+        "decision": "include",
+        "reason": "Показывает идентичность проекта; публичное позиционирование и непроверенные характеристики не выводятся в hero-копирайте.",
         "order": 0,
         "variant": "editorial-split",
-        "requiredFactIds": [
-          "central-district",
-          "quiet-street"
-        ],
+        "requiredFactIds": [],
         "userQuestion": "Какой здесь характер жизни?",
         "whyIncluded": "Связывает центральную локацию с более спокойным позиционированием.",
         "positionReason": "Первый смысловой контакт.",
