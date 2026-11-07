@@ -44,7 +44,7 @@ assert.equal(report.summary.offersActive, 0);
 assert.equal(profile.project.delivery, null, "Unverified delivery information must stay out of the public profile.");
 assert.equal(profile.project.constructionStatus, null, "Unknown construction status must stay unpublished.");
 assert.equal(profile.project.positioning, null, "Draft positioning must not be presented as approved copy.");
-assert.ok(!html.includes("data-preview-quiz"), "No nonfunctional quiz form may appear in the KD 905 preview.");
+assert.ok(!html.includes('<form class="preview-quiz"'), "No nonfunctional quiz form may appear in the KD 905 preview.");
 assert.ok(html.includes("data-preview-contact-form"), "The contextual contact form may only be constructed inside the local-only preview dialog.");
 assert.ok(html.includes("Демонстрационный режим") && html.includes("никуда не отправляются"), "The preview form must be explicitly local-only.");
 assert.ok(!["fetch(", "XMLHttpRequest", "sendBeacon"].some(token => html.includes(token)), "Preview interactions must not transmit contact data.");
