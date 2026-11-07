@@ -29,6 +29,8 @@ jobs:
           python-version: "3.12"
       - name: Install JSON Schema validator
         run: python -m pip install --disable-pip-version-check jsonschema
+      - name: Validate restricted attribution-link contract and retention gates
+        run: python scripts/validate-restricted-attribution-link.py
       - name: Validate passport example against JSON Schema
         run: python scripts/validate-passport-schema.py
       - name: Validate KD 905 draft passport against JSON Schema
