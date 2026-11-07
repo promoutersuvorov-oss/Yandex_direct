@@ -10,7 +10,7 @@ const cases = [
     file: "artifacts/canonical-runtime/galiley/project.config.js",
     headline: "Проверьте, подходит ли вам ЖК «Галилей»",
     composition: ["concept", "location"],
-    heroLayout: "fullscreen",
+    heroLayout: "editorial",
     paper: "#f1f3ed",
     expectedVisible: ["hero", "concept", "location"]
   },
@@ -32,6 +32,77 @@ function loadProfile(file) {
   return { source, profile: context.window.KEY_PROJECT };
 }
 
+test("production lead handoff sends consented contact and CTA context and accepts acknowledgement", async ({ page }) => {
+  const { profile } = loadProfile("artifacts/canonical-runtime/kd-905/project.config.js");
+  profile.mode = "production";
+  profile.integration = {
+    leadEndpoint: "https://leads.key.test/submit",
+    privacyPolicyUrl: "https://key.test/privacy",
+    privacyPolicyVersion: "2026-11-07"
+  };
+  profile.ctaMap = {
+    hero: {
+      moduleId: "hero",
+      offerKey: "presentation",
+      label: "Получить персональную презентацию",
+      ctaId: "hero_presentation_cta",
+      hookId: "hero_emotional_hook",
+      funnelId: "first_contact_funnel",
+      segmentId: "family_buyers",
+      intent: "get_information",
+      scenarioId: "hero_personal_presentation",
+      qualificationQuestionIds: ["purchase_timing"]
+    }
+  };
+  const source = "window.KEY_PROJECT = " + JSON.stringify(profile) + ";";
+  let receivedPayload = null;
+  let receivedIdempotencyKey = "";
+  await page.route("**/project.config.js", route => route.fulfill({
+    status: 200, contentType: "application/javascript", body: source
+  }));
+  await page.route("https://leads.key.test/submit", async route => {
+    receivedPayload = route.request().postDataJSON();
+    receivedIdempotencyKey = route.request().headers()["idempotency-key"] || "";
+    await route.fulfill({
+      status: 202,
+      contentType: "application/json",
+      body: JSON.stringify({ accepted: true })
+    });
+  });
+  await page.goto(url, { waitUntil: "networkidle" });
+  await page.locator('.hero [data-open-offer="presentation"]').first().click();
+  await expect(page.locator("#lead-dialog")).toBeVisible();
+  await page.locator('#lead-form input[name="name"]').fill("Тестовый покупатель");
+  await page.locator('#lead-form input[name="phone"]').fill("+7 999 123-45-67");
+  await page.locator('#lead-form input[name="consent"]').check();
+  await page.locator("#lead-submit").click();
+  await expect(page.locator("#form-status")).toContainText("Запрос принят");
+  expect(receivedPayload).toBeTruthy();
+  expect(receivedPayload.projectId).toBe(profile.project.id);
+  expect(receivedPayload.contact).toMatchObject({
+    name: "Тестовый покупатель",
+    phone: "+7 999 123-45-67"
+  });
+  expect(receivedPayload.consent).toMatchObject({
+    policyUrl: "https://key.test/privacy",
+    policyVersion: "2026-11-07"
+  });
+  expect(Date.parse(receivedPayload.consent.acceptedAt)).not.toBeNaN();
+  expect(receivedPayload.conversion).toMatchObject({
+    offerId: "presentation",
+    scenarioId: "hero_personal_presentation",
+    moduleId: "hero",
+    ctaId: "hero_presentation_cta",
+    hookId: "hero_emotional_hook",
+    funnelId: "first_contact_funnel",
+    segmentId: "family_buyers",
+    intent: "get_information",
+    qualificationQuestionIds: ["purchase_timing"]
+  });
+  expect(receivedPayload.eventId).toBe(receivedIdempotencyKey);
+  expect(receivedPayload.leadId).toMatch(/^lead_/);
+});
+
 for (const scenario of cases) {
   test(`primary runtime renders ${scenario.id} with its own composition and art direction on desktop and mobile`, async ({ page }) => {
     const { source, profile } = loadProfile(scenario.file);
@@ -41,6 +112,7 @@ for (const scenario of cases) {
     expect(profile.analytics.enabled).toBe(false);
     expect(Array.from(profile.composition)).toEqual(scenario.composition);
     expect(profile.design.heroLayout).toBe(scenario.heroLayout);
+    if (scenario.id === "galiley-voronezh") expect(profile.heroMedia).toBeNull();
 
     const pageErrors = [];
     page.on("pageerror", error => pageErrors.push(error.message));
@@ -57,6 +129,12 @@ for (const scenario of cases) {
       await expect(page.locator("#hero-meta")).toContainText("Воронеж");
       await expect(page).toHaveTitle(profile.project.name + " — KEY");
       await expect(page.locator("#hero")).toHaveAttribute("data-layout", scenario.heroLayout);
+      if (scenario.id === "galiley-voronezh") {
+        await expect(page.locator("#hero .hero-fallback")).toBeVisible();
+        await expect(page.locator("#hero .hero-fallback-title")).toBeVisible();
+        await expect(page.locator("#hero .hero-fallback-title")).toHaveCSS("overflow-wrap", "normal");
+        await expect(page.locator("#hero .hero-fallback-title")).toHaveCSS("word-break", "normal");
+      }
       expect(await page.locator("html").evaluate(node => getComputedStyle(node).getPropertyValue("--paper").trim())).toBe(scenario.paper);
 
       const visibleSections = await page.locator("main > section:not(.closing-section)").evaluateAll(nodes =>

@@ -110,7 +110,7 @@
 .hero-art.has-fallback .hero-fallback{display:flex}
 .hero-art.has-fallback .art-sun,.hero-art.has-fallback .art-building{display:none}
 .hero-fallback-kicker,.hero-fallback-index{font-size:9px;letter-spacing:.2em;font-weight:600;color:#536253}
-.hero-fallback-title{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-size:clamp(58px,11vw,150px);line-height:.86;letter-spacing:-.07em;max-width:7ch;overflow-wrap:anywhere}
+.hero-fallback-title{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-size:clamp(34px,5.2vw,76px);line-height:.9;letter-spacing:-.06em;max-width:8ch;overflow-wrap:normal;word-break:normal}
 .hero-fallback-index{align-self:flex-end;padding-top:18px;border-top:1px solid #53625366;width:100%;text-align:right}
 .hero-art.has-media .hero-fallback{display:none}
 .location-list li{align-items:flex-start}.location-evidence-note{margin:18px 0 -12px;max-width:72ch;font-size:11px;line-height:1.6;color:var(--muted)}.location-list .place-qualification{display:block;margin-top:5px;max-width:48ch;font-size:10px;line-height:1.5;color:var(--muted)}.location-list li>.place-distance{flex:0 0 auto}
@@ -118,7 +118,7 @@
 .location-list li>div{min-width:0}
 .location-list strong{font-weight:500}
 .location-list li>span{flex:0 0 auto}
-@media(max-width:720px){.hero-fallback{padding:24px}.hero-fallback-title{font-size:clamp(58px,18vw,100px);max-width:8ch}}
+@media(max-width:720px){.hero-fallback{padding:24px}.hero-fallback-title{font-size:clamp(34px,12vw,64px);max-width:8ch}}
 
 /* Approved legal/editorial qualification displayed adjacent to the exact copy it qualifies. */
 .claim-qualification{display:block;margin-top:8px;max-width:72ch;font-size:11px;line-height:1.55;letter-spacing:.01em;color:#777970;font-weight:400}
