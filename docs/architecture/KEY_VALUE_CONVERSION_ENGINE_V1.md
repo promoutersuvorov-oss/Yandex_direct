@@ -36,6 +36,21 @@ The contract does not render a form, collect personal data, transmit a lead, or 
 - A completion/success state is allowed only after the promised asset is actually available or the responsible service confirms receipt.
 - Analytics should measure CTA view/click, interaction completion, contact intent, consent, accepted delivery, qualification and downstream outcomes. Keep contact data out of analytics payloads.
 
+
+## Review renderer behavior
+
+The internal browser preview now renders each configured offer as its own contextual interaction:
+
+- offer title and its own value description are shown in the modal;
+- the requested contact fields are taken from that offer, not from a universal form;
+- only explicitly requested fields are shown; an offer with no contact fields does not display a contact form;
+- required contact fields and the consent checkbox are enforced in the preview;
+- inactive offers are not rendered as available CTAs;
+- provisional offers remain visible for internal review but carry a clear "requires KEY confirmation" warning;
+- offer copy is inserted as text, not interpreted as HTML.
+
+The preview form is intentionally local-only. It does not store or transmit submitted values, and its completion message does not claim that the promised material or service has been delivered. This is a UI and contract test fixture, not a production lead form.
+
 ## Experimentation
 
 Test complete value propositions and paths, not just button colors. Compare click-through, interaction completion, contact conversion, accepted delivery, qualified-lead rate, cost per qualified lead and eventual sales. Do not select a winner on CTR alone. Keep experiments bounded and avoid changing several major variables at once.
