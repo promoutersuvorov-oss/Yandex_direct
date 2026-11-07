@@ -120,7 +120,7 @@ test("a source-backed POI name renders without route metrics; marketing qualific
   assert.equal(profile.infrastructure.length,1);
   assert.equal(profile.infrastructure[0].name,"Городской парк");
   assert.equal(profile.infrastructure[0].distanceLabel,undefined);
-  assert.match(profile.infrastructure[0].qualification,/расстояние и маршрут отдельно не подтверждены/);
+  assert.match(profile.infrastructure[0].qualification,/Расстояние и маршрут не подтверждены/);
 });
 
 test("infrastructure requires a project-scoped route with linked evidence",()=>{
@@ -136,16 +136,20 @@ test("infrastructure requires a project-scoped route with linked evidence",()=>{
   const valid=buildLandingProfileFromKnowledge(x.knowledge,x.landingInputs,x.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.equal(valid.infrastructure.length,1);
   assert.equal(valid.infrastructure[0].distanceLabel,"5 мин. пешком");
+  assert.equal(valid.infrastructure[0].qualification,undefined);
+  assert.equal(valid.infrastructure[0].distanceSourceTitle,"Источник маршрута");
   const missingEvidence=structuredClone(x);
   missingEvidence.knowledge.routes[0].evidenceIds=[];
   const blocked=buildLandingProfileFromKnowledge(missingEvidence.knowledge,missingEvidence.landingInputs,missingEvidence.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.equal(blocked.infrastructure.length,1);
   assert.equal(blocked.infrastructure[0].distanceLabel,undefined);
+  assert.match(blocked.infrastructure[0].qualification,/Расстояние и маршрут не подтверждены/);
   const wrongProject=structuredClone(x);
   wrongProject.knowledge.routes[0].originRef.id="another-project";
   const wrongOrigin=buildLandingProfileFromKnowledge(wrongProject.knowledge,wrongProject.landingInputs,wrongProject.refs,marketing,{},{now:"2026-11-06T00:00:00Z"});
   assert.equal(wrongOrigin.infrastructure.length,1);
   assert.equal(wrongOrigin.infrastructure[0].distanceLabel,undefined);
+  assert.match(wrongOrigin.infrastructure[0].qualification,/Расстояние и маршрут не подтверждены/);
 });
 
 test("blocks claims without linked source/evidence and candidates with missing facts",()=>{
@@ -219,7 +223,9 @@ test("builds the real KD 905 draft with a qualified advantage and named POIs but
   assert.ok(result.profile.infrastructure.every(item=>item.distanceLabel===undefined && item.distanceMeters===undefined));
   assert.deepEqual(result.profile.media,[]);
   assert.deepEqual(result.profile.plans,[]);
-  assert.ok(result.warnings.some(item=>item.code==="POI_METRIC_NOT_PUBLISHED"));
+  assert.ok(result.warnings.some(item=>item.code==="POI_METRIC_NOT_PUBLISHED" && item.contentId));
+  assert.ok(result.warnings.some(item=>item.code==="MARKETING_CANDIDATE_BLOCKED" &&
+    item.contentId && item.factIds?.length && item.claimIds?.length && item.message));
   assert.ok(result.warnings.some(item=>item.code==="CONDITIONAL_MODULE_NOT_READY" && item.moduleId==="gallery"));
   assert.equal(result.profile.mode,"demo");
 });
