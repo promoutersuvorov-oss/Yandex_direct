@@ -54,3 +54,10 @@ Implementation: [Draft PR #30](https://github.com/promoutersuvorov-oss/Yandex_di
 The canonical CLI accepted an explicitly test-only LANDING BRIEF, resolved its project/segment/hook/funnel/offer references and mapped two different CTA placements (hero and closing) to the passport's active presentation offer. The primary runtime rendered distinct CTA labels/IDs and emitted PII-free `key:conversion-intent` events with project, CTA, intent, offer/scenario, module, funnel, hook, segment and qualification-question references. Demo form submission remained fail-closed and generated no POST requests. Conversion payload schema now preserves an allowlisted intent and validated qualification-question references.
 
 All positioning approval, research and offer delivery fields in the fixture are synthetic and explicitly TEST FIXTURE ONLY. This verifies reference plumbing and runtime behavior, not real audience research, real approval, CRM receipt, consent/legal approval, production analytics or conversion performance. PR #30 remains Draft and stacked on PR #26 → #24 → #20.
+
+
+## Primary runtime visual review — machine evidence
+
+[PR #32](https://github.com/promoutersuvorov-oss/Yandex_direct/pull/32) adds full-page screenshots and JSON layout metadata for Galiley and KD 905 at desktop 1440×900 and mobile 390×844. [Run #709](https://github.com/promoutersuvorov-oss/Yandex_direct/actions/runs/42359708642) passed source integrity and all 38 browser tests in Chromium, Firefox and WebKit. [Chromium visual-review artifact](https://github.com/promoutersuvorov-oss/Yandex_direct/actions/runs/42359708642/artifacts/13568903694) contains the four images and metadata files.
+
+The initial screenshot review exposed a duplicated fallback title/index in fullscreen Galiley hero. The primary runtime CSS now suppresses those decorative elements only for fullscreen layout, while preserving the split layout's project-title artwork. Browser assertions and post-fix screenshots confirm the overlap is gone. This does not complete human visual acceptance; balance, typography, whitespace, image treatment and overall premium quality still require explicit human review.

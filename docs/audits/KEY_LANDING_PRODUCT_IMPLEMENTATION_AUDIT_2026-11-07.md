@@ -224,3 +224,12 @@ Proven in the main browser runtime:
 - the tests run desktop/mobile viewports in all three browser engines.
 
 Limitations: all brief approval/research is synthetic test-only data. No real positioning approval, CRM delivery, legal/privacy acceptance, production analytics or conversion lift is established. This is functional intent wiring, not production readiness or visual sign-off.
+
+
+## Дополнение: visual review evidence основного runtime (2026-11-07)
+
+[PR #32](https://github.com/promoutersuvorov-oss/Yandex_direct/pull/32), [run #709](https://github.com/promoutersuvorov-oss/Yandex_direct/actions/runs/42359708642): source integrity success; Chromium 38/38, Firefox 38/38, WebKit 38/38. Chromium uploaded [four full-page screenshots and JSON metadata](https://github.com/promoutersuvorov-oss/Yandex_direct/actions/runs/42359708642/artifacts/13568903694): Galiley and KD 905 at 1440×900 and 390×844.
+
+First screenshot review found a real visual regression: the fullscreen Galiley hero displayed a second decorative project-name title and footer index over the live H1. The fallback title/index are now hidden specifically for fullscreen hero layout; split layout retains its typographic project card. New assertions guard the fallback elements from reappearing. Post-fix screenshots show the Galiley heading cleanly on both desktop and mobile.
+
+This is a machine-verified layout correction and screenshot capture, not a final human premium-design sign-off. Human review of all four screenshots remains outstanding. The two-project test fixtures are still evidence-safe and not production project pages.
