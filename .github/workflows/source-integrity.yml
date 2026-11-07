@@ -14,6 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Includes the KD 905 passport-to-primary-runtime evidence contract.
   source-integrity:
     runs-on: ubuntu-24.04
     steps:
