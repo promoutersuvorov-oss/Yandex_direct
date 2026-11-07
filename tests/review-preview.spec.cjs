@@ -73,6 +73,24 @@ test("synthetic landing renders distinct interactive modules responsively", asyn
   expect(pageErrors).toEqual([]);
 });
 
+test("offers are contextual, inactive CTAs stay hidden and provisional promises are flagged", async ({ page }) => {
+  await page.goto(url, { waitUntil: "domcontentloaded" });
+  const heroButtons = page.locator('[data-module="hero"] [data-preview-cta]');
+  await expect(heroButtons).toHaveCount(2);
+  await expect(page.locator('[data-module="gallery"] [data-preview-cta]')).toHaveCount(0);
+
+  const mortgage = heroButtons.filter({ hasText: "Получить ипотечный расчёт" });
+  await mortgage.click();
+  const dialog = page.locator("#previewNotice");
+  await expect(dialog.locator("#noticeOffer")).toContainText("Получите индивидуальный расчёт по выбранным параметрам.");
+  await expect(dialog.locator("#noticeOffer")).toContainText("ещё не подключён");
+  await expect(dialog.locator(".preview-status")).toContainText("требует подтверждения KEY");
+  await expect(dialog.locator('input[name="name"]')).toHaveAttribute("required", "");
+  await expect(dialog.locator('input[name="phone"]')).toHaveAttribute("required", "");
+  await expect(dialog.locator('input[name="consent"]')).toHaveAttribute("required", "");
+  await expect(dialog.locator("form[data-preview-contact-form]")).toBeVisible();
+});
+
 test("general CTA exposes a stable scenario contract and never claims delivery", async ({ page }) => {
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await page.locator('[data-module="hero"] [data-preview-cta]').click();
