@@ -281,6 +281,9 @@ import { createAttributionState } from "../../src/attribution.mjs";
     selectionSubmit.dataset.hookId = selectionCta.hookId || "";
     selectionSubmit.dataset.funnelId = selectionCta.funnelId || "";
     selectionSubmit.dataset.segmentId = selectionCta.segmentId || "";
+    selectionSubmit.dataset.intent = selectionCta.intent || "";
+    selectionSubmit.dataset.scenarioId = selectionCta.scenarioId || "";
+    selectionSubmit.dataset.qualificationQuestionIds = JSON.stringify(selectionCta.qualificationQuestionIds || []);
   }
 
 
@@ -381,6 +384,8 @@ import { createAttributionState } from "../../src/attribution.mjs";
       hookId: calculatorCta?.hookId || "",
       funnelId: calculatorCta?.funnelId || "",
       segmentId: calculatorCta?.segmentId || "",
+      intent: calculatorCta?.intent || "",
+      qualificationQuestionIds: calculatorCta?.qualificationQuestionIds || [],
       entityContext: { mortgage: { price, downPayment: down, ratePercent: rate, termYears: years, estimatedMonthlyPayment: Math.round(payment) } },
       displayContext: { "Ориентировочный платёж": fmt(Math.round(payment)) + " ₽ / мес." }
     }));
@@ -397,6 +402,8 @@ import { createAttributionState } from "../../src/attribution.mjs";
       hookId: cta?.hookId || "",
       funnelId: cta?.funnelId || "",
       segmentId: cta?.segmentId || "",
+      intent: cta?.intent || "",
+      qualificationQuestionIds: cta?.qualificationQuestionIds || [],
       qualificationAnswers: answers,
       displayContext: answers
     });
