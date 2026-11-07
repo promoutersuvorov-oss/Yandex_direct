@@ -61,6 +61,8 @@ for (const scenario of cases) {
       if (scenario.id === "galiley-voronezh") {
         await expect(page.locator("#hero .hero-fallback")).toBeVisible();
         await expect(page.locator("#hero .hero-fallback-title")).toBeVisible();
+        await expect(page.locator("#hero .hero-fallback-title")).toHaveCSS("overflow-wrap", "normal");
+        await expect(page.locator("#hero .hero-fallback-title")).toHaveCSS("word-break", "normal");
       }
       expect(await page.locator("html").evaluate(node => getComputedStyle(node).getPropertyValue("--paper").trim())).toBe(scenario.paper);
 
