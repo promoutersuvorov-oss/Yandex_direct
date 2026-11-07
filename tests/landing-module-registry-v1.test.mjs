@@ -163,3 +163,17 @@ test("resolved placements expose implementation status and component identity",(
   assert.equal(result.placements.find(x=>x.moduleId==="apartments").status,"implemented");
   assert.equal(result.placements.find(x=>x.moduleId==="apartments").runtimeComponent,"ApartmentsSection");
 });
+
+
+test("partial modules remain explicit in diagnostics instead of appearing fully implemented",()=>{
+  const result=resolveRuntimeModulesV1([
+    {moduleId:"security",decision:"include",variant:"proof-led",order:5,requiredFactIds:["f1"]}
+  ],{publishableFactIds:["f1"]});
+  assert.deepEqual(result.errors,[]);
+  assert.equal(result.placements[0].status,"partial");
+  assert.equal(result.placements[0].runtimeComponent,"AdvantagesSection");
+  assert.equal(result.warnings.length,1);
+  assert.equal(result.warnings[0].code,"MODULE_PARTIAL_IMPLEMENTATION");
+  assert.equal(result.warnings[0].moduleId,"security");
+  assert.match(result.warnings[0].message,/отдельного специализированного security-компонента/);
+});
