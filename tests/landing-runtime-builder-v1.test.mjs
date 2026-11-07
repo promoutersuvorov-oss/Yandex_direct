@@ -220,7 +220,7 @@ test("builds the real KD 905 draft with a qualified advantage and named POIs but
   assert.deepEqual(result.profile.media,[]);
   assert.deepEqual(result.profile.plans,[]);
   assert.ok(result.warnings.some(item=>item.code==="POI_METRIC_NOT_PUBLISHED"));
-  assert.ok(result.warnings.some(item=>item.code==="CONDITIONAL_MODULE_NOT_READY" && item.moduleId==="lifestyle"));
+  assert.ok(result.warnings.some(item=>item.code==="CONDITIONAL_MODULE_NOT_READY" && item.moduleId==="gallery"));
   assert.equal(result.profile.mode,"demo");
 });
 
