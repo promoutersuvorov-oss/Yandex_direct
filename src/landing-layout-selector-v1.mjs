@@ -44,7 +44,7 @@ export function selectLandingLayoutVariants({ profile, manifest } = {}) {
       reason = "Секция содержит действующий следующий шаг; выделен поддерживаемый конверсионный вариант.";
     } else if (module.moduleId !== "hero" && mediaCount === 0 &&
         (factCount > 0 || advantageCount > 0) &&
-        ["default", "image-led", "feature-led"].includes(requested)) {
+        ["default", "image-led"].includes(requested)) {
       selectedVariant = "proof-led";
       reason = requested === "image-led"
         ? "Запрошенный image-led вариант не обеспечен одобренным медиа; безопасная замена — доказательная композиция."
