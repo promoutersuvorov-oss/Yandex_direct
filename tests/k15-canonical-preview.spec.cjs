@@ -59,19 +59,30 @@ test("canonical K15 contextual CTAs open distinct local-only scenarios", async (
   await expect(buttons).toHaveCount(4);
   const seen = [];
   for (const scenario of expectedScenarios) {
-    const button = page.locator(`button[data-preview-scenario="${scenario}"]`);
-    await expect(button).toHaveCount(scenario === "k15.layouts.check" ? 2 : 1);
-    await button.scrollIntoViewIfNeeded();
-    await button.click();
-    const dialog = page.locator("#previewNotice");
-    await expect(dialog).toBeVisible();
-    const payload = JSON.parse(await page.locator("#noticePayload").textContent());
-    expect(payload.state).toBe("preview_only");
-    expect(payload.conversion.scenarioId).toBe(scenario);
-    expect(payload.delivery).toEqual({ status: "disabled_in_preview", accepted: false });
-    seen.push(payload.conversion.scenarioId);
-    await page.locator("#previewNotice .close").click();
+    const matchingButtons = page.locator(`button[data-preview-scenario="${scenario}"]`);
+    const expectedCount = scenario === "k15.layouts.check" ? 2 : 1;
+    await expect(matchingButtons).toHaveCount(expectedCount);
+
+    // Both layout CTAs share one scenario contract; exercise each visible instance.
+    for (let index = 0; index < expectedCount; index += 1) {
+      const button = matchingButtons.nth(index);
+      await button.scrollIntoViewIfNeeded();
+      await button.click();
+      const dialog = page.locator("#previewNotice");
+      await expect(dialog).toBeVisible();
+      const payload = JSON.parse(await page.locator("#noticePayload").textContent());
+      expect(payload.state).toBe("preview_only");
+      expect(payload.conversion.scenarioId).toBe(scenario);
+      expect(payload.delivery).toEqual({ status: "disabled_in_preview", accepted: false });
+      seen.push(payload.conversion.scenarioId);
+      await page.locator("#previewNotice .close").click();
+    }
   }
-  expect(seen).toEqual(expectedScenarios);
+  expect(seen).toEqual([
+    "k15.layouts.check",
+    "k15.layouts.check",
+    "k15.presentation.request",
+    "k15.viewing.request"
+  ]);
   expect(outboundPosts, "Review preview must never send lead submissions").toEqual([]);
 });
