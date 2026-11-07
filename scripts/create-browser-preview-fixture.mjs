@@ -66,8 +66,10 @@ passport.infrastructure = [
     publicLabel: "Не должен появиться в публичном preview", source: evidence("Синтетический неподтверждённый источник", "places/unverified") }
 ];
 passport.offers = [
-  { id: "presentation", scenarioId: "presentation-request", title: "Получить тестовую презентацию", type: "presentation", status: "active", requiredFields: ["name", "phone"], consentRequired: true },
-  { id: "selection", scenarioId: "guided-apartment-selection", title: "Тестовый подбор", type: "apartment_selection", status: "active", requiredFields: ["name", "phone"], consentRequired: true }
+  { id: "presentation", scenarioId: "presentation-request", title: "Получить тестовую презентацию", type: "presentation", status: "active", description: "Оставьте контакты, чтобы получить презентацию тестового жилого комплекса.", requiredFields: ["name", "phone"], consentRequired: true },
+  { id: "selection", scenarioId: "guided-apartment-selection", title: "Тестовый подбор", type: "apartment_selection", status: "active", description: "Получите подборку квартир с учётом ответов на вопросы.", requiredFields: ["name", "phone"], consentRequired: true },
+  { id: "mortgage", scenarioId: "mortgage-estimate-request", title: "Получить ипотечный расчёт", type: "mortgage_estimate", status: "provisional", description: "Получите индивидуальный расчёт по выбранным параметрам. Сервис KEY ещё не подключён.", requiredFields: ["name", "phone"], consentRequired: true },
+  { id: "inactive-viewing", scenarioId: "viewing-request", title: "Записаться на просмотр", type: "viewing", status: "inactive", description: "Неактивное предложение для проверки фильтрации.", requiredFields: ["phone"], consentRequired: true }
 ];
 passport.assets.images = [
   media("fixture-hero", "https://example.invalid/tests/fixtures/preview-hero.svg", "render", "Синтетический фасад"),
@@ -124,8 +126,8 @@ passport.selectionQuiz = {
   ]
 };
 passport.contentStrategy.modules = [
-  { moduleId: "hero", decision: "include", reason: "Синтетический первый экран", variant: "editorial-split", assetIds: ["fixture-hero"], ctaIds: ["presentation"] },
-  { moduleId: "gallery", decision: "include", reason: "Проверка нескольких изображений", variant: "gallery-mosaic", assetIds: ["fixture-hero", "fixture-gallery"] },
+  { moduleId: "hero", decision: "include", reason: "Синтетический первый экран", variant: "editorial-split", assetIds: ["fixture-hero"], ctaIds: ["presentation", "mortgage"] },
+  { moduleId: "gallery", decision: "include", reason: "Проверка нескольких изображений", variant: "gallery-mosaic", assetIds: ["fixture-hero", "fixture-gallery"], ctaIds: ["inactive-viewing"] },
   { moduleId: "location", decision: "include", reason: "Проверка подтверждённой инфраструктуры", variant: "location-led", userQuestion: "Что находится рядом с домом?", requiredFactIds: ["fixture-positioning-proof"] },
   { moduleId: "floor-plans", decision: "include", reason: "Проверка данных планировки", variant: "plan-selector", assetIds: ["fixture-plan"], ctaIds: ["selection"] },
   { moduleId: "quiz", decision: "include", reason: "Проверка локального квиза", variant: "step-form", ctaIds: ["selection"] },
