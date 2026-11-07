@@ -126,3 +126,18 @@ test("FAQ questions default to draft and preserve explicit editorial approval",(
   const result=normalizeLandingInputsV1(source);
   assert.deepEqual(result.landingInputs.faqDrafts.map(item=>item.publicationStatus),["draft","approved"]);
 });
+
+
+test("preserves explicit module/content/fact qualifications without promoting them to global facts",()=>{
+  const source=basePassport();
+  source.contentStrategy.modules=[{moduleId:"security",decision:"include",variant:"proof-led",requiredFactIds:["f1"]}];
+  source.contentStrategy.contentQualifications=[{
+    moduleId:"security",contentId:"a1",factId:"f1",text:"Сведения приведены по данным застройщика."
+  }];
+  const result=normalizeLandingInputsV1(source);
+  assert.deepEqual(result.errors,[]);
+  assert.deepEqual(result.landingInputs.contentQualifications,[{
+    moduleId:"security",contentId:"a1",factId:"f1",text:"Сведения приведены по данным застройщика."
+  }]);
+  assert.equal("contentQualifications" in result.landingInputs.knowledge, false);
+});
