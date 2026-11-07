@@ -94,3 +94,15 @@ The passport field contentStrategy.contentQualifications may attach a qualificat
 The builder accepts only current, evidenced, verified Claims with publicUse=allowed_with_qualification and non-empty limitations. The module must be explicitly selected with decision=include; the referenced content must exist and meet its own approval/media requirements. Duplicate fact or Claim qualifications within one content item are rejected.
 
 The permission is not added to global publishableFactIds. It cannot authorize another card, another module, marketing copy, FAQ, location or infrastructure. FAQ retains its separate answer-item qualification contract. A module without a renderer for visible qualifications remains fail-closed.
+
+
+## Content-scoped claim qualifications
+
+`contentStrategy.contentQualifications` may qualify a claim only for one exact selected module, content item and supporting fact:
+- `moduleId` is restricted to `security` or `lifestyle`;
+- `contentId` must resolve to the corresponding marketing candidate or approved lifestyle story;
+- `factId` must occur in that item's `supportingFactIds`;
+- the claim must be current, verified, evidenced and marked `allowed_with_qualification`;
+- qualification text must exactly match one of that claim's verified `limitations` entries.
+
+The builder attaches the wording to the exact evidence item and the browser renderer displays it beside the claim/source. These IDs are passed to the registry as module-scoped publishable facts only; they are never added to global publication rights. Duplicate facts/claims in one content item, unselected modules, unrelated content and unapproved wording fail closed. This mechanism does not qualify arbitrary marketing prose or relax media-rights checks.
