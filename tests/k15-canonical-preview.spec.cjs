@@ -14,6 +14,11 @@ test("canonical K15 preview renders its approved five-module composition", async
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await expect(page.locator("body")).toHaveAttribute("data-theme", "warm-editorial");
   await expect(page.locator("h1")).toContainText("Приватность клубного дома в центре Воронежа");
+  const hero = page.locator('section[data-module="hero"]');
+  const heroAside = hero.locator(".hero-aside");
+  await expect(hero).toHaveClass(/hero-with-proof/);
+  await expect(heroAside).toBeVisible();
+  await expect(heroAside.locator(".hero-aside-list li")).toHaveCount(3);
 
   const moduleIds = await page.locator("main > section[data-module]").evaluateAll(nodes =>
     nodes.map(node => node.dataset.module)
@@ -40,6 +45,10 @@ test("canonical K15 preview renders its approved five-module composition", async
       body: document.body.scrollWidth
     }));
     await page.screenshot({ path: testInfo.outputPath(`canonical-k15-${viewport.name}.png`), fullPage: false });
+    const heroColumns = await hero.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length);
+    expect(heroColumns, `Hero proof panel should sit beside copy on desktop at ${viewport.name}`)
+      .toBe(viewport.width > 760 ? 2 : 1);
+    await expect(heroAside).toBeVisible();
     expect(
       Math.max(dimensions.document, dimensions.body),
       `Canonical K15 horizontal overflow at ${viewport.name}: ${JSON.stringify(dimensions)}`
