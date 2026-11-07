@@ -120,6 +120,7 @@ test("preview CTA preserves selected apartment context and never claims delivery
   await page.goto(url, { waitUntil: "domcontentloaded" });
   const planCta = page.locator('[data-preview-plan-id="fixture-plan-45"]');
   await expect(planCta).toBeVisible();
+  await expect(planCta).toHaveText("Тестовый подбор");
   await planCta.click();
 
   const dialog = page.locator("#previewNotice");
