@@ -149,6 +149,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     const claim = claims.get(claimId);
     if (!claim || claim.publicUse !== "allowed_with_qualification" || claim.epistemicStatus !== "verified" ||
         !Array.isArray(claim.limitations) || !claim.limitations.length || !claim.limitations.every(nonEmpty) ||
+        !claim.limitations.some(limitation => limitation.trim() === entry.text.trim()) ||
         !claimIsPublic(claim, knowledge, now, new Set([claimId]))) {
       throw new Error(`Content qualification does not match a current, evidenced verified claim requiring qualification: ${entry.factId}`);
     }
