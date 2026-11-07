@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0.0",
+  "eventId": "evt_demo_cta_0001",
+  "eventName": "cta_click",
+  "occurredAt": "2026-11-07T12:00:00.000Z",
+  "projectId": "demo-project",
+  "landingVersion": "review-2026-11-07",
+  "source": "browser",
+  "sessionId": "sess_0123456789abcdef",
+  "pagePath": "/",
+  "deviceClass": "mobile",
+  "consent": {
+    "analytics": "granted",
+    "policyVersion": "2026-11-07"
+  },
+  "attribution": {
+    "utm_source": "yandex",
+    "utm_medium": "cpc",
+    "utm_campaign": "brand_search"
+  },
+  "context": {
+    "scenarioId": "presentation_request",
+    "offerId": "presentation",
+    "moduleId": "hero",
+    "ctaId": "hero_presentation",
+    "hookId": "walkable_daily_needs",
+    "funnelId": "primary_presentation",
+    "segmentId": "family_buyers",
+    "intent": "get_information"
+  }
+}

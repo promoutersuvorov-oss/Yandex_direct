@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://key.example/schemas/behavioral-event.schema.json",
+  "title": "KEY privacy-minimized behavioral and conversion event",
+  "description": "Versioned event envelope for landing analytics and server-side CRM outcomes. Excludes direct identifiers and contact data by design.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "eventId", "eventName", "occurredAt", "projectId", "source", "consent", "context"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "eventId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]{1,79}$" },
+    "eventName": {
+      "enum": [
+        "landing_view", "section_view", "cta_impression", "cta_click", "offer_open",
+        "form_start", "form_validation_error", "lead_submit_attempt", "lead_accepted",
+        "lead_delivery_failed", "plan_selected", "mortgage_calculated", "quiz_completed",
+        "viewing_requested", "crm_lead_qualified", "crm_viewing_completed",
+        "crm_deal_won", "crm_deal_lost"
+      ]
+    },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "projectId": { "type": "string", "minLength": 1, "maxLength": 80, "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+    "landingVersion": { "type": "string", "maxLength": 80 },
+    "source": { "enum": ["browser", "intake", "crm", "import"] },
+    "sessionId": { "type": "string", "pattern": "^[a-zA-Z0-9_-]{16,128}$" },
+    "pagePath": { "type": "string", "maxLength": 512, "pattern": "^(/[^?#]*)?$" },
+    "deviceClass": { "enum": ["mobile", "tablet", "desktop", "unknown"] },
+    "consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["analytics"],
+      "properties": {
+        "analytics": { "enum": ["granted", "denied", "unknown"] },
+        "policyVersion": { "type": "string", "maxLength": 40 }
+      }
+    },
+    "attribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "utm_source": { "type": "string", "maxLength": 128 },
+        "utm_medium": { "type": "string", "maxLength": 128 },
+        "utm_campaign": { "type": "string", "maxLength": 256 },
+        "utm_term": { "type": "string", "maxLength": 256 },
+        "utm_content": { "type": "string", "maxLength": 256 }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scenarioId"],
+      "properties": {
+        "scenarioId": { "type": "string", "maxLength": 80, "pattern": "^[a-zA-Z0-9._-]+$" },
+        "offerId": { "type": "string", "maxLength": 80 },
+        "moduleId": { "type": "string", "maxLength": 80 },
+        "ctaId": { "type": "string", "maxLength": 80 },
+        "hookId": { "type": "string", "maxLength": 80 },
+        "funnelId": { "type": "string", "maxLength": 80 },
+        "segmentId": { "type": "string", "maxLength": 80 },
+        "intent": { "type": "string", "maxLength": 40 },
+        "crmStage": { "type": "string", "maxLength": 80 },
+        "outcomeValue": { "type": "number", "minimum": 0 },
+        "durationMs": { "type": "integer", "minimum": 0, "maximum": 3600000 },
+        "scrollDepthPercent": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "errorCode": { "type": "string", "maxLength": 80 },
+        "selectedPlanId": { "type": "string", "maxLength": 80 },
+        "experimentId": { "type": "string", "maxLength": 80 },
+        "variantId": { "type": "string", "maxLength": 80 }
+      }
+    },
+    "attributionRef": { "type": "string", "maxLength": 128, "description": "Opaque server-side reference to restricted click/client identifiers. Never a raw phone, email, ClientID or yclid." }
+  }
+}
