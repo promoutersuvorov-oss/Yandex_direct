@@ -56,6 +56,28 @@ test("canonical K15 preview renders its approved five-module composition", async
       Math.max(dimensions.document, dimensions.body),
       `Canonical K15 horizontal overflow at ${viewport.name}: ${JSON.stringify(dimensions)}`
     ).toBeLessThanOrEqual(dimensions.viewport + 1);
+
+    // Check every section at the active viewport, not just the initial hero.
+    for (const moduleId of expectedModules) {
+      const section = page.locator(`main > section[data-module="${moduleId}"]`);
+      await section.scrollIntoViewIfNeeded();
+      await expect(section).toBeVisible();
+      const sectionWidth = await section.evaluate(node => node.getBoundingClientRect().width);
+      expect(sectionWidth, `Section ${moduleId} exceeds viewport at ${viewport.name}`)
+        .toBeLessThanOrEqual(viewport.width + 1);
+      const heading = section.locator("h1, h2").first();
+      if (moduleId !== "contacts") await expect(heading).toBeVisible();
+      if (["security", "lifestyle", "about"].includes(moduleId)) {
+        await expect(section.locator(".benefit")).not.toHaveCount(0);
+      }
+    }
+    if (["mobile-390", "desktop-1440"].includes(viewport.name)) {
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.screenshot({
+        path: testInfo.outputPath(`canonical-k15-full-${viewport.name}.png`),
+        fullPage: true
+      });
+    }
   }
   expect(pageErrors, "Canonical preview JavaScript errors").toEqual([]);
 });
