@@ -29,3 +29,21 @@ The report is generated from the already-built, evidence-filtered project profil
 Review mode treats missing live CRM intake as a warning because a review bundle is not a production deployment. An explicit production report treats missing intake configuration as a blocker. A review bundle can never set `publicationAllowed` to true.
 
 The source-integrity CI job runs the focused readiness tests before building the canonical and KD 905 review bundles.
+
+
+## Deterministic composition audit v1
+
+Every successful review-bundle build also writes `layout-audit.json` and embeds the same object as `generation-report.json.layoutAudit`.
+
+The audit checks only deterministic facts available in the built profile and selected module manifest:
+- missing hero or a text-only hero that can use approved proof points;
+- image-led variants without assigned approved media;
+- selected modules with no renderable content;
+- text-only sections that need a card/typographic hierarchy;
+- conversion-oriented sections without an appropriate CTA;
+- repeated fact assignments across sections;
+- compositions whose assigned CTAs collapse to a single scenario.
+
+Each finding contains a severity, stable code, explanation, affected module IDs, supporting counts/IDs, and an actionable recommendation. The audit never inserts stock imagery, invents claims, or silently changes the composition.
+
+This is not computer-vision screenshot scoring. The report explicitly sets `visualScreenshotAssessment: not_performed` and keeps `humanReviewRequired: true`. Browser viewport tests and a human visual review remain separate publication gates. A recommendation is not an automatic approval or a blocker unless the underlying builder contract already makes it one.
