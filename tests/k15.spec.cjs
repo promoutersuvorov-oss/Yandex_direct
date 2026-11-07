@@ -137,7 +137,9 @@ test("three-step quiz preserves answers and submits with quiz context", async ({
   const consent = form.locator(".consent");
   await consent.locator(".swt").click();
   await expect(consent.locator('[name="uconsent"]')).toBeChecked();
-  await form.locator('button[type="submit"]').click();
+  // Keyboard submission exercises the native form-submit path consistently
+  // across engines while preserving the same validated form and quiz payload.
+  await form.locator('button[type="submit"]').press("Enter");
 
   await expect(quiz.locator(".thanks")).toBeVisible();
   await expect(quiz.locator(".thanks")).toContainText("Заявка принята");
