@@ -89,7 +89,8 @@ test("general CTA exposes a stable scenario contract and never claims delivery",
   await expect(dialog).toContainText("Ничего не отправляется");
   await expect(dialog.locator("#noticeOffer")).toContainText("презентацию");
   await expect(dialog.locator("[data-preview-contact-form] input[name=phone]")).toBeVisible();
-  await expect(dialog.locator(".preview-disclaimer")).toContainText("нигде не отправляются");
+  await expect(dialog.locator(".preview-disclaimer")).toContainText("никуда не отправляются");
+  await dialog.locator("[data-preview-contact-form] input[name=name]").fill("Тестовый посетитель");
   await dialog.locator("[data-preview-contact-form] input[name=phone]").fill("+7 900 000-00-00");
   await dialog.locator("[data-preview-contact-form] [name=consent]").check();
   await dialog.locator("[data-preview-contact-form] button[type=submit]").click();
