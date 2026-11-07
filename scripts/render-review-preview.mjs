@@ -58,7 +58,7 @@ const renderPlans = offer => (profile.apartmentPlans || []).map(plan => {
     ' data-preview-plan-id="' + esc(plan.id) + '" data-preview-plan-rooms="' + esc(plan.rooms) +
     '" data-preview-plan-area="' + esc(plan.areaSqm) + '" data-preview-plan-floor="' + esc(plan.floor ?? "") +
     '" data-preview-plan-finishing="' + esc(plan.finishing ?? "") +
-    '" data-preview-plan-asset-id="' + esc(plan.assetId) + '">Обсудить эту планировку</button>' : "";
+    '" data-preview-plan-asset-id="' + esc(plan.assetId) + '">' + esc(offer.title) + '</button>' : "";
   return '<article class="plan-card"><img src="' + esc(safeImageUrl(asset.url)) + '" alt="' +
     esc(asset.alt || "Планировка квартиры") + '" loading="lazy"><div class="plan-copy"><p class="eyebrow">Планировка</p><h3>' +
     esc(plan.title || rooms) + '</h3><p>' + esc(meta) + '</p>' + (plan.finishing ? '<p>' + esc(plan.finishing) + '</p>' : "") +
