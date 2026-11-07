@@ -1,5 +1,6 @@
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { buildLandingReadinessReport } from "../src/landing-readiness-report-v1.mjs";
 
 function arg(name, fallback) {
   const index = process.argv.indexOf(name);
@@ -450,11 +451,26 @@ const report = {
   ]
 };
 
+const readinessReport = buildLandingReadinessReport({
+  profile: {
+    ...profile,
+    mode: "review",
+    modules: manifest.modules
+  },
+  requestedMode: "review",
+  warnings: warnings.map((message, index) => ({
+    code: `BUILDER_WARNING_${index + 1}`,
+    message
+  }))
+});
+report.readiness = readinessReport;
+
 mkdirSync(outDir, { recursive: true });
 for (const [name, value] of Object.entries({
   "project-profile.json": profile,
   "module-manifest.json": manifest,
-  "generation-report.json": report
+  "generation-report.json": report,
+  "readiness-report.json": readinessReport
 })) {
   const target = resolve(outDir, name);
   mkdirSync(dirname(target), { recursive: true });
