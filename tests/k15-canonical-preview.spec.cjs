@@ -56,11 +56,11 @@ test("canonical K15 contextual CTAs open distinct local-only scenarios", async (
   await page.goto(url, { waitUntil: "domcontentloaded" });
 
   const buttons = page.locator("button[data-preview-cta]");
-  await expect(buttons).toHaveCount(3);
+  await expect(buttons).toHaveCount(4);
   const seen = [];
   for (const scenario of expectedScenarios) {
     const button = page.locator(`button[data-preview-scenario="${scenario}"]`);
-    await expect(button).toHaveCount(1);
+    await expect(button).toHaveCount(scenario === "k15.layouts.check" ? 2 : 1);
     await button.scrollIntoViewIfNeeded();
     await button.click();
     const dialog = page.locator("#previewNotice");
