@@ -59,6 +59,16 @@ test("K15 records browser performance baseline without flaky speed assertions", 
         scripts: document.scripts.length,
         stylesheets: document.styleSheets.length
       },
+      visualSlots: (() => {
+        const slots = Array.from(document.querySelectorAll(".slot"));
+        return {
+          total: slots.length,
+          hydrated: slots.filter(slot => Boolean(slot.querySelector(".art"))).length,
+          imageAttempts: slots.filter(slot => slot.dataset.loaded === "1").length,
+          realImages: slots.filter(slot => slot.classList.contains("real")).length,
+          generatedPlaceholders: slots.filter(slot => Boolean(slot.querySelector(".art")) && !slot.classList.contains("real")).length
+        };
+      })(),
       navigation: navigation ? {
         responseStartMs: Math.round(navigation.responseStart),
         domInteractiveMs: Math.round(navigation.domInteractive),
