@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   source-integrity:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,6 +35,8 @@ jobs:
         run: python scripts/validate-passport-schema.py examples/kd-905.project-passport.draft.json
       - name: Validate CTA context contract schema and negative cases
         run: python scripts/validate-cta-context-schema.py
+      - name: Validate behavioral event contract and privacy negative cases
+        run: python scripts/validate-behavioral-event-schema.py
       - name: Generate synthetic passport fixture for location evidence schema validation
         run: node scripts/create-browser-preview-fixture.mjs --out artifacts/browser-fixture/passport.json
       - name: Validate synthetic passport and location evidence against JSON Schema
@@ -84,7 +86,7 @@ jobs:
 
   browser-smoke:
     needs: source-integrity
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
