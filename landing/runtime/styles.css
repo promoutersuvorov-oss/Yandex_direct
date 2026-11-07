@@ -122,3 +122,7 @@
 
 /* Approved legal/editorial qualification displayed adjacent to the exact copy it qualifies. */
 .claim-qualification{display:block;margin-top:8px;max-width:72ch;font-size:11px;line-height:1.55;letter-spacing:.01em;color:#777970;font-weight:400}
+
+/* Fullscreen hero already has a live H1; do not stack a second project-name title or duplicate footer metadata over it. */
+.hero[data-layout="fullscreen"] .hero-fallback-title,
+.hero[data-layout="fullscreen"] .hero-fallback-index{display:none}
