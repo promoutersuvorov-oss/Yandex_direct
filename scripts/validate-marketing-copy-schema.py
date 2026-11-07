@@ -23,6 +23,11 @@ if errors:
     raise SystemExit(1)
 
 invalid = copy.deepcopy(example)
+del invalid["sourcePassportVersion"]
+if not list(validator.iter_errors(invalid)):
+    raise SystemExit("Marketing copy without sourcePassportVersion unexpectedly accepted")
+
+invalid = copy.deepcopy(example)
 del invalid["copy"]["headline"]
 if not list(validator.iter_errors(invalid)):
     raise SystemExit("Marketing copy without headline unexpectedly accepted")
