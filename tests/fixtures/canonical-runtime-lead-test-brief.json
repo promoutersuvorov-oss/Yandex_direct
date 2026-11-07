@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectId": "galiley-voronezh",
+  "sourcePassportVersion": "1.0.0",
+  "approvalStatus": "approved",
+  "strategy": {
+    "coreIdea": "Synthetic test-only conversion contract",
+    "primarySegmentId": "test_segment",
+    "primaryHookId": "test_hook",
+    "primaryCtaId": "hero_presentation",
+    "positioning": {
+      "statement": "Тестовый сценарий обращения",
+      "supportingFactIds": [],
+      "status": "approved",
+      "audienceSegmentId": "test_segment",
+      "primaryNeed": "Тестовый запрос",
+      "productFocus": "Синтетический тестовый offer",
+      "primaryTrafficSource": "Изолированный CI browser test",
+      "primaryConverter": "Локальный mock endpoint",
+      "gateStatus": "approved",
+      "confidence": "high",
+      "rationale": "Синтетическая фикстура исключительно для проверки контракта CTA и lead payload; не маркетинговое утверждение.",
+      "evidenceBasis": {
+        "audience": { "type": "fact", "finding": "Synthetic test fixture only; not customer research." },
+        "need": { "type": "fact", "finding": "Synthetic test fixture only; not a validated buyer need." },
+        "product": { "type": "fact", "finding": "Synthetic test offer only; not a commercial product commitment." },
+        "traffic": { "type": "fact", "finding": "Synthetic CI test context; not a traffic performance claim." },
+        "converter": { "type": "fact", "finding": "Local mock endpoint only; not a real KEY delivery process." }
+      },
+      "approvedBy": "CI test fixture",
+      "approvedAt": "2026-11-07T00:00:00Z"
+    }
+  },
+  "segments": [{
+    "id": "test_segment",
+    "name": "Synthetic test segment",
+    "need": "Test-only",
+    "jtbd": "Verify payload context",
+    "insightStatus": "hypothesis",
+    "priority": "primary"
+  }],
+  "hooks": [{
+    "id": "test_hook",
+    "segmentIds": ["test_segment"],
+    "category": "project",
+    "message": "Тестовый сценарий обращения",
+    "supportingFactIds": [],
+    "hypothesis": "Test fixture only",
+    "status": "approved"
+  }],
+  "offers": [{
+    "id": "project_presentation",
+    "type": "presentation",
+    "title": "Тестовый запрос презентации",
+    "value": "Тестирование payload",
+    "deliverable": "Тестовый ответ mock endpoint",
+    "readiness": "ready",
+    "deliveryMethod": "Local mock endpoint",
+    "deliverySla": "Test only",
+    "scenarioId": "presentation_request",
+    "segmentIds": ["test_segment"],
+    "requiredFields": ["name", "phone"],
+    "qualificationQuestionIds": [],
+    "passportOfferId": "presentation"
+  }],
+  "funnels": [{
+    "id": "test_funnel",
+    "segmentIds": ["test_segment"],
+    "hookIds": ["test_hook"],
+    "offerId": "project_presentation",
+    "stages": [{ "id": "open", "name": "Open", "userAction": "Open test page" }],
+    "successEvent": "test_payload_accepted"
+  }],
+  "ctas": [{
+    "id": "hero_presentation",
+    "label": "Получить презентацию",
+    "moduleId": "hero",
+    "intent": "get_information",
+    "offerId": "project_presentation",
+    "funnelId": "test_funnel",
+    "hookId": "test_hook",
+    "segmentIds": ["test_segment"],
+    "scenarioId": "presentation_request",
+    "placement": "hero_primary"
+  }],
+  "qualification": { "questions": [], "qualitySignals": [], "disqualificationRules": [] },
+  "notes": ["TEST FIXTURE ONLY. Synthetic approvals and offer are not valid for production or public use."]
+}
