@@ -58,6 +58,10 @@ for (const scenario of cases) {
       await expect(page.locator("#hero-meta")).toContainText("Воронеж");
       await expect(page).toHaveTitle(profile.project.name + " — KEY");
       await expect(page.locator("#hero")).toHaveAttribute("data-layout", scenario.heroLayout);
+      if (scenario.id === "galiley-voronezh") {
+        await expect(page.locator("#hero .hero-fallback")).toBeVisible();
+        await expect(page.locator("#hero .hero-fallback-title")).toBeVisible();
+      }
       expect(await page.locator("html").evaluate(node => getComputedStyle(node).getPropertyValue("--paper").trim())).toBe(scenario.paper);
 
       const visibleSections = await page.locator("main > section:not(.closing-section)").evaluateAll(nodes =>
