@@ -225,3 +225,16 @@ K15 audit также остаётся ограниченным: автомати
 - WebKit — 37/37.
 
 В KD 905 fixture сохранены реальные статусы паспорта: факты со статусом `allowed_with_qualification` не продвигаются в публичные claims без утверждённой квалификации; gallery скрыта без одобренных media rights; в блоке преимуществ показано явное empty-state сообщение. Это не визуальная приёмка качества и не подтверждение production readiness. Human design review, реальная CRM delivery, privacy/consent, analytics и performance остаются следующими этапами.
+
+## Дополнение: LANDING BRIEF → lead intent (2026-11-07)
+
+[PR #30](https://github.com/promoutersuvorov-oss/Yandex_direct/pull/30), [run #707](https://github.com/promoutersuvorov-oss/Yandex_direct/actions/runs/42359174864): source-integrity passed (40/40 steps), and the primary runtime browser matrix passed 38/38 in Chromium, 38/38 in Firefox, and 38/38 in WebKit.
+
+Proven in the main browser runtime:
+- canonical CLI consumes an approved test-only LANDING BRIEF and maps two separate CTA placements (hero, closing) to the passport's real active presentation offer;
+- CTA IDs, intent, offer/scenario, module, funnel, hook, segment and qualification-question references reach a PII-free conversion-intent event;
+- event contains no contact fields; demo form does not POST or persist contact data;
+- unsupported conversion intent and malformed qualification-question references are rejected by the lead-payload contract;
+- the tests run desktop/mobile viewports in all three browser engines.
+
+Limitations: all brief approval/research is synthetic test-only data. No real positioning approval, CRM delivery, legal/privacy acceptance, production analytics or conversion lift is established. This is functional intent wiring, not production readiness or visual sign-off.

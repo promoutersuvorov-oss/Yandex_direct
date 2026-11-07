@@ -262,6 +262,9 @@ import { createAttributionState } from "../../src/attribution.mjs";
     button.dataset.hookId = cta.hookId || "";
     button.dataset.funnelId = cta.funnelId || "";
     button.dataset.segmentId = cta.segmentId || "";
+    button.dataset.intent = cta.intent || "";
+    button.dataset.scenarioId = cta.scenarioId || "";
+    button.dataset.qualificationQuestionIds = JSON.stringify(cta.qualificationQuestionIds || []);
     const arrow = button.querySelector("span");
     button.textContent = cta.label + (arrow ? " " : "");
     if (arrow) button.append(arrow);
@@ -278,6 +281,9 @@ import { createAttributionState } from "../../src/attribution.mjs";
     selectionSubmit.dataset.hookId = selectionCta.hookId || "";
     selectionSubmit.dataset.funnelId = selectionCta.funnelId || "";
     selectionSubmit.dataset.segmentId = selectionCta.segmentId || "";
+    selectionSubmit.dataset.intent = selectionCta.intent || "";
+    selectionSubmit.dataset.scenarioId = selectionCta.scenarioId || "";
+    selectionSubmit.dataset.qualificationQuestionIds = JSON.stringify(selectionCta.qualificationQuestionIds || []);
   }
 
 
@@ -307,6 +313,8 @@ import { createAttributionState } from "../../src/attribution.mjs";
       hookId: context.hookId || "",
       funnelId: context.funnelId || "",
       segmentId: context.segmentId || "",
+      intent: context.intent || "",
+      qualificationQuestionIds: context.qualificationQuestionIds || [],
       entityContext: context.entityContext || {},
       qualificationAnswers: context.qualificationAnswers || null
     };
@@ -328,7 +336,10 @@ import { createAttributionState } from "../../src/attribution.mjs";
       ctaId: button.dataset.ctaId || "",
       hookId: button.dataset.hookId || "",
       funnelId: button.dataset.funnelId || "",
-      segmentId: button.dataset.segmentId || ""
+      segmentId: button.dataset.segmentId || "",
+      intent: button.dataset.intent || "",
+      scenarioId: button.dataset.scenarioId || "",
+      qualificationQuestionIds: JSON.parse(button.dataset.qualificationQuestionIds || "[]")
     };
     if (button.dataset.planId) {
       const plan = approvedPlans.find(item => item.id === button.dataset.planId);
@@ -373,6 +384,8 @@ import { createAttributionState } from "../../src/attribution.mjs";
       hookId: calculatorCta?.hookId || "",
       funnelId: calculatorCta?.funnelId || "",
       segmentId: calculatorCta?.segmentId || "",
+      intent: calculatorCta?.intent || "",
+      qualificationQuestionIds: calculatorCta?.qualificationQuestionIds || [],
       entityContext: { mortgage: { price, downPayment: down, ratePercent: rate, termYears: years, estimatedMonthlyPayment: Math.round(payment) } },
       displayContext: { "Ориентировочный платёж": fmt(Math.round(payment)) + " ₽ / мес." }
     }));
@@ -389,6 +402,8 @@ import { createAttributionState } from "../../src/attribution.mjs";
       hookId: cta?.hookId || "",
       funnelId: cta?.funnelId || "",
       segmentId: cta?.segmentId || "",
+      intent: cta?.intent || "",
+      qualificationQuestionIds: cta?.qualificationQuestionIds || [],
       qualificationAnswers: answers,
       displayContext: answers
     });
@@ -447,6 +462,8 @@ import { createAttributionState } from "../../src/attribution.mjs";
           hookId: activeContext.hookId,
           funnelId: activeContext.funnelId,
           segmentId: activeContext.segmentId,
+          intent: activeContext.intent,
+          qualificationQuestionIds: activeContext.qualificationQuestionIds,
           entityContext: activeContext.entityContext
         },
         ...(activeContext.qualificationAnswers ? { qualification: { answers: activeContext.qualificationAnswers } } : {}),
@@ -511,12 +528,24 @@ import { createAttributionState } from "../../src/attribution.mjs";
     try { sessionStorage.setItem("key:attribution", JSON.stringify(state)); } catch {}
     return state.firstTouch || state.lastTouch ? state : null;
   }
-  if (data.analytics?.enabled) {
-    document.addEventListener("click", event => {
-      const target = event.target.closest("[data-open-offer]");
-      if (target) window.dispatchEvent(new CustomEvent("key:conversion-intent", { detail: { offerId: target.dataset.openOffer, projectId: project.id, moduleId: target.closest("section")?.id || "unknown" } }));
-    });
-  }
+  // PII-free conversion intent is emitted independently of analytics and lead delivery.
+  // Demo mode may expose this event to local QA, but it never contains contact fields.
+  document.addEventListener("click", event => {
+    const target = event.target.closest("[data-open-offer]");
+    if (!target) return;
+    window.dispatchEvent(new CustomEvent("key:conversion-intent", { detail: {
+      projectId: project.id,
+      ctaId: target.dataset.ctaId || "",
+      intent: target.dataset.intent || "",
+      offerId: target.dataset.openOffer || "",
+      scenarioId: target.dataset.scenarioId || "",
+      moduleId: target.closest("section")?.id || (target.closest("header") ? "hero" : "unknown"),
+      funnelId: target.dataset.funnelId || "",
+      hookId: target.dataset.hookId || "",
+      segmentId: target.dataset.segmentId || "",
+      qualificationQuestionIds: JSON.parse(target.dataset.qualificationQuestionIds || "[]")
+    }}));
+  });
   const menu = $(".menu-toggle");
   menu.addEventListener("click", () => {
     const open = menu.getAttribute("aria-expanded") === "true";

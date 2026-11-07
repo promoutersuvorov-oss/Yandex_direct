@@ -1,8 +1,10 @@
 import { attributionToPayload } from "./attribution.mjs";
 
 const ID = /^[a-z0-9][a-z0-9_-]{1,79}$/;
+const REFERENCE_ID = /^[a-z0-9][a-z0-9._-]{0,79}$/i;
 const CHANNELS = new Set(["phone", "telegram", "max", "whatsapp", "email"]);
 const DEVICE_CLASSES = new Set(["mobile", "tablet", "desktop", "unknown"]);
+const CONVERSION_INTENTS = new Set(["get_information", "select_apartment", "calculate_payment", "book_viewing", "request_consultation", "request_callback", "other"]);
 const CONTEXT_KEYS = new Set(["rooms", "planId", "plan", "mortgage", "quizAnswers", "requestedInfo", "preferredViewing"]);
 const ANSWER_ID = /^[a-z0-9][a-z0-9_-]{0,79}$/i;
 
@@ -115,7 +117,16 @@ export function createLeadPayload(input) {
   const consentPolicyUrl = safeUrl(consent.policyUrl, "consent.policyUrl");
   const conversion = input.conversion ?? {};
   const scenarioId = requiredString(conversion.scenarioId, "conversion.scenarioId", 80);
-  if (!ID.test(scenarioId)) throw new TypeError("conversion.scenarioId must be a stable ID.");
+  if (!REFERENCE_ID.test(scenarioId)) throw new TypeError("conversion.scenarioId must be a stable ID.");
+  const rawQuestionIds = conversion.qualificationQuestionIds ?? [];
+  if (!Array.isArray(rawQuestionIds) || rawQuestionIds.length > 20) {
+    throw new TypeError("conversion.qualificationQuestionIds must be an array of at most 20 IDs.");
+  }
+  const qualificationQuestionIds = [...new Set(rawQuestionIds.map((value, index) => {
+    const id = requiredString(value, "conversion.qualificationQuestionIds[" + index + "]", 80);
+    if (!REFERENCE_ID.test(id)) throw new TypeError("conversion.qualificationQuestionIds must contain stable IDs.");
+    return id;
+  }))];
   const createdAt = requiredString(input.createdAt, "createdAt", 40);
   if (!Number.isFinite(Date.parse(createdAt))) throw new TypeError("createdAt must be a valid date-time.");
   const deviceClass = input.deviceClass ?? "unknown";
@@ -142,12 +153,18 @@ export function createLeadPayload(input) {
     },
     conversion: {
       scenarioId,
+      ...(conversion.intent == null || conversion.intent === "" ? {} : (() => {
+        const intent = requiredString(conversion.intent, "conversion.intent", 40);
+        if (!CONVERSION_INTENTS.has(intent)) throw new TypeError("Unsupported conversion intent.");
+        return { intent };
+      })()),
       ...(optionalString(conversion.offerId, "conversion.offerId", 80) ? { offerId: conversion.offerId.trim() } : {}),
       ...(optionalString(conversion.moduleId, "conversion.moduleId", 80) ? { moduleId: conversion.moduleId.trim() } : {}),
+      ...(qualificationQuestionIds.length ? { qualificationQuestionIds } : {}),
       ...(["ctaId", "hookId", "funnelId", "segmentId"].reduce((result, key) => {
         const value = optionalString(conversion[key], "conversion." + key, 80);
         if (value) {
-          if (!ID.test(value)) throw new TypeError("conversion." + key + " must be a stable ID.");
+          if (!REFERENCE_ID.test(value)) throw new TypeError("conversion." + key + " must be a stable ID.");
           result[key] = value;
         }
         return result;

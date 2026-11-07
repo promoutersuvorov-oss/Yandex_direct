@@ -52,3 +52,13 @@ A second stacked change set adds a KD 905 profile beside the Galiley profile. Bo
 [GitHub Actions run #694](https://github.com/promoutersuvorov-oss/Yandex_direct/actions/runs/42357689874) passed source-integrity and all browser jobs: Chromium 37/37, Firefox 37/37, WebKit 37/37. Tests cover two distinct compositions (`concept → location` vs `advantages → location`), two hero layouts (`fullscreen` vs `split`), two design palette tokens, desktop/mobile widths, no horizontal overflow, visible CTA and demo fail-closed behavior.
 
 KD 905's source statuses were not relaxed. Its qualification-required facts are not promoted; without approved media, the gallery stays hidden; the advantages module shows an explicit evidence-required empty state. This demonstrates structural composition diversity, not visual premium quality, full product catalog coverage or production readiness. PR #26 remains Draft and stacked on PR #24.
+
+## LANDING BRIEF → contextual lead intent — CI verified
+
+Implementation: [Draft PR #30](https://github.com/promoutersuvorov-oss/Yandex_direct/pull/30).
+
+[GitHub Actions run #707](https://github.com/promoutersuvorov-oss/Yandex_direct/actions/runs/42359174864) passed source integrity and the complete primary-runtime browser matrix. Source integrity: 40/40 steps. Each browser engine ran 38 tests: Chromium 38/38, Firefox 38/38, WebKit 38/38.
+
+The canonical CLI accepted an explicitly test-only LANDING BRIEF, resolved its project/segment/hook/funnel/offer references and mapped two different CTA placements (hero and closing) to the passport's active presentation offer. The primary runtime rendered distinct CTA labels/IDs and emitted PII-free `key:conversion-intent` events with project, CTA, intent, offer/scenario, module, funnel, hook, segment and qualification-question references. Demo form submission remained fail-closed and generated no POST requests. Conversion payload schema now preserves an allowlisted intent and validated qualification-question references.
+
+All positioning approval, research and offer delivery fields in the fixture are synthetic and explicitly TEST FIXTURE ONLY. This verifies reference plumbing and runtime behavior, not real audience research, real approval, CRM receipt, consent/legal approval, production analytics or conversion performance. PR #30 remains Draft and stacked on PR #26 → #24 → #20.

@@ -332,7 +332,8 @@ test("approved LANDING BRIEF drives public strategy and a contextual CTA map", (
     scenarioId: "presentation_request",
     funnelId: "location_to_presentation",
     hookId: "walkable_daily_needs",
-    segmentId: "young_professionals"
+    segmentId: "young_professionals",
+    qualificationQuestionIds: []
   });
 });
 

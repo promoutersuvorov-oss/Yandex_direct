@@ -115,3 +115,35 @@ test("preserves required contact channel and preferred callback time",()=>{
   assert.equal(payload.contact.preferredChannel,"telegram");
   assert.equal(payload.contact.preferredTime,"После 18:00");
 });
+
+
+test("preserves validated marketing intent in the conversion payload", () => {
+  const input = valid();
+  input.conversion = {
+    scenarioId: "galiley.presentation",
+    offerId: "presentation",
+    moduleId: "hero",
+    ctaId: "test_hero_presentation",
+    intent: "get_information"
+  };
+  const conversion = createLeadPayload(input).conversion;
+  assert.equal(conversion.intent, "get_information");
+  assert.equal(conversion.scenarioId, "galiley.presentation");
+  input.conversion.intent = "send_all_data";
+  assert.throws(() => createLeadPayload(input), /Unsupported conversion intent/);
+});
+
+
+test("preserves validated qualification question references in conversion context", () => {
+  const input = valid();
+  input.conversion = {
+    scenarioId: "galiley.presentation",
+    intent: "get_information",
+    qualificationQuestionIds: ["budget_range", "move_timing", "budget_range"]
+  };
+  assert.deepEqual(createLeadPayload(input).conversion.qualificationQuestionIds, ["budget_range", "move_timing"]);
+  input.conversion.qualificationQuestionIds = ["not a stable id"];
+  assert.throws(() => createLeadPayload(input), /must contain stable IDs/);
+  input.conversion.qualificationQuestionIds = Array.from({ length: 21 }, (_, index) => "question_" + index);
+  assert.throws(() => createLeadPayload(input), /at most 20 IDs/);
+});
