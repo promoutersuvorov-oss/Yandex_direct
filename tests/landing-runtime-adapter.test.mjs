@@ -407,14 +407,19 @@ test("canonical CLI builder uses normalized knowledge and the shared module regi
   assert.equal(result.profile.plans.length, 0);
 });
 
-test("canonical CLI builder fails closed for the real KD 905 draft when an included module lacks approved assets", () => {
+test("canonical CLI builds the real KD 905 draft from supported qualified content and conditionally omits unsupported modules", () => {
   const passport = JSON.parse(readFileSync(new URL("../examples/kd-905.project-passport.draft.json", import.meta.url), "utf8"));
-  assert.throws(
-    () => buildCanonicalLandingProfile(passport, canonicalMarketing(passport.project.id), {}, {
-      now:"2026-11-06T00:00:00Z"
-    }),
-    /Landing module registry rejected the selected strategy/
-  );
+  const result = buildCanonicalLandingProfile(passport, canonicalMarketing(passport.project.id), {}, {
+    now:"2026-11-07T00:00:00Z"
+  });
+  assert.equal(result.profile.mode, "demo");
+  assert.ok(result.profile.advantages.some(item => item.id === "parking-functionality"));
+  assert.ok(result.profile.infrastructure.some(item => item.name === "Детский сад № 108"));
+  assert.ok(result.profile.infrastructure.every(item => item.distanceLabel === undefined));
+  assert.equal(result.profile.media.length, 0);
+  assert.equal(result.profile.plans.length, 0);
+  assert.ok(result.warnings.some(item => item.code === "CONDITIONAL_MODULE_NOT_READY" && item.moduleId === "lifestyle"));
+  assert.ok(result.warnings.some(item => item.code === "POI_METRIC_NOT_PUBLISHED"));
 });
 
 test("canonical CLI builder rejects unknown included modules instead of silently omitting them", () => {
