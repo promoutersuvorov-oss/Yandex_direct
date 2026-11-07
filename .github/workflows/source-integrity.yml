@@ -49,6 +49,8 @@ jobs:
         run: node --test tests/lead-payload.test.mjs
       - name: Test KEY lead intake contract (synthetic data only)
         run: node --test tests/lead-intake-contract-v1.test.mjs
+      - name: Test KEY contextual value conversion contract (synthetic data only)
+        run: node --test tests/value-conversion-contract-v1.test.mjs
       - name: Test unified landing readiness report
         run: node --test tests/landing-readiness-report-v1.test.mjs
       - name: Test deterministic landing composition audit
