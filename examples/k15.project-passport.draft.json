@@ -526,7 +526,7 @@
       "scenarioId": "k15.presentation.request",
       "title": "Получить презентацию К-15",
       "type": "presentation",
-      "status": "provisional",
+      "status": "active",
       "description": "Запросить у KEY актуальную презентацию проекта и подтверждённые материалы.",
       "requiredFields": [
         "name",
@@ -540,7 +540,7 @@
       "scenarioId": "k15.layouts.check",
       "title": "Уточнить планировки и наличие",
       "type": "apartment_selection",
-      "status": "provisional",
+      "status": "active",
       "description": "Уточнить у KEY актуальные планировки, доступные квартиры и условия.",
       "requiredFields": [
         "name",
@@ -554,7 +554,7 @@
       "scenarioId": "k15.viewing.request",
       "title": "Записаться на просмотр",
       "type": "viewing",
-      "status": "provisional",
+      "status": "active",
       "description": "Обсудить с KEY возможное время просмотра проекта.",
       "requiredFields": [
         "name",
