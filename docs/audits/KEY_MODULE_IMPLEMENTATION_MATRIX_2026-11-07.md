@@ -134,3 +134,28 @@
 - всего 99/99 browser test executions.
 
 Это подтверждает прохождение автоматизированных сценариев для новых registry/builder contracts, composition gating и K15 plan controls. Это не является визуальной приёмкой всех 24 каталоговых модулей и не доказывает production readiness.
+
+
+## 8. Проверка разнообразия двух проектов в primary runtime — 2026-11-07
+
+Stacked PR #26 builds two different project passports through the same canonical CLI and renders both generated profiles through `landing/runtime/index.html` + `landing/runtime/app.js`.
+
+| Проверяемый параметр | ЖК «Галилей» | КД «905» |
+|---|---|---|
+| Project ID | `galiley-voronezh` | `kd-905-voronezh` |
+| Runtime composition | `concept → location` | `advantages → location` |
+| Hero layout | `fullscreen` | `split` |
+| Design theme / paper token | `garden-modern` / `#f1f3ed` | `warm-editorial` / `#f4f2ed` |
+| Unapproved media | hidden | hidden |
+| Unapproved / qualification-required claims | not promoted | not promoted; explicit empty-state shown in advantages |
+
+[GitHub Actions run #694](https://github.com/promoutersuvorov-oss/Yandex_direct/actions/runs/42357689874) passed:
+- source-integrity — success;
+- Chromium — 37/37;
+- Firefox — 37/37;
+- WebKit — 37/37;
+- the two-project primary-runtime test passed for both projects in desktop (1440×900) and mobile (390×844) viewports in every engine.
+
+The checks assert actual visible section order, hero `data-layout`, resolved CSS palette token, no horizontal overflow, visible hero CTA and fail-closed demo form. For KD 905, no current passport claim has been silently promoted from `allowed_with_qualification`; the gallery remains hidden because no approved rights-cleared media is supplied. The advantages area displays its evidence-required empty state instead of invented claims.
+
+**What this proves:** structural diversity and selected responsive behavior for two controlled passport inputs in the primary runtime. **What it does not prove:** visual premium quality by human review, a broader range of project archetypes, actual device QA, live CRM delivery, privacy/consent approval, analytics or conversion performance. These remain separate acceptance gates.
