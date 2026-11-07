@@ -45,8 +45,14 @@ try {
       { id: "living", label: "Для жизни" }, { id: "investment", label: "Для инвестиций" }
     ] }]
   };
+  passport.contentStrategy.heroCopy = {
+    headline: "Тестовый ЖК — приватность в центре города",
+    lead: passport.project.positioning,
+    supportingFactIds: ["verified-1"],
+    proofPoints: [{ label: "Подтверждённый факт", factId: "verified-1" }, { label: "Ещё один факт", factId: "verified-1" }]
+  };
   passport.contentStrategy.modules = [
-    { moduleId: "hero", order: 0, decision: "include", reason: "Главный блок", requiredFactIds: ["verified-1"], assetIds: ["hero"], ctaIds: ["presentation"] },
+    { moduleId: "hero", order: 0, decision: "include", reason: "Главный блок", requiredFactIds: ["verified-1"], assetIds: ["hero"], ctaIds: ["presentation", "selection"] },
     { moduleId: "gallery", order: 20, decision: "include", reason: "Проверка галереи", assetIds: ["hero", "gallery-2"] },
     { moduleId: "floor-plans", order: 10, decision: "include", reason: "Проверка планировок", assetIds: ["plan-asset"], ctaIds: ["selection"] },
     { moduleId: "quiz", order: 30, decision: "include", reason: "Проверка квиза", ctaIds: ["selection"] },
@@ -62,6 +68,8 @@ try {
   const report = JSON.parse(readFileSync(join(output, "generation-report.json"), "utf8"));
   const text = JSON.stringify(profile);
   assert.equal(report.status, "review_required");
+  assert.equal(profile.marketing.headline, "Тестовый ЖК — приватность в центре города");
+  assert.equal(profile.marketing.proofPoints.length, 2);
   assert.equal(report.rendererAudit.status, "passed");
   const manifest = JSON.parse(readFileSync(join(output, "module-manifest.json"), "utf8"));
   assert.deepEqual(manifest.modules.map(item => item.moduleId), ["hero", "floor-plans", "gallery", "quiz"], "Explicit composition order must be respected, with hero fixed first.");
@@ -130,7 +138,9 @@ try {
   assert.equal(preview.status, 0, preview.stderr || preview.stdout);
   const html = readFileSync(join(output, "preview.html"), "utf8");
   assert.ok(html.includes("Тестовый ЖК"));
-  assert.ok(html.includes('<h1 id="heading-0">Тестовый ЖК</h1>'));
+  assert.ok(html.includes('<h1 id="heading-0">Тестовый ЖК — приватность в центре города</h1>'));
+  assert.ok(html.includes("Подтверждённый факт"));
+  assert.ok(html.includes('data-preview-cta="selection"'), "Every CTA assigned to the hero must be rendered.");
   assert.equal((html.match(/&lt;img src=x onerror=&quot;alert\(1\)&quot;&gt;/g) || []).length, 1, "Hero positioning should appear once, not duplicate as the title.");
   assert.ok(html.includes("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;"));
   assert.ok(!html.includes('<img src=x onerror="alert(1)">'));
@@ -156,6 +166,10 @@ try {
   secondPassport.project.id = "second-test-project";
   secondPassport.project.name = "Второй независимый ЖК";
   secondPassport.project.location.city = "Другой город";
+  secondPassport.contentStrategy.heroCopy.headline = "Второй независимый ЖК — новый проект";
+  secondPassport.contentStrategy.heroCopy.lead = "Второй независимый объект с отдельной подтверждённой историей.";
+  secondPassport.contentStrategy.heroCopy.supportingFactIds = ["verified-1"];
+  secondPassport.contentStrategy.heroCopy.proofPoints = [{ label: "Факт второго объекта", factId: "verified-1" }, { label: "Подтверждение", factId: "verified-1" }];
   secondPassport.facts[0].claim = "Уникальный факт второго объекта";
   const secondInput = join(dir, "second-passport.json");
   const secondOutput = join(dir, "second-output");
