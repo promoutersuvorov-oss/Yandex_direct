@@ -629,7 +629,7 @@
         "order": 2,
         "decision": "include",
         "reason": "Бытовой комфорт раскрывается через лобби с ресепшеном и отдельную комнату матери и ребёнка.",
-        "variant": "editorial",
+        "variant": "proof-led",
         "requiredFactIds": [
           "k15-lobby-24-7",
           "k15-family-room"
@@ -649,7 +649,7 @@
         "order": 3,
         "decision": "include",
         "reason": "Практичные решения квартиры и здания: подземный паркинг, передача без отделки и инженерные системы.",
-        "variant": "feature-led",
+        "variant": "proof-led",
         "requiredFactIds": [
           "k15-underground-parking",
           "k15-no-finishing",
