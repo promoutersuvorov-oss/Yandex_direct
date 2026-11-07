@@ -74,6 +74,10 @@ for (const scenario of cases) {
         await expect(page.locator("#advantage-grid .advantage-evidence")).toContainText("наличие свободных мест");
         const advantageCard = await page.locator("#advantage-grid .advantage-card").boundingBox();
         expect(advantageCard?.width || 0).toBeGreaterThan(viewport.width > 720 ? 500 : 200);
+        if (viewport.width > 720) {
+          const cardCenter = (advantageCard.x + advantageCard.width / 2);
+          expect(Math.abs(cardCenter - viewport.width / 2)).toBeLessThan(3);
+        }
         await expect(page.locator("#location-list")).toContainText("Детский сад № 108");
         await expect(page.locator("#location-list")).toContainText("Парк «Орлёнок»");
         await expect(page.locator(".location-evidence-note")).toContainText("Официальная страница Клубного дома «905»");

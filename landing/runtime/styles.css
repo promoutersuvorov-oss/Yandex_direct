@@ -126,3 +126,7 @@
 /* Fullscreen hero already has a live H1; do not stack a second project-name title or duplicate footer metadata over it. */
 .hero[data-layout="fullscreen"] .hero-fallback-title,
 .hero[data-layout="fullscreen"] .hero-fallback-index{display:none}
+
+
+/* A lone verified advantage should read as an intentional editorial feature, not a half-empty grid. */
+.advantage-grid.is-single{justify-content:center}
