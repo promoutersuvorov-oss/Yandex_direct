@@ -80,3 +80,17 @@ Registry V1 описывает только компоненты, реально
 ## Tests
 
 `tests/landing-module-registry-v1.test.mjs` проверяет mapping, variants, capability gates, collisions и fail-closed поведение.
+
+
+## Module/content-scoped claim qualifications
+
+The passport field contentStrategy.contentQualifications may attach a qualification to exactly one selected module, one content item and one supporting fact:
+
+- moduleId: currently security or lifestyle;
+- contentId: exact ID of a marketing candidate or approved lifestyle story;
+- factId: must occur in that item's supportingFactIds;
+- text: visible qualification rendered beside the corresponding evidence.
+
+The builder accepts only current, evidenced, verified Claims with publicUse=allowed_with_qualification and non-empty limitations. The module must be explicitly selected with decision=include; the referenced content must exist and meet its own approval/media requirements. Duplicate fact or Claim qualifications within one content item are rejected.
+
+The permission is not added to global publishableFactIds. It cannot authorize another card, another module, marketing copy, FAQ, location or infrastructure. FAQ retains its separate answer-item qualification contract. A module without a renderer for visible qualifications remains fail-closed.
