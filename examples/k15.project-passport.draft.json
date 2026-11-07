@@ -705,6 +705,30 @@
       ],
       "imageTreatment": "Использовать только проверенные изображения проекта.",
       "signatureInteraction": "Контекстные CTA после утверждения сценариев."
+    },
+    "heroCopy": {
+      "headline": "Приватность клубного дома в центре Воронежа",
+      "lead": "К-15 — клубный дом на Кольцовской, 15. Закрытая охраняемая территория, лобби и ресепшен 24/7.",
+      "supportingFactIds": [
+        "k15-central-location",
+        "k15-closed-territory",
+        "k15-lobby-24-7",
+        "k15-74-apartments"
+      ],
+      "proofPoints": [
+        {
+          "label": "74 квартиры",
+          "factId": "k15-74-apartments"
+        },
+        {
+          "label": "Закрытая территория",
+          "factId": "k15-closed-territory"
+        },
+        {
+          "label": "Ресепшен 24/7",
+          "factId": "k15-lobby-24-7"
+        }
+      ]
     }
   },
   "commercial": {
