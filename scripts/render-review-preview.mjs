@@ -128,10 +128,14 @@ const labelFor = module => ({
   developer: "О застройщике", mortgage: "Финансовый сценарий", steps: "Следующий шаг",
   faq: "Вопросы и ответы", contacts: "Связаться с KEY"
 }[module.moduleId] || module.moduleId.replace(/[-_]/g, " "));
-const offerFor = module => (module.ctaIds || []).map(id => byId(offers, id)).find(Boolean);
-const button = (offer, fallback) => offer
-  ? `<button class="cta" type="button" ${ctaAttributes(offer)}>${esc(offer.title)}</button>`
-  : fallback ? `<button class="cta" type="button" data-preview-cta="generic" data-preview-scenario="generic" data-preview-title="${esc(fallback)}" data-preview-required-fields="[]" data-preview-consent-required="true">${esc(fallback)}</button>` : "";
+const offersFor = module => (module.ctaIds || []).map(id => byId(offers, id)).filter(Boolean);
+const offerFor = module => offersFor(module)[0];
+const buttonsFor = module => {
+  const assigned = offersFor(module);
+  return assigned.length ? '<div class="cta-group">' + assigned.map(offer =>
+    `<button class="cta" type="button" ${ctaAttributes(offer)}>${esc(offer.title)}</button>`
+  ).join("") + '</div>' : "";
+};
 
 function renderModule(module, index) {
   const advantagesHere = module.moduleId === "hero" ? [] : advantagesFor(module);
@@ -141,12 +145,15 @@ function renderModule(module, index) {
   const moduleAssets = assetsFor(module);
   const offer = offerFor(module);
   const heading = module.moduleId === "hero"
-    ? (profile.project.name || labelFor(module))
+    ? (profile.marketing?.headline || profile.project.name || labelFor(module))
     : labelFor(module);
-  // Never expose the strategist's internal rationale or an unapproved positioning hypothesis.
+  // Hero marketing copy is exported only after its explicit fact references pass the evidence gate.
   const intro = module.moduleId === "hero"
-    ? (profile.project.positioning || "")
+    ? (profile.marketing?.lead || profile.project.positioning || "")
     : (module.userQuestion || "");
+  const heroProof = module.moduleId === "hero" && Array.isArray(profile.marketing?.proofPoints)
+    ? '<ul class="hero-proof">' + profile.marketing.proofPoints.map(point => '<li>' + esc(point.label) + '</li>').join("") + '</ul>'
+    : "";
   const factList = factsHere.map(fact => `<li>${esc(fact.claim)}</li>`).join("");
   const benefitList = advantagesHere.map(item => `<article class="benefit"><h3>${esc(item.title)}</h3><p>${esc(item.benefit)}</p></article>`).join("");
   const image = module.moduleId === "gallery" && moduleAssets.length
@@ -156,7 +163,7 @@ function renderModule(module, index) {
   const plans = (module.moduleId === "floor-plans" || module.moduleId === "apartments") ? renderPlans(offer) : "";
   const quiz = module.moduleId === "quiz" ? renderQuiz(profile.selectionQuiz, byId(offers, profile.selectionQuiz?.resultOfferId)) : "";
   const faq = module.moduleId === "faq" ? renderFaq(faqItems) : "";
-  const cta = ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? "" : button(offer, "");
+  const cta = ["floor-plans", "apartments", "quiz"].includes(module.moduleId) ? "" : buttonsFor(module);
   const locationContent = module.moduleId === "location" || module.moduleId === "places" ? renderLocation() : "";
   const headingTag = module.moduleId === "hero" ? "h1" : "h2";
   const renderVariant = module.variant === "image-led" && !image ? "feature-led" : (module.variant || "default");
@@ -165,6 +172,7 @@ function renderModule(module, index) {
     <div class="module-copy"><p class="eyebrow">${String(index + 1).padStart(2, "0")}</p>
       <${headingTag} id="heading-${index}">${esc(heading)}</${headingTag}>
       ${intro ? `<p class="intro">${esc(intro)}</p>` : ""}
+      ${heroProof}
       ${benefitList ? `<div class="benefits">${benefitList}</div>` : ""}
       ${factList ? `<ul class="facts">${factList}</ul>` : ""}
       ${locationContent}
@@ -261,6 +269,7 @@ body[data-composition="architectural"] figure{border-radius:0;outline:1px solid 
 .module.text-only,.module.text-only[data-variant="location-led"]{grid-template-columns:minmax(0,1fr);min-height:auto;padding-block:clamp(52px,7vw,88px)}.module.hero.text-only{min-height:clamp(440px,58vh,620px)}.module.text-only .module-copy{max-width:1000px}
 @media(max-width:760px){.place-grid{grid-template-columns:1fr}.module.text-only,.module.hero.text-only{min-height:unset;padding-block:52px}.module,.module.hero,.module[data-variant="editorial-split"],.module[data-variant="gallery-mosaic"],.module[data-variant="plan-selector"],.module[data-variant="step-form"],.module[data-variant="feature-led"],.module[data-variant="image-led"],.module[data-variant="location-led"]{grid-template-columns:1fr;min-height:unset;padding-block:68px}.module figure,.module .media-grid{grid-row:1}.module-copy{grid-row:2}.module[data-variant="full-bleed"]{display:flex;min-height:64svh;padding-block:68px}.module[data-variant="full-bleed"] figure{position:absolute;inset:0;grid-row:auto}.module[data-variant="full-bleed"] .module-copy{grid-row:auto}figure img{max-height:360px}.plan-card{grid-template-columns:1fr}.plan-card img{max-height:260px}.top{font-size:11px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.hero-proof{display:flex;flex-wrap:wrap;gap:10px;list-style:none;padding:0;margin:28px 0 0}.hero-proof li{padding:9px 13px;border:1px solid var(--line);border-radius:999px;color:var(--text);font-size:13px;background:var(--panel)}.cta-group{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.cta-group .cta{margin-top:24px}.module.hero .cta-group{margin-top:6px}
 </style>
 </head>
 <body data-theme="${esc(designTheme)}" data-composition="${esc(["editorial", "cinematic", "architectural"].includes(profile.design?.composition) ? profile.design.composition : "editorial")}">
