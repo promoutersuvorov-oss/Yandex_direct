@@ -49,6 +49,7 @@ The registry is the executable source for the status and runtime mapping. Its re
 3. Rejects undeclared variants with `MODULE_VARIANT_UNSUPPORTED`.
 4. Enforces required publishable facts and runtime capabilities.
 5. Returns `status` and `runtimeComponent` on each accepted placement so diagnostics can distinguish a complete component from a partial mapping.
+6. Emits `MODULE_PARTIAL_IMPLEMENTATION` warnings for accepted partial modules; a placeholder cannot pass as a working feature.
 
 The automated registry test checks that every module in the product catalog has an explicit status, that implemented/partial modules identify a real component and supported variant, and that unsupported modules fail closed.
 
