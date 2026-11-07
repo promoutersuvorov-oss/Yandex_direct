@@ -118,6 +118,15 @@ export function createLeadPayload(input) {
   const conversion = input.conversion ?? {};
   const scenarioId = requiredString(conversion.scenarioId, "conversion.scenarioId", 80);
   if (!REFERENCE_ID.test(scenarioId)) throw new TypeError("conversion.scenarioId must be a stable ID.");
+  const rawQuestionIds = conversion.qualificationQuestionIds ?? [];
+  if (!Array.isArray(rawQuestionIds) || rawQuestionIds.length > 20) {
+    throw new TypeError("conversion.qualificationQuestionIds must be an array of at most 20 IDs.");
+  }
+  const qualificationQuestionIds = [...new Set(rawQuestionIds.map((value, index) => {
+    const id = requiredString(value, "conversion.qualificationQuestionIds[" + index + "]", 80);
+    if (!REFERENCE_ID.test(id)) throw new TypeError("conversion.qualificationQuestionIds must contain stable IDs.");
+    return id;
+  }))];
   const createdAt = requiredString(input.createdAt, "createdAt", 40);
   if (!Number.isFinite(Date.parse(createdAt))) throw new TypeError("createdAt must be a valid date-time.");
   const deviceClass = input.deviceClass ?? "unknown";
