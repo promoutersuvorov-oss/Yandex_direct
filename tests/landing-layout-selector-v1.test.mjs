@@ -51,3 +51,12 @@ test("does not rewrite excluded modules or create facts, media, and CTAs", () =>
   assert.equal(result.manifest.modules[0].layoutSelection, undefined);
   assert.equal(result.report.automaticChanges, 0);
 });
+
+test("preserves an explicitly curated feature-led layout without approved media", () => {
+  const result = selectLandingLayoutVariants({ profile, manifest: { modules: [
+    { moduleId: "lifestyle", decision: "include", variant: "feature-led",
+      requiredFactIds: ["security"], assetIds: [], ctaIds: [] }
+  ] } });
+  assert.equal(result.manifest.modules[0].variant, "feature-led");
+  assert.equal(result.report.decisions[0].automatic, false);
+});
