@@ -193,6 +193,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
         code: "MARKETING_CANDIDATE_BLOCKED",
         contentId: item.id,
         factIds: blockedFactIds,
+        claimIds: blockedFactIds.map(id => legacyReferences.factIdToClaimId[id]).filter(Boolean),
         message: `Преимущество "${item.id}" не опубликовано: для указанных фактов отсутствует допуск с квалификацией именно для этой карточки либо факт не прошёл проверку источника/актуальности.`
       });
     }
@@ -335,6 +336,7 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
       evidenceWarnings.push({
         code: "POI_NOT_PUBLISHED",
         contentId: poi.id,
+        claimIds: poi.claimIds || [],
         message: `Точка "${poi.id}" не опубликована: нет проверенного и связанного с источником подтверждения её наличия в перечне.`
       });
       return [];
@@ -344,7 +346,6 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
     const result = {
       id: poi.id, name: poi.name, category: poi.category || "other",
       sourceTitle: source?.title || "",
-      qualification: "Объект указан в перечне инфраструктуры источника; расстояние и маршрут отдельно не подтверждены.",
       status: "verified"
     };
     if (route) {
@@ -354,7 +355,10 @@ export function buildLandingProfileFromKnowledgeWithDiagnostics(knowledge, landi
         distance.unit === "km" ? `${distance.value.toLocaleString("ru-RU")} км` :
         distance.value >= 1000 ? `${(distance.value / 1000).toLocaleString("ru-RU")} км` : `${Math.round(distance.value)} м`;
       if (distance && Number.isFinite(distance.value)) result.distanceMeters = distance.unit === "km" ? distance.value * 1000 : distance.value;
+      const metricSource = route.sourceIds.map(id => sourceById.get(id)).find(Boolean);
+      if (metricSource?.title) result.distanceSourceTitle = metricSource.title;
     } else {
+      result.qualification = "Расстояние и маршрут не подтверждены.";
       evidenceWarnings.push({
         code: "POI_METRIC_NOT_PUBLISHED",
         contentId: poi.id,
