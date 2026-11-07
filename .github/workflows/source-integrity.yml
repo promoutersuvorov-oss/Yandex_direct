@@ -33,6 +33,8 @@ jobs:
         run: python scripts/validate-passport-schema.py
       - name: Validate KD 905 draft passport against JSON Schema
         run: python scripts/validate-passport-schema.py examples/kd-905.project-passport.draft.json
+      - name: Validate K15 canonical draft passport against JSON Schema
+        run: python scripts/validate-passport-schema.py examples/k15.project-passport.draft.json
       - name: Validate CTA context contract schema and negative cases
         run: python scripts/validate-cta-context-schema.py
       - name: Generate synthetic passport fixture for location evidence schema validation
@@ -53,6 +55,10 @@ jobs:
         run: node scripts/render-review-preview.mjs --bundle artifacts/review-bundle --out artifacts/review-bundle/preview.html
       - name: Build the second real-project review bundle (KD 905)
         run: node scripts/build-review-bundle.mjs --passport examples/kd-905.project-passport.draft.json --out artifacts/kd905-review
+      - name: Build the third real-project review bundle (K15)
+        run: node scripts/build-review-bundle.mjs --passport examples/k15.project-passport.draft.json --out artifacts/k15-review
+      - name: Render the K15 internal review preview
+        run: node scripts/render-review-preview.mjs --bundle artifacts/k15-review --out artifacts/k15-review/preview.html
       - name: Render the KD 905 internal review preview
         run: node scripts/render-review-preview.mjs --bundle artifacts/kd905-review --out artifacts/kd905-review/preview.html
       - name: Verify KD 905 project isolation and publication safeguards
@@ -91,6 +97,14 @@ jobs:
         with:
           name: k15-static-readiness-report
           path: artifacts/k15-readiness/k15-static-readiness-report.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload K15 canonical internal review preview
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k15-canonical-internal-review-preview
+          path: artifacts/k15-review/
           if-no-files-found: error
           retention-days: 14
 
