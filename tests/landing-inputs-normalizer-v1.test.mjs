@@ -139,5 +139,5 @@ test("preserves explicit module/content/fact qualifications without promoting th
   assert.deepEqual(result.landingInputs.contentQualifications,[{
     moduleId:"security",contentId:"a1",factId:"f1",text:"Сведения приведены по данным застройщика."
   }]);
-  assert.equal("contentQualifications" in result.landingInputs.knowledge, false);
+  assert.equal("claims" in result.landingInputs, false);
 });
