@@ -36,7 +36,7 @@ export function buildLandingLayoutAudit({ profile, manifest } = {}) {
   } else {
     const heroMedia = mediaFor(hero);
     const proofPoints = list(profile.marketing?.proofPoints);
-    if (!heroMedia.length && proofPoints.length >= 2) {
+    if (!heroMedia.length && proofPoints.length >= 2 && hero.variant !== "editorial-split") {
       add("suggestion", "HERO_PROOF_PANEL_RECOMMENDED",
         "У первого экрана нет одобренного медиа, но есть подтверждённые тезисы для визуального акцента.",
         "Использовать редакционную панель с 2–4 подтверждёнными тезисами; не подменять отсутствующее изображение случайным стоком.",
@@ -61,9 +61,9 @@ export function buildLandingLayoutAudit({ profile, manifest } = {}) {
     const ctas = ctasFor(module);
     const hasContent = ids.length || benefits.length || media.length || ctas.length;
     if (!hasContent) emptyModules.push(module.moduleId);
-    if (!media.length && (ids.length || benefits.length)) textOnlyModules.push(module.moduleId);
+    if (!media.length && (ids.length || benefits.length) && module.variant !== "proof-led" && module.variant !== "editorial") textOnlyModules.push(module.moduleId);
     if (["image-led", "gallery-mosaic", "full-bleed"].includes(module.variant) && !media.length) imageLedWithoutAssets.push(module.moduleId);
-    if (["security", "lifestyle", "about", "contacts"].includes(module.moduleId) && !ctas.length) noCtaModules.push(module.moduleId);
+    if (["contacts", "presentation", "gift"].includes(module.moduleId) && !ctas.length) noCtaModules.push(module.moduleId);
   }
 
   if (emptyModules.length) add("warning", "MODULES_WITHOUT_RENDERABLE_CONTENT",
