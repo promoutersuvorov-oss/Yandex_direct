@@ -50,3 +50,21 @@ test("builder warnings remain visible and deduplicated by code and message", () 
   const report = buildLandingReadinessReport({ profile: baseProfile, warnings: [warning, warning] });
   assert.equal(report.warnings.filter(item => item.code === warning.code).length, 1);
 });
+
+test("review-bundle profile is reportable and missing CRM is advisory, not a publication failure", () => {
+  const profile = {
+    project: { id: "sample", name: "Sample House", city: "Voronezh" },
+    facts: [], advantages: [{}, {}, {}],
+    infrastructure: [{ name: "Park" }],
+    apartmentPlans: [],
+    assets: [],
+    modules: [{ moduleId: "hero", assetIds: [] }, { moduleId: "location" }]
+  };
+  const report = buildLandingReadinessReport({ profile, requestedMode: "review" });
+  assert.equal(report.status, "needs_attention");
+  assert.equal(report.publicationAllowed, false);
+  assert.ok(report.warnings.some(item => item.code === "LEAD_INTAKE_NOT_READY"));
+  assert.equal(report.blockers.length, 0);
+  assert.ok(report.ready.some(item => item.code === "PAGE_COMPOSITION_PRESENT"));
+  assert.ok(report.warnings.some(item => item.code === "HERO_MEDIA_MISSING"));
+});
