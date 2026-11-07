@@ -14,16 +14,36 @@ function main() {
   // intentionally out of scope until their publication capabilities are ready.
   passport.contentStrategy = {
     ...(passport.contentStrategy || {}),
-    modules: [{
-      moduleId: "hero",
-      decision: "include",
-      reason: "Minimal end-to-end integration fixture; no unsupported content modules.",
-      order: 0,
-      variant: "image-led",
-      requiredFactIds: [],
-      assetIds: [],
-      ctaIds: ["presentation"]
-    }],
+    modules: [
+      {
+        moduleId: "hero",
+        decision: "include",
+        reason: "Minimal end-to-end integration fixture; no unsupported content modules.",
+        order: 0,
+        variant: "image-led",
+        requiredFactIds: [],
+        assetIds: [],
+        ctaIds: ["presentation"]
+      },
+      {
+        moduleId: "about",
+        decision: "include",
+        reason: "Exercise a real content section in the primary runtime without unsupported factual claims.",
+        order: 1,
+        variant: "architectural",
+        requiredFactIds: [],
+        assetIds: []
+      },
+      {
+        moduleId: "location",
+        decision: "include",
+        reason: "Exercise a second independently ordered section using verified project identity only.",
+        order: 2,
+        variant: "location-led",
+        requiredFactIds: [],
+        assetIds: []
+      }
+    ],
     visualDirection: {
       ...(passport.contentStrategy?.visualDirection || {}),
       theme: "garden-modern",
