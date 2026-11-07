@@ -104,7 +104,8 @@ import { createAttributionState } from "../../src/attribution.mjs";
       const evidence = item.evidence.filter(source =>
         source && typeof source.claim === "string" && source.claim.trim() &&
         typeof source.sourceTitle === "string" && source.sourceTitle.trim()
-      ).slice(0, 3).map(source => esc(source.claim) + " — " + esc(source.sourceTitle));
+      ).slice(0, 3).map(source => esc(source.claim) + " — " + esc(source.sourceTitle) +
+        (source.qualification ? " — Уточнение: " + esc(source.qualification) : ""));
       return '<article class="advantage-card" data-strength="' + esc(item.strength || "supporting") + '">' +
         '<span class="card-index">0' + (index + 1) + '</span>' +
         '<h3>' + esc(item.title) + '</h3>' +
@@ -149,7 +150,7 @@ import { createAttributionState } from "../../src/attribution.mjs";
       '<article class="lifestyle-card">' +
         '<figure class="lifestyle-card-media"><img src="' + esc(safeUrl(story.assetUrl)) + '" alt="' + esc(story.alt || story.title) + '" loading="lazy"><figcaption>' + esc(story.sceneLabel || "СЦЕНАРИЙ ЖИЗНИ") + '</figcaption></figure>' +
         '<div class="lifestyle-card-copy"><span class="lifestyle-card-index">0' + (index + 1) + '</span><h3>' + esc(story.title) + '</h3><p>' + esc(story.description) + '</p>' +
-        '<div class="lifestyle-card-evidence"><span>ОСНОВАНИЕ</span><p>' + story.evidence.map(item => esc(item.claim) + ' — ' + esc(item.sourceTitle)).join(' · ') + '</p></div></div>' +
+        '<div class="lifestyle-card-evidence"><span>ОСНОВАНИЕ</span><p>' + story.evidence.map(item => esc(item.claim) + ' — ' + esc(item.sourceTitle) + (item.qualification ? ' — Уточнение: ' + esc(item.qualification) : '')).join(' · ') + '</p></div></div>' +
       '</article>'
     ).join("");
     $("#lifestyle").hidden = false;
