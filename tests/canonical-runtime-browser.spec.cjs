@@ -70,10 +70,10 @@ test("production lead handoff sends consented contact and CTA context and accept
     phone: "+7 999 123-45-67"
   });
   expect(receivedPayload.consent).toMatchObject({
-    accepted: true,
     policyUrl: "https://key.test/privacy",
     policyVersion: "2026-11-07"
   });
+  expect(Date.parse(receivedPayload.consent.acceptedAt)).not.toBeNaN();
   expect(receivedPayload.conversion).toMatchObject({
     offerId: "presentation",
     scenarioId: "presentation_request",
