@@ -157,7 +157,11 @@ test("canonical CLI builds a second, evidence-qualified project passport through
     assert.equal(profile.design.palette.paper, "#f4f2ed");
     assert.equal(profile.media.length, 0);
     assert.equal(profile.plans.length, 0);
-    assert.equal(profile.infrastructure.length, 0);
+    assert.equal(profile.infrastructure.length, 18);
+    assert.ok(profile.infrastructure.every(point =>
+      !("distanceMeters" in point) && !("distanceLabel" in point) &&
+      point.qualification === "Расстояние и маршрут не подтверждены."
+    ));
     assert.match(result, /Built kd-905-voronezh in demo mode/);
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
