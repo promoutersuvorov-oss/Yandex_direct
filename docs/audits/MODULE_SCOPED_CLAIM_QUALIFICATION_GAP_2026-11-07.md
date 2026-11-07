@@ -69,3 +69,17 @@ Passport `requiredFactIds` проверяются Module Registry отдельн
 - `landing/runtime/app.js`: visible rendering of copy-level qualifications; separate renderers for lifestyle, FAQ and infrastructure.
 - `tests/landing-runtime-builder-v1.test.mjs`: negative tests preventing qualification leakage between copy keys, FAQ and infrastructure.
 - `tests/landing-runtime-adapter.test.mjs`: canonical Galiley integration test verifies that unsupported variants are resolved but evidence/capability gaps still block the selected strategy.
+
+
+## Implementation update (2026-11-07)
+
+Implemented a first content-scoped qualification slice for `security` evidence cards and `lifestyle` stories:
+
+- Passport schema and Landing Inputs normalizer preserve `contentStrategy.contentQualifications` entries (`moduleId`, `contentId`, `factId`, `text`).
+- Builder requires the exact module to be selected, the exact content item to exist and be approved, and the fact to be one of that item's supporting facts.
+- Only current, evidenced, verified Claims with `publicUse=allowed_with_qualification` and non-empty limitations can pass.
+- The qualification is attached to the corresponding evidence item and rendered beside it; it is not added to global `publishableFactIds`.
+- Duplicate fact/Claim qualifications and cross-item reuse are rejected by scope.
+- FAQ retains its existing answer-item qualification path. Location/infrastructure remain deliberately unsupported for this contract: a qualifier cannot replace a verified route, distance method, or POI evidence.
+
+Automated builder and normalizer tests were added. Full source-integrity and browser-matrix validation is still pending; this update is not a production-readiness claim.
