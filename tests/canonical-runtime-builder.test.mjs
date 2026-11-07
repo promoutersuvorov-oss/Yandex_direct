@@ -58,6 +58,39 @@ test("canonical CLI emits the browser runtime contract and supports the exact ru
 });
 
 
+test("canonical CLI rejects marketing copy with missing or mismatched contract versions", () => {
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), "key-marketing-contract-"));
+  const passport = path.join(temp, "passport.json");
+  const candidatePath = path.join(temp, "marketing.json");
+  const output = path.join(temp, "project.config.js");
+  execFileSync(process.execPath, [fixtureBuilder, "--out", passport], { cwd: root, encoding: "utf8" });
+  const valid = JSON.parse(fs.readFileSync(marketing, "utf8"));
+  const command = () => execFileSync(process.execPath, [
+    builder, "--passport", passport, "--marketing", candidatePath, "--out", output
+  ], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+
+  try {
+    const missingSchemaVersion = { ...valid };
+    delete missingSchemaVersion.schemaVersion;
+    fs.writeFileSync(candidatePath, JSON.stringify(missingSchemaVersion));
+    assert.throws(() => command(), error =>
+      /Marketing copy schemaVersion must be 1.0.0/.test(String(error.stderr || error.message)));
+
+    const unsupportedSchemaVersion = { ...valid, schemaVersion: "9.9.9" };
+    fs.writeFileSync(candidatePath, JSON.stringify(unsupportedSchemaVersion));
+    assert.throws(() => command(), error =>
+      /Marketing copy schemaVersion must be 1.0.0/.test(String(error.stderr || error.message)));
+
+    const mismatchedPassportVersion = { ...valid, sourcePassportVersion: "0.9.0" };
+    fs.writeFileSync(candidatePath, JSON.stringify(mismatchedPassportVersion));
+    assert.throws(() => command(), error =>
+      /Marketing copy sourcePassportVersion must match passport.schemaVersion/.test(String(error.stderr || error.message)));
+  } finally {
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
+});
+
+
 test("canonical CLI maps approved test-only LANDING BRIEF CTAs into the primary runtime contract", () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), "key-brief-intent-"));
   const passport = path.join(temp, "passport.json");

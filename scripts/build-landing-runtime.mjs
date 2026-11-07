@@ -161,6 +161,10 @@ export function buildLandingProfile(passport, marketing, integration = {}, optio
   if (!isObject(marketing) || marketing.approvalStatus !== "approved" || marketing.projectId !== passport.project.id) {
     throw new Error("Marketing copy must be approved for the same projectId");
   }
+  if (marketing.schemaVersion !== "1.0.0") throw new Error("Marketing copy schemaVersion must be 1.0.0");
+  if (marketing.sourcePassportVersion !== passport.schemaVersion) {
+    throw new Error("Marketing copy sourcePassportVersion must match passport.schemaVersion");
+  }
   if (!isObject(marketing.copy)) throw new Error("Marketing copy.copy is required");
   for (const key of COPY_KEYS) if (!nonEmpty(marketing.copy[key])) throw new Error(`Approved marketing copy is missing: ${key}`);
 
