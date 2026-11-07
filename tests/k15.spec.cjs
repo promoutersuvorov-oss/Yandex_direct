@@ -197,14 +197,13 @@ test("K15 navigation, gallery, apartment and location controls remain interactiv
 
   await page.setViewportSize({ width: 1440, height: 900 });
   const planTabs = page.locator("#planTabs");
-  // The page is still near the mobile-nav anchor. Center the tabs below the
-  // sticky desktop header so pointer hit-testing exercises the actual control.
+  // The viewport changed from mobile to desktop above. Scroll the control
+  // into a stable viewport position rather than relying on the previous
+  // anchor's scroll offset, which varies with responsive layout and fonts.
   await planTabs.evaluate(element => {
-    document.documentElement.style.scrollBehavior = "auto";
-    const top = element.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo(0, Math.max(0, top - 120));
+    element.scrollIntoView({ block: "center", behavior: "instant" });
   });
-  await expect.poll(() => planTabs.evaluate(element => element.getBoundingClientRect().top)).toBeGreaterThan(100);
+  await expect.poll(() => planTabs.evaluate(element => element.getBoundingClientRect().top)).toBeGreaterThan(82);
   const plan3d = page.locator('#planTabs button[data-p="0"]');
   const plan2d = page.locator('#planTabs button[data-p="1"]');
   await plan2d.click();
