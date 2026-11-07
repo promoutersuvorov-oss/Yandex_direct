@@ -124,7 +124,8 @@ function buildMarketingStrategy(brief, passport, facts, now) {
       scenarioId: mappedOffer.scenarioId,
       funnelId: cta.funnelId,
       hookId: effectiveHookId,
-      segmentId
+      segmentId,
+      qualificationQuestionIds: Array.isArray(cta.qualificationQuestionIds) ? cta.qualificationQuestionIds : []
     };
   }
 
