@@ -83,3 +83,16 @@ Implemented a first content-scoped qualification slice for `security` evidence c
 - FAQ retains its existing answer-item qualification path. Location/infrastructure remain deliberately unsupported for this contract: a qualifier cannot replace a verified route, distance method, or POI evidence.
 
 Automated builder and normalizer tests were added. Full source-integrity and browser-matrix validation is still pending; this update is not a production-readiness claim.
+
+## KD 905 primary-runtime follow-up
+
+The primary runtime now treats a listed place and a route metric as separate publication outputs:
+
+- A POI name is emitted only when its own `poi.listed_by_source` Claim is verified and has linked source/evidence. The runtime shows the source title and an explicit note that distance/route are not confirmed when no current project-scoped route exists.
+- A distance or walking-time label is still emitted only from a separately validated route with current, linked source/evidence. A marketing-copy qualification cannot create or authorize a route metric.
+- If a route is absent, stale, malformed or tied to another project, the place name may remain while its metric is omitted. The builder emits `POI_METRIC_NOT_PUBLISHED` with the POI ID.
+- Blocked marketing candidates now emit `MARKETING_CANDIDATE_BLOCKED` with the candidate ID, legacy fact IDs, normalized Claim IDs and a reason. A POI whose existence proof is not publishable emits `POI_NOT_PUBLISHED` with its POI and Claim IDs.
+- KD 905's parking fact has a qualification scoped to the exact `security/parking-functionality/underground-parking` evidence card. It does not make that Claim globally publishable or authorize it in hero, FAQ, location, or another card.
+
+The primary-runtime browser fixture selects only the supported identity, qualified parking, and location modules; it preserves the original research passport's review composition. Chromium, Firefox and WebKit checks passed on run #725 before the follow-up source-note visual polish; the current branch's subsequent changes require a fresh full CI run. This is not a production-readiness or human design-approval statement.
+
