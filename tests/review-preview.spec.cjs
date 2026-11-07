@@ -93,7 +93,7 @@ test("offers are contextual, inactive CTAs stay hidden and provisional promises 
 
 test("general CTA exposes a stable scenario contract and never claims delivery", async ({ page }) => {
   await page.goto(url, { waitUntil: "domcontentloaded" });
-  await page.locator('[data-module="hero"] [data-preview-cta]').click();
+  await page.locator('[data-module="hero"] [data-preview-cta="presentation"]').click();
   const dialog = page.locator("#previewNotice");
   const payload = JSON.parse(await dialog.locator("#noticePayload").textContent());
   expect(payload).toMatchObject({
