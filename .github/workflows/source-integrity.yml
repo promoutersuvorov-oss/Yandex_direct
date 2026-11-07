@@ -37,6 +37,8 @@ jobs:
         run: python scripts/validate-cta-context-schema.py
       - name: Validate behavioral event contract and privacy negative cases
         run: python scripts/validate-behavioral-event-schema.py
+      - name: Validate restricted attribution-link contract and retention gates
+        run: python scripts/validate-restricted-attribution-link.py
       - name: Generate synthetic passport fixture for location evidence schema validation
         run: node scripts/create-browser-preview-fixture.mjs --out artifacts/browser-fixture/passport.json
       - name: Validate synthetic passport and location evidence against JSON Schema
