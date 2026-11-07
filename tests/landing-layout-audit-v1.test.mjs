@@ -10,7 +10,7 @@ const profile = {
   offers: [{ id: "layouts" }, { id: "viewing" }]
 };
 const manifest = { modules: [
-  { moduleId: "hero", decision: "include", variant: "editorial-split", requiredFactIds: [], assetIds: [], ctaIds: ["layouts"] },
+  { moduleId: "hero", decision: "include", variant: "default", requiredFactIds: [], assetIds: [], ctaIds: ["layouts"] },
   { moduleId: "security", decision: "include", variant: "image-led", requiredFactIds: ["security"], assetIds: [], ctaIds: ["layouts"] },
   { moduleId: "lifestyle", decision: "include", variant: "editorial", requiredFactIds: ["lobby"], assetIds: [], ctaIds: [] },
   { moduleId: "contacts", decision: "include", variant: "conversion-led", requiredFactIds: [], assetIds: [], ctaIds: ["layouts"] }
@@ -34,15 +34,28 @@ test("audit catches image-led modules without media and proposes non-fabricated 
 test("audit reports duplicated facts and conversion gaps without inventing blockers", () => {
   const repeated = {
     ...manifest,
-    modules: [...manifest.modules, {
+    modules: manifest.modules.map(module => module.moduleId === "contacts" ? { ...module, ctaIds: [] } : module).concat({
       moduleId: "about", decision: "include", variant: "proof-led",
       requiredFactIds: ["security"], assetIds: [], ctaIds: []
-    }]
+    })
   };
   const audit = buildLandingLayoutAudit({ profile, manifest: repeated });
   assert.ok(audit.findings.some(item => item.code === "FACTS_REPEATED_ACROSS_SECTIONS"));
   assert.ok(audit.findings.some(item => item.code === "CONVERSION_SECTIONS_WITHOUT_CTA"));
   assert.equal(audit.findings.filter(item => item.severity === "blocker").length, 0);
+});
+
+
+test("audit recognizes an implemented editorial hero and proof-led text sections", () => {
+  const audit = buildLandingLayoutAudit({
+    profile,
+    manifest: { modules: manifest.modules.map(module => ({
+      ...module,
+      variant: module.moduleId === "hero" ? "editorial-split" : "proof-led"
+    })) }
+  });
+  assert.ok(!audit.findings.some(item => item.code === "HERO_PROOF_PANEL_RECOMMENDED"));
+  assert.ok(!audit.findings.some(item => item.code === "TEXT_ONLY_SECTIONS_NEED_HIERARCHY"));
 });
 
 test("audit rejects a composition without a hero", () => {
