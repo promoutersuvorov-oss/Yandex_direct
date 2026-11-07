@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const builder = path.join(root, "scripts/build-landing-runtime.mjs");
-const passport = path.join(root, "tests/fixtures/galiley.project-passport.draft.json");
+const fixtureBuilder = path.join(root, "scripts/create-canonical-runtime-fixture.mjs");
 const marketing = path.join(root, "tests/fixtures/canonical-runtime-marketing.json");
 
 function readProfile(file) {
@@ -22,6 +22,8 @@ function readProfile(file) {
 test("canonical CLI emits the browser runtime contract and supports the exact runtime target", () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), "key-runtime-"));
   const output = path.join(temp, "project.config.js");
+  const passport = path.join(temp, "passport.json");
+  execFileSync(process.execPath, [fixtureBuilder, "--out", passport], { cwd: root, encoding: "utf8" });
   const command = args => execFileSync(process.execPath, [builder, "--passport", passport, "--marketing", marketing, ...args], {
     cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"]
   });
