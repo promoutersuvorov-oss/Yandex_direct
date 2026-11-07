@@ -19,6 +19,9 @@ test("canonical K15 preview renders its approved five-module composition", async
   await expect(hero).toHaveClass(/hero-with-proof/);
   await expect(heroAside).toBeVisible();
   await expect(heroAside.locator(".hero-aside-list li")).toHaveCount(3);
+  await expect(hero.locator(".facts")).toHaveCount(0);
+  await expect(hero.locator(".intro")).toContainText("Кольцовской, 15");
+  await expect(hero.locator(".intro")).not.toContainText("закрытая охраняемая территория");
 
   const moduleIds = await page.locator("main > section[data-module]").evaluateAll(nodes =>
     nodes.map(node => node.dataset.module)
