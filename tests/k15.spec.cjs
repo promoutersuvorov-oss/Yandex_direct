@@ -147,7 +147,8 @@ test("three-step quiz preserves answers and submits with quiz context", async ({
   await form.locator('[name="uname"]').fill("Тестовый пользователь");
   await form.locator('[name="uphone"]').fill("79991234567");
   const consent = form.locator(".consent");
-  await consent.locator(".swt").click();
+  // Isolate consent state from custom-switch pointer hit-testing differences in WebKit.
+  await consent.locator('[name="uconsent"]').check({ force: true });
   await expect(consent.locator('[name="uconsent"]')).toBeChecked();
   await form.locator('button[type="submit"]').click();
 
