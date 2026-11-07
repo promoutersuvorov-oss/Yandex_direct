@@ -27,5 +27,6 @@
     "funnelId": "primary_presentation",
     "segmentId": "family_buyers",
     "intent": "get_information"
-  }
+  },
+  "attributionRef": "attr_demo_0123456789abcdef"
 }
