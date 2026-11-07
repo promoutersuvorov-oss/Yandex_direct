@@ -164,6 +164,9 @@ export function normalizeLandingInputsV1(passport) {
       assetId:item.assetId, supportingFactIds:copyStringList(item.supportingFactIds),
       publicationStatus:item.publicationStatus || "draft"
     })) : [],
+    contentQualifications: Array.isArray(strategy.contentQualifications) ? strategy.contentQualifications.filter(isObject).map(item => ({
+      moduleId:item.moduleId, contentId:item.contentId, factId:item.factId, text:item.text
+    })) : [],
     conversionCatalog: offers,
     ...(selectionFlow ? { selectionFlow } : {}),
     faqDrafts: faq,
